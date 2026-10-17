@@ -7,3 +7,4 @@
 [submodule "3rdparty/style-dictionary"]
 	path = 3rdparty/style-dictionary
 	url = https://github.com/style-dictionary/style-dictionary.git
+	branch = main
