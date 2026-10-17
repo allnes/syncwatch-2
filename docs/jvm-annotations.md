@@ -10,6 +10,8 @@ The source uses Apache-2.0. Thirty files retain their original Apache copyright/
 
 Common/non-JVM Kotlin sources, multiplatform metadata, upstream Gradle/publishing/signing tools and non-JVM targets are excluded. They are not required by this Java classpath/named-module profile. The resulting artifacts have a SyncWatch profile name and are not upstream signed Maven binaries.
 
+The component's explicit source export contains `src/jvmMain`, `LICENSE.txt`, `README.md`, `build.gradle.kts` and `gradle.properties`. Preparation verifies every exported file against its pinned Git blob before the profile-specific 32-file Java/source/license check. The narrower source snapshot produces the same reviewed binary/source JARs as the whole-checkout snapshot.
+
 ## Developer compiler SDK
 
 [The toolchain manifest](../tools/jvm/toolchains.json) pins Eclipse Temurin JDK 21.0.12.1+1 for Linux x64, macOS arm64 and Windows x64. It records official vendor archive SHA-256 values and complete installed file/symlink inventory digests. Provisioning and reuse verify the complete inventory, vendor legal files and exact compiler version. No system Java installation or default is changed.

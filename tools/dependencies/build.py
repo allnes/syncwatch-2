@@ -99,6 +99,71 @@ def index(root):
     return entries
 
 
+def export_paths(source):
+    if "exports" not in source:
+        return None
+    paths = source["exports"]
+    require(isinstance(paths, list) and 0 < len(paths) <= 256, "Source exports must be a nonempty bounded list")
+    for path in paths:
+        member(path)
+    require(paths == sorted(set(paths)), "Source exports must be sorted and unique")
+    folded = [path.casefold() for path in paths]
+    require(len(set(folded)) == len(folded) and not any(
+        a != b and b.startswith(a + "/") for a in folded for b in folded
+    ), "Source exports must not overlap or collide across platforms")
+    require(all(any(notice == path or notice.startswith(path + "/") for path in paths) for notice in source["notices"]),
+            "Source exports must include every declared license/notice")
+    return paths
+
+
+def exported_entries(source, paths):
+    entries = {}
+    for item in git(source, "ls-tree", "-rz", "--full-tree", "HEAD", "--", *[":(literal)" + p for p in paths]).split(b"\0"):
+        if item:
+            metadata, name = item.decode("utf-8").split("\t", 1)
+            mode, kind, revision = metadata.split()
+            if kind == "blob":
+                member(name)
+                require(mode in {"100644", "100755", "120000"}, "Unsupported source export mode")
+                entries[name] = (mode, revision)
+    require(all(any(name == path or name.startswith(path + "/") for name in entries) for path in paths),
+            "Source export is missing or has no file content at the pinned revision")
+    portable = {}
+    for name in entries:
+        for path in (PurePosixPath(name), *PurePosixPath(name).parents):
+            spelling = str(path)
+            previous = portable.setdefault(spelling.casefold(), spelling)
+            require(previous == spelling, "Exported source paths collide across platforms")
+    return entries
+
+
+def verify_source_export(archive, entries, revision, notices):
+    with tarfile.open(archive) as package:
+        require(package.pax_headers.get("comment") == revision, "Source export lost its pinned Git revision")
+        found = set()
+        for entry in package:
+            if entry.isdir():
+                continue
+            name = entry.name
+            require(name in entries and name not in found, "Source export contains unexpected or duplicate files")
+            found.add(name)
+            mode, expected = entries[name]
+            require(entry.issym() if mode == "120000" else entry.isfile(), "Source export changed a Git file type")
+            if entry.isfile():
+                require(bool(entry.mode & 0o111) == (mode == "100755"), "Source export changed a Git executable bit")
+            require(name not in notices or entry.isfile(), "Source notice must be a regular exported file")
+            size = len(entry.linkname.encode("utf-8")) if entry.issym() else entry.size
+            checksum = hashlib.new("sha1" if len(expected) == 40 else "sha256", b"blob " + str(size).encode() + b"\0")
+            if entry.issym():
+                checksum.update(entry.linkname.encode("utf-8"))
+            else:
+                with package.extractfile(entry) as data:
+                    while chunk := data.read(1024 * 1024):
+                        checksum.update(chunk)
+            require(checksum.hexdigest() == expected, "Source export changed pinned Git blob bytes")
+        require(found == set(entries), "Source export omitted pinned files (check export-ignore attributes)")
+
+
 def registry(root):
     data = read_json(root / "tools/dependencies/components.json")
     require(set(data) == {"schemaVersion", "components"} and type(data["schemaVersion"]) is int and data["schemaVersion"] == 1, "Unsupported dependency registry")
@@ -120,13 +185,15 @@ def registry(root):
         require(isinstance(sources, dict) and sources, "Ready component requires pinned sources")
         for path, source in sources.items():
             require(re.fullmatch(r"3rdparty/[A-Za-z0-9_.-]+", path), "External sources must be top-level 3rdparty submodules")
-            require(set(source) == {"revision", "license", "notices", "requires", "unusedSubmodules"}, "Invalid source graph entry")
+            required = {"revision", "license", "notices", "requires", "unusedSubmodules"}
+            require(set(source) in (required, required | {"exports"}), "Invalid source graph entry")
             require(entries.get(path) == ("160000", source["revision"]), "Source revision must match its Git index pin")
             require(path in modules and re.fullmatch(r"https://[^/@?#\s]+/[^?#\s]+", modules[path]), "Source needs a credential-free HTTPS submodule registration")
             require(isinstance(source["license"], str) and source["license"], "Source license is required")
             require(isinstance(source["notices"], list) and source["notices"], "Source notices are required")
             for notice in source["notices"]:
                 member(notice)
+            export_paths(source)
             require(isinstance(source["requires"], list) and all(item in sources for item in source["requires"]), "Source graph references an undeclared dependency")
             require(isinstance(source["unusedSubmodules"], dict), "Unused nested sources require explicit reasons")
             for nested, reason in source["unusedSubmodules"].items():
@@ -233,11 +300,20 @@ def initialize_sources(root, sources, directory):
         for notice in specification["notices"]:
             require(git(source, "cat-file", "-t", f"HEAD:{notice}").strip() == b"blob", "Source notice is missing")
         archive = directory / (path.split("/")[-1] + ".tar")
-        subprocess.run(["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf", "archive", "--format=tar", "--output", str(archive), "HEAD"], cwd=source, check=True)
+        exports = export_paths(specification)
+        entries = exported_entries(source, exports) if exports is not None else None
+        arguments = ["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf", "archive", "--format=tar", "--output", str(archive), "HEAD"]
+        if exports is not None:
+            arguments += ["--", *[":(literal)" + p for p in exports]]
+        subprocess.run(arguments, cwd=source, check=True)
+        if exports is not None:
+            verify_source_export(archive, entries, specification["revision"], specification["notices"])
         snapshots[path] = {
             "url": urls[path], "revision": specification["revision"], "tree": git(source, "rev-parse", "HEAD^{tree}").decode().strip(),
             "archiveSha256": digest(archive),
         }
+        if exports is not None:
+            snapshots[path]["exports"] = exports
     return snapshots
 
 

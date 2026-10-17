@@ -27,6 +27,10 @@ The same pinned validator is registered as a dependency-free Python source-packa
 
 Every external library, including transitive dependencies, must have its source in a pinned submodule under `3rdparty/`. A top-level source checkout does not satisfy this rule for all of its dependencies. Registry packages and local caches do not replace source pins.
 
+A source graph entry may declare an optional `exports` list of literal files or directories relative to its pinned submodule. The list is nonempty, sorted, unique and portable across platforms; overlapping or case-colliding roots are rejected. Every declared license/notice must be covered explicitly. Without this field, the entire upstream tree is snapshotted as before. Export roots and the verified snapshot digest are retained in build provenance and cache inputs, alongside the full revision and tree identity.
+
+Selected snapshots must contain exactly the pinned Git blobs below those roots, preserving bytes, file types, symbolic-link targets and executable bits. Missing paths, `export-ignore` omissions, `export-subst` rewrites or missing notices fail preparation before compilation or cache reuse. Selection does not waive complete transitive-source or license review, change upstream pins, or replace component-specific source/API/license verification. It limits the snapshot passed to a trusted build recipe; it does not restrict that process's operating-system access.
+
 Before building a component:
 
 1. Resolve its complete runtime and build dependency graph for the selected configuration.
