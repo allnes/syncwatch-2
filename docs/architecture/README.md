@@ -6,8 +6,9 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 
 | Area | Decision |
 |---|---|
-| Initial platforms | macOS and Windows 11 x64 |
+| Product platforms | macOS, Windows 11 x64, and planned Linux x64 |
 | Apple client | Swift, SwiftUI, and AppKit for video surfaces and window management |
+| Linux client (planned) | C++20 with Qt 6 Widgets; source/license closure precedes the application build |
 | Windows client | C#, WPF, and .NET 10 LTS, with a small libVLC P/Invoke adapter |
 | Shared design | Platform-neutral JSON tokens and component contracts in `packages/design`; Apache 2.0 Style Dictionary generates native resources |
 | Playback | Embedded libVLC with SyncWatch controls |
@@ -26,6 +27,14 @@ flowchart TB
     D[SyncWatch Design JSON] --> G[Style Dictionary build tool]
     G --> A[SwiftUI / AppKit client]
     G --> W[C# / WPF client]
+    G -. Planned C++ resources .-> L[C++ / Qt Linux client]
+    L -. Planned .-> CL[Linux coordinators and native adapters]
+    CL -. Local movie .-> FL[Linux libVLC surface]
+    CL -. Versioned local IPC .-> SL[Syncplay headless bridge]
+    SL -. Syncplay protocol and TLS .-> SS
+    CL -. HTTPS / WSS metadata .-> R
+    CL -. Application-owned window .-> ML[Linux Meet host]
+    ML -. Google web client .-> M
     A --> CA[Application coordinators and ports]
     W --> CW[Application coordinators and ports]
     CA --> VA[Native libVLC adapter]
@@ -62,7 +71,7 @@ Each device reads its own movie file. Only play, pause, seek, and movie/playlist
 | ConnectionSupervisor | Independent recovery of playback synchronization, metadata, and call channels |
 | Design renderer | Displays state and emits user actions; contains no networking or media engine logic |
 
-Swift and C# implement the [shared contracts](contracts.md) and use the same acceptance fixtures. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while the application remains native Swift or C#.
+Swift and C# implement the [shared contracts](contracts.md) and use the same acceptance fixtures. The planned C++ Linux implementation will consume that same corpus and protocol, including local watch generations and preference persistence. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while each application remains native to its selected desktop stack.
 
 ## Native video integration
 
@@ -102,6 +111,7 @@ Native shells, local domain modules, the room metadata service, the design packa
 ```text
 apps/apple/                 # Swift application and native platform adapters
 apps/windows/               # C# WPF application and native platform adapters
+apps/linux/                 # Planned C++20 / Qt 6 Widgets application and adapters
 packages/design/            # Platform-neutral design data and component contracts
 packages/apple-domain/      # Swift domain and use cases, independent of SwiftUI
 packages/windows-domain/    # C# domain and use cases, independent of WPF
@@ -122,6 +132,14 @@ docs/                       # Application documentation and architecture
 
 Dependencies point from UI to application to domain. Filesystem, VLC, Syncplay, and Meet integrations implement domain-facing ports. The design package does not import application services or domain logic.
 
+## Linux client
+
+The Linux client is planned in C++20 with Qt 6 Widgets and CMake. Qt provides Linux window-system integration and C++ desktop controls; the existing JSON design source and wire contracts remain shared. Qt's [Linux support](https://doc.qt.io/qt-6/linux.html) and [Widgets module](https://doc.qt.io/qt-6/qtwidgets-index.html) describe the platform and UI APIs.
+
+The initial UI dependency set targets Qt Core, Gui, and Widgets with dynamic linking under their available LGPLv3 option. Pin the selected Qt release and complete enabled source graph before use, retain upstream notices and corresponding source, and preserve library replacement/relinking rights. Qt has separately licensed modules and embedded third-party sources, so this selection does not approve all Qt modules. See [Qt licensing](https://doc.qt.io/qt-6/licensing.html) and [dependency policy](dependencies.md).
+
+Linux needs its own domain implementation, Qt design formatter/renderer, VLC surface, helper/metadata adapters, and owned Meet host. X11 and Wayland require explicit rendering, fullscreen, input, DPI, capture, and window-ownership checks. Google Meet remains the call provider; selecting Qt Widgets does not establish a browser host or authorize a provider substitute. A Qt WebEngine candidate would require its own complete Chromium/source/license graph and real Meet capability checks before adoption.
+
 ## Local data and permissions
 
 Store versioned preferences and caches under Application Support on macOS and LocalAppData on Windows, using atomic writes. Store credentials in Keychain or protected Windows storage. Use an application-specific browser profile. Balance macOS security-scoped access for the lifetime of each media or folder operation.
@@ -136,7 +154,8 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | VLC | Native rendering, Windows overlays, previews, tracks, and player settings are not implemented |
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
 | Syncplay bridge | Headless runtime, native IPC adapters, and reconnect behavior are not implemented |
-| Shared design | Native renderers and generated resources are not implemented |
+| Shared design | Swift/WPF resources are generated; component renderers and planned Qt resources remain unimplemented |
+| Linux client | C++/Qt is selected; Qt sources, toolchain, native shell, domain implementation, CI, playback, and calling are not implemented |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.
 

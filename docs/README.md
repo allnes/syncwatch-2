@@ -26,6 +26,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 | Area | Technology |
 |---|---|
 | macOS client | Swift, SwiftUI, AppKit |
+| Linux client (planned) | C++20, Qt 6 Widgets, CMake; dependency closure and implementation pending |
 | Windows client | C#, WPF, .NET 10 LTS |
 | Shared design | `packages/design`, Apache 2.0, generated with Style Dictionary |
 | Movie playback | VLC/libVLC |
