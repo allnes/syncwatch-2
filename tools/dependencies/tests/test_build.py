@@ -105,6 +105,46 @@ class DependencyBuildTests(unittest.TestCase):
         self.assertEqual(first["files"], third["files"])
         self.assertEqual((self.root / "artifacts/counter").read_text(), "2")
 
+    def add_verifier(self):
+        path = self.root / "verify.py"
+        path.write_text("from pathlib import Path\n"
+                        f"payload = Path('artifacts/dependencies/example/{TARGET}/payload')\n"
+                        "assert (payload/'notices/example/LICENSE').read_text() == 'Fixture source license\\n'\n"
+                        "counter = Path('artifacts/verifications')\n"
+                        "counter.write_text(str(int(counter.read_text())+1) if counter.exists() else '1')\n")
+        self.component["inputs"].append("verify.py")
+        self.component["targets"][TARGET]["verifyCommand"] = ["{python}", "verify.py"]
+        self.write_manifest()
+        subprocess.run(["git", "add", "verify.py"], cwd=self.root, check=True)
+
+    def test_component_verifier_runs_on_cold_and_cached_payloads(self):
+        self.add_verifier()
+        self.run_build(cold=True)
+        self.assertEqual((self.root / "artifacts/verifications").read_text(), "1")
+        self.assertTrue(self.run_build()["cacheHit"])
+        self.assertEqual((self.root / "artifacts/verifications").read_text(), "2")
+
+    def test_rewritten_cache_manifest_cannot_hide_missing_license_from_verifier(self):
+        self.add_verifier();self.run_build(cold=True);request = self.prepare()
+        with zipfile.ZipFile(request["cacheFile"]) as archive:members = {n: archive.read(n) for n in archive.namelist()}
+        name = "payload/notices/example/LICENSE";members[name] = b"wrong license"
+        manifest = json.loads(members["build-manifest.json"])
+        import hashlib
+        manifest["files"][name]["sha256"] = hashlib.sha256(members[name]).hexdigest()
+        members["build-manifest.json"] = json.dumps(manifest).encode()
+        with zipfile.ZipFile(request["cacheFile"], "w") as archive:
+            for name, data in members.items():archive.writestr(name, data)
+        with self.assertRaises(subprocess.CalledProcessError):self.run_build()
+        with zipfile.ZipFile(request["archive"]) as archive:
+            self.assertEqual(archive.namelist(), ["build-manifest.json"])
+            self.assertEqual(json.loads(archive.read("build-manifest.json"))["result"], "failure")
+
+    def test_invalid_verifier_command_is_rejected(self):
+        self.component["targets"][TARGET]["verifyCommand"] = []
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "Commands must be nonempty"):
+            self.prepare()
+
     def test_corrupt_cache_fails_and_retains_no_success_payload(self):
         self.run_build()
         request = self.prepare()

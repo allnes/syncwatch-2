@@ -375,6 +375,143 @@
       "status": "unavailable",
       "reason": "Selected Kotlin/Compose JVM, native renderer and build sources, licenses and offline build are not yet complete",
       "plannedIn": "L01"
+    },
+    "jvm-annotations": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/jvm-annotations"
+      ],
+      "sources": {
+        "3rdparty/jvm-annotations": {
+          "revision": "5ed7516e96eebef2a0cedc470d776b7351f52d6b",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE.txt",
+            "README.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/jvm",
+        "LICENSE"
+      ],
+      "watch": [
+        "3rdparty/jvm-annotations",
+        "tools/jvm"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / linux-x64$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "java8-module9-v1",
+            "version": "26.0.2"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / macos-arm64$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "java8-module9-v1",
+            "version": "26.0.2"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / windows-x64$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "java8-module9-v1",
+            "version": "26.0.2"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/annotations.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 300
+        }
+      }
     }
   }
 }

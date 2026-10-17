@@ -25,6 +25,12 @@ python3 tools/design/check.py
 
 The [build guide](design-generator.md) describes the supported runtime profile. Node and Python are developer toolchains; they are not needed to display generated native resources.
 
+## JVM annotations
+
+The source-built [JVM annotations profile](jvm-annotations.md) uses Apache-2.0 with the full upstream license and original notices in both JARs and the payload. All 32 selected Java sources remain unchanged, including two files governed by the repository-wide declaration without individual headers. The binary JAR links only to Java SDK interfaces; no external runtime library or annotation processor is included. Its Temurin compiler SDK retains vendor legal files separately and is not included in the library or application artifacts.
+
+The dependency verifier checks notices, the original source inventory, and source/compiler correspondence on restored caches as well as cold builds. These checks cover only the declared annotations profile. The Compose/native graph and any packaged JVM runtime require separate source and distribution reviews.
+
 ## Other components
 
 The [dependency architecture](architecture/dependencies.md) records the other pinned sources. Syncplay uses Apache-2.0; fastjsonschema uses BSD-3-Clause and retains its license in the built validator package. The native shells and metadata service use the declared platform SDKs/frameworks without registry library packages.

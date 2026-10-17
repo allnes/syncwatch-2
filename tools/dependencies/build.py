@@ -146,12 +146,15 @@ def registry(root):
                 inside(root, path)
         require(component["targets"] and set(component["targets"]).issubset(PLATFORMS), "Unsupported dependency target")
         for target in component["targets"].values():
-            require(set(target) == {"toolchains", "environment", "flags", "command", "timeoutSeconds"}, "Invalid build target")
+            require(set(target) in ({"toolchains", "environment", "flags", "command", "timeoutSeconds"},
+                                   {"toolchains", "environment", "flags", "command", "timeoutSeconds", "verifyCommand"}), "Invalid build target")
             require(isinstance(target["flags"], dict) and isinstance(target["environment"], dict), "Build flags and environment must be explicit")
             require(all(re.fullmatch(r"[A-Z][A-Z0-9_]*", key) and isinstance(value, str) for key, value in target["environment"].items()), "Invalid build environment")
             require(not (set(target["environment"]) & (set(OFFLINE) | {"PATH", "HOME", "PYTHONPATH"})), "Build environment cannot override toolchain or offline controls")
             require(type(target["timeoutSeconds"]) is int and 1 <= target["timeoutSeconds"] <= 14400, "Build command needs a bounded timeout")
             commands = [target["command"]]
+            if "verifyCommand" in target:
+                commands.append(target["verifyCommand"])
             require(isinstance(target["toolchains"], dict) and target["toolchains"], "Toolchains must be declared")
             for tool in target["toolchains"].values():
                 require(set(tool) == {"command", "pattern"} and tool["pattern"].startswith("^") and tool["pattern"].endswith("$"), "Toolchain compatibility must be explicit")
@@ -385,6 +388,11 @@ def build(root, name, target, cold=False):
                     destination = payload / "notices" / path.split("/")[-1] / notice
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(inside(sources / path, notice), destination)
+        target_specification = specification["targets"][target]
+        if "verifyCommand" in target_specification:
+            subprocess.run(command(target_specification["verifyCommand"]), cwd=root,
+                           env=build_environment(target_specification), check=True,
+                           timeout=target_specification["timeoutSeconds"])
         require(input_files(root, specification) == request["inputs"]["files"], "Build changed its declared first-party inputs")
         for path, source in specification["sources"].items():
             require(git(root / path, "rev-parse", "HEAD").decode().strip() == source["revision"] and not git(root / path, "status", "--porcelain", "--untracked-files=normal").strip(), "Build changed its source checkout")
