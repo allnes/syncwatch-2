@@ -164,8 +164,9 @@ def probe(payload, home):
         result = run([commands["java"], "-cp", os.pathsep.join([str(work), binary]), "AnnotationsProbe", binary], work)
         negative = work / "InvalidTarget.java"
         negative.write_text('class InvalidTarget { @org.jetbrains.annotations.Contract("-> null") int field; }\n')
+        environment = {k: v for k, v in os.environ.items() if k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"}}
         p = subprocess.run([commands["javac"], "--release", "8", "-proc:none", "-XDrawDiagnostics", "-classpath", binary,
-                            "-d", str(work), str(negative)], cwd=work, text=True, capture_output=True)
+                            "-d", str(work), str(negative)], cwd=work, env=environment, text=True, capture_output=True)
         if p.returncode == 0 or "compiler.err.annotation.type.not.applicable" not in p.stderr:
             raise ValueError("Annotations invalid-target consumer was not rejected")
         dependencies = run([commands["jdeps"], "--multi-release", "9", "--print-module-deps", binary], work).strip()
