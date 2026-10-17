@@ -12,7 +12,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | Shared design | Platform-neutral JSON tokens and component contracts in `packages/design`; Apache 2.0 Style Dictionary generates native resources |
 | Playback | Embedded libVLC with SyncWatch controls |
 | Synchronization | The upstream Syncplay client engine in a headless helper on each device, connected to a standard Syncplay server |
-| Calling | Google Meet in a separate application-owned window, subject to browser-host and capability acceptance |
+| Calling | Google Meet in a separate application-owned window; browser-host integration is not implemented |
 | Room metadata | A C# / ASP.NET Core service over HTTPS/WSS for catalog and watch-session metadata |
 | External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
 | Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, reproducible dependencies, integration checks, and trusted release candidates |
@@ -127,21 +127,20 @@ Store versioned preferences and caches under Application Support on macOS and Lo
 
 Shared design assets contain no account, device, or room data. Catalog exchange sends only permitted media descriptors. A missing file does not trigger an upload. Audio controls affect only the intended movie or verified call output; system communications policy and other applications' volume remain outside the product's control.
 
-## Integration gates
+## Integration limitations
 
-| Gate | Acceptance required |
+| Component | Current limitation |
 |---|---|
-| G1: Google Meet | A usable application-owned call window on both platforms, account access, two-way media, hangup, and an explicit capability result |
-| G2: VLC functionality | Windows overlay behavior, previews, tracks, all exposed player settings, and measured movie-plus-call performance |
-| G3: Dependency closure | Complete transitive source submodules, reproducible component builds, and correct binary notices |
-| G4: Syncplay bridge | Headless initialization, IPC lifecycle, upstream interoperability, and two-device recovery |
-| G5: Visual acceptance | Native rendering and interaction checks against the shared design specification |
+| Google Meet | Browser hosts, account access, media, native call controls, and capture shutdown are not implemented |
+| VLC | Native rendering, Windows overlays, previews, tracks, and player settings are not implemented |
+| Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
+| Syncplay bridge | Headless runtime, native IPC adapters, and reconnect behavior are not implemented |
+| Shared design | Native renderers and generated resources are not implemented |
 
-A failed gate remains an unmet requirement. A change to the call provider, window model, or product capabilities requires an explicit product decision.
+These limitations distinguish the application architecture from the functionality available in the current shells.
 
 ## Related specifications
 
-- [Product requirements](product-requirements.md).
 - [Application behavior](../application.md).
 - [Building and running](../building.md).
 - [Shared design system](design-system.md).
@@ -149,4 +148,3 @@ A failed gate remains an unmet requirement. A change to the call provider, windo
 - [Syncplay and room metadata](syncplay.md).
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).
-- [Product acceptance](validation.md).

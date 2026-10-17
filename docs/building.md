@@ -81,4 +81,4 @@ git submodule update --init --checkout --depth=1 -- 3rdparty/fastjsonschema
 python3 tools/contracts/check_contracts.py
 ```
 
-The [contracts](architecture/contracts.md) and [product acceptance criteria](architecture/validation.md) define the validation boundary. A successful shell build or source check does not establish functioning media, synchronization, calling, visual conformance, signing, or release readiness.
+A successful shell build or source check does not establish functioning media, synchronization, calling, visual conformance, signing, or release readiness. The [architecture](architecture/README.md#integration-limitations) describes the current integration limitations.

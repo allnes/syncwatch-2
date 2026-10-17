@@ -42,13 +42,13 @@ Python and Node.js are developer/runner toolchains. The CI artifact and dependen
 | Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including declared requirements such as `certifi` and `pem` | Versions and source submodules are not resolved yet |
 | Design generator | Runtime dependencies of the pinned Style Dictionary package and their dependencies | Top-level source is pinned; transitive sources are pending |
 | VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
-| Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Host selection depends on the call integration gate |
+| Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Browser-host compatibility and source closure are unresolved |
 
 This table describes the known areas of incomplete dependency closure. It is not a complete software bill of materials or a claim that offline builds are ready.
 
 ## Closed browser SDKs
 
-WebView2 is a possible Windows host, but its closed runtime and SDK cannot be represented by a source submodule; samples are not the library. It is not selected under the current source policy. Adopting it requires an explicit policy change. CEF and CefSharp offer source access but do not establish Google authentication compatibility or Meet support by themselves.
+WebView2's closed runtime and SDK cannot be represented by a source submodule; samples are not the library. It is excluded by the source dependency policy. CEF and CefSharp offer source access but do not establish Google authentication compatibility or Meet support by themselves.
 
 ## Working with submodules
 

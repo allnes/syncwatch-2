@@ -1,6 +1,6 @@
 # Google Meet integration
 
-SyncWatch hosts the call in a separate application-owned window. The application manages its window frame and lifecycle; a real Google Meet surface handles the meeting. Integration feasibility and capabilities must be established on both supported platforms before release.
+The SyncWatch call architecture uses a separate application-owned window. The application manages its frame and lifecycle; a Google Meet surface handles the meeting. Call hosting is not implemented in the current native shells.
 
 ## Provider interfaces
 
@@ -13,11 +13,11 @@ SyncWatch hosts the call in a separate application-owned window. The application
 | Google lists supported browsers | Embedded hosts still require their own feasibility test. [Meet requirements](https://support.google.com/meet/answer/7317473?hl=en) |
 | OAuth restricts embedded user agents | API authorization uses a supported external-user-agent flow. An API token does not automatically establish a Meet web session. [Native OAuth](https://developers.google.com/identity/protocols/oauth2/native-app), [embedded webview policy](https://developers.googleblog.com/upcoming-security-changes-to-googles-oauth-20-authorization-endpoint-in-embedded-webviews/) |
 
-These interfaces do not establish a complete native call-control contract. The implementation must verify each required capability instead of inferring it from successful navigation.
+These interfaces do not supply a complete native call-control contract. Successful navigation alone does not establish call participation or native control support.
 
 ## Call window host
 
-On macOS, the candidate is a Swift/AppKit-owned `NSWindow` with top-level WKWebView navigation. On Windows, the open-source candidate is a C# WPF-owned window backed by CEF/CefSharp. Final host selection follows the [source dependency policy](dependencies.md) and the feasibility gate.
+On macOS, the candidate is a Swift/AppKit-owned `NSWindow` with top-level WKWebView navigation. On Windows, the open-source candidate is a C# WPF-owned window backed by CEF/CefSharp. Browser-host compatibility remains unresolved; CEF/CefSharp also needs a complete [source dependency graph](dependencies.md).
 
 The native shell owns move, resize, pin, minimize, restore, fullscreen, and failure presentation. The content area displays Google Meet. Do not depend on iframe embedding, user-agent spoofing, imported browser cookies, or unstable DOM selectors for production controls.
 
@@ -27,11 +27,11 @@ Provider content receives only the permissions necessary for the call. Do not ex
 
 The host can represent `idle`, `opening`, `webSurfaceReady`, `userActionRequired`, `failed`, and `closed`. Represent joined state, camera/microphone state, remote video availability, and speaking activity only when the integration provides a reliable signal.
 
-| Product capability | Required evidence |
+| Call behavior | Host responsibility |
 |---|---|
-| Open and restore the call window | Native window lifecycle works independently of meeting navigation |
-| Two-way camera and microphone | Successful participation with the supported account types and actual devices |
-| Device selection and native media controls | Working provider integration for every exposed action |
+| Open and restore the call window | Native window lifecycle independent of meeting navigation |
+| Two-way camera and microphone | Provider participation and device capture |
+| Device selection and native media controls | Available provider interfaces |
 | Hangup and close | Capture and participation stop, including when the window closes |
 | Remote video | A usable video presentation within the application-owned window |
 | Local camera thumbnail | Compact actual self-view alongside remote video, with active, disabled, denied, and unavailable states |
@@ -42,21 +42,10 @@ The host can represent `idle`, `opening`, `webSurfaceReady`, `userActionRequired
 | Camera quality | Actual selectable provider/host capability |
 | Compact call layout | A usable minimum viewport with functioning meeting controls |
 
-Capabilities such as `canObserveJoin`, `canMuteFromNativeUI`, `canSelectDevicesFromNativeUI`, `canSetCallVolume`, `canObserveRemoteSpeaking`, and `canConfirmHangup` default to false until proven. Missing capabilities remain unmet requirements; an ineffective UI action is not an implementation.
+Capabilities such as `canObserveJoin`, `canMuteFromNativeUI`, `canSelectDevicesFromNativeUI`, `canSetCallVolume`, `canObserveRemoteSpeaking`, and `canConfirmHangup` default to false. Only a reliable provider integration can advertise support.
 
-The existing six-field capability schema does not prove local preview or initial camera behavior. Acceptance requires actual media observation; extend the versioned capability boundary before exposing new native actions that require it. Never substitute a synthetic self-view or treat an automatically opened audio path as a joined call.
+The existing six-field capability schema has no local-preview or initial-camera fields. Native actions for these features need an explicit versioned capability boundary. A loaded page or open audio path is not equivalent to a joined call.
 
-## Feasibility gate G1
+## Known limitations
 
-Test the selected hosts in interactive macOS and Windows sessions:
-
-1. Open a separate application-owned window with top-level Meet navigation.
-2. Verify signed-in and guest participation separately for the supported account types.
-3. Establish two-way media on the first join without toggling the camera; verify compact local preview, device changes, and restore after minimization.
-4. Check each exposed control and observable capability through a reliable integration path.
-5. Verify hangup, close, capture release, reconnect, expired meetings, and denied permissions. Confirm no remote audio before join or after every teardown/failed-join path. Sweep independent call volume through zero, intermediate, and full values during a real call.
-6. Run a local movie with Syncplay between both devices during the call and verify audio isolation and playback responsiveness.
-
-Record host versions, account categories, and the capability result in the relevant implementation review, excluding credentials, meeting links, cookies, and private participant content. Finalize the browser dependency graph after selecting a viable host.
-
-If the in-application host or a required capability fails this gate, release acceptance remains blocked for the affected requirement. Any alternative window model, provider, or reduced capability set requires an explicit product decision.
+Both browser hosts are candidates. Embedded account access, guest participation, two-way media, native controls, independent call volume, and reliable hangup remain unresolved. Google-supported browser compatibility does not automatically extend to embedded WebKit or CEF hosts.
