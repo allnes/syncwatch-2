@@ -15,6 +15,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | Calling | Google Meet in a separate application-owned window, subject to browser-host and capability acceptance |
 | Room metadata | A C# / ASP.NET Core service over HTTPS/WSS for catalog and watch-session metadata |
 | External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
+| Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, reproducible dependencies, integration checks, and trusted release candidates |
 
 The .NET SDK version must be pinned when the Windows project is introduced. See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
 
@@ -109,6 +110,8 @@ services/syncplay-bridge/   # Headless Python entry point and player/UI adapters
 services/room-metadata/     # C# ASP.NET Core metadata service
 tools/design/              # Custom Style Dictionary formatters
 tools/dependencies/        # Source graph and deterministic build tooling
+tools/ci/                  # Shared local/CI validation and orchestration
+.github/workflows/         # Repository, platform, dependency, integration, and release jobs
 tests/                      # Contract and integration coverage
 3rdparty/                   # External source Git submodules
 docs/                       # All project documentation
@@ -143,4 +146,5 @@ A failed gate remains an unmet requirement. A change to the call provider, windo
 - [External dependencies](dependencies.md).
 - [Implementation plan](delivery-plan.md).
 - [Pull request implementation plan](pull-request-plan.md).
+- [Continuous integration](continuous-integration.md).
 - [Validation strategy](validation.md).

@@ -8,4 +8,5 @@
 - Add every external source dependency as a pinned Git submodule under `3rdparty/`; do not copy vendor sources or silently fetch runtime dependencies through package managers. Record transitive dependencies and SDK/runtime exceptions in `docs/architecture/dependencies.md`.
 - Never commit credentials, meeting invitations, local device configuration, runtime logs, binaries, caches, or build outputs.
 - Commit and push each completed meaningful change. Validate changed files and report checks that have not run.
+- Establish repository CI before executable product implementation and extend the relevant build/test jobs with each component PR. Follow `docs/architecture/continuous-integration.md` and the CI01-CI05 prerequisites in the pull request plan.
 - This checkout currently contains architecture documentation and dependency sources, not a runnable application. Add reproducible build and test instructions with the first implementation.

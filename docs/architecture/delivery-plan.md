@@ -2,12 +2,13 @@
 
 The product currently has architecture specifications, shared design data, and pinned top-level dependency sources. The deliverables below describe implementation work and its acceptance criteria.
 
-The [pull request implementation plan](pull-request-plan.md) breaks these deliverables into PR01-PR24 with explicit prerequisites, review scope, validation, and coverage of F01-F25. Establish contracts, native shells, and the call host source dependencies before the early call experiment. Full call acceptance also requires the assembled playback and synchronization workflow.
+The [pull request implementation plan](pull-request-plan.md) breaks these deliverables into PR01-PR24 and CI01-CI05 with explicit prerequisites, review scope, validation, and coverage of F01-F25. Establish repository CI first, then contracts, native shells, platform/dependency jobs, and call host sources before the early call experiment. Full call acceptance also requires the assembled playback and synchronization workflow. The [CI architecture](continuous-integration.md) defines automation and the boundary of hosted acceptance.
 
 ## Delivery sequence
 
 | Stage | Deliverable | Acceptance criteria |
 |---|---|---|
+| P0: Continuous integration | Repository checks first, then native/dependency builds, integration jobs, and trusted candidate packaging | CI01-CI05 run actual checks for their supported scope; merge/release decisions distinguish hosted checks from physical/provider acceptance |
 | P1: Call feasibility | Minimal application-owned Meet windows on macOS and Windows | Gate G1 covers account access, real two-way media, lifecycle, and required capabilities |
 | P2: Reproducible dependencies | Pinned toolchains and complete component source graphs | All external libraries have source submodules; offline component builds and binary/source correspondence work |
 | P3: Shared design | Style Dictionary formatters, Swift resources, C#/XAML resources, and component galleries | Deterministic generation, matching token IDs, dark/light themes, localized layouts, and reviewed interaction states |
@@ -20,6 +21,8 @@ The [pull request implementation plan](pull-request-plan.md) breaks these delive
 Run the small call-host feasibility exercise before building the full UI. Resolve dependency closure for each executable component before its build. If a required provider capability is unavailable, keep the gap explicit and obtain a product decision before reducing scope.
 
 Each completed deliverable receives focused validation, a commit, and a push. Split large stages into independently reviewable changes. Include validation commands and observed results in implementation reviews rather than adding a development diary to product documentation.
+
+CI expands with each executable component rather than waiting for distribution. CI01 precedes PR01; CI02 and CI03 precede external component integration; CI04 precedes the complete user workflows; CI05 follows packaging and precedes final release acceptance.
 
 ## Engineering coverage
 

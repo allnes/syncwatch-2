@@ -52,6 +52,8 @@ Submodules must be initialized at their recorded Git revisions with no unexplain
 
 ## Executable component checks
 
+The [CI architecture](continuous-integration.md) schedules these checks. CI01 establishes repository checks, CI02 builds/tests both native clients, CI03 validates source dependency builds, CI04 runs controlled integration and separates physical acceptance, and CI05 produces trusted signed candidates. Every executable component PR adds its checks to the available CI jobs in the same change.
+
 With the first implementation of each component, add its dependency manifest, test framework, formatter/linter configuration, and exact setup/build/test commands. Cover shared contracts and platform behavior using the cases in the [implementation plan](delivery-plan.md).
 
 Design generation must reproduce identical resources and reject invalid tokens. Domain tests must cover lifecycle, ordering, and cancellation. Bridge tests must cover malformed, partial, duplicated, stale, and oversized messages. Metadata tests must cover authorization, snapshots, room isolation, and recovery.

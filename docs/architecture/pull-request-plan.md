@@ -1,11 +1,12 @@
 # Pull request implementation plan
 
-This plan turns the [architecture](README.md) and [product requirements](product-requirements.md) into reviewable implementation changes. PR01-PR24 are planning identifiers; assign GitHub numbers when opening the corresponding pull requests. Implementation has not started.
+This plan turns the [architecture](README.md) and [product requirements](product-requirements.md) into 29 reviewable implementation changes. PR01-PR24 identify product deliverables; CI01-CI05 identify continuous integration deliverables. Assign GitHub numbers when opening the corresponding pull requests. Implementation has not started.
 
 ## Execution rules
 
 - Use one focused branch and pull request per deliverable. Merge prerequisites before dependent changes; independent items may proceed once their own prerequisites are available.
 - Every executable component includes its dependency manifest, formatter/linter configuration, focused tests, and reproducible setup, build, and test instructions under `docs/`.
+- Establish CI01 before product implementation. CI02 and CI03 provide the native and dependency build infrastructure; every later component PR adds its real checks to that infrastructure in the same change. Follow the [CI architecture](continuous-integration.md).
 - Add all external libraries, including test and build dependencies, as pinned source submodules under `3rdparty/` before building the component. Apply the [dependency policy](dependencies.md) to experiments as well as production code.
 - Keep documentation in English and self-contained. Put validation results, commands, and relevant screenshots in the implementation review. Keep raw session output, private media, credentials, and device configuration outside the source tree.
 - Commit and push each completed meaningful change. Keep each pull request buildable and testable within its stated scope.
@@ -17,16 +18,19 @@ The order below is a dependency order rather than a calendar estimate. The early
 
 | Phase | ID | Proposed pull request title | Prerequisites |
 |---|---|---|---|
-| 1. Foundations and call feasibility | PR01 | Define shared contracts and repository checks | None |
+| 1. Foundations and call feasibility | CI01 | Establish repository CI and required status checks | None |
+| 1. Foundations and call feasibility | PR01 | Define shared contracts and repository checks | CI01 |
 | 1. Foundations and call feasibility | PR02 | Bootstrap native macOS and Windows applications | PR01 |
-| 1. Foundations and call feasibility | PR03 | Pin and build the candidate call host dependencies | PR02 |
+| 1. Foundations and call feasibility | CI02 | Add macOS and Windows build and test jobs | PR02 |
+| 1. Foundations and call feasibility | CI03 | Add reproducible dependency build jobs and caches | CI02 |
+| 1. Foundations and call feasibility | PR03 | Pin and build the candidate call host dependencies | PR02, CI03 |
 | 1. Foundations and call feasibility | PR04 | Verify Google Meet in application-owned windows | PR01, PR02, PR03 |
-| 2. Shared design | PR05 | Complete the design generator source dependencies | PR01 |
+| 2. Shared design | PR05 | Complete the design generator source dependencies | PR01, CI03 |
 | 2. Shared design | PR06 | Generate Swift and WPF design resources | PR05 |
 | 2. Shared design | PR07 | Implement native shared-design components | PR02, PR06 |
-| 3. Media and synchronization engines | PR08 | Package the headless Syncplay runtime | PR01, PR02 |
+| 3. Media and synchronization engines | PR08 | Package the headless Syncplay runtime | PR01, PR02, CI03 |
 | 3. Media and synchronization engines | PR09 | Implement the Syncplay bridge and IPC lifecycle | PR01, PR08 |
-| 3. Media and synchronization engines | PR10 | Build libVLC from pinned source dependencies | PR02 |
+| 3. Media and synchronization engines | PR10 | Build libVLC from pinned source dependencies | PR02, CI03 |
 | 3. Media and synchronization engines | PR11 | Embed libVLC in both native clients | PR02, PR10 |
 | 3. Media and synchronization engines | PR12 | Implement player controls and video overlays | PR07, PR11 |
 | 3. Media and synchronization engines | PR13 | Implement previews and advanced player settings | PR12 |
@@ -35,14 +39,22 @@ The order below is a dependency order rather than a calendar estimate. The early
 | 4. Domain, catalog, and room state | PR16 | Implement the local library and media identity | PR11, PR14 |
 | 4. Domain, catalog, and room state | PR17 | Connect room clients and exchange catalog metadata | PR09, PR14, PR15, PR16 |
 | 5. Product integration | PR18 | Synchronize native playback across devices | PR09, PR12, PR14, PR17 |
-| 5. Product integration | PR19 | Implement library and watch-session workflows | PR07, PR13, PR14, PR16, PR17, PR18 |
+| 5. Product integration | CI04 | Add integration CI and controlled device acceptance | PR18 |
+| 5. Product integration | PR19 | Implement library and watch-session workflows | PR07, PR13, PR14, PR16, PR17, PR18, CI04 |
 | 5. Product integration | PR20 | Integrate Meet calls and application audio policies | PR04, PR07, PR19 |
 | 5. Product integration | PR21 | Harden recovery and resource ownership | PR18, PR19, PR20 |
 | 6. Acceptance and distribution | PR22 | Complete localization and visual acceptance | PR19, PR20, PR21 |
 | 6. Acceptance and distribution | PR23 | Package and sign reproducible desktop builds | PR21, PR22 |
-| 6. Acceptance and distribution | PR24 | Add release acceptance and performance checks | PR23 |
+| 6. Acceptance and distribution | CI05 | Automate signed candidate builds and release checks | PR23 |
+| 6. Acceptance and distribution | PR24 | Add release acceptance and performance checks | PR23, CI05 |
 
 ## Phase 1: Foundations and call feasibility
+
+### CI01: Establish repository CI and required status checks
+
+- **Scope:** Add GitHub Actions workflows and repository-owned check scripts under `.github/workflows/` and `tools/ci/`. Run documentation, design JSON/reference, whitespace, submodule metadata, and workflow policy checks on pull requests and pushes to `main`. Add timeouts, per-change concurrency, minimal permissions, and a stable `ci/required` aggregate status. Document and apply the supported repository ruleset or branch protection only after its check names exist.
+- **Validation:** Demonstrate a passing change and intentionally failing documentation, JSON, and dependency-pin fixtures. Verify that failed, canceled, or unexpectedly skipped required work cannot produce a successful aggregate. Confirm that documentation-only changes still emit the required status. Add merge-queue event support if the queue is enabled.
+- **Done when:** The initial checks run on GitHub for the expected commit and the configured merge rule requires their actual result. If repository permissions or account features prevent enforcement, report it as incomplete rather than claiming that a workflow file alone protects the branch.
 
 ### PR01: Define shared contracts and repository checks
 
@@ -55,6 +67,18 @@ The order below is a dependency order rather than a calendar estimate. The early
 - **Scope:** Introduce `apps/apple/`, `apps/windows/`, and native domain project skeletons. Pin supported toolchains and configure a minimal launchable window, native test entry points, formatting, and build checks. Declare the native build tools needed by later source builds.
 - **Validation:** Build, launch, and close each application on its platform. Run the initial meaningful tests and formatting checks with the documented commands.
 - **Done when:** A contributor can build both shells from this checkout using declared SDKs, without media or browser integrations.
+
+### CI02: Add macOS and Windows build and test jobs
+
+- **Scope:** Configure macOS arm64 and Windows x64 jobs with explicit supported runner images, recorded image/toolchain versions, formatter checks, native builds, and tests. Execute the same repository commands used locally. Emit test reports and unsigned build artifacts identified by commit and platform; register future server, design, and helper checks as their components arrive.
+- **Validation:** Run both platform jobs on GitHub, demonstrate test/build failures reaching `ci/required`, and verify timeouts, cancellation, and artifact identity. Confirm the runner architecture instead of assuming that a macOS label implies arm64. Hosted compilation does not establish camera, hardware-decoding, or physical display acceptance.
+- **Done when:** Both native shells have reproducible automated checks and downstream component PRs can extend the matrix without inventing a second local/CI build procedure.
+
+### CI03: Add reproducible dependency build jobs and caches
+
+- **Scope:** Add reusable job definitions, dependency manifest validation, source/artifact digest checks, exact-revision source initialization, cache keys, and cold-build entry points. Source-graph PR03, PR05, PR08, and PR10 each register their own real component build and transitive source inventory when introduced. Select rebuilds from changes to sources, pins, flags, toolchains, and workflow scripts.
+- **Validation:** Test selection and cache invalidation using controlled repository fixtures, including pin, toolchain, architecture, and flag changes. As component graphs are added, run cache-free builds with implicit dependency downloads disabled after source/toolchain provisioning. Reject artifacts whose inputs or digests do not match. An unimplemented component is reported as unavailable, not as a successful build.
+- **Done when:** Dependency PRs can run their builds through the shared infrastructure with correct cache isolation. Each component still has to demonstrate its own source closure before use; creating the job framework does not close G3.
 
 ### PR03: Pin and build the candidate call host dependencies
 
@@ -160,6 +184,12 @@ The order below is a dependency order rather than a calendar estimate. The early
 - **Validation:** Verify macOS-to-Windows play/pause/seek, competing actions, paused seeks, late join, missing/incompatible media, readiness, server restart, and helper failure. Measure drift using a common time basis and distinguish user actions from engine corrections.
 - **Done when:** Real native clients synchronize the agreed media, reject obsolete actions, and recover without replaying old seeks. Core G4 behavior is demonstrated.
 
+### CI04: Add integration CI and controlled device acceptance
+
+- **Scope:** Automate a controlled Syncplay server, RoomMetadata service, packaged helper, native adapters, and deterministic media fixtures. Cover process lifecycle, session ordering, synchronized playback, and reconnection on compatible CI runners. Add a separate manually triggered, trusted device-acceptance path for interactive video/camera/microphone/provider checks. Extend it with Meet integration in PR20.
+- **Validation:** Exercise isolated rooms, missing media, latency/disconnection scenarios, helper/server failures, and stop/start cleanup. Confirm that virtual media, mocked capabilities, and headless execution cannot mark physical or Meet acceptance complete. Test that untrusted PR code cannot execute on personal device runners or access meeting/signing credentials.
+- **Done when:** Automated integration checks run reproducibly and fail the appropriate required status, while physical/provider results retain a distinct acceptance status and revision. G1/G2 remain open until the necessary device evidence exists.
+
 ### PR19: Implement library and watch-session workflows
 
 - **Scope:** Compose the library, selected-media details, room indicators, activity view, Start/Continue/End actions, player navigation, and persisted general/player settings using the completed native components and services.
@@ -191,6 +221,12 @@ The order below is a dependency order rather than a calendar estimate. The early
 - **Scope:** Add macOS bundle signing/notarization and Windows package signing, embedded helper/media/browser packaging, build automation, dependency notices, binary/source manifests, and clean-install instructions. Keep signing material outside the checkout.
 - **Validation:** Build from a clean clone, verify complete source pins and dependency closure, exercise offline component rebuilds, check signatures, and install/launch/close on clean supported environments. Verify first-run permissions, upgrades, and repeated startup.
 - **Done when:** Signed candidate packages are reproducible from declared inputs, contain required notices, and pass clean-machine smoke checks. G3 is closed for the distributed module set.
+
+### CI05: Automate signed candidate builds and release checks
+
+- **Scope:** Run the PR23 packaging commands in a trusted release workflow for a selected commit or tag. Build both platforms, validate notices and source manifests, sign/notarize using environment-scoped credentials, and produce candidate artifacts with digests. Keep pull request builds unsigned. Separate candidate generation from publication; the workflow does not publish packages automatically.
+- **Validation:** Verify selected-revision checkout, artifact input digests, signatures, failed-signing behavior, missing credentials, immutable artifact identity, and separation from untrusted jobs/caches. Confirm that candidate acceptance refers to the exact package digests and records physical/provider checks separately from hosted checks.
+- **Done when:** A trusted trigger produces verifiable macOS and Windows candidates or fails explicitly. Signing, build, or required acceptance failures block release eligibility; publication remains a separate authorized operation.
 
 ### PR24: Add release acceptance and performance checks
 
@@ -239,6 +275,8 @@ Every row receives final release acceptance in PR24. The table identifies the im
 | G3: Dependency closure | PR03, PR05, PR08, and PR10 close each external source graph before use | PR23 verifies the distributed dependency set; PR24 accepts the resulting packages |
 | G4: Syncplay bridge | PR08 and PR09 validate runtime, protocol, and helper lifecycle | PR18 and PR21 validate native synchronization and recovery; PR24 checks the signed product |
 | G5: Visual acceptance | PR06 and PR07 establish common resources and native components | PR22 validates the product UI; PR24 checks the distributed applications |
+
+CI01 provides the required repository status, CI02 runs native checks, CI03 validates dependency builds, CI04 supplies automated integration and separate device acceptance, and CI05 builds release candidates. These jobs carry the relevant gate evidence without replacing unmet runtime or physical-device requirements.
 
 ## Pull request review contract
 
