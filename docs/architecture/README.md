@@ -17,7 +17,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
 | Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, reproducible dependencies, integration checks, and trusted release candidates |
 
-The .NET SDK version must be pinned when the Windows project is introduced. See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
+The Windows SDK selection is pinned in [global.json](../../global.json) and the [toolchain manifest](../../tools/native/toolchains.json). See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
 
 ## Component topology
 
@@ -44,7 +44,7 @@ flowchart TB
     MW <-->|Google web client| M
 ```
 
-Each device reads its own movie file. Syncplay exchanges playback state. RoomMetadata exchanges descriptors and watch-session metadata. Google Meet handles calling. Ending a call does not disconnect playback synchronization.
+Each device reads its own movie file. Only play, pause, seek, and movie/playlist-item selection are shared user playback actions. RoomMetadata supplies the identities, ordering, membership, and authorization needed for them. Other application preferences and presentation state remain local. Google Meet handles calling independently; ending a call does not disconnect playback synchronization.
 
 ## State ownership
 
@@ -54,10 +54,10 @@ Each device reads its own movie file. Syncplay exchanges playback state. RoomMet
 | MediaIdentity | Candidate matching, collision handling, and edition verification |
 | WatchSessionCoordinator | Active media, generation, start/continue/end lifecycle, and application navigation |
 | PlaybackPort | Media loading, pause, seek, rate, tracks, and local volume; actual VLC state is authoritative for observations |
-| SyncPort | Syncplay connection, participant list, readiness, shared playback state, and drift correction |
+| SyncPort | Syncplay connection, participants/readiness, allowed play/pause/seek actions, and local drift correction |
 | RoomPort | Catalog exchange, media selection, session generations, missing media, Meet URI, and cross-channel participant binding |
 | PreviewService | Separate bounded preview decoder and cache with cancellation; never changes the main player |
-| CallPort | Call window state and verified provider capabilities; page load does not imply call participation |
+| CallPort | Call participation, first-join camera state, local preview, isolated output, shutdown, and verified capabilities; page load does not imply participation |
 | SettingsService | Versioned local preferences, theme, language, playback settings, and schema upgrades |
 | ConnectionSupervisor | Independent recovery of playback synchronization, metadata, and call channels |
 | Design renderer | Displays state and emits user actions; contains no networking or media engine logic |
@@ -88,10 +88,10 @@ stateDiagram-v2
     Paused --> Ending: End watching
     Preparing --> Ending: Cancel or media failure
     Waiting --> Ending: Cancel or media failure
-    Ending --> Library: Release player and publish session end
+    Ending --> Library: Release local player and leave local watch
 ```
 
-The watch and call lifecycles are separate. Returning home retains the active watch session. End releases it. A new application launch may restore the last position, but it does not reactivate the previous session automatically.
+The watch and call lifecycles are separate. Returning home retains the active watch session. End releases local resources without an extra remote stop/close command. Membership bookkeeping must not become a fifth synchronized user action. Call audio is silent outside an active joined call and stops after hangup, close, or failed join. A new application launch may restore the last position, but it does not reactivate the previous session automatically.
 
 Synchronization loss pauses playback and resets the rate to 1.0. Commands from an old generation are rejected. A call-only failure does not pause the movie. Metadata-only failure retains the agreed media but blocks operations that require a new shared selection.
 
@@ -116,7 +116,7 @@ tools/native/              # Native SDK, formatting, build, and test entry point
 .github/workflows/         # Repository, platform, dependency, integration, and release jobs
 tests/                      # Planned integration coverage
 3rdparty/                   # External source Git submodules
-docs/                       # All project documentation
+docs/                       # Application documentation and architecture
 ```
 
 Dependencies point from UI to application to domain. Filesystem, VLC, Syncplay, and Meet integrations implement domain-facing ports. The design package does not import application services or domain logic.
@@ -142,13 +142,11 @@ A failed gate remains an unmet requirement. A change to the call provider, windo
 ## Related specifications
 
 - [Product requirements](product-requirements.md).
-- [Native development](../native-development.md).
+- [Application behavior](../application.md).
+- [Building and running](../building.md).
 - [Shared design system](design-system.md).
 - [Shared contracts](contracts.md).
 - [Syncplay and room metadata](syncplay.md).
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).
-- [Implementation plan](delivery-plan.md).
-- [Pull request implementation plan](pull-request-plan.md).
-- [Continuous integration](continuous-integration.md).
-- [Validation strategy](validation.md).
+- [Product acceptance](validation.md).

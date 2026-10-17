@@ -1,42 +1,34 @@
-# Validation strategy
+# Product acceptance
 
-Validation establishes the product requirements and integration gates on both supported platforms. Source checkout, document checks, unit tests, and physical media acceptance provide different evidence and must be reported separately.
+SyncWatch acceptance covers the [application workflows](../application.md), requirements F01-F28, and integration gates G1-G5 on macOS and Windows. Source checks, domain tests, native media behavior, and physical call acceptance establish different boundaries.
 
-## Repository checks
+## Shared playback and local state
 
-Run from the repository root:
+Two participants must be able to play, pause, seek, and select a movie/playlist item. Verify that stale or foreign-generation actions cannot affect current playback. Different local skip intervals must still produce the intended shared absolute position.
 
-```sh
-python3 tools/ci/check_repository.py
-python3 -m unittest discover -s tools/ci/tests -v
-git submodule update --init --checkout --depth=1 -- 3rdparty/fastjsonschema
-python3 tools/contracts/check_contracts.py
-python3 -m unittest discover -s tools/contracts/tests -v
-git diff --check
-```
+Change movie/call volume, mute, tracks, subtitle styling, image/audio settings, previews, theme/language, window/fullscreen state, cursor behavior, and camera preferences on one client. The peer must retain its own values. Membership/readiness/timing messages may support the protocol but must not introduce another replicated application preference or remote stop/close command. The [wire contracts](contracts.md) define structure and ownership; adapters also enforce this routing policy.
 
-These checks require Git, Python 3.12 or newer, and the declared validator source submodule. They do not require another workspace, a device profile, or an undeclared application. See [shared contracts](contracts.md) for wire limits, contextual acceptance, and the validation boundary.
+## Library and native player
 
-Submodules must be initialized at their recorded Git revisions with no unexplained changes. Verify that external library entries use Git link mode `160000`. A clean checkout with `git submodule update --init --recursive` must obtain the pinned sources. This source-availability check does not establish dependency closure or a successful component build.
+- Select, retain, revoke, and recover movie-folder access; cover nested folders, ambiguous identities, missing media, and catalog refresh.
+- Exercise Start/Continue/End, return-to-library, playlist selection, embedded/external tracks, and saved positions without silently reactivating a watch on process restart.
+- Validate native VLC video, overlays, context menus, keyboard actions, settings, scaling, hardware decoding, and preview isolation on both platforms.
+- Hide an idle cursor over playing video in windowed and fullscreen modes; restore it on movement, pause, or interactive controls without changing cursor behavior elsewhere.
+- Match shared-design component states, geometry, focus, dark/light themes, English/Russian text, long filenames, and display scales.
 
-## Executable component checks
+## Real call behavior
 
-The [CI architecture](continuous-integration.md) schedules these checks. CI01 establishes repository checks, CI02 builds/tests both native clients, CI03 validates source dependency builds, CI04 runs controlled integration and separates physical acceptance, and CI05 produces trusted signed candidates. Every executable component PR adds its checks to the available CI jobs in the same change.
+Use the selected application-owned Google Meet hosts with actual camera, microphone, and received media:
 
-With the first implementation of each component, add its dependency manifest, test framework, formatter/linter configuration, and exact setup/build/test commands. Cover shared contracts and platform behavior using the cases in the [implementation plan](delivery-plan.md).
+- Confirm a compact actual local-camera preview alongside remote video, including disabled, denied, and unavailable states.
+- With camera preference enabled and permission granted, the first join must start the camera and self-view without an off/on workaround. Repeat after reconnect and fresh application startup.
+- Sweep call output through zero/mute, intermediate, and full volume. Movie output, microphone capture, system/other-app volume, and the peer's settings must not change.
+- Before join and after hangup, window close, failed join, or teardown, verify that remote participant audio is silent and owned capture is released. Room connectivity alone must not open call audio.
+- Exercise device changes, pin, minimize/restore, fullscreen, denied permissions, expired meetings, and reconnect. A loaded provider page or synthetic preview is not proof of a joined functioning call.
+- Run synchronized local movies on two physical devices during the call. Call-only failure must not stop the movie; synchronization failure pauses shared playback. Repeated lifecycle operations must not leave duplicate or orphan resources.
 
-Design generation must reproduce identical resources and reject invalid tokens. Domain tests must cover lifecycle, ordering, and cancellation. Bridge tests must cover malformed, partial, duplicated, stale, and oversized messages. Metadata tests must cover authorization, snapshots, room isolation, and recovery.
-
-## Native and provider acceptance
-
-- Validate native video rendering, overlays, input, fullscreen, tracks, settings, preview isolation, and hardware decoding on both platforms.
-- Validate Google Meet account access, two-way media, controls, capture release, and declared capabilities in the chosen application-owned hosts.
-- Exercise simultaneous calling and synchronized playback on two physical devices with the same identified media fixtures.
-- Verify local preference persistence, filesystem grants, permissions, helper cleanup, and clean-machine packaging.
-- Compare native component states against the shared design specification in dark/light themes and all supported UI languages.
-
-Acceptance evidence belongs with the relevant implementation change or release. Include reproducible commands or steps, versions, observed behavior, and unresolved failures. Keep credentials, meeting links, private media, device configuration, raw session output, and development diaries out of the source tree.
+The [Meet contract](google-meet.md) and [dependency policy](dependencies.md) define unresolved host capabilities and source closure. An ineffective slider, camera toggle workaround, or audible inactive call leaves the corresponding requirement open.
 
 ## Release condition
 
-Every product requirement must have a passing acceptance result or an explicitly approved scope decision. G1-G5 in the [architecture](README.md) remain open until backed by the appropriate runtime and visual evidence. Successful document validation is not runtime acceptance.
+A complete release requires every product requirement and G1-G5 to pass or have an explicitly approved scope decision. Builds must have the correct dependency notices, permissions, package identities, and signing/distribution properties. Successful document validation or a native shell build is not complete application acceptance. Source validation and build entry points are documented in [building and running](../building.md).

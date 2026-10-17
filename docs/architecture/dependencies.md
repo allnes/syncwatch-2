@@ -17,7 +17,7 @@ Style Dictionary is a build tool. The native UI does not require a JavaScript ru
 
 The contract checker imports fastjsonschema directly from its submodule and verifies its revision, Git index pin, and source version. Its runtime graph has no third-party dependencies. Python 3.12 or newer is a developer/CI toolchain requirement. No pip packages are installed. The upstream nested JSON-Schema-Test-Suite submodule and development extras are unused by this checker. See the [tool manifest](../../tools/contracts/pyproject.toml) and [contract validation commands](contracts.md#reproducible-validation).
 
-The same pinned validator is registered as a dependency-free Python source-package build in the [component registry](../../tools/dependencies/components.json). It provides a real Linux/macOS/Windows exercise for the shared source/cache infrastructure. It copies runtime Python sources and the BSD notice without invoking upstream packaging tools or development extras. See [dependency builds](../dependency-builds.md); this registration does not resolve the pending product-engine graphs below.
+The same pinned validator is registered as a dependency-free Python source-package build in the [component registry](../../tools/dependencies/components.json). It provides a real Linux/macOS/Windows exercise for the shared source/cache infrastructure. It copies runtime Python sources and the BSD notice without invoking upstream packaging tools or development extras. See [source builds](../building.md#source-dependencies); this registration does not resolve the pending product-engine graphs below.
 
 ## Complete source graph
 
@@ -31,9 +31,9 @@ Before building a component:
 4. Associate distributed binaries with their source revisions, build flags, toolchain, and SHA-256 digests.
 5. Disable implicit dependency downloads and verify the notices for the resulting binary module set.
 
-Compilers, platform SDKs, and system frameworks such as SwiftUI, AppKit, Foundation, WebKit, .NET, and WPF are build-platform requirements. This exception includes SDK-provided Swift Testing, compiler analyzers, formatting tools, and the .NET reference/runtime packs used by the dependency-free native shells. Toolchain versions and commands are declared in [native development](../native-development.md); no NuGet test framework or formatter package is installed. Google Meet is a remote service rather than a vendored source library.
+Compilers, platform SDKs, and system frameworks such as SwiftUI, AppKit, Foundation, WebKit, .NET, and WPF are build-platform requirements. This exception includes SDK-provided Swift Testing, compiler analyzers, formatting tools, and the .NET reference/runtime packs used by the dependency-free native shells. Toolchain versions and commands are declared in [building and running](../building.md); no NuGet test framework or formatter package is installed. Google Meet is a remote service rather than a vendored source library.
 
-Python and Node.js are developer/runner toolchains. The CI artifact and dependency-cache adapters are first-party code using only Node built-ins; their local JavaScript actions run with the runner-provided Node 24 runtime. Their tests require Node 22 or newer. They install no npm packages or external Actions. The GitHub artifact service is remote infrastructure, with the supported interface and validation boundary described in [continuous integration](continuous-integration.md).
+Python and Node.js are developer/runner toolchains. The CI artifact and dependency-cache adapters are first-party code using only Node built-ins; their local JavaScript actions run with the runner-provided Node 24 runtime. Their tests require Node 22 or newer. They install no npm packages or external Actions. The GitHub artifact service is remote infrastructure, used by the repository-owned workflows under `.github/workflows/` and not required by the application runtime.
 
 ## Dependency closure still required
 
@@ -60,7 +60,7 @@ git submodule status --recursive
 git diff --submodule=short
 ```
 
-For each update, review the release and licenses, check out an exact revision, update the dependency specification, validate the affected components, and commit and push the completed change. Reproducible builds must not use `git submodule update --remote`.
+Each source update records an exact revision and the corresponding license/notice requirements. Reproducible builds must not use `git submodule update --remote`.
 
 ## Upstream references
 

@@ -2,22 +2,21 @@
 
 SyncWatch lets people watch their local movie files together with synchronized playback and a Google Meet call in a separate application-owned window.
 
-## Product specification
+## Application
 
-- [Development setup](development.md): repository checks, tooling requirements, and initial CI behavior.
-- [Native development](native-development.md): Swift/macOS and C#/WPF shells, SDK requirements, formatting, builds, tests, and launch commands.
-- [Dependency builds](dependency-builds.md): source manifests, reproducible entry points, cold builds, input keys, trusted caches, and currently unavailable components.
+- [Application behavior](application.md): screens, controls, settings, keyboard actions, window behavior, and connection recovery.
+- [Building and running](building.md): source checkout, declared toolchains, native builds, and launch commands.
 - [Product requirements](architecture/product-requirements.md): library, playback, synchronization, calls, settings, and resource lifecycle.
+
+## Architecture and design
+
 - [Application architecture](architecture/README.md): components, state ownership, native clients, and integration gates.
 - [Shared contracts](architecture/contracts.md): versioned schemas, wire units/bounds, ordering, IPC, and acceptance fixtures.
 - [Shared design system](architecture/design-system.md): platform-neutral design contracts and generated native resources.
 - [Syncplay and room metadata](architecture/syncplay.md): engine integration, local IPC, media selection, and reconnect behavior.
 - [Google Meet integration](architecture/google-meet.md): application-owned call windows, authentication, capabilities, and feasibility criteria.
 - [Dependencies](architecture/dependencies.md): pinned Git submodules and source dependency policy.
-- [Implementation plan](architecture/delivery-plan.md): deliverables and acceptance criteria.
-- [Pull request plan](architecture/pull-request-plan.md): 24 product and 5 CI changes, prerequisites, requirement coverage, and gate closure.
-- [Continuous integration](architecture/continuous-integration.md): required checks, platform builds, dependency caches, integration acceptance, and release candidates.
-- [Validation strategy](architecture/validation.md): document, contract, platform, and physical-device checks.
+- [Product acceptance](architecture/validation.md): behavior and integration conditions for a complete application.
 
 ## Technology choices
 
@@ -32,4 +31,4 @@ SyncWatch lets people watch their local movie files together with synchronized p
 | Room metadata service | C#, ASP.NET Core, HTTPS/WSS |
 | External source dependencies | Pinned Git submodules under `3rdparty/` |
 
-The repository contains native shells and domain ownership guards, specifications, design data, shared contracts, offline contract validation, repository CI, and dependency sources. Generated platform design resources and media/provider integration remain planned. Meet embedding, complete VLC feature support, and dependency closure remain explicit acceptance gates.
+Native application shells, domain ownership guards, design data, and shared contracts are present. Native design renderers, the token generator, player integration, synchronization, and calling are not yet complete. The application specification describes required product behavior; it does not claim that the existing shells already implement it. Provider and dependency limitations remain explicit in the architecture.

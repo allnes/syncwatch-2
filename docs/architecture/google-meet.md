@@ -34,12 +34,17 @@ The host can represent `idle`, `opening`, `webSurfaceReady`, `userActionRequired
 | Device selection and native media controls | Working provider integration for every exposed action |
 | Hangup and close | Capture and participation stop, including when the window closes |
 | Remote video | A usable video presentation within the application-owned window |
-| Independent call volume | Only the intended call output changes |
+| Local camera thumbnail | Compact actual self-view alongside remote video, with active, disabled, denied, and unavailable states |
+| Initial camera state | Enabled camera starts on first join with permission granted, without an off/on workaround |
+| Independent call volume | Zero/mute, intermediate, and full values affect only received call output; movie, microphone, other applications, and peers remain unchanged |
+| Inactive call audio | No received audio before join or after hangup, close, failed join, or teardown; synchronization-room membership alone does not open audio |
 | Remote-speaking notification | A reliable signal for movie ducking |
 | Camera quality | Actual selectable provider/host capability |
 | Compact call layout | A usable minimum viewport with functioning meeting controls |
 
 Capabilities such as `canObserveJoin`, `canMuteFromNativeUI`, `canSelectDevicesFromNativeUI`, `canSetCallVolume`, `canObserveRemoteSpeaking`, and `canConfirmHangup` default to false until proven. Missing capabilities remain unmet requirements; an ineffective UI action is not an implementation.
+
+The existing six-field capability schema does not prove local preview or initial camera behavior. Acceptance requires actual media observation; extend the versioned capability boundary before exposing new native actions that require it. Never substitute a synthetic self-view or treat an automatically opened audio path as a joined call.
 
 ## Feasibility gate G1
 
@@ -47,9 +52,9 @@ Test the selected hosts in interactive macOS and Windows sessions:
 
 1. Open a separate application-owned window with top-level Meet navigation.
 2. Verify signed-in and guest participation separately for the supported account types.
-3. Establish two-way camera/microphone media, switch devices, and restore the window after minimization.
+3. Establish two-way media on the first join without toggling the camera; verify compact local preview, device changes, and restore after minimization.
 4. Check each exposed control and observable capability through a reliable integration path.
-5. Verify hangup, close, capture release, reconnect, expired meetings, and denied permissions.
+5. Verify hangup, close, capture release, reconnect, expired meetings, and denied permissions. Confirm no remote audio before join or after every teardown/failed-join path. Sweep independent call volume through zero, intermediate, and full values during a real call.
 6. Run a local movie with Syncplay between both devices during the call and verify audio isolation and playback responsiveness.
 
 Record host versions, account categories, and the capability result in the relevant implementation review, excluding credentials, meeting links, cookies, and private participant content. Finalize the browser dependency graph after selecting a viable host.

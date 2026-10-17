@@ -12,8 +12,9 @@
     "PlayerChrome": {
       "tokens": ["layout.playerTopInset", "layout.playerBottomInset", "control.sliderTrackHeight", "control.sliderThumbRadius"],
       "states": ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"],
-      "actions": ["playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles", "openExternalAudio", "openExternalSubtitles", "setMovieVolume", "muteMovie", "openCall", "showLibrary", "endWatching"],
-      "overlays": ["timelinePreview", "volumeOSD", "contextMenu", "playlist", "playerSettings"]
+      "actions": ["playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles", "openExternalAudio", "openExternalSubtitles", "setMovieVolume", "setCallVolume", "muteMovie", "openCall", "showLibrary", "endWatching"],
+      "overlays": ["timelinePreview", "volumeOSD", "contextMenu", "playlist", "playerSettings"],
+      "cursorBehavior": "Hide an idle cursor over playing video; restore on movement, pause, or interaction, in windowed and fullscreen modes."
     },
     "SettingsDialog": {
       "tokens": ["layout.settingsWidth", "layout.settingsHeight", "layout.settingsSidebarWidth", "control.compactDialogRadius"],
@@ -28,8 +29,10 @@
     "CallWindowShell": {
       "tokens": ["layout.callInitialWidth", "layout.callInitialHeight"],
       "states": ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"],
-      "actions": ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close"],
-      "providerSurface": "Google Meet top-level web page. Authentication, media controls, and the minimum usable viewport must pass the call integration acceptance criteria."
+      "actions": ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp"],
+      "regions": ["remoteCallSurface", "localCameraPreview", "windowControls", "callControls"],
+      "localPreviewStates": ["cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable"],
+      "providerSurface": "Google Meet top-level web page. Authentication, actual self-view, initial camera state, isolated call volume, inactive-audio silence, and the minimum usable viewport must pass call acceptance."
     }
   }
 }
