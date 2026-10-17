@@ -18,14 +18,13 @@
         "./utils": "./syncwatch-utils.js"
       },
       "requires": [
-        "@bundled-es-modules/deepmerge",
-        "@bundled-es-modules/glob",
+        "deepmerge",
+        "glob",
         "chalk",
         "change-case",
         "colorjs.io",
         "is-plain-obj",
         "json5",
-        "path-unified",
         "tinycolor2"
       ],
       "excludedDependencies": {
@@ -33,23 +32,31 @@
         "@zip.js/zip.js": "ZIP conversion/download utilities; excluded from the native generator utils entry.",
         "commander": "Upstream CLI; the product uses its own API entry.",
         "prettier": "JavaScript/TypeScript output formats; native profile permits JSON and custom syncwatch formats only."
-      }
-    },
-    "@bundled-es-modules/deepmerge": {
-      "source": "3rdparty/design-deepmerge-es",
-      "packageRoot": "",
-      "manifest": "package.json",
-      "version": "4.3.2",
-      "files": [
-        "source.js"
-      ],
-      "exports": {
-        ".": "./source.js"
       },
-      "requires": [
-        "deepmerge"
-      ],
-      "excludedDependencies": {}
+      "sourceBindings": {
+        "@bundled-es-modules/deepmerge": {
+          "package": "deepmerge",
+          "imports": {
+            "@bundled-es-modules/deepmerge": "deepmerge"
+          },
+          "reason": "Use the original CommonJS implementation directly through Node ESM interop."
+        },
+        "@bundled-es-modules/glob": {
+          "package": "glob",
+          "imports": {
+            "@bundled-es-modules/glob": "glob/raw"
+          },
+          "reason": "Use the original unbundled Node entry directly."
+        },
+        "path-unified": {
+          "package": null,
+          "imports": {
+            "path-unified/posix": "node:path/posix",
+            "path-unified/win32": "node:path/win32"
+          },
+          "reason": "Use the standard Node path API; no adapted Node source is redistributed."
+        }
+      }
     },
     "deepmerge": {
       "source": "3rdparty/design-deepmerge",
@@ -62,47 +69,8 @@
       "exports": {
         ".": "./index.js"
       },
-      "requires": [
-        "is-mergeable-object"
-      ],
-      "excludedDependencies": {}
-    },
-    "is-mergeable-object": {
-      "source": "3rdparty/design-mergeable",
-      "packageRoot": "",
-      "manifest": "package.json",
-      "version": "1.1.1",
-      "files": [
-        "index.js"
-      ],
-      "exports": {
-        ".": "./index.js"
-      },
       "requires": [],
       "excludedDependencies": {}
-    },
-    "@bundled-es-modules/glob": {
-      "source": "3rdparty/design-glob-es",
-      "packageRoot": "",
-      "manifest": "package.json",
-      "version": "13.0.6-hotfix.0",
-      "files": [
-        "index.js"
-      ],
-      "exports": {
-        ".": "./index.js"
-      },
-      "requires": [
-        "glob"
-      ],
-      "excludedDependencies": {
-        "buffer": "Browser polyfill; Node entry re-exports glob/raw.",
-        "events": "Browser polyfill; Node entry re-exports glob/raw.",
-        "path": "Browser polyfill; Node entry re-exports glob/raw.",
-        "stream": "Browser polyfill; Node entry re-exports glob/raw.",
-        "string_decoder": "Browser polyfill; Node entry re-exports glob/raw.",
-        "url": "Browser polyfill; Node entry re-exports glob/raw."
-      }
     },
     "glob": {
       "source": "3rdparty/design-glob",
@@ -280,22 +248,6 @@
       ],
       "exports": {
         ".": "./lib/index.js"
-      },
-      "requires": [],
-      "excludedDependencies": {}
-    },
-    "path-unified": {
-      "source": "3rdparty/design-path-unified",
-      "packageRoot": "",
-      "manifest": "package.json",
-      "version": "0.2.0",
-      "files": [
-        "src/**/*.js"
-      ],
-      "exports": {
-        ".": "./src/index.js",
-        "./posix": "./src/posix.js",
-        "./win32": "./src/win32.js"
       },
       "requires": [],
       "excludedDependencies": {}

@@ -10,15 +10,6 @@
 [submodule "3rdparty/fastjsonschema"]
 	path = 3rdparty/fastjsonschema
 	url = https://github.com/horejsek/python-fastjsonschema.git
-[submodule "3rdparty/design-deepmerge-es"]
-	path = 3rdparty/design-deepmerge-es
-	url = https://github.com/bundled-es-modules/deepmerge.git
-[submodule "3rdparty/design-glob-es"]
-	path = 3rdparty/design-glob-es
-	url = https://github.com/bundled-es-modules/glob.git
-[submodule "3rdparty/design-mergeable"]
-	path = 3rdparty/design-mergeable
-	url = https://github.com/TehShrike/is-mergeable-object.git
 [submodule "3rdparty/design-glob"]
 	path = 3rdparty/design-glob
 	url = https://github.com/isaacs/node-glob.git
@@ -55,9 +46,6 @@
 [submodule "3rdparty/design-json5"]
 	path = 3rdparty/design-json5
 	url = https://github.com/json5/json5.git
-[submodule "3rdparty/design-path-unified"]
-	path = 3rdparty/design-path-unified
-	url = https://github.com/jorenbroekema/path-unified.git
 [submodule "3rdparty/design-tinycolor"]
 	path = 3rdparty/design-tinycolor
 	url = https://github.com/bgrins/TinyColor.git

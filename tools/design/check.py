@@ -20,6 +20,9 @@ def main():
     options = ["--component", "design-generator", "--platform", target]
     subprocess.run([*base, "prepare", *options], cwd=root, check=True)
     subprocess.run([*base, "build", *options, *(["--cold"] if args.cold else [])], cwd=root, check=True)
+    # Check notice presence and modification markers on both cold builds and cache restores.
+    runtime = root / "artifacts/dependencies/design-generator" / target / "payload/runtime"
+    subprocess.run(["node", "tools/design/licenses.mjs", str(runtime)], cwd=root, check=True)
 
 
 if __name__ == "__main__":

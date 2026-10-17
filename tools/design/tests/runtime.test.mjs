@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+import {cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
@@ -125,7 +125,7 @@ test('network and process imports and ambient packages are rejected', () => {
 test('every packaged runtime file matches its source correspondence inventory', () => {
     const manifest = JSON.parse(readFileSync(join(runtime, 'source-map.json'), 'utf8'));
     assert.equal(manifest.profile, 'native-node-v1');
-    assert.equal(Object.keys(manifest.packages).length, 19);
+    assert.equal(Object.keys(manifest.packages).length, 15);
     for (const [file, metadata] of Object.entries(manifest.files)) {
         assert.equal(createHash('sha256').update(readFileSync(join(runtime, file))).digest('hex'), metadata.sha256, file);
     }
@@ -134,4 +134,46 @@ test('every packaged runtime file matches its source correspondence inventory', 
     const files = walk(join(runtime, 'node_modules'));
     assert.equal(files.length, Object.keys(manifest.files).filter(file => file.startsWith('node_modules/')).length);
     assert.ok(files.every(file => !file.endsWith('.ts') && !file.includes('node_modules/prettier')));
+});
+
+test('the selected graph excludes wrappers and uses the configured upstream merge predicate', () => {
+    const manifest = JSON.parse(readFileSync(join(runtime, 'source-map.json'), 'utf8'));
+    for (const name of ['@bundled-es-modules/deepmerge', '@bundled-es-modules/glob', 'path-unified', 'is-mergeable-object']) {
+        assert.ok(!Object.hasOwn(manifest.packages, name));
+    }
+    const deepmerge = pathToFileURL(join(runtime, 'node_modules/deepmerge/index.js')).href;
+    run(`const {default: merge} = await import(${JSON.stringify(deepmerge)});
+assert.throws(() => merge({a: 1}, {b: 2}), /explicit isMergeableObject/);
+assert.deepEqual(merge({a: [1], nested: {x: 1}}, {a: [2], nested: {y: 2}}, {
+    isMergeableObject: value => value !== null && typeof value === 'object',
+}), {a: [1, 2], nested: {x: 1, y: 2}});`);
+});
+
+test('missing licenses and removed modification notices fail the distribution check', () => {
+    const checker = join(root, 'tools/design/licenses.mjs');
+    const probe = join(temporary, 'license-probe');
+    mkdirSync(probe);
+    cpSync(runtime, probe, {recursive: true});
+    const check = () => spawnSync(process.execPath, [checker, probe], {cwd: root, encoding: 'utf8', timeout: 10000});
+    assert.equal(check().status, 0);
+    const notice = join(probe, 'node_modules/chalk/license');
+    const originalNotice = readFileSync(notice);
+    rmSync(notice);
+    assert.notEqual(check().status, 0, 'Missing upstream license was accepted');
+    writeFileSync(notice, originalNotice);
+    const source = join(probe, 'node_modules/style-dictionary/lib/fs.js');
+    const originalSource = readFileSync(source, 'utf8');
+    writeFileSync(source, originalSource.replace(/^\/\/ Modified by SyncWatch:[^\n]*\n/, ''));
+    assert.match(check().stderr, /Prominent modification notice missing/);
+    writeFileSync(source, originalSource);
+    const metadata = join(probe, 'node_modules/style-dictionary/package.json');
+    const packageJson = JSON.parse(readFileSync(metadata, 'utf8'));
+    const modification = packageJson.syncwatchModifications;
+    delete packageJson.syncwatchModifications;
+    writeFileSync(metadata, JSON.stringify(packageJson));
+    assert.match(check().stderr, /Prominent modification notice missing/);
+    packageJson.syncwatchModifications = modification;
+    packageJson.license = 'GPL-3.0-only';
+    writeFileSync(metadata, JSON.stringify(packageJson));
+    assert.match(check().stderr, /Runtime license declaration differs/);
 });

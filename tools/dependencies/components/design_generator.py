@@ -14,6 +14,7 @@ def main():
     output = Path(os.environ["SYNCWATCH_DEPENDENCY_OUTPUT"]) / "runtime"
     output.mkdir()
     subprocess.run(["node", "tools/design/build.mjs", os.environ["SYNCWATCH_DEPENDENCY_SOURCES"], str(output)], cwd=root, check=True)
+    subprocess.run(["node", "tools/design/licenses.mjs", str(output)], cwd=root, check=True)
     subprocess.run(["node", "--test", "tools/design/tests/runtime.test.mjs"], cwd=root, check=True,
                    env=os.environ | {"SYNCWATCH_DESIGN_RUNTIME": str(output)})
 

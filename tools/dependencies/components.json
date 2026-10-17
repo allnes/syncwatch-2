@@ -115,27 +115,14 @@
             "NOTICE"
           ],
           "requires": [
-            "3rdparty/design-deepmerge-es",
-            "3rdparty/design-glob-es",
+            "3rdparty/design-deepmerge",
+            "3rdparty/design-glob",
             "3rdparty/design-chalk",
             "3rdparty/design-change-case",
             "3rdparty/design-colorjs",
             "3rdparty/design-plain-object",
             "3rdparty/design-json5",
-            "3rdparty/design-path-unified",
             "3rdparty/design-tinycolor"
-          ],
-          "unusedSubmodules": {}
-        },
-        "3rdparty/design-deepmerge-es": {
-          "revision": "642f03ac541dbe9458882a19390b789beabfb92e",
-          "license": "MIT",
-          "notices": [
-            "package.json",
-            "README.md"
-          ],
-          "requires": [
-            "3rdparty/design-deepmerge"
           ],
           "unusedSubmodules": {}
         },
@@ -145,31 +132,7 @@
           "notices": [
             "license.txt"
           ],
-          "requires": [
-            "3rdparty/design-mergeable"
-          ],
-          "unusedSubmodules": {}
-        },
-        "3rdparty/design-mergeable": {
-          "revision": "3cb102979a09f4780838c9fb8e8d392eeac3d1aa",
-          "license": "MIT",
-          "notices": [
-            "package.json",
-            "readme.md"
-          ],
           "requires": [],
-          "unusedSubmodules": {}
-        },
-        "3rdparty/design-glob-es": {
-          "revision": "bb0844ae1a82a30ccc0fcf545fc90b271d8b1bd7",
-          "license": "MIT",
-          "notices": [
-            "package.json",
-            "README.md"
-          ],
-          "requires": [
-            "3rdparty/design-glob"
-          ],
           "unusedSubmodules": {}
         },
         "3rdparty/design-glob": {
@@ -291,16 +254,6 @@
           "requires": [],
           "unusedSubmodules": {}
         },
-        "3rdparty/design-path-unified": {
-          "revision": "7df2ca068e538057b25fcf06769a323936aee97c",
-          "license": "MIT",
-          "notices": [
-            "package.json",
-            "README.md"
-          ],
-          "requires": [],
-          "unusedSubmodules": {}
-        },
         "3rdparty/design-tinycolor": {
           "revision": "a93228a6782bfe9a6154da14f5a7ece3ad9fb6c4",
           "license": "MIT",
@@ -313,7 +266,8 @@
       },
       "inputs": [
         "tools/design",
-        "packages/design"
+        "packages/design",
+        "LICENSE"
       ],
       "watch": [
         "3rdparty/style-dictionary",

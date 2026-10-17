@@ -8,6 +8,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Running the room service](room-service.md): service setup, configuration, and startup.
 - [Building and running](building.md): source checkout, declared toolchains, native builds, and launch commands.
 - [Building the design tools](design-generator.md): source-only Style Dictionary profile and API.
+- [Licenses and distribution](licenses.md): first-party licensing and third-party notices.
 
 ## Architecture and design
 
