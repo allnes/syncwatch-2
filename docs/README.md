@@ -11,6 +11,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Google Meet integration](architecture/google-meet.md): application-owned call windows, authentication, capabilities, and feasibility criteria.
 - [Dependencies](architecture/dependencies.md): pinned Git submodules and source dependency policy.
 - [Implementation plan](architecture/delivery-plan.md): deliverables and acceptance criteria.
+- [Pull request plan](architecture/pull-request-plan.md): 24 implementation changes, prerequisites, requirement coverage, and gate closure.
 - [Validation strategy](architecture/validation.md): document, contract, platform, and physical-device checks.
 
 ## Technology choices

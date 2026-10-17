@@ -142,4 +142,5 @@ A failed gate remains an unmet requirement. A change to the call provider, windo
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).
 - [Implementation plan](delivery-plan.md).
+- [Pull request implementation plan](pull-request-plan.md).
 - [Validation strategy](validation.md).

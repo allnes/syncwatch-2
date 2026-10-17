@@ -2,6 +2,8 @@
 
 The product currently has architecture specifications, shared design data, and pinned top-level dependency sources. The deliverables below describe implementation work and its acceptance criteria.
 
+The [pull request implementation plan](pull-request-plan.md) breaks these deliverables into PR01-PR24 with explicit prerequisites, review scope, validation, and coverage of F01-F25. Establish contracts, native shells, and the call host source dependencies before the early call experiment. Full call acceptance also requires the assembled playback and synchronization workflow.
+
 ## Delivery sequence
 
 | Stage | Deliverable | Acceptance criteria |
