@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows",
-  "status": "Specification only; native renderers and token generator are not implemented",
+  "status": "Native resources are generated; component renderers remain specifications",
   "components": {
     "LibraryLayout": {
       "structure": ["header", "libraryPanel", "selectedMoviePanel", "roomStatus", "recentActivity"],

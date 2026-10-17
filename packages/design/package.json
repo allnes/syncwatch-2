@@ -4,5 +4,5 @@
   "private": true,
   "license": "Apache-2.0",
   "description": "Platform-neutral SyncWatch design tokens and component contracts",
-  "files": ["tokens", "components.json"]
+  "files": ["tokens", "themes.json", "components.json", "generated"]
 }

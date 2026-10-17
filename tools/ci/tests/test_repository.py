@@ -146,6 +146,30 @@ class RepositoryChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "must be a Git submodule"):
             check_submodules(self.root)
 
+    def test_design_aliases_resolve_and_reject_invalid_chains(self):
+        self.copy_design()
+        path = self.root / "packages/design/tokens/geometry.json"
+        source = json.loads(path.read_text())
+        source["layout"]["alias"] = {"type": "number", "value": "{layout.panelGap}"}
+        path.write_text(json.dumps(source))
+        check_design(self.root)
+        for reference, error in (("{missing}", "unknown design reference"),
+                                 ("{color.shared.accent}", "type mismatch"),
+                                 ("{layout.alias}", "cyclic design reference")):
+            source["layout"]["alias"]["value"] = reference
+            path.write_text(json.dumps(source))
+            with self.subTest(reference=reference), self.assertRaisesRegex(ValidationError, error):
+                check_design(self.root)
+
+    def test_design_theme_cannot_reference_dimensions(self):
+        self.copy_design()
+        path = self.root / "packages/design/themes.json"
+        source = json.loads(path.read_text())
+        source["themes"]["dark"]["text"] = "layout.panelGap"
+        path.write_text(json.dumps(source))
+        with self.assertRaisesRegex(ValidationError, "invalid design theme color"):
+            check_design(self.root)
+
     def copy_native_manifests(self):
         files = ["global.json", "tools/native/toolchains.json", "NuGet.Config", "SyncWatch.slnx"]
         solution = ET.parse(REPOSITORY / "SyncWatch.slnx").getroot()

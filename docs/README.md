@@ -34,4 +34,4 @@ SyncWatch lets people watch their local movie files together with synchronized p
 | Room metadata service | C#, ASP.NET Core, HTTPS/WSS |
 | External source dependencies | Pinned Git submodules under `3rdparty/` |
 
-Native application shells, domain ownership guards, design data, and shared contracts are present. Native design renderers, the token generator, player integration, synchronization, and calling are not yet complete. Application documentation describes the intended interface; the existing shells do not yet provide these workflows. Provider and dependency limitations are described in the architecture.
+Native application shells, domain ownership guards, generated design resources, and shared contracts are present. Native design renderers, player integration, synchronization, and calling are not yet complete. Application documentation describes the intended interface; the existing shells do not yet provide these workflows. Provider and dependency limitations are described in the architecture.

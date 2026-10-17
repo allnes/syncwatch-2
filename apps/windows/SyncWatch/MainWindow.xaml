@@ -1,8 +1,9 @@
 <Window x:Class="SyncWatch.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SyncWatch" Width="1120" Height="760" MinWidth="800" MinHeight="600">
-    <Grid>
+        Title="SyncWatch" Width="1120" Height="760" MinWidth="800" MinHeight="600"
+        Background="{DynamicResource theme.background.brush}" Foreground="{DynamicResource theme.text.brush}">
+    <Grid Margin="{StaticResource layout.workspacePadding.thickness}">
         <TextBlock Text="SyncWatch" FontSize="32"
                    HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>
