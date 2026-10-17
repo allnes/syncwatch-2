@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-jvm-metadata-audit"
+version = "1.0.0"
+description = "Offline inspection of explicitly selected JVM runtime metadata"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/jvm/tests -v"
