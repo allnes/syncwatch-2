@@ -60,6 +60,8 @@ The snapshot establishes trusted epoch, cursor, generation, and member bindings 
 
 Room events carry catalog, membership, selection, watch lifecycle, missing-media, and call-link metadata. They cannot carry play, pause, seek, rate, or readiness commands. Syncplay is the sole playback synchronization authority. `meetUri` is either null or an HTTPS Meet meeting URI without query strings or fragments; authentication redirects and browser-host navigation policies are separate concerns.
 
+Only play, pause, seek, and movie/playlist-item selection are shared user playback actions. Existing v1 rate fields and `player.setSpeed` are native/helper observations and local drift correction, not a replicated user speed setting. Watch lifecycle metadata is bookkeeping, not authority for another remote stop/close action. Volume, tracks, image/subtitle settings, previews, window/cursor state, theme/language, and camera/microphone preferences stay local. Future adapters must enforce this semantic boundary in addition to schema validation; the current reference validator does not implement that routing policy.
+
 ## Helper IPC and errors
 
 Each request or observation has `id`; a response has `replyTo`. These forms are mutually exclusive. All frames include version, process run, and local media generation. The typed families are:

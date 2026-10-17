@@ -40,6 +40,8 @@ A single command queue owns the native player. The coordinator applies local use
 
 The application boundary uses integer milliseconds; upstream Python APIs use floating-point seconds. Obtain positions from VLC. Use a monotonic clock for elapsed time rather than treating another device's wall-clock timestamps as the playback clock.
 
+Only play, pause, seek, and movie/playlist-item selection are shared user playback actions. Volume/mute, tracks, subtitles, image/audio settings, previews, skip interval, window/cursor state, theme/language, and camera/microphone preferences are never replicated. Readiness and timing support the protocol; helper `setSpeed` performs local drift correction rather than synchronizing a user speed preference. Metadata bookkeeping does not authorize another remote stop, close, or settings action.
+
 ## Local IPC v1
 
 Use inherited anonymous pipes for `stdin` and `stdout` on both platforms. Frames are newline-delimited UTF-8 JSON. Standard output contains protocol frames only; standard error carries sanitized diagnostics. Serialize writes and read asynchronously away from the UI thread.
@@ -73,7 +75,7 @@ The application owns the helper. On EOF, the helper releases its engine and exit
 
 ## RoomMetadata service
 
-Syncplay owns shared play, pause, seek, rate, and readiness. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.
+Syncplay owns shared play/pause/seek and required protocol readiness/timing. Local rate corrections serve the engine; user speed preferences are not shared. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.
 
 Proposed endpoints:
 
@@ -92,7 +94,7 @@ A room snapshot defines the Syncplay endpoint, room name, and agreed client iden
 
 Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position.
 
-If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End always releases resources; a deferred shared End applies only if its generation is still current. If Syncplay fails, pause and become not-ready regardless of the other connections.
+If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 
 ## Media identity
 
