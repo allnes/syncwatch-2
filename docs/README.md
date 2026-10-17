@@ -6,17 +6,15 @@ SyncWatch lets people watch their local movie files together with synchronized p
 
 - [Application behavior](application.md): screens, controls, settings, keyboard actions, window behavior, and connection recovery.
 - [Building and running](building.md): source checkout, declared toolchains, native builds, and launch commands.
-- [Product requirements](architecture/product-requirements.md): library, playback, synchronization, calls, settings, and resource lifecycle.
 
 ## Architecture and design
 
-- [Application architecture](architecture/README.md): components, state ownership, native clients, and integration gates.
+- [Application architecture](architecture/README.md): components, state ownership, native clients, and integration limitations.
 - [Shared contracts](architecture/contracts.md): versioned schemas, wire units/bounds, ordering, IPC, and acceptance fixtures.
 - [Shared design system](architecture/design-system.md): platform-neutral design contracts and generated native resources.
 - [Syncplay and room metadata](architecture/syncplay.md): engine integration, local IPC, media selection, and reconnect behavior.
-- [Google Meet integration](architecture/google-meet.md): application-owned call windows, authentication, capabilities, and feasibility criteria.
+- [Google Meet integration](architecture/google-meet.md): application-owned call windows, authentication, capabilities, and browser-host limitations.
 - [Dependencies](architecture/dependencies.md): pinned Git submodules and source dependency policy.
-- [Product acceptance](architecture/validation.md): behavior and integration conditions for a complete application.
 
 ## Technology choices
 
@@ -31,4 +29,4 @@ SyncWatch lets people watch their local movie files together with synchronized p
 | Room metadata service | C#, ASP.NET Core, HTTPS/WSS |
 | External source dependencies | Pinned Git submodules under `3rdparty/` |
 
-Native application shells, domain ownership guards, design data, and shared contracts are present. Native design renderers, the token generator, player integration, synchronization, and calling are not yet complete. The application specification describes required product behavior; it does not claim that the existing shells already implement it. Provider and dependency limitations remain explicit in the architecture.
+Native application shells, domain ownership guards, design data, and shared contracts are present. Native design renderers, the token generator, player integration, synchronization, and calling are not yet complete. Application documentation describes the intended interface; the existing shells do not yet provide these workflows. Provider and dependency limitations are described in the architecture.

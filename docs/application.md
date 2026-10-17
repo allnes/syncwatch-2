@@ -1,6 +1,6 @@
 # Application behavior
 
-This specification defines the complete SyncWatch interface on macOS and Windows. It complements the [product requirements](architecture/product-requirements.md) and [shared component contracts](../packages/design/components.json). The existing native shells do not yet implement all workflows below.
+This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: the existing native shells do not yet provide the workflows below.
 
 ## Library and watch session
 
@@ -40,9 +40,9 @@ While video plays and the pointer is idle over the video area, hide the cursor a
 
 ## Audio and calling
 
-One audio popover provides independent movie and call output controls. Movie mute, default/remembered movie volume, and mouse-wheel changes affect only movie output. A working call-volume control changes only the intended received call audio. Test mute/zero, intermediate, and full volume without changing the movie, microphone, another application, or a peer's settings.
+One audio popover provides independent movie and call output controls. Movie mute, default/remembered movie volume, and mouse-wheel changes affect only movie output. Call volume controls received call audio independently of the movie, microphone, other applications, and peers.
 
-Optional movie ducking is disabled by default. When a proven remote-speaking signal is available, apply the specified 0.35 multiplier and 280 ms release delay, then restore the user's movie volume. Never change system communications attenuation or another application's volume.
+Optional movie ducking is disabled by default. When remote-speaking detection is available, movie volume uses a 0.35 multiplier and returns to the user's level after a 280 ms release delay. System communications attenuation and other applications' volume are unaffected.
 
 Use Google Meet in a separate SyncWatch-owned call window. Preserve move, resize, pin, minimize, restore, fullscreen, device selection, microphone/camera controls, and hangup. Show a compact preview of the local camera alongside the remote presentation. Its visibility and state must reflect the actual local capture state, including disabled/denied camera states.
 
@@ -50,7 +50,7 @@ With camera enabled by user preference and permission granted, joining starts th
 
 Outside an active joined call, no remote participant audio is audible. Connecting to a synchronization room does not implicitly join a call or open its audio path. After hangup, close, failed join, or call teardown, received call audio stops even if synchronization and movie playback continue.
 
-The initial call size token is 300 by 210; the usable Meet viewport and final minimum dimensions require provider acceptance. Do not infer a joined call from a loaded page or implement controls through unstable provider-page selectors. Independent output volume, local preview, initial camera state, and confirmed hangup remain requirements under the [Meet integration gate](architecture/google-meet.md).
+The initial call size token is 300 by 210. Final minimum dimensions and native call controls depend on the browser host. Independent output volume, local preview, camera startup, and hangup are not implemented in the current shells; see [Meet integration](architecture/google-meet.md) for host limitations.
 
 ## Settings
 
@@ -63,7 +63,7 @@ The application-settings dialog uses the shared 680 by 420 layout and 150-unit s
 | Call | Input/output devices and supported camera quality; retain the 480p target subject to real provider capability |
 | Connection | Synchronization/room connection and readiness behavior with independent channel states |
 
-Validate configuration, persist supported changes, and provide clear saved-state feedback. macOS folder grants use security-scoped bookmarks with recovery for moved, stale, denied, or corrupt grants.
+Supported configuration changes are saved locally, with saved-state feedback and validation errors in the interface. macOS folder grants use security-scoped bookmarks; moved, stale, denied, or corrupt grants need renewed folder access.
 
 The player-settings dialog uses the shared 680 by 460 layout, 170-unit sidebar, draggable title bar, and section reset actions:
 
@@ -75,10 +75,10 @@ The player-settings dialog uses the shared 680 by 460 layout, 170-unit sidebar, 
 | Audio | Default/remembered movie volume and normalization |
 | Advanced | Scaling, cursor behavior, and preview cache from 50 to 500 MB |
 
-Each enabled setting must affect the intended VLC or preview-service capability. Unsupported configuration must be explicit rather than silently ignored.
+Settings depend on the selected VLC modules and preview-service capabilities. Unsupported configuration is shown as unavailable.
 
 ## Recovery and visual consistency
 
 Playback synchronization, room metadata, and calling have independent connection states. Show participant presence/readiness and connecting, connected, reconnecting, interrupted, missing-media, and failed states where applicable. Synchronization loss pauses shared playback; a call-only failure leaves the movie running. Reconnect must not replay obsolete actions or create duplicate players, capture streams, or helpers.
 
-Use the same design token IDs, component order, actions, and state contracts on both native platforms. Preserve the two-column library, deep blue cinema-focused theme, compact dialogs, centered playback controls, timeline previews, audio popover, status indicators, and separate call window. Dark/light themes, English/Russian text, focus order, long filenames, and display scales require acceptance. The [architecture](architecture/README.md), [Syncplay integration](architecture/syncplay.md), and [wire contracts](architecture/contracts.md) define ownership and ordering.
+Both native platforms share design token IDs, component order, actions, and state contracts. The interface uses a two-column library, deep blue cinema-focused theme, compact dialogs, centered playback controls, timeline previews, audio popover, status indicators, and separate call window. The [architecture](architecture/README.md), [Syncplay integration](architecture/syncplay.md), and [wire contracts](architecture/contracts.md) describe ownership and ordering.

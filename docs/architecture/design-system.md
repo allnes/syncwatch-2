@@ -9,7 +9,7 @@ flowchart LR
     S --> W[Generated XAML and C# resources]
     A --> N[SwiftUI and AppKit components]
     W --> C[WPF component templates]
-    N --> V[Shared visual acceptance criteria]
+    N --> V[Shared visual language]
     C --> V
 ```
 
@@ -49,10 +49,8 @@ The visual language includes a two-column library, deep blue surfaces and gradie
 
 Typography, icons, and responsive layouts must receive explicit cross-platform specifications. Use a consistent icon source with its source pinned under `3rdparty/`. System font metrics and platform icon fonts are not interchangeable visual specifications.
 
-## Visual acceptance
+## Rendering boundaries
 
-Cover the library's empty, searching, scanning, selected-media, and disconnected states; player loading, playing, paused, fullscreen, preview, and context menu states; both settings dialogs; and the call window shell. Verify dark/light themes and English/Russian UI localization.
+Shared states include library empty/searching/scanning/selected/disconnected modes, player loading/playing/paused/fullscreen/preview/menu modes, settings dialogs, and the call window. Themes and localization affect layout as well as colors and text.
 
-Fix the viewport in logical units and record display scale and font metrics when comparing renderings. Compare geometry, element order, colors, and interaction states. Mask movie content, meeting content, and system window decorations. Numeric token values must match exactly; rendering tolerances for text require reviewed reference images.
-
-On Windows, validate video-overlay hit testing, focus, and z-order. On both platforms, verify tab order, keyboard actions, long filenames, and localized text. Matching tokens alone does not establish visual acceptance.
+Native renderers own font metrics, focus, keyboard input, display scaling, and overlays. On Windows, video-overlay hit testing and z-order depend on the HWND integration. Matching token values alone does not produce identical native rendering.

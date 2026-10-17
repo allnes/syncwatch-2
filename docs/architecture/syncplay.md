@@ -16,7 +16,7 @@ The integration relies on a pinned internal Python API rather than a separately 
 
 The helper does not launch the standard Syncplay UI or a separate VLC application. A custom BasePlayer adapter controls embedded libVLC directly. Drift correction remains in the upstream engine.
 
-The first executable integration must verify headless imports, complete configuration from upstream defaults, adapter callbacks, and lifecycle without a GUI dependency. Package Python and its complete transitive source graph under the dependency policy before distributing the helper.
+The headless helper needs complete upstream configuration, adapter callbacks, and a Python runtime without a GUI dependency. Python and its transitive sources are part of the helper's dependency graph.
 
 ## Playback flow
 
@@ -104,8 +104,8 @@ An identical full hash is a strong match. Different encodings or missing hashes 
 
 ## Server compatibility
 
-Use the pinned Syncplay server version for controlled integration tests and test interoperability with a standard client separately. Real connections require TLS without silent downgrade. A Syncplay server password is not a substitute for application room authorization; invitations and RoomMetadata authorization are separate concerns. Do not distribute shared server credentials in application binaries.
+The integration targets the pinned Syncplay server and standard upstream clients. Connections use TLS without silent downgrade. A Syncplay server password is separate from application room authorization; invitations and RoomMetadata authorization remain independent. Application binaries contain no shared server credentials.
 
-Validate native-to-native playback, native-to-standard-client playback, latency variation, conflicting actions, missing files, late join, server restart, and helper failure. Standard Syncplay clients are not required to implement SyncWatch-specific catalog metadata.
+Standard Syncplay clients do not implement SyncWatch-specific catalog metadata.
 
 See the [Syncplay protocol specification](https://syncplay.pl/about/protocol/). The pinned source defines the concrete engine behavior and integration points.
