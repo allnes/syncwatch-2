@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using SyncWatch.Design;
 
 internal static class Program
@@ -48,6 +49,8 @@ internal static class Program
         application.Resources.MergedDictionaries.Add(dictionary);
         var panel = new Border();
         panel.SetResourceReference(Border.BackgroundProperty, "theme.background.brush");
+        var window = new Window { Content = panel, Width = 200, Height = 100, ShowInTaskbar = false };
+        window.Show();
         ResourceDictionary? previous = null;
         foreach (var theme in manifest.GetProperty("themes").EnumerateObject())
         {
@@ -65,10 +68,13 @@ internal static class Program
                 count++;
             }
 
-            Check(((SolidColorBrush)panel.Background).Color == (Color)dictionary[theme.Value.GetProperty("background").GetString()!], "DynamicResource theme change");
+            application.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            Check(panel.Background is SolidColorBrush brush && brush.Color == (Color)dictionary[theme.Value.GetProperty("background").GetString()!], "DynamicResource theme change");
             count++;
         }
 
+        window.Close();
+        application.Shutdown();
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Verified {count} compiled C#/WPF resources and theme assertions"));
     }
 
