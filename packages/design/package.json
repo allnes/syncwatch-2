@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "Platform-neutral SyncWatch prototype design tokens and component contracts",
-  "files": ["tokens", "components.json", "provenance.json"]
+  "description": "Platform-neutral SyncWatch design tokens and component contracts",
+  "files": ["tokens", "components.json"]
 }

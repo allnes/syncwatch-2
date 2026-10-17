@@ -1,60 +1,58 @@
-# Общая библиотека дизайна
+# Shared design system
 
-Решение: `packages/design` — отдельная библиотека данных SyncWatch Design под Apache 2.0. Она описывает внешний вид и контракт компонентов независимо от ОС. `3rdparty/style-dictionary` под Apache 2.0 — инструмент преобразования описаний в ресурсы платформ. Swift и C# не содержат независимых копий палитры и размеров.
-
-Такое разделение следует уточнению пользователя: нужна библиотека описания нашего общего дизайна, сохраняющая прототип, а не новая готовая тема.
+`packages/design` is the platform-neutral SyncWatch Design library, licensed under Apache 2.0. It defines visual values and component contracts independently of a UI framework. Style Dictionary, also Apache 2.0, generates resources for the native Swift and C# clients at build time.
 
 ```mermaid
 flowchart LR
-    P[Дизайн прототипа и reference states] --> D[SyncWatch Design: JSON tokens + component contracts]
-    D --> S[Style Dictionary Apache 2.0]
+    D[SyncWatch Design: JSON tokens and component contracts] --> S[Style Dictionary build tool]
     S --> A[Generated Swift resources]
     S --> W[Generated XAML and C# resources]
-    A --> N[SwiftUI / AppKit components]
+    A --> N[SwiftUI and AppKit components]
     W --> C[WPF component templates]
-    N --> V[Единая матрица visual acceptance]
+    N --> V[Shared visual acceptance criteria]
     C --> V
 ```
 
-## Что уже создано
+## Package structure
 
-- `packages/design/tokens/palette.json`: точные theme constants и дополнительные цвета экранов.
-- `packages/design/tokens/geometry.json`: исследованная геометрия основных экранов и контролов.
-- `packages/design/components.json`: состав, состояния и действия Library, PlayerChrome, Settings, PlayerSettings, CallWindowShell.
-- `packages/design/provenance.json`: исходный commit и SHA-256 исследованных файлов.
-- `packages/design/package.json`: manifest отдельной приватной библиотеки данных, Apache 2.0.
-
-Формат токенов — поддерживаемый Style Dictionary JSON `type`/`value`; это не заявление о полной реализации DTCG 2025. Цвета — sRGB hex. Размеры — числа в logical units; каждый formatter переводит их в тип платформы без умножения на physical DPI.
-
-Это начальная спецификация, не полный набор готовых компонентов. Генератор, Swift package и WPF assembly пока не реализованы. Все инструкции остаются в `docs/`, рядом с исходниками библиотеки дополнительные документы не создаются.
-
-## Следующий исполняемый слой
-
-После комплектации source dependencies генератора добавить собственные Style Dictionary formatters:
-
-| Output | Контракт |
+| File | Responsibility |
 |---|---|
-| `SyncWatchTokens.swift` | `Color` из SwiftUI, числовые размеры и theme roles; подходит macOS, без безусловного UIKit import |
-| `SyncWatchTokens.g.cs` | Типизированные значения для C#, одинаковые token IDs |
-| `SyncWatchTheme.g.xaml` | WPF ResourceDictionary: Color, SolidColorBrush, Double, Thickness, CornerRadius |
-| `design-manifest.json` | Token schema version, source SHA и generator commit; одинаков для обеих платформ |
+| `packages/design/tokens/palette.json` | Shared accent colors and dark/light color values |
+| `packages/design/tokens/geometry.json` | Screen dimensions, spacing, and control geometry |
+| `packages/design/components.json` | Library, player, settings, and call window structures, states, and actions |
+| `packages/design/package.json` | Design package identity, version, license, and packaged assets |
 
-Генерация детерминированная: стабильная сортировка и одинаковое округление, без даты сборки в output. Unknown types и неразрешённые references — ошибка. Нативные outputs получают только из общей библиотеки, вручную их не исправляют.
+Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and DIP on Windows. Physical display scale is handled by the renderer rather than embedded in token values.
 
-У Style Dictionary есть Swift formats, но встроенный UIKit output не является автоматически рабочим SwiftUI/macOS output. Для WPF также нужен собственный formatter. [Первичный справочник formats](https://styledictionary.com/reference/hooks/formats/predefined/).
+The current package contains design data and component specifications. The generator, Swift package, and WPF assembly still require implementation.
 
-## Что задаёт общий дизайн
+## Generated resources
 
-Tokens описывают значения. Component contracts описывают структуру, семантику, состояния, фокус, действия и layout. Платформенные renderers отвечают за реализацию этих контрактов; сама Style Dictionary не создаёт UI и не обеспечивает одинаковое поведение контролов.
+After the generator's complete source dependency graph is available, implement dedicated formatters:
 
-Сохраняем двухколоночную библиотеку, тёмный синий gradient, размеры карточек/полей, компактные menus, player overlay, навигацию настроек и строки RU/EN. Тёмная/светлая темы выбирают semantic roles. `system` следует текущей теме ОС.
+| Output | Contract |
+|---|---|
+| `SyncWatchTokens.swift` | SwiftUI colors, dimensions, and theme roles; usable on macOS without an unconditional UIKit import |
+| `SyncWatchTokens.g.cs` | Typed C# values with matching token IDs |
+| `SyncWatchTheme.g.xaml` | WPF Color, SolidColorBrush, Double, Thickness, and CornerRadius resources |
+| `design-manifest.json` | Design schema version, design source digest, and generator revision shared by both clients |
 
-Типографика, иконки, все component states и адаптация к узкому окну ещё требуют полного visual baseline. Системные шрифты нельзя считать одинаковыми по метрикам. Для одинаковых иконок выбрать один набор с проверенной лицензией и добавить его исходники submodule; случайная замена SF Symbols на Segoe glyphs не считается сохранением дизайна.
+Generation must be deterministic: stable ordering and rounding, with no build-time timestamp in the output. Unknown types and unresolved references are build errors. Generated resources are consumed by the native clients and are not edited manually.
 
-## Критерии сохранения
+Style Dictionary provides Swift formats, but framework-specific SwiftUI/macOS and WPF output needs dedicated formatting. See the [format reference](https://styledictionary.com/reference/hooks/formats/predefined/).
 
-Снять Library, empty/search/loading, selected media, player playing/paused/fullscreen/preview/context menu, оба Settings и call shell в dark/light, RU/EN. Размер viewport фиксируется в logical units, отдельно фиксируются scale factor и font metrics.
+## Component implementation
 
-Проверять геометрию, порядок элементов, цвета и состояния; маскировать содержимое фильма/Meet и системные chrome области. Числовые tokens должны совпадать точно. Допуск raster differences шрифтов задаётся после эталонных снимков и ручного просмотра, а не объявляется заранее процентом.
+Tokens define values. Component contracts define structure, semantic roles, interaction states, focus behavior, and actions. Native renderers implement these contracts; Style Dictionary does not render controls or implement their behavior.
 
-При Windows video HWND отдельно проверить overlay hit testing и z-order. При обоих UI — tab order, focus, клавиши, multiline/long filenames и русский текст. Без снимков новых нативных экранов visual parity остаётся непроверенной.
+The visual language includes a two-column library, deep blue surfaces and gradients, compact controls and menus, player overlays, settings sidebars, and consistent status indicators. Theme roles select dark or light resources; system mode follows the current operating-system appearance.
+
+Typography, icons, and responsive layouts must receive explicit cross-platform specifications. Use a consistent icon source with its source pinned under `3rdparty/`. System font metrics and platform icon fonts are not interchangeable visual specifications.
+
+## Visual acceptance
+
+Cover the library's empty, searching, scanning, selected-media, and disconnected states; player loading, playing, paused, fullscreen, preview, and context menu states; both settings dialogs; and the call window shell. Verify dark/light themes and English/Russian UI localization.
+
+Fix the viewport in logical units and record display scale and font metrics when comparing renderings. Compare geometry, element order, colors, and interaction states. Mask movie content, meeting content, and system window decorations. Numeric token values must match exactly; rendering tolerances for text require reviewed reference images.
+
+On Windows, validate video-overlay hit testing, focus, and z-order. On both platforms, verify tab order, keyboard actions, long filenames, and localized text. Matching tokens alone does not establish visual acceptance.

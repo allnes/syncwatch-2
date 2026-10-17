@@ -29,7 +29,7 @@
       "tokens": ["layout.callInitialWidth", "layout.callInitialHeight"],
       "states": ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"],
       "actions": ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close"],
-      "providerSurface": "Google Meet top-level web page; provider controls and authentication require the integration feasibility gate. Initial prototype size is a comparison reference, not a proven usable Meet viewport."
+      "providerSurface": "Google Meet top-level web page. Authentication, media controls, and the minimum usable viewport must pass the call integration acceptance criteria."
     }
   }
 }

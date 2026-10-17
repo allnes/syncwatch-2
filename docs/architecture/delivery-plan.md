@@ -1,55 +1,47 @@
-# План реализации и приёмки
+# Implementation plan
 
-Это план будущей реализации. Создание документов и source submodules выполнено; ни один пункт runtime приёмки ниже ещё не закрыт.
+The product currently has architecture specifications, shared design data, and pinned top-level dependency sources. The deliverables below describe implementation work and its acceptance criteria.
 
-## Порядок законченных шагов
+## Delivery sequence
 
-| Этап | Результат отдельного шага | Доказательство завершения |
+| Stage | Deliverable | Acceptance criteria |
 |---|---|---|
-| P0. Зафиксировать baseline | Read-only prototype audit, design tokens, functional matrix, provenance | Исходный commit и SHA-256, чистый исходный checkout; полный visual/runtime baseline ещё нужно доснять |
-| P1. Проверить Meet раньше основного UI | Минимальные Swift/C# app-owned call windows и отчёт G1 | Signed-in и guest сценарии проверены отдельно; реальный Mac ↔ Windows call; список capabilities и gaps |
-| P2. Материализовать toolchains и source graph | Точный .NET SDK, Swift settings, Node/Python toolchains, все transitive source submodules для выбранных компонентов | Никаких floating dependencies; воспроизводимый offline component build; provenance binaries и notices |
-| P3. Общая библиотека дизайна | Style Dictionary custom formatters, Swift resources, C#/XAML resources; галерея компонентов | Одинаковые IDs/значения, deterministic generation, dark/light/RU/EN snapshots; source drift check |
-| P4. VLC на двух ОС | Нативный video host с player chrome, tracks и preview | Реальные files, HW decode evidence, Windows overlay/DPI/input/fullscreen; ни один player setting не no-op |
-| P5. Syncplay bridge | Headless helper с formal IPC schema и upstream client engine | Import/init без GUI, native↔official client interoperability, reconnect, duplicate/stale commands, child teardown |
-| P6. RoomMetadata и каталог | Catalog exchange, media identity, session generation, missing file, Meet URI | Тесты rooms/authorization/snapshot/order/late join; никакой передачи полных local paths или playback control по WSS |
-| P7. Собрать продуктовые сценарии | Library → Start → Player → Continue/End, отдельный Meet shell, все preferences | F01–F25 проверены на Mac и Windows, визуальные сравнения и сохранение настроек |
-| P8. Упаковка | Подписанный macOS bundle и Windows package, provenance и dependencies notices | Clean-machine launch, source pin correspondence, first-run permissions и повторный запуск без остаточных processes/capture |
+| P1: Call feasibility | Minimal application-owned Meet windows on macOS and Windows | Gate G1 covers account access, real two-way media, lifecycle, and required capabilities |
+| P2: Reproducible dependencies | Pinned toolchains and complete component source graphs | All external libraries have source submodules; offline component builds and binary/source correspondence work |
+| P3: Shared design | Style Dictionary formatters, Swift resources, C#/XAML resources, and component galleries | Deterministic generation, matching token IDs, dark/light themes, localized layouts, and reviewed interaction states |
+| P4: Native playback | VLC video hosts, player controls, tracks, settings, and previews | Hardware decoding, Windows overlay/DPI/focus, fullscreen, preview isolation, and every exposed setting work |
+| P5: Synchronization | Headless Syncplay bridge with a formal IPC contract | GUI-free initialization, standard-client interoperability, two-device recovery, bounded IPC, and safe child-process shutdown |
+| P6: Room metadata | Catalog exchange, media identity, selection generations, missing-media handling, and Meet URI exchange | Room isolation, authorization, event ordering, snapshots, late join, and reconnect work without a second playback controller |
+| P7: Product workflows | Library, Start/Continue/End, player, settings, and separate call shell | Functional requirements F01-F25 pass on both clients and meet visual acceptance |
+| P8: Distribution | Signed macOS application and Windows package | Clean-machine startup, permissions, dependency notices, source/binary traceability, and complete shutdown |
 
-P1 — маленький эксперимент до полной реализации, чтобы не построить всё приложение на неподтверждённом предположении о Meet. Если gate не проходит, завершить независимые части проектирования и предъявить конкретный gap для продуктового решения. Не считать ограниченную демоверсию сохранением всего функционала.
+Run the small call-host feasibility exercise before building the full UI. Resolve dependency closure for each executable component before its build. If a required provider capability is unavailable, keep the gap explicit and obtain a product decision before reducing scope.
 
-Для каждого этапа: сфокусированный commit → соответствующие проверки → push. Крупный этап делить на самостоятельные reviewable результаты; не коммитить случайные intermediate поломки как законченный шаг.
+Each completed deliverable receives focused validation, a commit, and a push. Split large stages into independently reviewable changes. Include validation commands and observed results in implementation reviews rather than adding a development diary to product documentation.
 
-## Матрица автоматических проверок
+## Engineering coverage
 
-| Уровень | Существенные сценарии |
+| Area | Required scenarios |
 |---|---|
-| Design generator | Unknown type/reference, цвет/alpha, pt/DIP conversion, повторная генерация без diff, одинаковые IDs и manifest hash |
-| Domain на Swift и C# | Start/Continue/End, repeated actions, paused seek, foreign generation, late join, missing/mismatched edition, cancellation |
-| Bridge contract | Версии, frame bounds, partial reads, duplicate IDs, ordered writes, timeout, stale run, crash/EOF, не смешивать logs и JSON |
-| RoomMetadata | Isolation rooms, access token expiry/revocation, conflicting selection ordering, snapshot gap/replay, reconnect и bounded catalog batches |
-| VLC adapter | Actual position после seek, buffering, tracks, внешние subtitles/audio, preview без влияния на main player, release callbacks |
-| Platform integration | Security-scoped grants, DPI/focus/fullscreen/window ownership, settings persistence, safe helper teardown |
+| Design generation | Unknown types, unresolved references, alpha values, logical units, stable ordering, repeated generation, and matching resource identifiers |
+| Domain behavior | Repeated Start/Continue/End actions, paused seeks, generation changes, missing media, late join, conflicting selections, and cancellation |
+| Bridge IPC | Version negotiation, partial frames, limits, duplicate IDs, write ordering, timeouts, foreign runs, EOF, and crashes |
+| Room service | Authorization, room isolation, token expiry/revocation, event replay, snapshot gaps, reconnect, and bounded catalog batches |
+| VLC integration | Actual seek completion, buffering, tracks, external assets, preview isolation, settings effects, and release callbacks |
+| Native integration | Authorized filesystem access, focus, DPI, fullscreen, owned windows, settings persistence, and helper lifetime |
 
-Одни только mocked callbacks недостаточны для утверждений о codec support, video rendering или Meet. Тестовый framework и manifest добавляются вместе с первым исполняемым компонентом; его build/test команды документируются по фактической реализации, а не выдумываются сейчас.
+Add the test framework and reproducible build/test commands with the first executable component. Mocks are useful for contracts but do not establish codec, renderer, or provider compatibility.
 
-## Физическая приёмка Mac ↔ Windows
+## Physical-device acceptance
 
-1. Один согласованный media fixture на двух машинах: обычный 1080p и реальный 4K с audio/subtitles. Зафиксировать SHA-256, duration, codec, frame rate и build IDs вне публичных movie artifacts.
-2. Запустить приложения в интерактивных desktop сессиях. Проверить Library, grants, theme/language/settings и видео, затем соединить Syncplay.
-3. Play, pause и seek с обеих сторон, включая быстрые competing seeks; late join, отсутствие/подмена файла, возврат в библиотеку, Continue, End.
-4. Контролируемый сетевой разрыв Syncplay и reconnect; отдельно разрыв metadata и Meet. Старый seek не должен возобновить закончившуюся session.
-5. Meet: реальные camera/mic в обе стороны, управление устройствами, допустимый hangup, minimize/restore и отказ permissions. RDP camera/mic redirection не заменяет проверку физических устройств.
-6. Повторить совместную нагрузку movie+call. Измерить actual playback positions, buffering/dropped frames, CPU/GPU/RSS, input latency и time-to-first-frame. Выполнить stop/start и убедиться, что idle ресурсы освобождены.
-7. Закрыть app/call и повторить запуск. Нет orphan helpers, hidden media capture, занятых transient ports, stale bookmarks и потерянных preferences.
+Use an interactive Apple Silicon Mac and a physical Windows 11 x64 device. Keep remote-access profiles, addresses, and credentials outside the repository. Install and pin the required SDKs through the declared development setup before building either client.
 
-Предварительная инженерная цель для drift — p95 не выше 250 ms после стабилизации, но это не заявленный результат и не обещание upstream. Метод измерения должен сравнивать samples на согласованной временной базе с учётом clock offset/RTT; два несинхронизированных wall-clock logs не доказывают drift. На settle/seek/buffering отдельно задаются наблюдаемые интервалы. Пороги CPU/GPU/RSS фиксируются после реального baseline на тех же файлах, hardware и power settings.
+1. Prepare matching media fixtures on both devices: 1080p and 4K files with audio and subtitles. Identify each fixture by digest, codec, duration, and frame rate.
+2. Verify library access, scanning, settings, themes, localization, and local playback before connecting the room.
+3. Exercise play, pause, seek, competing actions, late join, missing/incompatible media, return home, Continue, and End from both clients.
+4. Interrupt Syncplay, metadata, and the call independently. Reject obsolete actions after recovery.
+5. Verify actual camera/microphone traffic in both directions, device selection, hangup, window restoration, and denied permissions. Remote-desktop device redirection does not replace physical-device acceptance.
+6. Run playback and calling simultaneously. Measure playback positions, buffering, dropped frames, CPU/GPU use, resident memory, responsiveness, and time to first frame. Include a stop/start cycle.
+7. Close and restart the application. Check for orphan helpers, hidden capture, unreleased access grants, and lost preferences.
 
-## Где проверять
-
-- Mac: локальный Apple Silicon Mac, Xcode/Swift доступны; privacy prompts и signing проверять при реализации.
-- Windows: существующий host `win-dev`, указанный пользователем RDP profile остаётся локальным в каталоге devices. SSH reachability проверена, интерактивное подключение для новой версии пока не выполнено.
-- На Windows сейчас есть .NET 8 runtime, но нет .NET SDK. Перед C# build установить и закрепить выбранный SDK; текущая архитектурная задача не меняла машину и не устанавливала software.
-- Backend staging ещё не выбран/не развёрнут. Сначала локальная изолированная комната, затем согласованная сеть для двух устройств; существующий LiveKit deployment для новой архитектуры не требуется.
-
-Наличие RDP-файла, успешный SSH, submodule checkout или удачный unit test не закрывают физическую media приёмку.
+The provisional drift target is p95 at or below 250 ms after stabilization. It is an engineering target, not a measured result or an upstream guarantee. Use a shared time basis with clock-offset and round-trip estimation. Measure seek, startup, and buffering intervals separately. Set resource budgets from comparable measurements on the supported hardware, media, and power settings.

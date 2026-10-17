@@ -1,51 +1,51 @@
-# Внешние зависимости
+# External dependencies
 
-Проверено 17 октября 2026 года. Gitlinks и `.gitmodules` являются источником закреплённых ревизий.
+All external library sources are pinned Git submodules under `3rdparty/`. `.gitmodules` defines upstream locations, and Git links define the exact revisions used by the product.
 
-## Уже добавлены
+## Pinned source modules
 
-| Submodule | Версия / commit | Назначение | Лицензия в исходниках |
+| Submodule | Version / commit | Responsibility | Source license |
 |---|---|---|---|
-| `3rdparty/style-dictionary` | `v5.7.0` / `745264a62d01037581c6654fb4ac66bb3d245f07` | Независимое от ОС описание дизайна и генерация платформенных ресурсов при сборке | Apache 2.0, `LICENSE`, `NOTICE` |
-| `3rdparty/syncplay` | `v1.7.6` / `993232ab095bb810593459bc705b3e6fc64ad161` | Настоящий Syncplay client engine и сервер | Apache 2.0 по `LICENSE`; отдельные bundled файлы имеют свои notices |
-| `3rdparty/vlc` | `3.0.24` / `6de05adcbaf2e8b85fe86aad4169393098628119` | Встраиваемый libVLC и его заголовки C API | `COPYING.LIB`: LGPL 2.1; весь VLC и отдельные модули имеют другие условия, см. `COPYING` и заголовки файлов |
+| `3rdparty/style-dictionary` | `v5.7.0` / `745264a62d01037581c6654fb4ac66bb3d245f07` | Generate platform resources from shared design data | Apache 2.0; `LICENSE` and `NOTICE` |
+| `3rdparty/syncplay` | `v1.7.6` / `993232ab095bb810593459bc705b3e6fc64ad161` | Playback synchronization client engine and server | Apache 2.0; bundled files may have separate notices |
+| `3rdparty/vlc` | `3.0.24` / `6de05adcbaf2e8b85fe86aad4169393098628119` | Embedded libVLC and C API headers | LGPL 2.1 in `COPYING.LIB`; the full application and individual modules have additional license terms |
 
-Требование Apache 2.0 относится к библиотеке общего дизайна. Называть VLC библиотекой Apache 2.0 нельзя. В приложении используются собственные Swift C interop / C# P/Invoke адаптеры libVLC; VLCKit и LibVLCSharp пока не добавляются.
+The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
-Style Dictionary является инструментом сборки, а не движком интерфейса. Он не требует JavaScript runtime внутри нативного интерфейса. У закреплённой версии требование Node.js `>=22.0.0` в `package.json`.
+Style Dictionary is a build tool. The native UI does not require a JavaScript runtime for design resources. Its pinned `package.json` requires Node.js `>=22.0.0`.
 
-## Правило для полного дерева
+## Complete source graph
 
-Каждая внешняя библиотека, включая транзитивную, должна иметь исходники в закреплённом submodule под `3rdparty/`. Добавление только верхнего проекта не закрывает это требование для его зависимостей. Внешние библиотеки не копируются в `packages/`, `apps/` или `services/`.
+Every external library, including transitive dependencies, must have its source in a pinned submodule under `3rdparty/`. A top-level source checkout does not satisfy this rule for all of its dependencies. Registry packages and local caches do not replace source pins.
 
-Перед первым build соответствующего компонента:
+Before building a component:
 
-1. Получить полный runtime/build dependency graph для выбранной конфигурации.
-2. Для каждого компонента записать upstream URL, точную ревизию, лицензию и область использования.
-3. Добавить исходники через submodule. Использовать локальные пути при сборке; registry/cache не заменяют source pin.
-4. Закрепить соответствие binary artifact → source commits + build flags + toolchain + SHA-256.
-5. Собирать при отключённой неявной загрузке зависимостей. Проверять licenses/notices итогового набора модулей.
+1. Resolve its complete runtime and build dependency graph for the selected configuration.
+2. Record upstream URLs, exact revisions, licenses, and scope.
+3. Add the corresponding source submodules and configure builds to use local sources.
+4. Associate distributed binaries with their source revisions, build flags, toolchain, and SHA-256 digests.
+5. Disable implicit dependency downloads and verify the notices for the resulting binary module set.
 
-SDK, компиляторы и системные фреймворки SwiftUI/AppKit/WebKit/.NET/WPF учитываются как платформа сборки. Google Meet — удалённый сервис с собственными условиями, его серверный исходный код не является зависимостью приложения.
+Compilers, platform SDKs, and system frameworks such as SwiftUI, AppKit, WebKit, .NET, and WPF are build-platform requirements. Google Meet is a remote service rather than a vendored source library.
 
-## Ещё не материализованы: до сборки обязательны
+## Dependency closure still required
 
-| Компонент | Предстоящее дерево | Текущий статус |
+| Component | Required source graph | Status |
 |---|---|---|
-| Syncplay headless bridge | CPython, Twisted TLS и реальные транзитивные зависимости: среди заявленных upstream — `certifi`, `pem`, платформенные extras | Требования прочитаны в `3rdparty/syncplay/requirements.txt`; версии транзитивных компонентов ещё не разрешены и submodules не добавлены |
-| Генератор дизайна | Runtime dependencies закреплённого `style-dictionary/package.json`, включая зависимости зависимостей | Исходник генератора добавлен; `npm install`/`npm ci` не запускались |
-| Сборка VLC | Выбранные codecs, demuxers, filters и прочие contrib | Подмножество ещё не определено; upstream contrib downloader нельзя запускать без адаптации под правило submodules |
-| Meet window на Windows | Кандидат с открытыми исходниками: CEF + CefSharp + соответствующий Chromium и транзитивные исходники | Требует технического эксперимента; пока не выбран и не добавлен |
+| Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including declared requirements such as `certifi` and `pem` | Versions and source submodules are not resolved yet |
+| Design generator | Runtime dependencies of the pinned Style Dictionary package and their dependencies | Top-level source is pinned; transitive sources are pending |
+| VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
+| Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Host selection depends on the call integration gate |
 
-Это полный список известных групп незавершённой комплектации, а не готовый SBOM. Репозиторий на этапе архитектуры не заявляется готовым к offline build.
+This table describes the known areas of incomplete dependency closure. It is not a complete software bill of materials or a claim that offline builds are ready.
 
-## Meet и закрытые SDK
+## Closed browser SDKs
 
-WebView2 — возможная практическая альтернатива для Windows, но его закрытый runtime/SDK нельзя представить submodule с исходным кодом: samples не заменяют библиотеку. Он не выбран для поставки при текущем строгом правиле. Переход на WebView2 потребует явного решения пользователя об исключении. CEF/CefSharp дают открытые исходники, но сами по себе не решают ограничения Google sign-in и не доказывают, что Meet поддерживает такой host.
+WebView2 is a possible Windows host, but its closed runtime and SDK cannot be represented by a source submodule; samples are not the library. It is not selected under the current source policy. Adopting it requires an explicit policy change. CEF and CefSharp offer source access but do not establish Google authentication compatibility or Meet support by themselves.
 
-## Работа с submodules
+## Working with submodules
 
-Из корня Git checkout:
+Run from the repository root:
 
 ```sh
 git submodule update --init --recursive
@@ -53,12 +53,12 @@ git submodule status --recursive
 git diff --submodule=short
 ```
 
-Обновление — отдельный законченный шаг: проверить release и лицензию, checkout точного commit, обновить эту таблицу, прогнать затронутые проверки, commit и push. Не использовать `git submodule update --remote` как часть воспроизводимой сборки.
+For each update, review the release and licenses, check out an exact revision, update the dependency specification, validate the affected components, and commit and push the completed change. Reproducible builds must not use `git submodule update --remote`.
 
-## Первичные источники
+## Upstream references
 
-- [Style Dictionary: исходники и Apache 2.0](https://github.com/style-dictionary/style-dictionary).
-- [Syncplay: исходники и лицензия](https://github.com/Syncplay/syncplay).
-- [VideoLAN: libVLC](https://www.videolan.org/vlc/libvlc.html).
-- [CEF](https://github.com/chromiumembedded/cef), [CefSharp](https://github.com/cefsharp/CefSharp).
-- [WebView2: варианты поставки runtime](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution).
+- [Style Dictionary source and license](https://github.com/style-dictionary/style-dictionary).
+- [Syncplay source and license](https://github.com/Syncplay/syncplay).
+- [VideoLAN libVLC](https://www.videolan.org/vlc/libvlc.html).
+- [CEF](https://github.com/chromiumembedded/cef) and [CefSharp](https://github.com/cefsharp/CefSharp).
+- [WebView2 runtime distribution](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution).

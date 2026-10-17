@@ -1,148 +1,145 @@
-# Архитектура SyncWatch
+# Application architecture
 
-Статус: проектирование от 17 октября 2026 года, после аудита прототипа и уточнений пользователя. Новые приложения ещё не реализованы. Базовые решения зафиксированы; перенос всех функций зависит от технических проверок Google Meet и libVLC.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. This document specifies the application architecture; native clients and runtime integrations are still to be implemented.
 
-## Зафиксированные решения
+## Technology decisions
 
-| Область | Решение |
+| Area | Decision |
 |---|---|
-| Первая поставка | Два desktop клиента: macOS на локальном Mac и Windows 11 x64 на `win-dev` |
-| Apple | Swift, SwiftUI, AppKit для видео и управления окнами |
-| Windows | C#, WPF, .NET 10 LTS; небольшой собственный P/Invoke слой к libVLC |
-| Общий дизайн | Отдельный `packages/design`: platform-neutral JSON tokens + component contracts; Style Dictionary под Apache 2.0 генерирует ресурсы SwiftUI и WPF |
-| Видео | Встроенный libVLC, собственные элементы управления в дизайне прототипа |
-| Синхронизация | Настоящий upstream Syncplay engine в headless helper process, один и тот же на двух ОС; штатный Syncplay server |
-| Звонок | Google Meet в отдельном принадлежащем приложению окне; web-host и media capabilities должны пройти feasibility gate |
-| Прочие данные комнаты | Небольшой собственный RoomMetadata service: C# / ASP.NET Core, HTTPS/WSS; без movie media relay |
-| Внешние исходники | Только закреплённые submodules в `3rdparty/`; полный транзитивный graph проверяется до сборки компонента |
+| Initial platforms | macOS and Windows 11 x64 |
+| Apple client | Swift, SwiftUI, and AppKit for video surfaces and window management |
+| Windows client | C#, WPF, and .NET 10 LTS, with a small libVLC P/Invoke adapter |
+| Shared design | Platform-neutral JSON tokens and component contracts in `packages/design`; Apache 2.0 Style Dictionary generates native resources |
+| Playback | Embedded libVLC with SyncWatch controls |
+| Synchronization | The upstream Syncplay client engine in a headless helper on each device, connected to a standard Syncplay server |
+| Calling | Google Meet in a separate application-owned window, subject to browser-host and capability acceptance |
+| Room metadata | A C# / ASP.NET Core service over HTTPS/WSS for catalog and watch-session metadata |
+| External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
 
-Выбор .NET 10 основан на текущем LTS lifecycle; точный SDK закрепляется при первой реализации, после проверки browser binding. [Официальная поддержка .NET](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core).
+The .NET SDK version must be pinned when the Windows project is introduced. See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
 
-Слово Apple сейчас означает macOS: пользователь указал локальный Mac. SwiftUI/domain/design можно переиспользовать, но iOS/tvOS не получают автоматического обещания поддержки. Desktop helper process и libVLC surface требуют отдельного решения на этих платформах.
-
-## Схема компонентов
+## Component topology
 
 ```mermaid
 flowchart TB
     D[SyncWatch Design JSON] --> G[Style Dictionary build tool]
     G --> A[SwiftUI / AppKit client]
     G --> W[C# / WPF client]
-
     A --> CA[Application coordinators and ports]
     W --> CW[Application coordinators and ports]
     CA --> VA[Native libVLC adapter]
     CW --> VW[Native libVLC adapter]
-    VA --> FA[Local movie file on Mac]
-    VW --> FW[Local movie file on Windows]
-
+    VA --> FA[Local movie file]
+    VW --> FW[Local movie file]
     CA <-->|Versioned local IPC| SA[Syncplay headless bridge]
     CW <-->|Versioned local IPC| SW[Syncplay headless bridge]
-    SA <-->|Upstream protocol and TLS| SS[Syncplay server]
-    SW <-->|Upstream protocol and TLS| SS
-
-    CA <-->|HTTPS / WSS metadata only| R[RoomMetadata service]
-    CW <-->|HTTPS / WSS metadata only| R
-    CA --> MA[Owned Meet window: host under verification]
-    CW --> MW[Owned Meet window: host under verification]
+    SA <-->|Syncplay protocol and TLS| SS[Syncplay server]
+    SW <-->|Syncplay protocol and TLS| SS
+    CA <-->|HTTPS / WSS metadata| R[RoomMetadata service]
+    CW <-->|HTTPS / WSS metadata| R
+    CA --> MA[Application-owned Meet window]
+    CW --> MW[Application-owned Meet window]
     MA <-->|Google web client| M[Google Meet service]
     MW <-->|Google web client| M
 ```
 
-Фильм читается на каждом устройстве локально. Сервер синхронизации передаёт playback state, RoomMetadata передаёт описания и session metadata, Google обслуживает звонок. Выключение камеры или закрытие звонка не выключает синхронизацию фильма.
+Each device reads its own movie file. Syncplay exchanges playback state. RoomMetadata exchanges descriptors and watch-session metadata. Google Meet handles calling. Ending a call does not disconnect playback synchronization.
 
-## Границы и владение состоянием
+## State ownership
 
-| Модуль / порт | Ответственность и источник истины |
+| Module or port | Responsibility and source of truth |
 |---|---|
-| LibraryService | Локальный каталог, picker grants, watcher, metadata cache. Полные пути остаются локально |
-| MediaIdentity | Перенос prototype movieId, проверка совпадений/коллизий и редакций; отсутствие файла не маскируется |
-| WatchSessionCoordinator | Единственный владелец lifecycle просмотра: выбранное медиа, generation, start/continue/end, UI navigation |
-| PlaybackPort | Load, pause, seek, rate, tracks, local volume; события фактического состояния VLC, а не желаемого положения слайдера |
-| SyncPort | Syncplay соединение, список участников, readiness, authoritative shared playback и коррекция рассинхронизации |
-| RoomPort | Каталоги, media selection/session generations, missing media, Meet URI, привязка участников между каналами |
-| PreviewService | Отдельный ограниченный decoder/cache, cancellation и очистка; не меняет основной player |
-| CallPort | Состояние web-window и подтверждённые capabilities. Page loaded не означает joined; состояние микрофона нельзя выдумывать |
-| SettingsService | Версионированные local preferences, тема/язык, playback preferences, миграция с проверкой схемы |
-| ConnectionSupervisor | Различает playback sync, room metadata и call failures; восстанавливает каналы независимо |
-| Design renderer | Показывает snapshot и отправляет user intent; не содержит network, VLC или Syncplay logic |
+| LibraryService | Local catalog, authorized folder access, filesystem watching, and metadata cache; full paths stay local |
+| MediaIdentity | Candidate matching, collision handling, and edition verification |
+| WatchSessionCoordinator | Active media, generation, start/continue/end lifecycle, and application navigation |
+| PlaybackPort | Media loading, pause, seek, rate, tracks, and local volume; actual VLC state is authoritative for observations |
+| SyncPort | Syncplay connection, participant list, readiness, shared playback state, and drift correction |
+| RoomPort | Catalog exchange, media selection, session generations, missing media, Meet URI, and cross-channel participant binding |
+| PreviewService | Separate bounded preview decoder and cache with cancellation; never changes the main player |
+| CallPort | Call window state and verified provider capabilities; page load does not imply call participation |
+| SettingsService | Versioned local preferences, theme, language, playback settings, and schema upgrades |
+| ConnectionSupervisor | Independent recovery of playback synchronization, metadata, and call channels |
+| Design renderer | Displays state and emits user actions; contains no networking or media engine logic |
 
-Swift и C# реализуют одинаковые контракты, но не пытаются напрямую использовать один UI binary. Общие JSON contracts и одинаковые acceptance vectors предупреждают расхождение поведения. Python helper — адаптер к выбранному Syncplay, а не замена Swift/C# приложения.
+Swift and C# implement the same contracts and use the same acceptance fixtures. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while the application remains native Swift or C#.
 
-## Нативные видео и окна
+## Native video integration
 
-На macOS libVLC получает `NSView` через `libvlc_media_player_set_nsobject`; view живёт до остановки renderer. SwiftUI использует AppKit container и нативный window manager. Нужно проверить overlay, clipping, fullscreen и hardware decode на локальном Mac.
+On macOS, pass an AppKit `NSView` to `libvlc_media_player_set_nsobject`. Keep the view alive until rendering stops. Use an AppKit container and native window manager with SwiftUI controls. Validate compositing, clipping, fullscreen transitions, and hardware decoding.
 
-На Windows libVLC получает HWND через `libvlc_media_player_set_hwnd`. WPF controls нельзя просто нарисовать поверх чужого HWND: действует ограничение airspace. План — собственный video host и отдельное owned overlay window для player chrome/popovers; они управляются как одно окно по позиции, DPI, focus, minimize и fullscreen. Это обязательный эксперимент до переноса всего UI. CPU-copy video callbacks не назначаются основным 4K renderer без измерений. [Microsoft: WPF technology regions](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/technology-regions-overview).
+On Windows, pass a native HWND to `libvlc_media_player_set_hwnd`. WPF controls cannot simply overlap another HWND because of airspace restrictions. The planned video host uses an owned overlay window for player controls and popovers, with coordinated position, DPI, focus, minimize, and fullscreen behavior. Validate this before implementing the full player UI. CPU-copy video callbacks require performance measurements before adoption for 4K playback. See [WPF technology regions](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/technology-regions-overview).
 
-`libvlc_video_set_adjust_*` покрывает часть image controls. Настройка шрифта/обводки/позиции subtitles, external audio, normalize audio и smooth scaling требует проверки выбранных модулей/пересоздания media при необходимости. Визуальная галочка без работающего VLC mapping не считается реализацией. Заголовки API доступны в `3rdparty/vlc/include/vlc/`.
+VLC image-adjustment APIs cover part of the image settings. Subtitle typography, external audio, audio normalization, and scaling still need working mappings for the selected module set. Some settings may require media reconfiguration. Every enabled control must have a verified effect. C API headers are in `3rdparty/vlc/include/vlc/`.
 
-## Lifecycle
+## Watch lifecycle
 
 ```mermaid
 stateDiagram-v2
     [*] --> Library
     Library --> Preparing: Start watching
-    Preparing --> Waiting: media loaded and identity checked
+    Preparing --> Waiting: Media loaded and identity checked
     Waiting --> Watching: Syncplay readiness permits playback
-    Watching --> Paused: user pause or connection loss
-    Paused --> Watching: accepted Syncplay state
-    Watching --> Library: return home, retain session
+    Watching --> Paused: Pause or synchronization loss
+    Paused --> Watching: Accepted Syncplay state
+    Watching --> Library: Return home and retain active session
     Library --> Watching: Continue active session
     Watching --> Ending: End watching
     Paused --> Ending: End watching
-    Preparing --> Ending: cancel or media failure
-    Waiting --> Ending: cancel or media failure
-    Ending --> Library: release player and publish session end
+    Preparing --> Ending: Cancel or media failure
+    Waiting --> Ending: Cancel or media failure
+    Ending --> Library: Release player and publish session end
 ```
 
-Watch lifecycle и call lifecycle — разные автоматы. Возврат домой сохраняет активный просмотр; End завершает его. Новый запуск приложения может восстановить last position, но не объявляет старую session активной. На разрыв Syncplay основной player ставится на паузу, rate сбрасывается в 1.0, старые команды после смены generation отбрасываются. Разрыв только Meet не останавливает фильм.
+The watch and call lifecycles are separate. Returning home retains the active watch session. End releases it. A new application launch may restore the last position, but it does not reactivate the previous session automatically.
 
-## Планируемое дерево исходников
+Synchronization loss pauses playback and resets the rate to 1.0. Commands from an old generation are rejected. A call-only failure does not pause the movie. Metadata-only failure retains the agreed media but blocks operations that require a new shared selection.
 
-Только `docs/`, `packages/design/` и три submodules уже существуют. Остальные пути ниже — план, не готовые проекты:
+## Source layout
+
+The design package, documentation, and pinned submodules exist. The remaining directories below describe the planned implementation:
 
 ```text
-apps/apple/                 # Swift app composition, SwiftUI/AppKit, platform adapters
-apps/windows/               # C# WPF app composition and platform adapters
-packages/design/            # общий дизайн без привязки к UI framework
-packages/apple-domain/      # Swift domain/use cases, без SwiftUI
-packages/windows-domain/    # C# domain/use cases, без WPF
-contracts/                  # JSON schemas + platform-independent acceptance fixtures
-services/syncplay-bridge/   # Python entrypoint, custom BasePlayer/UI adapters
-services/room-metadata/     # C# ASP.NET Core server, metadata only
-tools/design/               # собственные Style Dictionary formatters
-tools/dependencies/         # graph/source audit and deterministic build tooling
-tests/                      # cross-platform contract/integration fixtures
-3rdparty/                   # все внешние source submodules
-docs/                       # все документы, включая инструкции и проверки
+apps/apple/                 # Swift application and native platform adapters
+apps/windows/               # C# WPF application and native platform adapters
+packages/design/            # Platform-neutral design data and component contracts
+packages/apple-domain/      # Swift domain and use cases, independent of SwiftUI
+packages/windows-domain/    # C# domain and use cases, independent of WPF
+contracts/                  # JSON schemas and shared acceptance fixtures
+services/syncplay-bridge/   # Headless Python entry point and player/UI adapters
+services/room-metadata/     # C# ASP.NET Core metadata service
+tools/design/              # Custom Style Dictionary formatters
+tools/dependencies/        # Source graph and deterministic build tooling
+tests/                      # Contract and integration coverage
+3rdparty/                   # External source Git submodules
+docs/                       # All project documentation
 ```
 
-Бизнес-логика следует направлению `UI → application → domain`; VLC, Syncplay, filesystem и Meet находятся за ports. Модуль design не импортирует services/domain, renderer не зависит от provider-specific SDK types.
+Dependencies point from UI to application to domain. Filesystem, VLC, Syncplay, and Meet integrations implement domain-facing ports. The design package does not import application services or domain logic.
 
-## Хранение и приватные данные
+## Local data and permissions
 
-Preferences/cache находятся в Application Support на macOS и LocalAppData на Windows, с `schemaVersion` и атомарной записью. OAuth tokens — Keychain/Windows protected storage. Browser profile — отдельный app profile, не импорт чужих browser cookies. macOS bookmarks открываются на время чтения и освобождаются владельцем media/grant.
+Store versioned preferences and caches under Application Support on macOS and LocalAppData on Windows, using atomic writes. Store credentials in Keychain or protected Windows storage. Use an application-specific browser profile. Balance macOS security-scoped access for the lifetime of each media or folder operation.
 
-Room session tokens, Meet URLs и device addresses не включаются в Git, diagnostics или общий design package. В сеть каталога отправляются только согласованные media descriptors; отсутствие общего файла не запускает upload. Громкость меняется только у movie player и подтверждённого call output; глобальную communications policy/громкость других приложений не менять.
+Shared design assets contain no account, device, or room data. Catalog exchange sends only permitted media descriptors. A missing file does not trigger an upload. Audio controls affect only the intended movie or verified call output; system communications policy and other applications' volume remain outside the product's control.
 
-## Решения, которые ещё требуют доказательств
+## Integration gates
 
-| Gate | Что нельзя считать завершённым |
+| Gate | Acceptance required |
 |---|---|
-| G1: Google Meet | Работающее owned in-app call window на обеих ОС, вход, camera/mic, hangup и требуемые capabilities; публичный SDK их не гарантирует |
-| G2: Native VLC parity | Overlay на Windows, preview и все настройки player/subtitles/audio; измерения 4K с одновременным звонком |
-| G3: Dependency closure | Все транзитивные исходники в submodules, воспроизводимая сборка и notices |
-| G4: Syncplay bridge | Headless imports/config, IPC lifecycle, upstream compatibility и reconnect на двух устройствах |
-| G5: Visual parity | Полный baseline и screenshots обоих native клиентов; tokens сами по себе не являются доказательством |
+| G1: Google Meet | A usable application-owned call window on both platforms, account access, two-way media, hangup, and an explicit capability result |
+| G2: VLC functionality | Windows overlay behavior, previews, tracks, all exposed player settings, and measured movie-plus-call performance |
+| G3: Dependency closure | Complete transitive source submodules, reproducible component builds, and correct binary notices |
+| G4: Syncplay bridge | Headless initialization, IPC lifecycle, upstream interoperability, and two-device recovery |
+| G5: Visual acceptance | Native rendering and interaction checks against the shared design specification |
 
-Закрытая недокументированная интеграция Meet не подменяется молча внешним браузером или LiveKit. Если G1 не проходит, потребуется конкретное продуктовое решение пользователя; остальные модули остаются пригодны для разработки.
+A failed gate remains an unmet requirement. A change to the call provider, window model, or product capabilities requires an explicit product decision.
 
-## Подробности
+## Related specifications
 
-- [Аудит функций прототипа](prototype-baseline.md).
-- [Общая библиотека дизайна](design-system.md).
-- [Syncplay, IPC и метаданные комнаты](syncplay.md).
-- [Google Meet и границы интеграции](google-meet.md).
-- [Исходники зависимостей и незавершённый graph](dependencies.md).
-- [План реализации и проверок](delivery-plan.md).
-- [Что фактически проверено](verification.md).
+- [Product requirements](product-requirements.md).
+- [Shared design system](design-system.md).
+- [Syncplay and room metadata](syncplay.md).
+- [Google Meet integration](google-meet.md).
+- [External dependencies](dependencies.md).
+- [Implementation plan](delivery-plan.md).
+- [Validation strategy](validation.md).
