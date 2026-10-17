@@ -1,0 +1,35 @@
+{
+  "contractVersion": 1,
+  "units": "logical points on Apple; device-independent pixels on Windows",
+  "status": "Specification only; native renderers and token generator are not implemented",
+  "components": {
+    "LibraryLayout": {
+      "structure": ["header", "libraryPanel", "selectedMoviePanel", "roomStatus", "recentActivity"],
+      "tokens": ["layout.workspacePadding", "layout.panelGap", "layout.headerHeight", "layout.libraryPanelWidth"],
+      "states": ["empty", "scanning", "selected", "missingMedia", "reconnecting"],
+      "actions": ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall"]
+    },
+    "PlayerChrome": {
+      "tokens": ["layout.playerTopInset", "layout.playerBottomInset", "control.sliderTrackHeight", "control.sliderThumbRadius"],
+      "states": ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"],
+      "actions": ["playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles", "openExternalAudio", "openExternalSubtitles", "setMovieVolume", "muteMovie", "openCall", "showLibrary", "endWatching"],
+      "overlays": ["timelinePreview", "volumeOSD", "contextMenu", "playlist", "playerSettings"]
+    },
+    "SettingsDialog": {
+      "tokens": ["layout.settingsWidth", "layout.settingsHeight", "layout.settingsSidebarWidth", "control.compactDialogRadius"],
+      "sections": ["library", "interface", "call", "connection"],
+      "states": ["editing", "savedNotice", "invalidConfiguration"]
+    },
+    "PlayerSettingsDialog": {
+      "tokens": ["layout.settingsWidth", "layout.playerSettingsHeight", "layout.playerSettingsSidebarWidth", "control.compactDialogRadius"],
+      "sections": ["playback", "subtitles", "image", "audio", "advanced"],
+      "actions": ["moveDialog", "resetSection", "close"]
+    },
+    "CallWindowShell": {
+      "tokens": ["layout.callInitialWidth", "layout.callInitialHeight"],
+      "states": ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"],
+      "actions": ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close"],
+      "providerSurface": "Google Meet top-level web page; provider controls and authentication require the integration feasibility gate. Initial prototype size is a comparison reference, not a proven usable Meet viewport."
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "layout": {
+    "workspacePadding": {
+      "value": 18,
+      "type": "number"
+    },
+    "panelGap": {
+      "value": 14,
+      "type": "number"
+    },
+    "headerHeight": {
+      "value": 64,
+      "type": "number"
+    },
+    "libraryPanelWidth": {
+      "value": 360,
+      "type": "number"
+    },
+    "settingsWidth": {
+      "value": 680,
+      "type": "number"
+    },
+    "settingsHeight": {
+      "value": 420,
+      "type": "number"
+    },
+    "settingsSidebarWidth": {
+      "value": 150,
+      "type": "number"
+    },
+    "playerSettingsHeight": {
+      "value": 460,
+      "type": "number"
+    },
+    "playerSettingsSidebarWidth": {
+      "value": 170,
+      "type": "number"
+    },
+    "callInitialWidth": {
+      "value": 300,
+      "type": "number"
+    },
+    "callInitialHeight": {
+      "value": 210,
+      "type": "number"
+    },
+    "playerTopInset": {
+      "value": 32,
+      "type": "number"
+    },
+    "playerBottomInset": {
+      "value": 78,
+      "type": "number"
+    }
+  },
+  "control": {
+    "filledButtonMinHeight": {
+      "value": 46,
+      "type": "number"
+    },
+    "outlinedButtonMinHeight": {
+      "value": 44,
+      "type": "number"
+    },
+    "buttonRadius": {
+      "value": 12,
+      "type": "number"
+    },
+    "dialogRadius": {
+      "value": 18,
+      "type": "number"
+    },
+    "compactDialogRadius": {
+      "value": 12,
+      "type": "number"
+    },
+    "menuRowHeight": {
+      "value": 30,
+      "type": "number"
+    },
+    "sliderTrackHeight": {
+      "value": 3,
+      "type": "number"
+    },
+    "sliderThumbRadius": {
+      "value": 6,
+      "type": "number"
+    }
+  }
+}
