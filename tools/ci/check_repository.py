@@ -267,6 +267,7 @@ def check_workflows(root: Path) -> None:
             "name": f"syncwatch-{name}-" + "${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
         }, "native artifacts must identify platform, commit, run, and attempt")
     test_commands = {step.get("run") for step in jobs["tests"]["steps"]}
+    require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
     metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}
     require({"git submodule update --init --checkout --depth=1 -- 3rdparty/fastjsonschema", "${{ matrix.python }} tools/server/check.py --provision"}.issubset(metadata_commands), "metadata job must build, test, and validate actual wire output")

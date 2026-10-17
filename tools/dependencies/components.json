@@ -370,6 +370,11 @@
       "status": "unavailable",
       "reason": "Selected VLC modules and contrib source graph are not resolved",
       "plannedIn": "PR10"
+    },
+    "linux-compose-ui": {
+      "status": "unavailable",
+      "reason": "Selected Kotlin/Compose JVM, native renderer and build sources, licenses and offline build are not yet complete",
+      "plannedIn": "L01"
     }
   }
 }

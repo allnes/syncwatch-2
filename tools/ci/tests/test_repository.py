@@ -270,6 +270,13 @@ class WorkflowChecks(unittest.TestCase):
         self.path.write_text(json.dumps(workflow) + "\n")
         check_workflows(self.root)
 
+    def test_jvm_metadata_tests_cannot_be_omitted(self):
+        with self.assertRaisesRegex(ValidationError, "JVM metadata audit tests"):
+            self.validate(lambda data: data["jobs"]["tests"].update({"steps": [
+                step for step in data["jobs"]["tests"]["steps"]
+                if step.get("run") != "python3 -m unittest discover -s tools/jvm/tests -v"
+            ]}))
+
     def test_missing_pull_request_trigger_fails(self):
         with self.assertRaisesRegex(ValidationError, "trigger"):
             self.validate(lambda data: data["on"].pop("pull_request"))

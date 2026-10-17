@@ -88,6 +88,10 @@
         {
           "name": "Server SDK provisioning regression tests",
           "run": "python3 -m unittest discover -s tools/server/tests -v"
+        },
+        {
+          "name": "Offline JVM metadata audit tests",
+          "run": "python3 -m unittest discover -s tools/jvm/tests -v"
         }
       ]
     },
