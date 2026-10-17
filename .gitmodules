@@ -10,3 +10,57 @@
 [submodule "3rdparty/fastjsonschema"]
 	path = 3rdparty/fastjsonschema
 	url = https://github.com/horejsek/python-fastjsonschema.git
+[submodule "3rdparty/design-deepmerge-es"]
+	path = 3rdparty/design-deepmerge-es
+	url = https://github.com/bundled-es-modules/deepmerge.git
+[submodule "3rdparty/design-glob-es"]
+	path = 3rdparty/design-glob-es
+	url = https://github.com/bundled-es-modules/glob.git
+[submodule "3rdparty/design-mergeable"]
+	path = 3rdparty/design-mergeable
+	url = https://github.com/TehShrike/is-mergeable-object.git
+[submodule "3rdparty/design-glob"]
+	path = 3rdparty/design-glob
+	url = https://github.com/isaacs/node-glob.git
+[submodule "3rdparty/design-minimatch"]
+	path = 3rdparty/design-minimatch
+	url = https://github.com/isaacs/minimatch.git
+[submodule "3rdparty/design-minipass"]
+	path = 3rdparty/design-minipass
+	url = https://github.com/isaacs/minipass.git
+[submodule "3rdparty/design-path-scurry"]
+	path = 3rdparty/design-path-scurry
+	url = https://github.com/isaacs/path-scurry.git
+[submodule "3rdparty/design-lru-cache"]
+	path = 3rdparty/design-lru-cache
+	url = https://github.com/isaacs/node-lru-cache.git
+[submodule "3rdparty/design-brace-expansion"]
+	path = 3rdparty/design-brace-expansion
+	url = https://github.com/juliangruber/brace-expansion.git
+[submodule "3rdparty/design-balanced-match"]
+	path = 3rdparty/design-balanced-match
+	url = https://github.com/juliangruber/balanced-match.git
+[submodule "3rdparty/design-chalk"]
+	path = 3rdparty/design-chalk
+	url = https://github.com/chalk/chalk.git
+[submodule "3rdparty/design-change-case"]
+	path = 3rdparty/design-change-case
+	url = https://github.com/blakeembrey/change-case.git
+[submodule "3rdparty/design-colorjs"]
+	path = 3rdparty/design-colorjs
+	url = https://github.com/color-js/color.js.git
+[submodule "3rdparty/design-plain-object"]
+	path = 3rdparty/design-plain-object
+	url = https://github.com/sindresorhus/is-plain-obj.git
+[submodule "3rdparty/design-json5"]
+	path = 3rdparty/design-json5
+	url = https://github.com/json5/json5.git
+[submodule "3rdparty/design-path-unified"]
+	path = 3rdparty/design-path-unified
+	url = https://github.com/jorenbroekema/path-unified.git
+[submodule "3rdparty/design-tinycolor"]
+	path = 3rdparty/design-tinycolor
+	url = https://github.com/bgrins/TinyColor.git
+[submodule "3rdparty/design-deepmerge"]
+	path = 3rdparty/design-deepmerge
+	url = https://github.com/TehShrike/deepmerge.git

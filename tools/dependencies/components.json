@@ -101,9 +101,311 @@
       "plannedIn": "PR03"
     },
     "design-generator": {
-      "status": "unavailable",
-      "reason": "Style Dictionary transitive runtime sources are not resolved",
-      "plannedIn": "PR05"
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/style-dictionary"
+      ],
+      "sources": {
+        "3rdparty/style-dictionary": {
+          "revision": "745264a62d01037581c6654fb4ac66bb3d245f07",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE",
+            "NOTICE"
+          ],
+          "requires": [
+            "3rdparty/design-deepmerge-es",
+            "3rdparty/design-glob-es",
+            "3rdparty/design-chalk",
+            "3rdparty/design-change-case",
+            "3rdparty/design-colorjs",
+            "3rdparty/design-plain-object",
+            "3rdparty/design-json5",
+            "3rdparty/design-path-unified",
+            "3rdparty/design-tinycolor"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-deepmerge-es": {
+          "revision": "642f03ac541dbe9458882a19390b789beabfb92e",
+          "license": "MIT",
+          "notices": [
+            "package.json",
+            "README.md"
+          ],
+          "requires": [
+            "3rdparty/design-deepmerge"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-deepmerge": {
+          "revision": "5b87756a5671635679001cbac72aa42f23472c81",
+          "license": "MIT",
+          "notices": [
+            "license.txt"
+          ],
+          "requires": [
+            "3rdparty/design-mergeable"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-mergeable": {
+          "revision": "3cb102979a09f4780838c9fb8e8d392eeac3d1aa",
+          "license": "MIT",
+          "notices": [
+            "package.json",
+            "readme.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-glob-es": {
+          "revision": "bb0844ae1a82a30ccc0fcf545fc90b271d8b1bd7",
+          "license": "MIT",
+          "notices": [
+            "package.json",
+            "README.md"
+          ],
+          "requires": [
+            "3rdparty/design-glob"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-glob": {
+          "revision": "e80cb38ae60d6cbff9e75f39032a994858994d35",
+          "license": "BlueOak-1.0.0",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [
+            "3rdparty/design-minimatch",
+            "3rdparty/design-minipass",
+            "3rdparty/design-path-scurry"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-minimatch": {
+          "revision": "693c82377d0948401be4c6d3220c9a74132ab112",
+          "license": "BlueOak-1.0.0",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [
+            "3rdparty/design-brace-expansion"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-minipass": {
+          "revision": "ab4b3b05d0d557ac6bb178f38501b11d0c96454e",
+          "license": "BlueOak-1.0.0",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-path-scurry": {
+          "revision": "1372560386e080834cfb0943e1aaaf5b2ec9b70b",
+          "license": "BlueOak-1.0.0",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [
+            "3rdparty/design-lru-cache",
+            "3rdparty/design-minipass"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-lru-cache": {
+          "revision": "c440996b4ef1395d9f21fd7cde7332cf9377db5f",
+          "license": "BlueOak-1.0.0",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-brace-expansion": {
+          "revision": "f3410159d768f56c9d9f4511d3e1b46425fc1099",
+          "license": "MIT",
+          "notices": [
+            "LICENSE"
+          ],
+          "requires": [
+            "3rdparty/design-balanced-match"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-balanced-match": {
+          "revision": "adf286f7c6142102f932c8d7c7066463741a0036",
+          "license": "MIT",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-chalk": {
+          "revision": "51557784b829c87ff8d138206598764f2eb957b1",
+          "license": "MIT",
+          "notices": [
+            "license"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-change-case": {
+          "revision": "8aaff31471c918d3eac2b40939c601bee37375dd",
+          "license": "MIT",
+          "notices": [
+            "LICENSE"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-colorjs": {
+          "revision": "00bb6de96afbb42043f9da58d051a05e4c623f11",
+          "license": "MIT",
+          "notices": [
+            "LICENSE"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-plain-object": {
+          "revision": "68e8cc77bb1bbd0bf7d629d3574b6ca70289b2cc",
+          "license": "MIT",
+          "notices": [
+            "license"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-json5": {
+          "revision": "c3a75242772a5026a49c4017a16d9b3543b62776",
+          "license": "MIT",
+          "notices": [
+            "LICENSE.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-path-unified": {
+          "revision": "7df2ca068e538057b25fcf06769a323936aee97c",
+          "license": "MIT",
+          "notices": [
+            "package.json",
+            "README.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/design-tinycolor": {
+          "revision": "a93228a6782bfe9a6154da14f5a7ece3ad9fb6c4",
+          "license": "MIT",
+          "notices": [
+            "LICENSE"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/design",
+        "packages/design"
+      ],
+      "watch": [
+        "3rdparty/style-dictionary",
+        "tools/design",
+        "packages/design"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "node": {
+              "command": [
+                "node",
+                "--version"
+              ],
+              "pattern": "^v24\\.(?:[3-9]|[1-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "native-node-v1",
+            "version": "5.7.0"
+          },
+          "command": [
+            "{python}",
+            "tools/dependencies/components/design_generator.py"
+          ],
+          "timeoutSeconds": 300
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "node": {
+              "command": [
+                "node",
+                "--version"
+              ],
+              "pattern": "^v24\\.(?:[3-9]|[1-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "native-node-v1",
+            "version": "5.7.0"
+          },
+          "command": [
+            "{python}",
+            "tools/dependencies/components/design_generator.py"
+          ],
+          "timeoutSeconds": 300
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "node": {
+              "command": [
+                "node",
+                "--version"
+              ],
+              "pattern": "^v24\\.(?:[3-9]|[1-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "native-node-v1",
+            "version": "5.7.0"
+          },
+          "command": [
+            "{python}",
+            "tools/dependencies/components/design_generator.py"
+          ],
+          "timeoutSeconds": 300
+        }
+      }
     },
     "syncplay-runtime": {
       "status": "unavailable",

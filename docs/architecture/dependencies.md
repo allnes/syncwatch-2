@@ -13,7 +13,9 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
-Style Dictionary is a build tool. The native UI does not require a JavaScript runtime for design resources. Its pinned `package.json` requires Node.js `>=22.0.0`.
+Style Dictionary is a build tool. The native UI does not require a JavaScript runtime for design resources. Its pinned `package.json` requires Node.js `>=22.0.0`; the source-only native build profile requires Node 24.3 or newer within 24.x for its built-in TypeScript compiler and synchronous module-resolution hooks.
+
+The native design profile's 18 additional source submodules and complete selected dependency graph are recorded in [the component registry](../../tools/dependencies/components.json) and [package entry-point inventory](../../tools/design/sources.json). Sources are copied or compiled locally; registry packages and upstream prebuilt bundles are not used. [Building the design tools](../design-generator.md) describes the supported Node configuration, source transformations, retained notices, and explicit exclusions for browser, ZIP, CLI, and web-format features.
 
 The contract checker imports fastjsonschema directly from its submodule and verifies its revision, Git index pin, and source version. Its runtime graph has no third-party dependencies. Python 3.12 or newer is a developer/CI toolchain requirement. No pip packages are installed. The upstream nested JSON-Schema-Test-Suite submodule and development extras are unused by this checker. See the [tool manifest](../../tools/contracts/pyproject.toml) and [contract validation commands](contracts.md#reproducible-validation).
 
@@ -40,7 +42,7 @@ Python and Node.js are developer/runner toolchains. The CI artifact and dependen
 | Component | Required source graph | Status |
 |---|---|---|
 | Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including declared requirements such as `certifi` and `pem` | Versions and source submodules are not resolved yet |
-| Design generator | Runtime dependencies of the pinned Style Dictionary package and their dependencies | Top-level source is pinned; transitive sources are pending |
+| Design generator | Selected native Node source profile and transitive dependencies | Source graph and offline build are available for JSON/custom native formatters; browser/ZIP/CLI/web-format features are excluded |
 | VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
 | Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Browser-host compatibility and source closure are unresolved |
 
