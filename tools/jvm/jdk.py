@@ -15,6 +15,8 @@ import urllib.parse
 import urllib.request
 import zipfile
 
+from build_support import java_environment
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -76,7 +78,7 @@ def verify(directory, spec, target):
         if not (home / "legal/java.base" / name).is_file():
             raise ValueError("Developer JDK legal notices are missing")
     suffix = ".exe" if target == "windows-x64" else ""
-    environment = {k: v for k, v in os.environ.items() if k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"}}
+    environment = java_environment()
     actual = subprocess.check_output([str(home / ("bin/javac" + suffix)), "--version"], env=environment, text=True, stderr=subprocess.STDOUT).strip()
     if actual != spec["javacVersion"]:
         raise ValueError("Developer javac differs from its exact version pin")

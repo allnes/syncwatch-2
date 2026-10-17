@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "coordinate": "org.jetbrains.runtime:jbr-api:1.9.0",
+  "sourcePath": "3rdparty/jbr-api",
+  "revision": "bf95b3ebdadbb81c193fdf45b8947fb20163d5dc",
+  "license": "Apache-2.0",
+  "javaRelease": 8,
+  "moduleRelease": 9,
+  "sources": {
+    "src/com/jetbrains/AccessibleAnnouncer.java": "9681174da599a6a323f4bec73cdee5304b5727ddf406f719574241a6ca206617",
+    "src/com/jetbrains/DesktopActions.java": "5b6afeb8b6e85559d52498e81e33ae215b8be9f39c4cc3a5be15a95e2697cc1e",
+    "src/com/jetbrains/Extension.java": "6f61a44c9325309cac5436d59d68b78e4a3cabd59aa473c99b0373dd5a541570",
+    "src/com/jetbrains/Extensions.java": "0fb8fda8bb46368aeed09979aafe85aaeb4f9e56a1a6e7622b9485784ec922d7",
+    "src/com/jetbrains/Fallback.java": "194c9e1ec47ed9968e6d474de85f67130d7904e3233c08742f666200837fd78e",
+    "src/com/jetbrains/FontExtensions.java": "e8febd541122d55efaba216b66746973359fff1f168ffd4b6c88cda257cfe14b",
+    "src/com/jetbrains/FontMetricsAccessor.java": "66ac93e3a8ec9470049d77f04a41f90051e9bffcedaf8d4a727f5334f44976ad",
+    "src/com/jetbrains/GraphicsUtils.java": "078b25e95ffb732d381671316a66ce011a7f3f8716099f0cd648f895d41f7649",
+    "src/com/jetbrains/HiDPIInfo.java": "c61f85f4c3a7fe9a9d05532daaa1f7b377a4ce563e9270739175ae18def53989",
+    "src/com/jetbrains/JBRFileDialog.java": "93f00bd408debd8b82bfc9d18c4b1a7dd17024f1a6829e918f8aef3635a05f91",
+    "src/com/jetbrains/Jstack.java": "26f265722bfaba9fc39058f231104a3ebe17255ce55b97a946ca1565998d4353",
+    "src/com/jetbrains/Keyboard.java": "9b6867c90ee325fe478c68a37279e913c10ca1b96dd03902500ccdc05a77286d",
+    "src/com/jetbrains/NativeRasterLoader.java": "8d0519aa8763e9883fb3b132de3bd3f8012b5bdd0f426352c28b0de5daf45e3c",
+    "src/com/jetbrains/ProjectorUtils.java": "222fc0396fe8857c2bf4b945060e4b14b990537e6d69a87a7f1c0812a3bbdf37",
+    "src/com/jetbrains/Provided.java": "4f4f8c99c7d27629d3e608b9ab4df46dbbe08ce46204615f59bf7bc6512b290d",
+    "src/com/jetbrains/Provides.java": "e8c48a9fb1827268fa76df0e3d68ca958106108122a3ccbe52e0c6870b7ab3c3",
+    "src/com/jetbrains/RelativePointerMovement.java": "26ae43e835fc38a69fb5723439d30984559300bbc89d3ca87e63bf6044403d59",
+    "src/com/jetbrains/RoundedCornersManager.java": "97951bd65cb2c42d8859d1435c618966e85c22936457c4aaafbb6152911cf5cb",
+    "src/com/jetbrains/Screenshoter.java": "9e584a2fc257c7551bfa9cdb19a1e755f1f6f09616e9cd5311e4b303df43e368",
+    "src/com/jetbrains/Service.java": "cd91ee98429c0a76fb3dd62db52c22deb4cc05f2c76b2179612cad291a4978af",
+    "src/com/jetbrains/SharedTextures.java": "de76069735b8f76f89bbb1b27ac807afa4a3f8fc1fd964ee86c91559ec7d1ba2",
+    "src/com/jetbrains/SystemShortcuts.java": "9318af4a586d97e2c087b01f7596ba96b4ca5fe7e8bd39c082d6eee77a4d32ea",
+    "src/com/jetbrains/SystemUtils.java": "72a117e2a06839dc62a19787dd36c29754eae9f80fcbb9ed44cf2ae9ded10608",
+    "src/com/jetbrains/TextInput.java": "ef9b150696ecacf4e69685903ad287d53631fe6f0d0967a0277c98d31533c2ee",
+    "src/com/jetbrains/Vulkan.java": "d0877b081af8bd5e7afe5685bb1c9485db2c60d4a2cb6d50461faf120b3e8687",
+    "src/com/jetbrains/WindowDecorations.java": "eebaa022b0167b0e6f8538c6e6f237e7c4652712e8b85d7dc217b7eb2680805e",
+    "src/com/jetbrains/WindowMove.java": "9ba611e5ab141cb9fbefee112c4b27bab25c9ccbbb4fb356afb4a781d5c3571a",
+    "src/module-info.java": "9d53bb29e14f6ba0b9512f64ab228ad9883f921cb8ded1d588c2d1281e6fb23f"
+  },
+  "buildSources": {
+    "tools/javac/Api.java": "67f1b305bcd842bce167336c8ff582b69f8b4ea156a3cb2af1238eaf57bae1ab",
+    "tools/javac/ApiCollector.java": "c919d163f26731c499e4ab14d92e8fb3350786cd37ebcc0808a9615143457b9d",
+    "tools/javac/ApiComparator.java": "4cb3ce449be9205f6675ee4a18a82d8f480a570e5fe8b482e0654aa4fbec5cd8",
+    "tools/javac/ApiProcessor.java": "d2dac6d99df45e438746d46c27f60ff7e113ba1901f0702d84e48516f933a5dc",
+    "tools/javac/CompatibilityPlugin.java": "3d0e0ffbd684b4d1c7731587f37ad69b484d5adda55cc577831093fa8d49a1ef",
+    "tools/javac/Round.java": "0c770db49f044d672d835eafa7d4671bb20e59210426da129e25aba1c9bc5fb9",
+    "tools/javac/SourceGenerator.java": "57d781e1b4f065562b1148db05e616aea6c8ff37b5e45957dfebba5e63345e34",
+    "tools/templates/JBR.java": "c7862101b6f1aa3f9053472c5977225418904def8e8b14e1fb0a83d449be1b4b",
+    "tools/templates/service-getter.txt": "7f76d91fa2f993bc1ce8ee5dc6171a763ade78e8c1cf1b5451f395a0cc4e8c20"
+  },
+  "provenance": {
+    "LICENSE": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+    "README.md": "785b1e76e5d94f5588b7ca77f221ec9af04ff6236f1aa7251d539bc496a0c44d",
+    "CONTRIBUTING.md": "70bbbd150914eb56a52cc3f3a2d5968c007acd1df80800ae6331c3f54d0354ab",
+    "tools/build.sh": "14a8789dcaff7d1ee9cf7f21f3d10179c6bbeb8ed97012880439f704c72b3e75",
+    "tools/templates/MANIFEST.MF": "c21a74d44addaf5260f11b11c8611a82a57d204538b0b584d07d9dfb92dfb37c",
+    "api-blob": "bd373816247f672f83f8bac0d59672a7e14d2c4be2aabec399cae10c58538bfe"
+  },
+  "expectedJars": {
+    "jbr-api-1.9.0-syncwatch.jar": "3942813e64523c3a4d7d84fd7ff49438b88ba6992c22369a14dd65dfeff51e06",
+    "jbr-api-1.9.0-syncwatch-sources.jar": "a2cecd2e30a99dec7a5392bdc09666fe30a600e58fbf823ecabaae0736d72113"
+  },
+  "modifications": {
+    "tools/javac/SourceGenerator.java": {
+      "patch": "tools/jvm/patches/jbr-api-ordering.json",
+      "patchSha256": "7e9e5e8fd55df38d7b7a60a09a94349fa44c4c0bc7d43f99d989f6f11f20dcb1",
+      "sha256": "f2cc6ddf7ab630a3f9727076e63f381373a67e67961c55a438653ce03f0bd80e"
+    }
+  },
+  "compatibilityCheck": {
+    "processorVersion": "1.9.1",
+    "message": "Compatibility status of API changes: PATCH \ud83d\udc85\nVersion increment: 1.9.0 -> 1.9.1\n"
+  },
+  "generatedSources": {
+    "generated/com/jetbrains/JBR.java": "2851f1fedfb02768aec163441936ae595e341fa32402c900f9a7fc4a3714471e"
+  }
+}

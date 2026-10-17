@@ -1,27 +1,22 @@
 """Build and verify the source-only Java Annotations JVM profile."""
 
 import argparse
-import hashlib
 import io
 import json
 import os
 from pathlib import Path
 import subprocess
-import sys
 import tarfile
 import tempfile
 import zipfile
 
 import jdk
+from build_support import digest, encoded, jar_bytes, java_environment, run, tools
 
 
 ROOT = Path(__file__).resolve().parents[2]
 BINARY = "annotations-26.0.2-syncwatch.jar"
 SOURCES = "annotations-26.0.2-syncwatch-sources.jar"
-
-
-def digest(data):
-    return hashlib.sha256(data).hexdigest()
 
 
 def source_files(source, profile):
@@ -69,35 +64,6 @@ def notices(files, profile):
 def metadata(profile, version):
     return {k: profile[k] for k in ("schemaVersion", "coordinate", "sourcePath", "revision", "license", "javaRelease",
                                    "moduleRelease", "sources", "notices", "repositoryLicensedFiles")} | {"compiler": "Temurin JDK " + version}
-
-
-def encoded(value):
-    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
-
-
-def jar_bytes(entries):
-    stream = io.BytesIO()
-    with zipfile.ZipFile(stream, "w", compression=zipfile.ZIP_STORED) as archive:
-        for name, data in sorted(entries.items()):
-            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-            info.create_system = 3
-            info.external_attr = 0o100644 << 16
-            archive.writestr(info, data)
-    return stream.getvalue()
-
-
-def tools(home):
-    suffix = ".exe" if os.name == "nt" else ""
-    return {n: str(home / "bin" / (n + suffix)) for n in ("java", "javac", "jdeps")}
-
-
-def run(arguments, directory):
-    environment = {k: v for k, v in os.environ.items() if k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"}}
-    try:
-        return subprocess.check_output(arguments, cwd=directory, env=environment, stderr=subprocess.STDOUT, text=True)
-    except subprocess.CalledProcessError as error:
-        print(error.output, file=sys.stderr)
-        raise
 
 
 def assemble(files, profile, home, version):
@@ -164,7 +130,7 @@ def probe(payload, home):
         result = run([commands["java"], "-cp", os.pathsep.join([str(work), binary]), "AnnotationsProbe", binary], work)
         negative = work / "InvalidTarget.java"
         negative.write_text('class InvalidTarget { @org.jetbrains.annotations.Contract("-> null") int field; }\n')
-        environment = {k: v for k, v in os.environ.items() if k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"}}
+        environment = java_environment()
         p = subprocess.run([commands["javac"], "--release", "8", "-proc:none", "-XDrawDiagnostics", "-classpath", binary,
                             "-d", str(work), str(negative)], cwd=work, env=environment, text=True, capture_output=True)
         if p.returncode == 0 or "compiler.err.annotation.type.not.applicable" not in p.stderr:

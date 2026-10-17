@@ -26,7 +26,7 @@ async function main() {
         return result.status === 0;
     }
     const run = operation => runCommand([python, 'tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])]);
-    if (component === 'jvm-annotations' && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
+    if (['jvm-annotations', 'jbr-api'].includes(component) && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
         throw new Error('Pinned developer JDK provisioning failed');
     }
     if (!run('prepare')) throw new Error('Dependency preparation failed');
