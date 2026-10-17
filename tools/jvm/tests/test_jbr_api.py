@@ -44,13 +44,13 @@ class JbrApiTests(unittest.TestCase):
                         "modifications": {self.patch["file"]: {"patch": "tools/jvm/patches/ordering.json",
                                                               "patchSha256": jbr_api.digest(self.patch_path.read_bytes()),
                                                               "sha256": jbr_api.digest(self.modified)}},
-                        "generatedSources": {jbr_api.GENERATED: jbr_api.digest(b"Fixture generated source\n")}}
+                        "generatedSources": {jbr_api.GENERATED: jbr_api.digest(b"// Modified by SyncWatch: fixture generation.\n")}}
         context = patch.object(jbr_api, "ROOT", self.root)
         context.start()
         self.addCleanup(context.stop)
         common = jbr_api.common_entries(self.files, self.profile, "fixture")
         products = {jbr_api.BINARY: jbr_api.jar_bytes({"fixture/Service.class": b"Fixture bytecode"} | common),
-                    jbr_api.SOURCES: jbr_api.jar_bytes(self.files | {jbr_api.GENERATED: b"Fixture generated source\n",
+                    jbr_api.SOURCES: jbr_api.jar_bytes(self.files | {jbr_api.GENERATED: b"// Modified by SyncWatch: fixture generation.\n",
                                                                   "META-INF/modified-build-sources/" + self.patch["file"]: self.modified} | common)}
         self.profile["expectedJars"] = {n: jbr_api.digest(d) for n, d in products.items()}
         for name, data in (products | jbr_api.support_files(self.files, self.profile, "fixture")).items():

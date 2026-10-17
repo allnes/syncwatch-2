@@ -135,7 +135,8 @@ def common_entries(files, profile, version):
 
 def assemble(files, profile, home, version):
     entries, generated = compile_sources(files, profile, home)
-    if {n: digest(d) for n, d in generated.items()} != profile["generatedSources"]:
+    if ({n: digest(d) for n, d in generated.items()} != profile["generatedSources"]
+            or not generated[GENERATED].startswith(b"// Modified by SyncWatch:")):
         raise ValueError("JBR API generated source differs from the reviewed output")
     effective, _ = modified_sources(files, profile)
     entries["META-INF/MANIFEST.MF"] = b"Manifest-Version: 1.0\r\nMulti-Release: true\r\nImplementation-Version: 1.9.0\r\n\r\n"
@@ -171,7 +172,7 @@ def verify(payload, files, profile, version):
             if archive.read(name) != data:
                 raise ValueError("JBR API source JAR changed upstream source bytes")
         for name, expected in profile["generatedSources"].items():
-            if digest(archive.read(name)) != expected:
+            if digest(archive.read(name)) != expected or not archive.read(name).startswith(b"// Modified by SyncWatch:"):
                 raise ValueError("JBR API generated source digest changed")
         for name in profile["modifications"]:
             if archive.read("META-INF/modified-build-sources/" + name) != effective[name]:
