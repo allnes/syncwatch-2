@@ -7,8 +7,8 @@ SyncWatch is a desktop application for watching local movies together with synch
 External source dependencies are pinned Git submodules in `3rdparty/`:
 
 ```sh
-git clone --recurse-submodules https://github.com/allnes/syncwatch-2.git
-cd syncwatch-2
+git clone --recurse-submodules https://github.com/salo-group/syncwatch.git
+cd syncwatch
 git submodule update --init --recursive
 ```
 

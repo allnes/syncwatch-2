@@ -25,3 +25,17 @@ The initial workflow policy fixes the current job set and required aggregation. 
 Repository merge protection is a GitHub setting, separate from the workflow file. Require the actual `ci/required` status after it has run; preserve existing review and access rules when configuring it. Check a pull request's real merge eligibility and result for the selected revision rather than assuming the file alone enforces protection.
 
 Application setup, native build commands, and provider acceptance instructions will be added with the corresponding implementations. The repository workflow does not claim that native applications or real calls have been tested.
+
+## Pull request destination
+
+The canonical repository is `salo-group/syncwatch`; its `main` branch is the target for product pull requests and merges. A fork can publish working branches. Check the base repository explicitly before creating or merging a pull request.
+
+For a checkout with a fork named `origin`, configure the canonical remote and GitHub CLI default:
+
+```sh
+git remote add upstream https://github.com/salo-group/syncwatch.git
+git fetch upstream
+gh repo set-default salo-group/syncwatch
+```
+
+Create pull requests with `gh pr create --repo salo-group/syncwatch --base main --head <fork-owner>:<branch>`. Use the same explicit repository for review, check, protection, and merge commands. Merge only after the canonical repository's required checks pass.
