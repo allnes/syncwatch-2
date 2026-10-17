@@ -45,6 +45,8 @@ Python and Node.js are developer/runner toolchains. The CI artifact and dependen
 | Design generator | Selected native Node source profile and transitive dependencies | Source graph and offline build are available for JSON/custom native formatters; browser/ZIP/CLI/web-format features are excluded |
 | VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
 | Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Browser-host compatibility and source closure are unresolved |
+| Linux Compose UI | Selected Compose/AndroidX modules, Kotlin standard library, Skiko/Skia, enabled transitives and embedded code, plus any bundled fonts | Source graph, license inventory and offline build are pending; compiler/JDK/build-tool versions and any packaged runtime must be declared and reviewed separately |
+| Linux Meet host | Application-owned browser with complete upstream and transitive sources | Host selection, source closure and actual Meet capabilities are unresolved |
 
 This table describes the known areas of incomplete dependency closure. It is not a complete software bill of materials or a claim that offline builds are ready.
 

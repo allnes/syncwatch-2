@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "units": "logical",
+  "themes": {
+    "dark": {
+      "background": "color.dark.background",
+      "backgroundDeep": "color.dark.backgroundDeep",
+      "border": "color.dark.border",
+      "gradientStart": "color.dark.gradientStart",
+      "surface": "color.dark.surface",
+      "surfaceRaised": "color.dark.surfaceRaised",
+      "text": "color.dark.text",
+      "accent": "color.shared.accent",
+      "accentSoft": "color.shared.accentSoft",
+      "success": "color.shared.success"
+    },
+    "light": {
+      "background": "color.light.background",
+      "backgroundDeep": "color.light.backgroundDeep",
+      "border": "color.light.border",
+      "gradientStart": "color.light.gradientStart",
+      "surface": "color.light.surface",
+      "surfaceRaised": "color.light.surfaceRaised",
+      "text": "color.light.text",
+      "accent": "color.shared.accent",
+      "accentSoft": "color.shared.accentSoft",
+      "success": "color.shared.success"
+    }
+  }
+}

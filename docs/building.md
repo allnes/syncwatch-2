@@ -23,12 +23,13 @@ python3 tools/native/check_apple.py
 open artifacts/apple/SyncWatch.app
 ```
 
-The entry point checks formatting, runs domain tests, builds the SwiftUI executable, and assembles an unsigned application bundle with the checked-in Info.plist. SwiftPM uses local packages. Platform frameworks and Swift Testing come from the selected SDK.
+The entry point checks formatting, runs domain and native design tests, builds the SwiftUI executable, and assembles an unsigned application bundle with the checked-in Info.plist. SwiftPM uses local packages. Platform frameworks and Swift Testing come from the selected SDK.
 
 The underlying build and domain-test commands are:
 
 ```sh
 SYNCWATCH_CONTRACT_FIXTURES="$PWD/contracts/fixtures/acceptance.json" swift test --package-path packages/apple-domain -Xswiftc -warnings-as-errors
+swift test --package-path packages/design -Xswiftc -warnings-as-errors
 swift build --package-path apps/apple -Xswiftc -warnings-as-errors
 ```
 
@@ -45,7 +46,7 @@ dotnet apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.dll
 
 The execution-policy override applies only to that PowerShell process. For an isolated SDK, pass `-DotNet <sdk-directory>\dotnet.exe` to the checker and use that same executable to launch the application.
 
-The checker restores local project references with [NuGet.Config](../NuGet.Config), checks formatting, builds with warnings as errors, and runs domain checks. Registry sources are empty; external library packages are not downloaded. WPF, analyzers, and reference/runtime packs belong to the installed SDK.
+The checker restores local project references with [NuGet.Config](../NuGet.Config), checks formatting, builds with warnings as errors, and runs domain and compiled WPF resource checks. Registry sources are empty; external library packages are not downloaded. WPF, analyzers, and reference/runtime packs belong to the installed SDK.
 
 Equivalent commands with the selected SDK are:
 
@@ -55,11 +56,14 @@ dotnet format SyncWatch.slnx --no-restore --verify-no-changes
 dotnet build SyncWatch.slnx --no-restore --configuration Debug
 $env:SYNCWATCH_CONTRACT_FIXTURES = Join-Path $PWD 'contracts/fixtures/acceptance.json'
 dotnet run --project packages/windows-domain/SyncWatch.Domain.Tests --no-build --no-restore --configuration Debug
+dotnet run --project packages/design/tests/windows --no-build --no-restore --configuration Debug
 ```
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
 Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API; these domain operations are not yet connected to the shell UI.
+
+The shells consume the committed resources in `packages/design/generated/`. Native builds need no Node runtime. After changing design inputs, use the [native resource generation commands](design-generator.md#native-resource-generation) and include the resulting resources in the change.
 
 ## Source dependencies
 

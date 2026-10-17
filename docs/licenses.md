@@ -31,6 +31,8 @@ The [dependency architecture](architecture/dependencies.md) records the other pi
 
 VLC contains code under multiple licenses. The libVLC API is LGPL-2.1-or-later; the complete player, plugins, codecs, and contrib libraries require a distribution inventory for the selected build. Preserve applicable licenses and corresponding source, and support the replacement/relinking rights required by the selected LGPL distribution method. A license entry for the top-level VLC repository is not clearance for every possible module combination. The media component is not yet a registered distributable build.
 
+The planned Linux UI uses Kotlin/JVM and Compose Multiplatform Desktop. JetBrains-owned [Compose code](https://github.com/JetBrains/compose-multiplatform/blob/master/license/README.md), [Kotlin code](https://github.com/JetBrains/kotlin/blob/master/license/README.md), and [Skiko](https://github.com/JetBrains/skiko/blob/master/LICENSE) use Apache-2.0, with separate third-party notices where applicable. [Skia](https://github.com/google/skia/blob/main/LICENSE), its enabled dependencies, bundled fonts, and any packaged Java runtime retain their own terms. The exact selected source graph, toolchain and runtime distribution are not yet pinned or reviewed; no Compose library or Linux runtime is included in the current product. Review these components before adoption and packaging under the [source dependency policy](architecture/dependencies.md).
+
 ## License texts
 
 - [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
