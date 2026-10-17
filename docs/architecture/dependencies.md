@@ -70,3 +70,7 @@ Each source update records an exact revision and the corresponding license/notic
 - [fastjsonschema source and license](https://github.com/horejsek/python-fastjsonschema).
 - [CEF](https://github.com/chromiumembedded/cef) and [CefSharp](https://github.com/cefsharp/CefSharp).
 - [WebView2 runtime distribution](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution).
+
+## Room metadata service
+
+The metadata service uses the .NET/ASP.NET Core 10 shared framework, including Kestrel, JSON, cryptography, configuration, and WebSocket APIs. These are platform SDK/runtime dependencies under the SDK exception above. It installs no registry libraries. The server check uses the existing pinned fastjsonschema source for generated wire observations; Python is a developer/CI toolchain, not a service runtime. SDK archives for Linux x64, macOS arm64, and Windows x64 are pinned by SHA-512 in [the server toolchain manifest](../../tools/server/toolchains.json). See [build and run commands](../room-service.md).

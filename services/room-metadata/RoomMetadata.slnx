@@ -1,0 +1,4 @@
+<Solution>
+    <Project Path="RoomMetadata/RoomMetadata.csproj" />
+    <Project Path="RoomMetadata.Tests/RoomMetadata.Tests.csproj" />
+</Solution>

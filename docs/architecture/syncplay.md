@@ -77,7 +77,7 @@ The application owns the helper. On EOF, the helper releases its engine and exit
 
 Syncplay owns shared play/pause/seek and required protocol readiness/timing. Local rate corrections serve the engine; user speed preferences are not shared. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.
 
-Proposed endpoints:
+The [room service](room-service.md) implements these endpoints and snapshot, pagination, command, and credential-management operations. Native clients are not yet connected:
 
 | Endpoint | Responsibility |
 |---|---|

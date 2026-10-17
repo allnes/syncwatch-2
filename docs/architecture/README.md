@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, and resume persistence are implemented. This document specifies the full application architecture; shared-design UI, media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows in their UI.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; shared-design UI, media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows or connect to the room service.
 
 ## Technology decisions
 
@@ -97,7 +97,7 @@ Synchronization loss pauses playback and resets the rate to 1.0. Commands from a
 
 ## Source layout
 
-Native shells, initial domain modules, the design package, documentation, contracts, native/contract/CI tooling, workflows, and pinned submodules exist. Media/provider services and full product workflows in the layout below remain planned:
+Native shells, local domain modules, the room metadata service, the design package, documentation, contracts, validation tooling, workflows, and pinned submodules exist. Media/provider services and full product workflows in the layout below remain planned:
 
 ```text
 apps/apple/                 # Swift application and native platform adapters
@@ -113,6 +113,7 @@ tools/dependencies/        # Source graph and deterministic build tooling
 tools/ci/                  # Shared local/CI validation and orchestration
 tools/contracts/           # Offline reference contract validation and tests
 tools/native/              # Native SDK, formatting, build, and test entry points
+tools/server/              # Server SDK provisioning, builds, transport and wire checks
 .github/workflows/         # Repository, platform, dependency, integration, and release jobs
 tests/                      # Planned integration coverage
 3rdparty/                   # External source Git submodules
@@ -147,5 +148,6 @@ These limitations distinguish the application architecture from the functionalit
 - [Shared contracts](contracts.md).
 - [Local watch state and persistence](local-state.md).
 - [Syncplay and room metadata](syncplay.md).
+- [Room service API and ownership](room-service.md).
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).
