@@ -1,0 +1,13 @@
+# SyncWatch development instructions
+
+- Treat SyncWatch as a standalone product. Keep project code in this checkout.
+- The canonical repository is `salo-group/syncwatch`. Target pull requests and merges to its `main` branch. Forks may host working branches; they are not merge destinations. Use `--repo salo-group/syncwatch` with GitHub CLI commands and verify the pull request's base repository before merging.
+- Write all project documentation in English and store it in `docs/`. Use repository-relative links and reproducible instructions that require only this checkout and its declared dependencies.
+- Keep documentation self-contained and focused on product requirements, design, architecture, and validation. Do not commit development-session transcripts, local verification diaries, external workspace references, machine-specific paths, or unrelated application history.
+- Follow the product requirements in `docs/architecture/product-requirements.md` and the design contracts in `packages/design/`. Record provider limitations and unmet requirements explicitly.
+- Use Swift for Apple clients, C# for Windows, VLC/libVLC for playback, Syncplay for playback synchronization, and Google Meet for calls in a separate app-owned window. The platform-neutral design library is `packages/design/`, using Apache 2.0 Style Dictionary to generate native resources. Follow `docs/architecture/README.md` and its unresolved feasibility gates.
+- Add every external source dependency as a pinned Git submodule under `3rdparty/`; do not copy vendor sources or silently fetch runtime dependencies through package managers. Record transitive dependencies and SDK/runtime exceptions in `docs/architecture/dependencies.md`.
+- Never commit credentials, meeting invitations, local device configuration, runtime logs, binaries, caches, or build outputs.
+- Commit and push each completed meaningful change. Validate changed files and report checks that have not run.
+- Establish repository CI before executable product implementation and extend the relevant build/test jobs with each component PR. Follow `docs/architecture/continuous-integration.md` and the CI01-CI05 prerequisites in the pull request plan.
+- Repository validation runs with `python3 tools/ci/check_repository.py`; CI tooling tests run with `python3 -m unittest discover -s tools/ci/tests -v`. See `docs/development.md`. Native application and media implementations remain planned.

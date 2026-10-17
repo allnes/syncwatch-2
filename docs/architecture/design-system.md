@@ -1,0 +1,58 @@
+# Shared design system
+
+`packages/design` is the platform-neutral SyncWatch Design library, licensed under Apache 2.0. It defines visual values and component contracts independently of a UI framework. Style Dictionary, also Apache 2.0, generates resources for the native Swift and C# clients at build time.
+
+```mermaid
+flowchart LR
+    D[SyncWatch Design: JSON tokens and component contracts] --> S[Style Dictionary build tool]
+    S --> A[Generated Swift resources]
+    S --> W[Generated XAML and C# resources]
+    A --> N[SwiftUI and AppKit components]
+    W --> C[WPF component templates]
+    N --> V[Shared visual acceptance criteria]
+    C --> V
+```
+
+## Package structure
+
+| File | Responsibility |
+|---|---|
+| `packages/design/tokens/palette.json` | Shared accent colors and dark/light color values |
+| `packages/design/tokens/geometry.json` | Screen dimensions, spacing, and control geometry |
+| `packages/design/components.json` | Library, player, settings, and call window structures, states, and actions |
+| `packages/design/package.json` | Design package identity, version, license, and packaged assets |
+
+Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and DIP on Windows. Physical display scale is handled by the renderer rather than embedded in token values.
+
+The current package contains design data and component specifications. The generator, Swift package, and WPF assembly still require implementation.
+
+## Generated resources
+
+After the generator's complete source dependency graph is available, implement dedicated formatters:
+
+| Output | Contract |
+|---|---|
+| `SyncWatchTokens.swift` | SwiftUI colors, dimensions, and theme roles; usable on macOS without an unconditional UIKit import |
+| `SyncWatchTokens.g.cs` | Typed C# values with matching token IDs |
+| `SyncWatchTheme.g.xaml` | WPF Color, SolidColorBrush, Double, Thickness, and CornerRadius resources |
+| `design-manifest.json` | Design schema version, design source digest, and generator revision shared by both clients |
+
+Generation must be deterministic: stable ordering and rounding, with no build-time timestamp in the output. Unknown types and unresolved references are build errors. Generated resources are consumed by the native clients and are not edited manually.
+
+Style Dictionary provides Swift formats, but framework-specific SwiftUI/macOS and WPF output needs dedicated formatting. See the [format reference](https://styledictionary.com/reference/hooks/formats/predefined/).
+
+## Component implementation
+
+Tokens define values. Component contracts define structure, semantic roles, interaction states, focus behavior, and actions. Native renderers implement these contracts; Style Dictionary does not render controls or implement their behavior.
+
+The visual language includes a two-column library, deep blue surfaces and gradients, compact controls and menus, player overlays, settings sidebars, and consistent status indicators. Theme roles select dark or light resources; system mode follows the current operating-system appearance.
+
+Typography, icons, and responsive layouts must receive explicit cross-platform specifications. Use a consistent icon source with its source pinned under `3rdparty/`. System font metrics and platform icon fonts are not interchangeable visual specifications.
+
+## Visual acceptance
+
+Cover the library's empty, searching, scanning, selected-media, and disconnected states; player loading, playing, paused, fullscreen, preview, and context menu states; both settings dialogs; and the call window shell. Verify dark/light themes and English/Russian UI localization.
+
+Fix the viewport in logical units and record display scale and font metrics when comparing renderings. Compare geometry, element order, colors, and interaction states. Mask movie content, meeting content, and system window decorations. Numeric token values must match exactly; rendering tolerances for text require reviewed reference images.
+
+On Windows, validate video-overlay hit testing, focus, and z-order. On both platforms, verify tab order, keyboard actions, long filenames, and localized text. Matching tokens alone does not establish visual acceptance.
