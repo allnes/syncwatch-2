@@ -1,0 +1,247 @@
+"""Build and verify the source-only JBR API profile, without a JBR runtime."""
+
+import argparse
+import io
+import json
+import os
+from pathlib import Path
+import tarfile
+import tempfile
+import zipfile
+
+import jdk
+from build_support import digest, encoded, jar_bytes, run, tools
+
+
+ROOT = Path(__file__).resolve().parents[2]
+BINARY = "jbr-api-1.9.0-syncwatch.jar"
+SOURCES = "jbr-api-1.9.0-syncwatch-sources.jar"
+GENERATED = "generated/com/jetbrains/JBR.java"
+
+
+def source_files(source, profile):
+    wanted = profile["sources"] | profile["buildSources"] | profile["provenance"]
+    if source.is_dir():
+        names = {p.relative_to(source).as_posix() for p in source.rglob("*") if p.is_file() and ".git" not in p.parts}
+        files = {n: (source / n).read_bytes() for n in wanted}
+    else:
+        with tarfile.open(source) as archive:
+            if archive.pax_headers.get("comment") != profile["revision"]:
+                raise ValueError("JBR API source archive has a different Git revision")
+            names = {m.name for m in archive if m.isfile()}
+            files = {n: archive.extractfile(n).read() for n in wanted}
+    java = {n for n in names if n.endswith(".java") and (n.startswith("src/") or n.startswith("tools/"))}
+    if java != {n for n in wanted if n.endswith(".java")} or any(Path(n).name.upper().startswith("NOTICE") for n in names):
+        raise ValueError("JBR API Java/notice selection differs from the reviewed inventory")
+    for name, expected in wanted.items():
+        if digest(files[name]) != expected:
+            raise ValueError("JBR API source or provenance digest changed: " + name)
+        if name.endswith(".java"):
+            header = files[name].split(b"*/", 1)[0]
+            if not header.startswith(b"/*") or b"Licensed under the Apache License, Version 2.0" not in header:
+                raise ValueError("JBR API source is missing its original Apache header: " + name)
+    return files
+
+
+def modified_sources(files, profile):
+    effective = files.copy()
+    patches = {}
+    for name, change in profile["modifications"].items():
+        data = (ROOT / change["patch"]).read_bytes()
+        if digest(data) != change["patchSha256"]:
+            raise ValueError("JBR API build-source patch digest changed")
+        patch = json.loads(data)
+        if patch["schemaVersion"] != 1 or patch["file"] != name or not patch["notice"].startswith("Modified by SyncWatch:"):
+            raise ValueError("Unreviewed JBR API build-source patch")
+        text = files[name].decode()
+        for replacement in patch["replacements"]:
+            if text.count(replacement["before"]) != 1:
+                raise ValueError("JBR API build-source patch no longer applies exactly once")
+            text = text.replace(replacement["before"], replacement["after"])
+        if patch["notice"] not in text or digest(text.encode()) != change["sha256"]:
+            raise ValueError("JBR API modified source or prominent modification notice changed")
+        effective[name] = text.encode()
+        patches[Path(change["patch"]).name] = data
+    return effective, patches
+
+
+def notices(files, profile):
+    headers = sorted({files[n].split(b"*/", 1)[0] + b"*/" for n in files if n.endswith(".java")})
+    return (b"JetBrains Runtime API 1.9.0\nUpstream: https://github.com/JetBrains/JetBrainsRuntimeApi\n"
+            + b"Source revision: " + profile["revision"].encode() + b"\n\n" + files["LICENSE"]
+            + b"\n\nOriginal source notices:\n\n" + b"\n\n".join(headers)
+            + b"\n\nModified by SyncWatch: tools/javac/SourceGenerator.java sorts generated service, extension and proxy metadata.\n"
+            b"The modified file carries a prominent change notice. Original and modified build sources, the exact patch,\n"
+            b"unchanged API sources and generated JBR.java accompany this profile in its source JAR.\n"
+            b"No JBR/OpenJDK runtime, native implementation, font, javadoc asset or third-party library is included.\n")
+
+
+def metadata(profile, version):
+    return {k: v for k, v in profile.items() if k != "expectedJars"} | {"compiler": "Temurin JDK " + version}
+
+
+def compile_sources(files, profile, home):
+    effective, _ = modified_sources(files, profile)
+    commands = tools(home)
+    with tempfile.TemporaryDirectory(prefix="jbr-api-compile-") as temporary:
+        work = Path(temporary).resolve()
+        for name, data in effective.items():
+            p = work / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(data)
+        compiler, empty, api8, api9, generated = (work / n for n in ("compiler", "empty", "8", "9", "generated"))
+        for p in (compiler, empty, api8, api9, generated):
+            p.mkdir()
+        exports = ["jdk.compiler/com.sun.tools.javac." + n + "=ALL-UNNAMED" for n in ("api", "tree", "util")]
+        flags = ["-g:none", "-encoding", "UTF-8", "-Xlint:all,-options", "-Werror", "-implicit:none",
+                 "--class-path", str(empty), "--source-path", str(empty), "--processor-path", str(empty)]
+        export_flags = [arg for e in exports for arg in ("--add-exports", e)]
+        run([commands["javac"], *flags, "-proc:none", *export_flags, "-d", str(compiler),
+             *[str(work / n) for n in sorted(profile["buildSources"]) if n.startswith("tools/javac/")]], work)
+        services = compiler / "META-INF/services"
+        services.mkdir(parents=True)
+        (services / "com.sun.source.util.Plugin").write_text("CompatibilityPlugin\n")
+        api_flags = flags.copy()
+        api_flags[api_flags.index("--source-path") + 1] = str(work / "src")
+        api_flags[api_flags.index("--processor-path") + 1] = str(compiler)
+        api_flags += ["-J--add-exports=" + e for e in exports]
+        run([commands["javac"], *api_flags, "--release", "9", "--module-version", "1.9.0", "-processor", "ApiProcessor",
+             "-Xdoclint:all/protected", "-Aoutput=" + str(work), "-d", str(api9), "-s", str(generated),
+             *[str(work / n) for n in sorted(profile["sources"])]], work)
+        # The ordering patch changes the generated source hash, with no structural API diff.
+        check = profile["compatibilityCheck"]
+        if (work / "version.txt").read_text(encoding="utf-8") != check["processorVersion"] or (work / "message.txt").read_text(encoding="utf-8") != check["message"]:
+            raise ValueError("JBR API generated surface differs from the upstream 1.9.0 API baseline: "
+                             + (work / "message.txt").read_text(encoding="utf-8"))
+        inputs = (work / "sourcelist8.txt").read_text(encoding="utf-8").splitlines()
+        expected = {work / n for n in profile["sources"] if n != "src/module-info.java"} | {generated / "com/jetbrains/JBR.java"}
+        if len(inputs) != len(expected) or {Path(n).resolve() for n in inputs} != expected:
+            raise ValueError("JBR API processor selected unexpected Java 8 sources")
+        # Relative plugin arguments also work when the temporary root contains spaces.
+        plugin = "CompatibilityPlugin 8 9"
+        run([commands["javac"], *api_flags, "--release", "8", "-proc:none", "-Xplugin:" + plugin,
+             "-d", str(api8), *sorted(inputs)], work)
+        entries = {p.relative_to(api8).as_posix(): p.read_bytes() for p in api8.rglob("*.class")}
+        entries |= {"META-INF/versions/9/" + p.relative_to(api9).as_posix(): p.read_bytes() for p in api9.rglob("*.class")}
+        return entries, {GENERATED: (generated / "com/jetbrains/JBR.java").read_bytes()}
+
+
+def common_entries(files, profile, version):
+    _, patches = modified_sources(files, profile)
+    return {"META-INF/LICENSE": files["LICENSE"], "META-INF/UPSTREAM-README.md": files["README.md"],
+            "META-INF/THIRD-PARTY-NOTICES.txt": notices(files, profile), "META-INF/source-inventory.json": encoded(metadata(profile, version)),
+            **{"META-INF/syncwatch-patches/" + name: data for name, data in patches.items()}}
+
+
+def assemble(files, profile, home, version):
+    entries, generated = compile_sources(files, profile, home)
+    if ({n: digest(d) for n, d in generated.items()} != profile["generatedSources"]
+            or not generated[GENERATED].startswith(b"// Modified by SyncWatch:")):
+        raise ValueError("JBR API generated source differs from the reviewed output")
+    effective, _ = modified_sources(files, profile)
+    entries["META-INF/MANIFEST.MF"] = b"Manifest-Version: 1.0\r\nMulti-Release: true\r\nImplementation-Version: 1.9.0\r\n\r\n"
+    sources = files | generated | {"META-INF/modified-build-sources/" + n: effective[n] for n in profile["modifications"]}
+    common = common_entries(files, profile, version)
+    return {BINARY: jar_bytes(entries | common), SOURCES: jar_bytes(sources | common)}
+
+
+def support_files(files, profile, version):
+    return {"THIRD-PARTY-NOTICES.txt": notices(files, profile), "source-inventory.json": encoded(metadata(profile, version)),
+            "notices/jbr-api/LICENSE": files["LICENSE"], "notices/jbr-api/README.md": files["README.md"]}
+
+
+def verify(payload, files, profile, version):
+    expected = support_files(files, profile, version)
+    actual = {p.relative_to(payload).as_posix() for p in payload.rglob("*") if p.is_file()}
+    if actual != set(expected) | {BINARY, SOURCES}:
+        raise ValueError("JBR API artifact has missing or unexpected files")
+    for name, data in expected.items():
+        if (payload / name).read_bytes() != data:
+            raise ValueError("JBR API notices/source inventory changed: " + name)
+    for name in (BINARY, SOURCES):
+        data = (payload / name).read_bytes()
+        if digest(data) != profile["expectedJars"][name]:
+            raise ValueError("JBR API JAR differs from the reviewed source/compiler output: " + name)
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            for member, content in common_entries(files, profile, version).items():
+                if archive.read(member) != content:
+                    raise ValueError("JBR API JAR has incomplete notices or source correspondence")
+    effective, _ = modified_sources(files, profile)
+    with zipfile.ZipFile(payload / SOURCES) as archive:
+        for name, data in files.items():
+            if archive.read(name) != data:
+                raise ValueError("JBR API source JAR changed upstream source bytes")
+        for name, expected in profile["generatedSources"].items():
+            if digest(archive.read(name)) != expected or not archive.read(name).startswith(b"// Modified by SyncWatch:"):
+                raise ValueError("JBR API generated source digest changed")
+        for name in profile["modifications"]:
+            if archive.read("META-INF/modified-build-sources/" + name) != effective[name]:
+                raise ValueError("JBR API modified build source or change notice changed")
+
+
+def probe(payload, home):
+    commands = tools(home)
+    with tempfile.TemporaryDirectory(prefix="jbr-api-probe-") as temporary:
+        work = Path(temporary)
+        binary = str((payload / BINARY).resolve())
+        run([commands["javac"], "--release", "8", "-proc:none", "-classpath", binary, "-d", str(work),
+             str(ROOT / "tools/jvm/tests/JbrApiConsumer.java")], work)
+        run([commands["javac"], "--release", "9", "-proc:none", "-classpath", binary, "-d", str(work),
+             str(ROOT / "tools/jvm/tests/JbrApiProbe.java")], work)
+        for mode in ("classpath", "module", "java8-overlay"):
+            if mode == "module":
+                flags = ["--module-path", binary, "--add-modules", "jetbrains.runtime.api", "-cp", str(work)]
+            else:
+                flags = (["-Djdk.util.jar.enableMultiRelease=false"] if mode == "java8-overlay" else [])
+                flags += ["-cp", os.pathsep.join([str(work), binary])]
+            result = run([commands["java"], "-Djava.awt.headless=true", *flags, "JbrApiProbe", mode, binary], work)
+            print(result.strip())
+        # Analyze effective bytecode separately from the static JPMS edge. Making
+        # java.desktop an analysis root would instead report the SDK's own dependencies.
+        classes = work / "effective-classes"
+        with zipfile.ZipFile(binary) as archive:
+            names = [n for n in archive.namelist() if n.endswith(".class") and not n.endswith("module-info.class")]
+            for name in sorted(names, key=lambda n: n.startswith("META-INF/versions/9/")):
+                path = classes / name.removeprefix("META-INF/versions/9/")
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(archive.read(name))
+        dependencies = run([commands["jdeps"], "--print-module-deps", str(classes)], work).strip()
+        if set(dependencies.split(",")) != {"java.base", "java.desktop"}:
+            raise ValueError("JBR API has an undeclared non-SDK module dependency")
+
+
+def profile_data():
+    profile = json.loads((ROOT / "tools/jvm/jbr_api.json").read_text(encoding="utf-8"))
+    registered = json.loads((ROOT / "tools/dependencies/components.json").read_text(encoding="utf-8"))["components"]["jbr-api"]
+    source = registered["sources"][profile["sourcePath"]]
+    if source["revision"] != profile["revision"] or source["license"] != profile["license"] or source["requires"]:
+        raise ValueError("JBR API source/license profile differs from the registered graph")
+    return profile, json.loads((ROOT / "tools/jvm/toolchains.json").read_text(encoding="utf-8"))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("operation", choices=("build", "verify"))
+    parser.add_argument("--platform", choices=("linux-x64", "macos-arm64", "windows-x64"))
+    args = parser.parse_args()
+    profile, sdk = profile_data()
+    if args.operation == "build":
+        if json.loads(os.environ["SYNCWATCH_DEPENDENCY_FLAGS"]) != {"profile": "java8-module9-v1", "version": "1.9.0"}:
+            raise ValueError("Unknown JBR API build profile")
+        files = source_files(Path(os.environ["SYNCWATCH_DEPENDENCY_SOURCES"]) / "3rdparty/jbr-api", profile)
+        payload = Path(os.environ["SYNCWATCH_DEPENDENCY_OUTPUT"])
+        for name, data in (assemble(files, profile, jdk.home(), sdk["version"]) | support_files(files, profile, sdk["version"])).items():
+            p = payload / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(data)
+    else:
+        directory = ROOT / "artifacts/dependencies/jbr-api" / (args.platform or jdk.current_target())
+        files = source_files(directory / "jbr-api.tar", profile)
+        payload = directory / "payload"
+    verify(payload, files, profile, sdk["version"])
+    probe(payload, jdk.home())
+    print("Verified JBR API 1.9.0 source/compiler correspondence, complete notices and ordinary-JDK fallbacks")
+
+
+if __name__ == "__main__":
+    main()

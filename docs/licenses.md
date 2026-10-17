@@ -29,6 +29,8 @@ The [build guide](design-generator.md) describes the supported runtime profile. 
 
 The source-built [JVM annotations profile](jvm-annotations.md) uses Apache-2.0 with the full upstream license and original notices in both JARs and the payload. All 32 selected Java sources remain unchanged, including two files governed by the repository-wide declaration without individual headers. The binary JAR links only to Java SDK interfaces; no external runtime library or annotation processor is included. Its Temurin compiler SDK retains vendor legal files separately and is not included in the library or application artifacts.
 
+The source-built [JBR API profile](jbr-api.md) uses Apache-2.0 and retains the full license and original headers for all selected API/build Java sources. A modified source generator sorts metadata; its prominent change notice, original and modified sources and exact patch accompany the artifacts. The binary includes optional-service interfaces and the upstream Java fallback, linked to SDK interfaces only. The source-built processor/plugin are build tools, excluded from the binary JAR. No JBR/OpenJDK runtime, native service implementation or font is packaged. Preserve the source inventory, notices and modification notice when distributing this profile; a future JVM distribution requires separate review.
+
 The dependency verifier checks notices, the original source inventory, and source/compiler correspondence on restored caches as well as cold builds. These checks cover only the declared annotations profile. The Compose/native graph and any packaged JVM runtime require separate source and distribution reviews.
 
 ## Other components

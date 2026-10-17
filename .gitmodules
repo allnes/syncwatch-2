@@ -55,3 +55,6 @@
 [submodule "3rdparty/jvm-annotations"]
 	path = 3rdparty/jvm-annotations
 	url = https://github.com/JetBrains/java-annotations.git
+[submodule "3rdparty/jbr-api"]
+	path = 3rdparty/jbr-api
+	url = https://github.com/JetBrains/JetBrainsRuntimeApi.git
