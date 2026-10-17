@@ -9,4 +9,4 @@
 - Never commit credentials, meeting invitations, local device configuration, runtime logs, binaries, caches, or build outputs.
 - Commit and push each completed meaningful change. Validate changed files and report checks that have not run.
 - Establish repository CI before executable product implementation and extend the relevant build/test jobs with each component PR. Follow `docs/architecture/continuous-integration.md` and the CI01-CI05 prerequisites in the pull request plan.
-- This checkout currently contains architecture documentation and dependency sources, not a runnable application. Add reproducible build and test instructions with the first implementation.
+- Repository validation runs with `python3 tools/ci/check_repository.py`; CI tooling tests run with `python3 -m unittest discover -s tools/ci/tests -v`. See `docs/development.md`. Native application and media implementations remain planned.

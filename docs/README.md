@@ -4,6 +4,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 
 ## Product specification
 
+- [Development setup](development.md): repository checks, tooling requirements, and initial CI behavior.
 - [Product requirements](architecture/product-requirements.md): library, playback, synchronization, calls, settings, and resource lifecycle.
 - [Application architecture](architecture/README.md): components, state ownership, native clients, and integration gates.
 - [Shared design system](architecture/design-system.md): platform-neutral design contracts and generated native resources.

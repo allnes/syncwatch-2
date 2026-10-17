@@ -1,0 +1,10 @@
+[project]
+name = "syncwatch-ci"
+version = "0.1.0"
+description = "Dependency-free repository validation for SyncWatch"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/ci/tests -v"
+check-command = "python3 tools/ci/check_repository.py"
