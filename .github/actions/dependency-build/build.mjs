@@ -1,6 +1,6 @@
 import {spawnSync} from 'node:child_process';
 import {access, appendFile, readFile} from 'node:fs/promises';
-import {resolve} from 'node:path';
+import {delimiter, dirname, resolve} from 'node:path';
 import {restoreCache} from '../../../tools/dependencies/cache.mjs';
 import {main as upload} from '../../../tools/ci/artifact_upload.mjs';
 
@@ -15,6 +15,8 @@ async function main() {
     const python = process.platform === 'win32' ? 'python' : 'python3';
     function run(operation) {
         const environment = {...process.env};
+        // Use the action's declared Node 24 toolchain for source-only design builds.
+        environment.PATH = dirname(process.execPath) + delimiter + process.env.PATH;
         for (const key of Object.keys(environment)) {
             if (key.startsWith('INPUT_') || key.startsWith('ACTIONS_') || key === 'GITHUB_TOKEN') delete environment[key];
         }

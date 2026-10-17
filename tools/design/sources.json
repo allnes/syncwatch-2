@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "profile": "native-node-v1",
+  "node": ">=24.3.0 <25",
+  "packages": {
+    "style-dictionary": {
+      "source": "3rdparty/style-dictionary",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "5.7.0",
+      "files": [
+        "lib/**/*.js"
+      ],
+      "exports": {
+        ".": "./lib/StyleDictionary.js",
+        "./fs": "./lib/fs-node.js",
+        "./enums": "./lib/enums/index.js",
+        "./utils": "./syncwatch-utils.js"
+      },
+      "requires": [
+        "deepmerge",
+        "glob",
+        "chalk",
+        "change-case",
+        "colorjs.io",
+        "is-plain-obj",
+        "json5",
+        "tinycolor2"
+      ],
+      "excludedDependencies": {
+        "@bundled-es-modules/memfs": "Browser filesystem; Node condition uses node:fs.",
+        "@zip.js/zip.js": "ZIP conversion/download utilities; excluded from the native generator utils entry.",
+        "commander": "Upstream CLI; the product uses its own API entry.",
+        "prettier": "JavaScript/TypeScript output formats; native profile permits JSON and custom syncwatch formats only."
+      },
+      "sourceBindings": {
+        "@bundled-es-modules/deepmerge": {
+          "package": "deepmerge",
+          "imports": {
+            "@bundled-es-modules/deepmerge": "deepmerge"
+          },
+          "reason": "Use the original CommonJS implementation directly through Node ESM interop."
+        },
+        "@bundled-es-modules/glob": {
+          "package": "glob",
+          "imports": {
+            "@bundled-es-modules/glob": "glob/raw"
+          },
+          "reason": "Use the original unbundled Node entry directly."
+        },
+        "path-unified": {
+          "package": null,
+          "imports": {
+            "path-unified/posix": "node:path/posix",
+            "path-unified/win32": "node:path/win32"
+          },
+          "reason": "Use the standard Node path API; no adapted Node source is redistributed."
+        }
+      }
+    },
+    "deepmerge": {
+      "source": "3rdparty/design-deepmerge",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "4.3.1",
+      "files": [
+        "index.js"
+      ],
+      "exports": {
+        ".": "./index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "glob": {
+      "source": "3rdparty/design-glob",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "13.0.6",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js",
+        "./raw": "./src/index.js"
+      },
+      "requires": [
+        "minimatch",
+        "minipass",
+        "path-scurry"
+      ],
+      "excludedDependencies": {}
+    },
+    "minimatch": {
+      "source": "3rdparty/design-minimatch",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "10.2.5",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [
+        "brace-expansion"
+      ],
+      "excludedDependencies": {}
+    },
+    "minipass": {
+      "source": "3rdparty/design-minipass",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "7.1.3",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "path-scurry": {
+      "source": "3rdparty/design-path-scurry",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "2.0.2",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [
+        "lru-cache",
+        "minipass"
+      ],
+      "excludedDependencies": {}
+    },
+    "lru-cache": {
+      "source": "3rdparty/design-lru-cache",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "11.4.0",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "brace-expansion": {
+      "source": "3rdparty/design-brace-expansion",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "5.0.12",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [
+        "balanced-match"
+      ],
+      "excludedDependencies": {}
+    },
+    "balanced-match": {
+      "source": "3rdparty/design-balanced-match",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "4.0.4",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "chalk": {
+      "source": "3rdparty/design-chalk",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "5.6.2",
+      "files": [
+        "source/**/*.js"
+      ],
+      "exports": {
+        ".": "./source/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "change-case": {
+      "source": "3rdparty/design-change-case",
+      "packageRoot": "packages/change-case",
+      "manifest": "package.json",
+      "version": "5.4.4",
+      "files": [
+        "src/**/*.ts"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "colorjs.io": {
+      "source": "3rdparty/design-colorjs",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "0.5.2",
+      "files": [
+        "src/**/*.js"
+      ],
+      "exports": {
+        ".": "./src/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "is-plain-obj": {
+      "source": "3rdparty/design-plain-object",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "4.1.0",
+      "files": [
+        "index.js"
+      ],
+      "exports": {
+        ".": "./index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "json5": {
+      "source": "3rdparty/design-json5",
+      "packageRoot": "",
+      "manifest": "package.json",
+      "version": "2.2.3",
+      "files": [
+        "lib/**/*.js"
+      ],
+      "exports": {
+        ".": "./lib/index.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    },
+    "tinycolor2": {
+      "source": "3rdparty/design-tinycolor",
+      "packageRoot": "",
+      "manifest": "npm/package.json",
+      "version": "1.6.0",
+      "files": [
+        "mod.js"
+      ],
+      "exports": {
+        ".": "./mod.js"
+      },
+      "requires": [],
+      "excludedDependencies": {}
+    }
+  }
+}

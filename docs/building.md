@@ -71,7 +71,7 @@ python3 tools/dependencies/build.py plan
 python3 tools/dependencies/build.py build --component fastjsonschema --platform macos-arm64 --cold
 ```
 
-The current ready component is the dependency-free fastjsonschema source package, with `macos-arm64`, `linux-x64`, and `windows-x64` targets. Other product dependency graphs remain unavailable until their sources and real build recipes are registered. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
+The ready components are the dependency-free fastjsonschema source package and the native Node design-generator profile, with `macos-arm64`, `linux-x64`, and `windows-x64` targets. The design tool requires Node 24.3 or newer within 24.x; see [building the design tools](design-generator.md). Media, synchronization, and browser-host dependency graphs remain unavailable until their sources and real build recipes are registered. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
 
 ## Source and contract validation
 

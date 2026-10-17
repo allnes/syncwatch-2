@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "style-dictionary": {
+      "license": "Apache-2.0",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "sha256": "46ae5f0dc2e06a18cde8b06bdb45abea0b6e28d169e6eff2069536780304cf6e"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "0107508caf0f6684323dd170ca7d28b8519611954612209125eaa44a476bee16"
+        }
+      ]
+    },
+    "deepmerge": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "license.txt",
+          "sha256": "6cfc4687cb2f2d86f4a77e6b526290d3878e5e512f3fec2f4cb36a9cb36f798b"
+        }
+      ]
+    },
+    "glob": {
+      "license": "BlueOak-1.0.0",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "a49c9ba464796f65b59fca3f1e6ca40912df1e859f575383223f7ec6c5baae09"
+        }
+      ]
+    },
+    "minimatch": {
+      "license": "BlueOak-1.0.0",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "2c7c5d22ed5a8ee968c64757710979afcd77438c48b4a265b94e615babd8a901"
+        }
+      ]
+    },
+    "minipass": {
+      "license": "BlueOak-1.0.0",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "8a1af140fdfbf5afd3df27f7e662f989c5b963a300020dfafce42033cae9e004"
+        }
+      ]
+    },
+    "path-scurry": {
+      "license": "BlueOak-1.0.0",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "8a1af140fdfbf5afd3df27f7e662f989c5b963a300020dfafce42033cae9e004"
+        }
+      ]
+    },
+    "lru-cache": {
+      "license": "BlueOak-1.0.0",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "8a1af140fdfbf5afd3df27f7e662f989c5b963a300020dfafce42033cae9e004"
+        }
+      ]
+    },
+    "brace-expansion": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "sha256": "9c63a23124d68cd30cd316a94a1a0bca34f032786df6df69fc4b5f136bac8d2e"
+        }
+      ]
+    },
+    "balanced-match": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "d408f38ffa3355c5faec517153295338892eb0f1ea43f57874bb23c6075979b5"
+        }
+      ]
+    },
+    "chalk": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "license",
+          "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+        }
+      ]
+    },
+    "change-case": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "sha256": "4eeb3271453a891df609e5a9f4ee79a68307f730c13417a3bfeffa604ac8cf25"
+        }
+      ]
+    },
+    "colorjs.io": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "sha256": "feee8a4ec1649b385f3ec9ac73174501cbfc9d5a75171a056d94cb452d3f3ec3"
+        }
+      ]
+    },
+    "is-plain-obj": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "license",
+          "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+        }
+      ]
+    },
+    "json5": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "53e59feb13058722d977c699eb0407c7bce2f93c949b681bbd2ff31698535927"
+        }
+      ]
+    },
+    "tinycolor2": {
+      "license": "MIT",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "sha256": "c6cb470a9ba0a50d57611aeec1f31da609c5aefdbee8eac7f289bcb0e30625fa"
+        }
+      ]
+    }
+  },
+  "embedded": [
+    {
+      "name": "ansi-styles",
+      "withinPackage": "chalk",
+      "paths": [
+        "source/vendor/ansi-styles/index.js"
+      ],
+      "license": "MIT",
+      "notice": "license",
+      "upstream": "https://github.com/chalk/ansi-styles"
+    },
+    {
+      "name": "supports-color",
+      "withinPackage": "chalk",
+      "paths": [
+        "source/vendor/supports-color/index.js",
+        "source/vendor/supports-color/browser.js"
+      ],
+      "license": "MIT",
+      "notice": "license",
+      "upstream": "https://github.com/chalk/supports-color"
+    },
+    {
+      "name": "has-flag (inline copy)",
+      "withinPackage": "chalk",
+      "paths": [
+        "source/vendor/supports-color/index.js"
+      ],
+      "license": "MIT",
+      "notice": "license",
+      "upstream": "https://github.com/sindresorhus/has-flag"
+    },
+    {
+      "name": "HSLuv",
+      "withinPackage": "colorjs.io",
+      "paths": [
+        "src/spaces/hsluv.js"
+      ],
+      "license": "MIT",
+      "notice": "src/spaces/hsluv.js",
+      "inlineHeader": true,
+      "sha256": "c80832723f3bf210d5a60fab98aa758f12a5d103a3a3cc7a8bea33c7c5ae0a78",
+      "upstream": "https://github.com/hsluv/hsluv-javascript/blob/14b49e6cf9a9137916096b8487a5372626b57ba4/src/hsluv.ts"
+    },
+    {
+      "name": "HPLuv",
+      "withinPackage": "colorjs.io",
+      "paths": [
+        "src/spaces/hpluv.js"
+      ],
+      "license": "MIT",
+      "notice": "src/spaces/hpluv.js",
+      "inlineHeader": true,
+      "sha256": "c80832723f3bf210d5a60fab98aa758f12a5d103a3a3cc7a8bea33c7c5ae0a78",
+      "upstream": "https://github.com/hsluv/hsluv-javascript/blob/14b49e6cf9a9137916096b8487a5372626b57ba4/src/hsluv.ts"
+    }
+  ],
+  "supplemental": [
+    {
+      "name": "ColorAide (HCT implementation)",
+      "withinPackage": "colorjs.io",
+      "paths": [
+        "src/spaces/hct.js",
+        "src/spaces/cam16.js",
+        "src/deltaE/deltaEHCT.js"
+      ],
+      "license": "MIT",
+      "file": "notices/ColorAide-MIT.txt",
+      "sha256": "018a6801da4a0b5e27b6540f12f005dd1c9148fd4f5b9330b7bfbde20e635bbf",
+      "upstream": "https://raw.githubusercontent.com/facelessuser/coloraide/81b908e976bfffe0680b764c374558b1ea5d4390/LICENSE.md",
+      "reason": "Preserve the original MIT copyright and permission notice for the HCT port contributed by its author Isaac Muse."
+    }
+  ]
+}

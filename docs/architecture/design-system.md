@@ -24,11 +24,11 @@ flowchart LR
 
 Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and DIP on Windows. Physical display scale is handled by the renderer rather than embedded in token values.
 
-The current package contains design data and component specifications. The generator, Swift package, and WPF assembly still require implementation.
+The current package contains design data and component specifications. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Swift/WPF resource formatters and native design components still require implementation.
 
 ## Generated resources
 
-After the generator's complete source dependency graph is available, implement dedicated formatters:
+Dedicated native formatters consume the declared source profile:
 
 | Output | Contract |
 |---|---|
