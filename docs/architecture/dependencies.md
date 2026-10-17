@@ -10,6 +10,7 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 | `3rdparty/syncplay` | `v1.7.6` / `993232ab095bb810593459bc705b3e6fc64ad161` | Playback synchronization client engine and server | Apache 2.0; bundled files may have separate notices |
 | `3rdparty/vlc` | `3.0.24` / `6de05adcbaf2e8b85fe86aad4169393098628119` | Embedded libVLC and C API headers | LGPL 2.1 in `COPYING.LIB`; the full application and individual modules have additional license terms |
 | `3rdparty/fastjsonschema` | `v2.21.2` / `4f1ed6d9c0462f3522a66f49c8f3dc482300101b` | Offline Draft 7 contract validation from pinned Python source | BSD 3-Clause; `LICENSE` |
+| `3rdparty/jvm-annotations` | `26.0.2` / `5ed7516e96eebef2a0cedc470d776b7351f52d6b` | JVM annotation classpath and named-module APIs | Apache 2.0; original license, repository declaration and source headers |
 
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
@@ -38,6 +39,8 @@ Compilers, platform SDKs, and system frameworks such as SwiftUI, AppKit, Foundat
 Python and Node.js are developer/runner toolchains. The CI artifact and dependency-cache adapters are first-party code using only Node built-ins; their local JavaScript actions run with the runner-provided Node 24 runtime. Their tests require Node 22 or newer. They install no npm packages or external Actions. The GitHub artifact service is remote infrastructure, used by the repository-owned workflows under `.github/workflows/` and not required by the application runtime.
 
 ## Dependency closure still required
+
+The [annotations build](../jvm-annotations.md) uses only its pinned Java sources and the separately declared Temurin developer JDK. The JDK is a compiler SDK exception, with complete vendor legal files preserved and exact archive/installation hashes checked; it is not an application library or bundled JVM. This exception does not extend to the Kotlin standard library, Compose, Skiko/Skia, fonts or other JVM libraries. The annotations component runs its license/source/API verifier on cold builds and restored caches before success or distribution.
 
 | Component | Required source graph | Status |
 |---|---|---|

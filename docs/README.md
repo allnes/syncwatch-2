@@ -9,6 +9,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Building and running](building.md): source checkout, declared toolchains, native builds, and launch commands.
 - [Building the design tools](design-generator.md): source-only Style Dictionary profile and API.
 - [Inspecting JVM dependencies](jvm-dependencies.md): offline runtime metadata inventory before source adoption.
+- [Building JVM annotations](jvm-annotations.md): pinned Java sources, compiler SDK and verified JAR artifacts.
 - [Licenses and distribution](licenses.md): first-party licensing and third-party notices.
 
 ## Architecture and design

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "version": "21.0.12.1+1",
+  "javacVersion": "javac 21.0.12.1",
+  "purpose": "Developer compiler SDK only; not included in library artifacts or an application distribution",
+  "targets": {
+    "macos-arm64": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12.1_1.tar.gz",
+      "sha256": "3623232f33a9c3baadf304480b2535f9a3cba8a58d42ecbb438ba267315d9998",
+      "inventorySha256": "948f375d20f776a663e8e0b73dcd4ce96fe0964b91b1b1852c020434a8adc34e",
+      "home": "jdk-21.0.12.1+1/Contents/Home"
+    },
+    "linux-x64": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+      "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+      "inventorySha256": "5bfff51876a10a9a4797a1b0746d85df39d11bed6bacd07ebefc5afa0094aeaf",
+      "home": "jdk-21.0.12.1+1"
+    },
+    "windows-x64": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+      "sha256": "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e",
+      "inventorySha256": "c5b9ef222920dfad3d5714249bdb06f2ddd3c6e1e63b16f2f8a5ad9b65b99ff9",
+      "home": "jdk-21.0.12.1+1"
+    }
+  }
+}

@@ -52,3 +52,6 @@
 [submodule "3rdparty/design-deepmerge"]
 	path = 3rdparty/design-deepmerge
 	url = https://github.com/TehShrike/deepmerge.git
+[submodule "3rdparty/jvm-annotations"]
+	path = 3rdparty/jvm-annotations
+	url = https://github.com/JetBrains/java-annotations.git
