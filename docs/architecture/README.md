@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells with initial domain ownership guards are implemented. This document specifies the full application architecture; shared-design UI, media, synchronization, and provider integrations remain planned.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, and resume persistence are implemented. This document specifies the full application architecture; shared-design UI, media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows in their UI.
 
 ## Technology decisions
 
@@ -145,6 +145,7 @@ These limitations distinguish the application architecture from the functionalit
 - [Building and running](../building.md).
 - [Shared design system](design-system.md).
 - [Shared contracts](contracts.md).
+- [Local watch state and persistence](local-state.md).
 - [Syncplay and room metadata](syncplay.md).
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).

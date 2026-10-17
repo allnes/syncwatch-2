@@ -59,6 +59,8 @@ dotnet run --project packages/windows-domain/SyncWatch.Domain.Tests --no-build -
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
+Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API; these domain operations are not yet connected to the shell UI.
+
 ## Source dependencies
 
 The [component registry](../tools/dependencies/components.json) and [build driver](../tools/dependencies/build.py) declare available source builds and target platforms:

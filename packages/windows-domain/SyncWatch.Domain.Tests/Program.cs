@@ -45,6 +45,7 @@ foreach (string invalid in new[] { "", "-run", "run/7", "run\n7", "\u00e9", new 
     Require(Capture(() => new PlaybackScope(invalid, 0)) == ContractRejection.Malformed, "Invalid process identity was accepted");
 }
 
+WatchSessionTests.Run(Path.GetDirectoryName(Path.GetFullPath(path))!);
 Console.WriteLine("Passed shared ownership fixtures, replacement/restart, integer bounds, and identifier checks");
 return 0;
 

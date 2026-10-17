@@ -1,0 +1,1274 @@
+{
+  "formatVersion": 1,
+  "localStateCases": [
+    {
+      "name": "defaults",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "loaded"
+    },
+    {
+      "name": "custom-and-paused-resume",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "dark",
+          "language": "ru",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 500,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 0.25,
+          "callVolume": 0,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": false,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [
+          {
+            "mediaId": "movie-a",
+            "positionMs": 12345
+          }
+        ],
+        "selectedMediaId": "movie-a"
+      },
+      "status": "loaded"
+    },
+    {
+      "name": "bad-theme",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "sepia",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "bad-language",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "de",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "zero-skip",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 0,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "fractional-skip",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 1.5,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "boolean-skip",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": true,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "small-cache",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 49,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "large-cache",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 501,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "short-cursor-delay",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 499,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "long-cursor-delay",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 10001,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "negative-movie-volume",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": -0.1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "excessive-call-volume",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1.1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "camera-type",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": 1,
+          "microphoneEnabled": true
+        },
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "bad-id",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [],
+        "selectedMediaId": "/local/movie.mkv"
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "unicode-id",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [],
+        "selectedMediaId": "movie-\u00e9"
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "negative-position",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [
+          {
+            "mediaId": "movie-a",
+            "positionMs": -1
+          }
+        ]
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "excessive-position",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [
+          {
+            "mediaId": "movie-a",
+            "positionMs": 604800001
+          }
+        ]
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "duplicate-resume",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [
+          {
+            "mediaId": "movie-a",
+            "positionMs": 1
+          },
+          {
+            "mediaId": "movie-a",
+            "positionMs": 2
+          }
+        ]
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "future-format",
+      "value": {
+        "version": 2
+      },
+      "status": "unsupportedVersion"
+    },
+    {
+      "name": "missing-version",
+      "value": {},
+      "status": "invalid"
+    },
+    {
+      "name": "not-an-object",
+      "value": [],
+      "status": "invalid"
+    },
+    {
+      "name": "boolean-version",
+      "value": {
+        "version": true
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "negative-version",
+      "value": {
+        "version": -1
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "overflow-version",
+      "value": {
+        "version": 2147483648
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "missing-preferences",
+      "value": {
+        "version": 1,
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "missing-preference-field",
+      "value": {
+        "version": 1,
+        "preferences": {},
+        "resumePositions": []
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "null-resumes",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 10,
+          "previewsEnabled": true,
+          "previewCacheMB": 150,
+          "cursorHideDelayMs": 2500,
+          "movieVolume": 1,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": null
+      },
+      "status": "invalid"
+    },
+    {
+      "name": "lower-preferences-upper-position",
+      "value": {
+        "version": 1,
+        "preferences": {
+          "theme": "system",
+          "language": "en",
+          "skipSeconds": 1,
+          "previewsEnabled": true,
+          "previewCacheMB": 50,
+          "cursorHideDelayMs": 500,
+          "movieVolume": 0,
+          "callVolume": 1,
+          "rememberMovieVolume": true,
+          "duckMovieDuringSpeech": false,
+          "cameraEnabled": true,
+          "microphoneEnabled": true
+        },
+        "resumePositions": [
+          {
+            "mediaId": "movie-a",
+            "positionMs": 604800000
+          }
+        ]
+      },
+      "status": "loaded"
+    },
+    {
+      "name": "floating-version-token",
+      "json": "{\"version\":1.0,\"preferences\":{},\"resumePositions\":[]}",
+      "status": "invalid"
+    },
+    {
+      "name": "floating-skip-token",
+      "json": "{\"version\": 1, \"preferences\": {\"theme\": \"system\", \"language\": \"en\", \"skipSeconds\": 10.0, \"previewsEnabled\": true, \"previewCacheMB\": 150, \"cursorHideDelayMs\": 2500, \"movieVolume\": 1, \"callVolume\": 1, \"rememberMovieVolume\": true, \"duckMovieDuringSpeech\": false, \"cameraEnabled\": true, \"microphoneEnabled\": true}, \"resumePositions\": []}",
+      "status": "invalid"
+    }
+  ],
+  "lifecycleCases": [
+    {
+      "name": "start-home-continue-end-retry",
+      "steps": [
+        {
+          "op": "start",
+          "expected": {
+            "phase": "idle",
+            "generation": 0,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "invalidState"
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 10,
+          "durationMs": 100,
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidState"
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidState"
+        },
+        {
+          "op": "observe",
+          "positionMs": 42000,
+          "durationMs": 100000,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 42000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "home",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 42000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 43000,
+          "durationMs": 100000,
+          "paused": false,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 43000,
+            "paused": false,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "continue",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 43000,
+            "paused": false,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "continue",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 43000,
+            "paused": false,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "end",
+          "expected": {
+            "phase": "ended",
+            "generation": 3,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:2"
+            ]
+          }
+        },
+        {
+          "op": "end",
+          "expected": {
+            "phase": "ended",
+            "generation": 3,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "continue",
+          "expected": {
+            "phase": "ended",
+            "generation": 3,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "invalidState"
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 4,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:4:movie-a:43000"
+            ]
+          }
+        },
+        {
+          "op": "cancel",
+          "expected": {
+            "phase": "ended",
+            "generation": 5,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:4"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "ownerGeneration": 4,
+          "expected": {
+            "phase": "ended",
+            "generation": 5,
+            "positionMs": 43000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "staleGeneration"
+        }
+      ]
+    },
+    {
+      "name": "replace-reject-stale-foreign",
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-b",
+          "expected": {
+            "phase": "selected",
+            "generation": 3,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:2"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "ownerGeneration": 2,
+          "expected": {
+            "phase": "selected",
+            "generation": 3,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "staleGeneration"
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:4:movie-b:0"
+            ]
+          }
+        },
+        {
+          "op": "cancel",
+          "ownerGeneration": 2,
+          "expected": {
+            "phase": "preparing",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "staleGeneration"
+        },
+        {
+          "op": "loaded",
+          "ownerRunId": "other-run",
+          "expected": {
+            "phase": "preparing",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "foreignRun"
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-b",
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "/tmp/movie",
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "malformed"
+        },
+        {
+          "op": "observe",
+          "ownerGeneration": 2,
+          "positionMs": 10,
+          "durationMs": 100,
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "staleGeneration"
+        }
+      ]
+    },
+    {
+      "name": "restart-restores-without-reactivation",
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 12345,
+          "durationMs": null,
+          "paused": false,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 12345,
+            "paused": false,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "restart",
+          "expected": {
+            "phase": "selected",
+            "generation": 0,
+            "positionMs": 12345,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "continue",
+          "expected": {
+            "phase": "selected",
+            "generation": 0,
+            "positionMs": 12345,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "invalidState"
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 1,
+            "positionMs": 12345,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-2:1:movie-a:12345"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "ownerRunId": "run-1",
+          "ownerGeneration": 2,
+          "expected": {
+            "phase": "preparing",
+            "generation": 1,
+            "positionMs": 12345,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "foreignRun"
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 1,
+            "positionMs": 12345,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "bounds-paused-seeks",
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 100,
+          "durationMs": 100,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 100,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 101,
+          "durationMs": 100,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 100,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidLocalState"
+        },
+        {
+          "op": "observe",
+          "positionMs": -1,
+          "durationMs": null,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 100,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidLocalState"
+        },
+        {
+          "op": "observe",
+          "positionMs": 604800001,
+          "durationMs": null,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 100,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidLocalState"
+        },
+        {
+          "op": "observe",
+          "positionMs": 604800000,
+          "durationMs": null,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 604800000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "end",
+          "expected": {
+            "phase": "ended",
+            "generation": 3,
+            "positionMs": 604800000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "settings-preserve-ownership",
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "preferences",
+          "movieVolume": 0.25,
+          "callVolume": 0,
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "preferences",
+          "movieVolume": 1.1,
+          "callVolume": 0,
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          },
+          "error": "invalidLocalState"
+        },
+        {
+          "op": "restart",
+          "expected": {
+            "phase": "selected",
+            "generation": 0,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "generation-exhaustion-transactional",
+      "initialGeneration": 9007199254740991,
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "idle",
+            "generation": 9007199254740991,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          },
+          "error": "malformed"
+        }
+      ]
+    }
+  ]
+}
