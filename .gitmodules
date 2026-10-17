@@ -1,0 +1,9 @@
+[submodule "3rdparty/syncplay"]
+	path = 3rdparty/syncplay
+	url = https://github.com/Syncplay/syncplay.git
+[submodule "3rdparty/vlc"]
+	path = 3rdparty/vlc
+	url = https://github.com/videolan/vlc.git
+[submodule "3rdparty/style-dictionary"]
+	path = 3rdparty/style-dictionary
+	url = https://github.com/style-dictionary/style-dictionary.git
