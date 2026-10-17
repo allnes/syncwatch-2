@@ -11,6 +11,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 
 - [Application architecture](architecture/README.md): components, state ownership, native clients, and integration limitations.
 - [Shared contracts](architecture/contracts.md): versioned schemas, wire units/bounds, ordering, IPC, and acceptance fixtures.
+- [Local watch state](architecture/local-state.md): media ownership, Start/Continue/End, resume history, local preferences, and atomic persistence.
 - [Shared design system](architecture/design-system.md): platform-neutral design contracts and generated native resources.
 - [Syncplay and room metadata](architecture/syncplay.md): engine integration, local IPC, media selection, and reconnect behavior.
 - [Google Meet integration](architecture/google-meet.md): application-owned call windows, authentication, capabilities, and browser-host limitations.
