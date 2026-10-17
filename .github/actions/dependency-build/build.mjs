@@ -13,18 +13,19 @@ async function main() {
     const root = process.env.GITHUB_WORKSPACE;
     const directory = resolve(root, 'artifacts/dependencies', component, platform);
     const python = process.platform === 'win32' ? 'python' : 'python3';
-    function run(operation) {
+    function runCommand(command) {
         const environment = {...process.env};
         // Use the action's declared Node 24 toolchain for source-only design builds.
         environment.PATH = dirname(process.execPath) + delimiter + process.env.PATH;
         for (const key of Object.keys(environment)) {
             if (key.startsWith('INPUT_') || key.startsWith('ACTIONS_') || key === 'GITHUB_TOKEN') delete environment[key];
         }
-        const result = spawnSync(python, ['tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])], {
+        const result = spawnSync(command[0], command.slice(1), {
             cwd: root, stdio: 'inherit', env: environment, timeout: 15000000,
         });
         return result.status === 0;
     }
+    const run = operation => runCommand([python, 'tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])]);
     if (!run('prepare')) throw new Error('Dependency preparation failed');
     const prepared = JSON.parse(await readFile(resolve(directory, 'request.json'), 'utf8'));
     const present = await access(prepared.cacheFile).then(() => true, () => false);
@@ -41,6 +42,12 @@ async function main() {
     process.env.INPUT_NAME = `syncwatch-dependency-${component}-${platform}-${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
     await upload();
     if (!succeeded) throw new Error('Dependency build failed');
+    if (component === 'design-generator') {
+        if (!runCommand([python, 'tools/design/resources.py', '--check'])
+            || !runCommand([process.execPath, '--test', 'tools/design/tests/resources.test.mjs'])) {
+            throw new Error('Native design resource validation failed');
+        }
+    }
     const trusted = ['push', 'schedule', 'workflow_dispatch'].includes(process.env.GITHUB_EVENT_NAME)
         && process.env.GITHUB_REF === 'refs/heads/main';
     if (trusted && !process.exitCode) {

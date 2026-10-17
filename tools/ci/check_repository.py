@@ -112,14 +112,17 @@ def check_design(root: Path) -> None:
         if "value" in value:
             require(name not in tokens, f"duplicate token {name}")
             kind, scalar = value.get("type"), value["value"]
-            if kind == "color":
+            reference = isinstance(scalar, str) and re.fullmatch(r"\{[a-zA-Z0-9.]+\}", scalar)
+            if reference:
+                require(kind in {"color", "number"}, f"unsupported design token type {kind}")
+            elif kind == "color":
                 require(
                     isinstance(scalar, str) and re.fullmatch(r"#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?", scalar),
                     f"invalid color token {name}",
                 )
             elif kind == "number":
                 require(
-                    type(scalar) in {int, float} and math.isfinite(scalar) and scalar >= 0,
+                    type(scalar) in {int, float} and math.isfinite(scalar) and 0 <= scalar <= 1000000,
                     f"invalid numeric token {name}",
                 )
             else:
@@ -132,6 +135,23 @@ def check_design(root: Path) -> None:
     for path in sorted((design / "tokens").rglob("*.json")):
         collect(load_json(path))
     require(bool(tokens), "design tokens must not be empty")
+    for name, token in tokens.items():
+        visited = {name}
+        while isinstance(token["value"], str) and token["value"].startswith("{"):
+            target = token["value"][1:-1]
+            require(target in tokens, f"unknown design reference {target}")
+            require(target not in visited, f"cyclic design reference {target}")
+            require(tokens[target]["type"] == token["type"], f"design reference type mismatch {target}")
+            visited.add(target)
+            token = tokens[target]
+    themes = load_json(design / "themes.json")
+    require(themes.get("schemaVersion") == 1 and themes.get("units") == "logical", "invalid design theme contract")
+    palettes = themes.get("themes", {})
+    require(set(palettes) == {"dark", "light"}, "design needs dark and light themes")
+    require(bool(palettes["dark"]) and set(palettes["dark"]) == set(palettes["light"]), "design theme roles must match")
+    for roles in palettes.values():
+        for target in roles.values():
+            require(target in tokens and tokens[target]["type"] == "color", "invalid design theme color")
     contract = load_json(design / "components.json")
     require(isinstance(contract, dict) and contract.get("contractVersion") == 1, "unsupported component contract")
     components = contract.get("components")
@@ -294,13 +314,13 @@ def check_native_manifests(root: Path) -> None:
         require(section is not None and len(section) == 1 and section[0].tag == "clear", "native restore must use no registry sources")
     solution = ET.parse(root / "SyncWatch.slnx").getroot()
     projects = solution.findall(".//Project")
-    require(len(projects) == 3, "native solution must include the shell, domain, and executable tests")
+    require(len(projects) == 4, "native solution must include the shell, domain, and both executable test suites")
     for project in projects:
         path = (root / project.attrib["Path"]).resolve()
         require(path.is_relative_to(root.resolve()) and path.is_file(), "native project must be a repository file")
         content = ET.parse(path).getroot()
         require(not content.findall(".//PackageReference"), "native libraries must use pinned local sources")
-        expected = toolchains["windows"]["targetFramework"] if path.stem == "SyncWatch" else "net10.0"
+        expected = toolchains["windows"]["targetFramework"] if path.stem in {"SyncWatch", "SyncWatch.Design.Tests"} else "net10.0"
         require(content.findtext(".//TargetFramework") == expected, "native target framework does not match its manifest")
         for reference in content.findall(".//ProjectReference"):
             target = (path.parent / reference.attrib["Include"]).resolve()

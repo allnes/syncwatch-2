@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "units": "logical",
+  "sourceDigest": "2eb4c4c0397d0bcb1cb032144b2c0e6e47e43e54c3a86cd6715a7a126624f4a1",
+  "sources": {
+    "tokens/geometry.json": "147fa728fd8f4cb5636c595ada4a705d5bfd44a7663450ab4b63862d5bbf84fd",
+    "tokens/palette.json": "22be27e09fb114ed5a38f4d438383da5e8706c2f0eae5e5162716766522bba7b",
+    "themes.json": "ebe160695a531af40214ed88af229de5acb3f0a3a7a25519feb8fefd9bb97571",
+    "components.json": "c4c25cc72531cfafc2563a78798ad3deeb0f3aa36b064d92ef936e69c99e8932",
+    "package.json": "eb7147dc50bc77c8eb96b2bead59b48e47f575fe0e52945db8bb2c8c4f2afd82"
+  },
+  "generatorRevision": "3f258726e5fca45bf98955a9d5ab72d284dd2c907e37c5555745ac92e68d157d",
+  "generator": {
+    "styleDictionary": "5.7.0",
+    "files": {
+      "tools/design/generate.mjs": "4af03e15c1b79f4efcbe4aae46186c223a765afb7df7d95419d2c7cae04df86b",
+      "tools/design/native-formats.mjs": "7a4c9ffe942fdee5f4340a6ab9f895df644c0e0c0ac672def2bde22132f1e902",
+      "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
+      "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
+      "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
+      "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3"
+    },
+    "sourceRevisions": {
+      "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
+      "3rdparty/design-deepmerge": "5b87756a5671635679001cbac72aa42f23472c81",
+      "3rdparty/design-glob": "e80cb38ae60d6cbff9e75f39032a994858994d35",
+      "3rdparty/design-minimatch": "693c82377d0948401be4c6d3220c9a74132ab112",
+      "3rdparty/design-minipass": "ab4b3b05d0d557ac6bb178f38501b11d0c96454e",
+      "3rdparty/design-path-scurry": "1372560386e080834cfb0943e1aaaf5b2ec9b70b",
+      "3rdparty/design-lru-cache": "c440996b4ef1395d9f21fd7cde7332cf9377db5f",
+      "3rdparty/design-brace-expansion": "f3410159d768f56c9d9f4511d3e1b46425fc1099",
+      "3rdparty/design-balanced-match": "adf286f7c6142102f932c8d7c7066463741a0036",
+      "3rdparty/design-chalk": "51557784b829c87ff8d138206598764f2eb957b1",
+      "3rdparty/design-change-case": "8aaff31471c918d3eac2b40939c601bee37375dd",
+      "3rdparty/design-colorjs": "00bb6de96afbb42043f9da58d051a05e4c623f11",
+      "3rdparty/design-plain-object": "68e8cc77bb1bbd0bf7d629d3574b6ca70289b2cc",
+      "3rdparty/design-json5": "c3a75242772a5026a49c4017a16d9b3543b62776",
+      "3rdparty/design-tinycolor": "a93228a6782bfe9a6154da14f5a7ece3ad9fb6c4"
+    }
+  },
+  "themes": {
+    "dark": {
+      "background": "color.dark.background",
+      "backgroundDeep": "color.dark.backgroundDeep",
+      "border": "color.dark.border",
+      "gradientStart": "color.dark.gradientStart",
+      "surface": "color.dark.surface",
+      "surfaceRaised": "color.dark.surfaceRaised",
+      "text": "color.dark.text",
+      "accent": "color.shared.accent",
+      "accentSoft": "color.shared.accentSoft",
+      "success": "color.shared.success"
+    },
+    "light": {
+      "background": "color.light.background",
+      "backgroundDeep": "color.light.backgroundDeep",
+      "border": "color.light.border",
+      "gradientStart": "color.light.gradientStart",
+      "surface": "color.light.surface",
+      "surfaceRaised": "color.light.surfaceRaised",
+      "text": "color.light.text",
+      "accent": "color.shared.accent",
+      "accentSoft": "color.shared.accentSoft",
+      "success": "color.shared.success"
+    }
+  },
+  "tokens": [
+    {
+      "id": "color.dark.background",
+      "type": "color",
+      "value": "#071827FF"
+    },
+    {
+      "id": "color.dark.backgroundDeep",
+      "type": "color",
+      "value": "#05121EFF"
+    },
+    {
+      "id": "color.dark.border",
+      "type": "color",
+      "value": "#1B4060FF"
+    },
+    {
+      "id": "color.dark.gradientStart",
+      "type": "color",
+      "value": "#0B2440FF"
+    },
+    {
+      "id": "color.dark.inputFill",
+      "type": "color",
+      "value": "#081B2CFF"
+    },
+    {
+      "id": "color.dark.surface",
+      "type": "color",
+      "value": "#0C2135FF"
+    },
+    {
+      "id": "color.dark.surfaceRaised",
+      "type": "color",
+      "value": "#102A43FF"
+    },
+    {
+      "id": "color.dark.text",
+      "type": "color",
+      "value": "#FFFFFFFF"
+    },
+    {
+      "id": "color.light.background",
+      "type": "color",
+      "value": "#E7EEF4FF"
+    },
+    {
+      "id": "color.light.backgroundDeep",
+      "type": "color",
+      "value": "#DCE6EEFF"
+    },
+    {
+      "id": "color.light.border",
+      "type": "color",
+      "value": "#B9C9D6FF"
+    },
+    {
+      "id": "color.light.gradientStart",
+      "type": "color",
+      "value": "#EAF1F6FF"
+    },
+    {
+      "id": "color.light.surface",
+      "type": "color",
+      "value": "#F1F5F8FF"
+    },
+    {
+      "id": "color.light.surfaceRaised",
+      "type": "color",
+      "value": "#F7FAFCFF"
+    },
+    {
+      "id": "color.light.text",
+      "type": "color",
+      "value": "#1A2B3AFF"
+    },
+    {
+      "id": "color.light.textSecondary",
+      "type": "color",
+      "value": "#617386FF"
+    },
+    {
+      "id": "color.shared.accent",
+      "type": "color",
+      "value": "#2F8CFFFF"
+    },
+    {
+      "id": "color.shared.accentSoft",
+      "type": "color",
+      "value": "#6AAFFFFF"
+    },
+    {
+      "id": "color.shared.success",
+      "type": "color",
+      "value": "#30D98BFF"
+    },
+    {
+      "id": "control.buttonRadius",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "control.compactDialogRadius",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "control.dialogRadius",
+      "type": "number",
+      "value": 18
+    },
+    {
+      "id": "control.filledButtonMinHeight",
+      "type": "number",
+      "value": 46
+    },
+    {
+      "id": "control.menuRowHeight",
+      "type": "number",
+      "value": 30
+    },
+    {
+      "id": "control.outlinedButtonMinHeight",
+      "type": "number",
+      "value": 44
+    },
+    {
+      "id": "control.sliderThumbRadius",
+      "type": "number",
+      "value": 6
+    },
+    {
+      "id": "control.sliderTrackHeight",
+      "type": "number",
+      "value": 3
+    },
+    {
+      "id": "layout.callInitialHeight",
+      "type": "number",
+      "value": 210
+    },
+    {
+      "id": "layout.callInitialWidth",
+      "type": "number",
+      "value": 300
+    },
+    {
+      "id": "layout.headerHeight",
+      "type": "number",
+      "value": 64
+    },
+    {
+      "id": "layout.libraryPanelWidth",
+      "type": "number",
+      "value": 360
+    },
+    {
+      "id": "layout.panelGap",
+      "type": "number",
+      "value": 14
+    },
+    {
+      "id": "layout.playerBottomInset",
+      "type": "number",
+      "value": 78
+    },
+    {
+      "id": "layout.playerSettingsHeight",
+      "type": "number",
+      "value": 460
+    },
+    {
+      "id": "layout.playerSettingsSidebarWidth",
+      "type": "number",
+      "value": 170
+    },
+    {
+      "id": "layout.playerTopInset",
+      "type": "number",
+      "value": 32
+    },
+    {
+      "id": "layout.settingsHeight",
+      "type": "number",
+      "value": 420
+    },
+    {
+      "id": "layout.settingsSidebarWidth",
+      "type": "number",
+      "value": 150
+    },
+    {
+      "id": "layout.settingsWidth",
+      "type": "number",
+      "value": 680
+    },
+    {
+      "id": "layout.workspacePadding",
+      "type": "number",
+      "value": 18
+    }
+  ]
+}

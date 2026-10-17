@@ -32,4 +32,5 @@ Invoke-DotNet restore SyncWatch.slnx --configfile NuGet.Config
 Invoke-DotNet format SyncWatch.slnx --no-restore --verify-no-changes
 Invoke-DotNet build SyncWatch.slnx --no-restore --configuration Debug
 Invoke-DotNet run --project packages/windows-domain/SyncWatch.Domain.Tests --no-restore --no-build --configuration Debug
+Invoke-DotNet run --project packages/design/tests/windows --no-restore --no-build --configuration Debug
 Write-Output 'Built apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe; interactive launch/close is a separate acceptance step'
