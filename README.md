@@ -12,6 +12,6 @@ cd syncwatch
 git submodule update --init --recursive
 ```
 
-The repository contains native shells in `apps/apple/` and `apps/windows/`, domain modules in `packages/apple-domain/` and `packages/windows-domain/`, the platform-neutral design package, shared contracts in `contracts/`, pinned dependency sources, and validation/build tooling under `tools/`. See [building and running](docs/building.md) for declared toolchains and reproducible commands. Player, synchronization, call, and complete product UI integrations remain planned; the native shells are not yet the complete watch-together application.
+The repository contains native shells in `apps/apple/` and `apps/windows/`, domain modules in `packages/apple-domain/` and `packages/windows-domain/`, the independent room service in `services/room-metadata/`, the platform-neutral design package, shared contracts in `contracts/`, pinned dependency sources, and validation/build tooling under `tools/`. See [building and running](docs/building.md) for declared toolchains and reproducible commands. Player, synchronization, call, and complete product UI integrations remain planned; the native shells are not yet the complete watch-together application.
 
 The [application specification](docs/application.md) describes the library, player, settings, call window, and expected behavior. The [dependency policy](docs/architecture/dependencies.md) records pinned sources and unresolved source graphs. Product behavior is defined entirely in this repository.

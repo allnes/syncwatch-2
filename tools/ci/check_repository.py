@@ -196,10 +196,16 @@ def check_workflows(root: Path) -> None:
     require(events["workflow_dispatch"] == {"inputs": {"cold": {"description": "Rebuild dependencies without reading caches", "type": "boolean", "default": True}}}, "manual builds must support explicit cold validation")
     require(workflow.get("concurrency", {}).get("cancel-in-progress") is True, "superseded checks must cancel")
     jobs = workflow.get("jobs", {})
-    selected = ["repository", "tests", "contracts", "apple", "windows", "dependency-plan", "dependencies"]
+    selected = ["repository", "tests", "contracts", "apple", "windows", "metadata", "dependency-plan", "dependencies"]
     require(set(jobs) == {*selected, "required"}, "unexpected repository job set")
-    runners = {name: "ubuntu-24.04" for name in ("repository", "tests", "contracts", "required", "dependency-plan")}
+    runners = {name: "ubuntu-24.04" for name in ("repository", "tests", "contracts", "required", "metadata", "dependency-plan")}
     runners.update({"apple": "macos-15", "windows": "windows-2025"})
+    runners["metadata"] = "${{ matrix.runner }}"
+    require(jobs["metadata"].get("strategy") == {"fail-fast": False, "matrix": {"include": [
+        {"runner": "ubuntu-24.04", "target": "linux-x64", "python": "python3"},
+        {"runner": "macos-15", "target": "osx-arm64", "python": "python3"},
+        {"runner": "windows-2025", "target": "win-x64", "python": "python"},
+    ]}}, "metadata builds must cover all declared server platforms")
     for name, job in jobs.items():
         if name == "dependencies":
             require(job.get("uses") == "./.github/workflows/dependency-build.yml", "dependency jobs must use the repository-owned reusable workflow")
@@ -241,6 +247,9 @@ def check_workflows(root: Path) -> None:
             "name": f"syncwatch-{name}-" + "${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
         }, "native artifacts must identify platform, commit, run, and attempt")
     test_commands = {step.get("run") for step in jobs["tests"]["steps"]}
+    require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
+    metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}
+    require({"git submodule update --init --checkout --depth=1 -- 3rdparty/fastjsonschema", "${{ matrix.python }} tools/server/check.py --provision"}.issubset(metadata_commands), "metadata job must build, test, and validate actual wire output")
     require("node --test tools/ci/tests/artifact_upload.test.mjs" in test_commands, "artifact transport tests must execute")
     require("python3 -m unittest discover -s tools/dependencies/tests -v\nnode --test tools/dependencies/tests/cache.test.mjs" in test_commands, "dependency infrastructure tests must execute")
     planner = jobs["dependency-plan"]
@@ -297,6 +306,29 @@ def check_native_manifests(root: Path) -> None:
             require(target.is_relative_to(root.resolve()) and target.is_file(), "native project reference must stay local")
 
 
+def check_server_manifests(root: Path) -> None:
+    spec = load_json(root / "tools/server/toolchains.json")
+    version = load_json(root / "global.json")["sdk"]["version"]
+    require(spec.get("sdkVersion") == version, "server SDK must match global.json")
+    require(set(spec.get("sources", {})) == {"linux-x64", "osx-arm64", "win-x64"}, "server SDK targets must be explicit")
+    for target, source in spec["sources"].items():
+        extension = "zip" if target == "win-x64" else "tar.gz"
+        expected = f"https://builds.dotnet.microsoft.com/dotnet/Sdk/{version}/dotnet-sdk-{version}-{target}.{extension}"
+        require(source.get("url") == expected and re.fullmatch(r"[0-9a-f]{128}", source.get("sha512", "")), "server SDK archives require official URLs and exact digests")
+    solution = root / "services/room-metadata/RoomMetadata.slnx"
+    projects = ET.parse(solution).getroot().findall(".//Project")
+    require({project.attrib["Path"] for project in projects} == {"RoomMetadata/RoomMetadata.csproj", "RoomMetadata.Tests/RoomMetadata.Tests.csproj"}, "server solution must contain its executable and tests")
+    for project in projects:
+        path = (solution.parent / project.attrib["Path"]).resolve()
+        content = ET.parse(path).getroot()
+        require(content.attrib.get("Sdk") == ("Microsoft.NET.Sdk.Web" if path.stem == "RoomMetadata" else "Microsoft.NET.Sdk"), "server projects must use platform SDKs")
+        require(content.findtext(".//TargetFramework") == "net10.0" and not content.findall(".//PackageReference"), "server libraries must use pinned local sources and the declared framework")
+        require(all(reference.attrib.get("Include") == "Microsoft.AspNetCore.App" for reference in content.findall(".//FrameworkReference")), "server framework references must belong to the platform SDK")
+        for reference in content.findall(".//ProjectReference"):
+            destination = (path.parent / reference.attrib["Include"]).resolve()
+            require(destination.is_relative_to(root.resolve()) and destination.is_file(), "server project references must stay local")
+
+
 def check_repository(root: Path) -> None:
     paths = owned_files(root)
     for path in paths:
@@ -309,6 +341,7 @@ def check_repository(root: Path) -> None:
     check_submodules(root)
     check_workflows(root)
     check_native_manifests(root)
+    check_server_manifests(root)
     components = load_json(root / "tools/dependencies/components.json")["components"]
     validator = components.get("fastjsonschema", {})
     require(validator.get("status") == "ready" and validator.get("always") is True and set(validator.get("targets", {})) == {"linux-x64", "macos-arm64", "windows-x64"}, "the baseline validator dependency must remain selected on all supported platforms")

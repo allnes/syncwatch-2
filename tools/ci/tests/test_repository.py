@@ -13,6 +13,7 @@ from check_repository import (
     check_design,
     check_document,
     check_repository,
+    check_server_manifests,
     check_native_manifests,
     check_submodules,
     check_text,
@@ -186,6 +187,42 @@ class RepositoryChecks(unittest.TestCase):
             check_native_manifests(self.root)
 
 
+class ServerManifestChecks(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        for name in ["global.json", "tools/server/toolchains.json", "services/room-metadata/RoomMetadata.slnx",
+                     "services/room-metadata/RoomMetadata/RoomMetadata.csproj", "services/room-metadata/RoomMetadata.Tests/RoomMetadata.Tests.csproj"]:
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text((REPOSITORY / name).read_text())
+
+    def test_server_cannot_add_undeclared_registry_libraries(self):
+        path = self.root / "services/room-metadata/RoomMetadata/RoomMetadata.csproj"
+        content = ET.parse(path)
+        ET.SubElement(content.getroot(), "PackageReference", {"Include": "Unpinned.Library", "Version": "1.0"})
+        content.write(path)
+        with self.assertRaisesRegex(ValidationError, "pinned local sources"):
+            check_server_manifests(self.root)
+
+    def test_server_sdk_archive_must_use_declared_official_source(self):
+        path = self.root / "tools/server/toolchains.json"
+        data = json.loads(path.read_text())
+        data["sources"]["linux-x64"]["url"] = "https://example.invalid/sdk.tar.gz"
+        path.write_text(json.dumps(data) + "\n")
+        with self.assertRaisesRegex(ValidationError, "official URLs"):
+            check_server_manifests(self.root)
+
+    def test_server_project_reference_must_stay_inside_checkout(self):
+        path = self.root / "services/room-metadata/RoomMetadata.Tests/RoomMetadata.Tests.csproj"
+        content = ET.parse(path)
+        content.find(".//ProjectReference").set("Include", "../../../../outside.csproj")
+        content.write(path)
+        with self.assertRaisesRegex(ValidationError, "stay local"):
+            check_server_manifests(self.root)
+
+
 class WorkflowChecks(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -232,6 +269,14 @@ class WorkflowChecks(unittest.TestCase):
     def test_unconditional_success_cannot_replace_aggregate(self):
         with self.assertRaisesRegex(ValidationError, "selected results"):
             self.validate(lambda data: data["jobs"]["required"]["steps"][-1].update({"run": "true"}))
+
+    def test_metadata_job_must_execute_real_server_checks(self):
+        with self.assertRaisesRegex(ValidationError, "actual wire output"):
+            self.validate(lambda data: data["jobs"]["metadata"]["steps"][-1].update({"run": "true"}))
+
+    def test_metadata_job_must_initialize_pinned_contract_sources(self):
+        with self.assertRaisesRegex(ValidationError, "actual wire output"):
+            self.validate(lambda data: data["jobs"]["metadata"]["steps"].pop(1))
 
     def test_write_permissions_fail(self):
         with self.assertRaisesRegex(ValidationError, "read-only"):
