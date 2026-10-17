@@ -1,6 +1,6 @@
 # Continuous integration
 
-GitHub Actions is the CI orchestrator for SyncWatch. Repository-owned scripts under `tools/ci/` run the same validation and build commands locally and on runners. The five CI deliverables below are part of the [pull request plan](pull-request-plan.md). Workflows and repository merge rules still require implementation; this specification does not enable them.
+GitHub Actions is the CI orchestrator for SyncWatch. Repository-owned scripts under `tools/ci/` run the same validation and build commands locally and on runners. The five CI deliverables below are part of the [pull request plan](pull-request-plan.md). The CI01 repository workflow and regression tests are implemented; native, dependency, integration, and release jobs remain planned. See [development setup](../development.md) for executable commands. Repository merge enforcement is configured and verified separately in GitHub.
 
 ## Delivery order
 

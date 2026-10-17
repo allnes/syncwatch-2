@@ -1,0 +1,96 @@
+{
+  "name": "Repository CI",
+  "on": {
+    "pull_request": {},
+    "push": {
+      "branches": [
+        "main"
+      ]
+    },
+    "merge_group": {
+      "types": [
+        "checks_requested"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}",
+    "cancel-in-progress": true
+  },
+  "defaults": {
+    "run": {
+      "shell": "bash"
+    }
+  },
+  "jobs": {
+    "repository": {
+      "name": "Repository validation",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "steps": [
+        {
+          "name": "Check out the exact workflow revision",
+          "env": {
+            "CI_SOURCE_URL": "${{ github.server_url }}/${{ github.repository }}.git",
+            "CI_COMMIT": "${{ github.sha }}"
+          },
+          "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
+        },
+        {
+          "name": "Repository validation",
+          "run": "python3 tools/ci/check_repository.py"
+        }
+      ]
+    },
+    "tests": {
+      "name": "CI regression tests",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "steps": [
+        {
+          "name": "Check out the exact workflow revision",
+          "env": {
+            "CI_SOURCE_URL": "${{ github.server_url }}/${{ github.repository }}.git",
+            "CI_COMMIT": "${{ github.sha }}"
+          },
+          "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
+        },
+        {
+          "name": "CI regression tests",
+          "run": "python3 -m unittest discover -s tools/ci/tests -v"
+        }
+      ]
+    },
+    "required": {
+      "name": "ci/required",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 5,
+      "if": "${{ always() }}",
+      "needs": [
+        "repository",
+        "tests"
+      ],
+      "steps": [
+        {
+          "name": "Check out the exact workflow revision",
+          "env": {
+            "CI_SOURCE_URL": "${{ github.server_url }}/${{ github.repository }}.git",
+            "CI_COMMIT": "${{ github.sha }}"
+          },
+          "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
+        },
+        {
+          "name": "Require all selected jobs to succeed",
+          "env": {
+            "CI_NEEDS_JSON": "${{ toJSON(needs) }}"
+          },
+          "run": "python3 tools/ci/required_status.py repository tests"
+        }
+      ]
+    }
+  }
+}
