@@ -34,7 +34,7 @@ Callbacks carry the `PlaybackScope` that initiated their work. A different proce
 | Movie ducking | Disabled | Boolean |
 | Camera / microphone preference | Enabled / enabled | Boolean |
 
-These are stored local preferences. Saving them does not operate a camera, microphone, audio output, network connection, or media engine. Native adapters still need to apply supported settings; the current shells do not expose this domain model in their UI. Image/subtitle settings, device identifiers, folder grants, and window geometry are outside the initial persisted model.
+These are stored local preferences. Saving them does not operate a camera, microphone, audio output, network connection, or media engine. The native application-settings dialog applies and persists language/theme while preserving the rest of the stored state. Other preferences await their UI and service adapters. Image/subtitle settings, device identifiers, folder grants, and window geometry are outside the initial persisted model.
 
 On application restart, a fresh process scope is allocated and saved media becomes selected, paused, and hidden. A resume position never reactivates a session, loads media, joins a call, or grants filesystem access.
 
