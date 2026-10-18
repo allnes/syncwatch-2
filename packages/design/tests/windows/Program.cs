@@ -16,7 +16,7 @@ internal static class Program
     {
         using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "design-manifest.json")));
         var manifest = document.RootElement;
-        var application = new Application();
+        var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         var dictionary = new ResourceDictionary { Source = new Uri("SyncWatchTheme.g.xaml", UriKind.Relative) };
         var count = 0;
         foreach (var token in manifest.GetProperty("tokens").EnumerateArray())

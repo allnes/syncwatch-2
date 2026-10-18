@@ -156,7 +156,7 @@ public sealed class LibraryWorkspace : UserControl
         top.Children.Add(Text(T("library") + "  ·  " + Presentation.Entries.Count + " " + T("files"), size: SyncWatchTokens.TypeSectionSize, bold: true));
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, SyncWatchTokens.LayoutPanelGap, 0, SyncWatchTokens.LayoutPanelGap) };
         actions.Children.Add(Button("chooseFolder")); actions.Children.Add(Button("rescan")); top.Children.Add(actions);
-        var search = new TextBox { IsEnabled = Presentation.Allows("search"), ToolTip = T("search"), Margin = new Thickness(0, 0, 0, SyncWatchTokens.LayoutPanelGap) };
+        var search = new TextBox { IsEnabled = Presentation.Allows("search"), ToolTip = T("search"), Tag = T("search"), Margin = new Thickness(0, 0, 0, SyncWatchTokens.LayoutPanelGap) };
         search.SetResourceReference(StyleProperty, "SyncWatch.Field"); AutomationProperties.SetName(search, T("search")); AutomationProperties.SetAutomationId(search, "library.search");
         search.TextChanged += (_, _) => { query = search.Text; PopulateRows(); Emit("search", query); }; top.Children.Add(search);
         rows.Children.Clear();
@@ -221,6 +221,8 @@ public sealed class DesignGallery : DockPanel
         var languages = new ComboBox { ItemsSource = new[] { "en", "ru" }, SelectedIndex = 0 };
         var themes = new ComboBox { ItemsSource = new[] { "dark", "light" }, SelectedIndex = 0 };
         toolbar.Children.Add(states); toolbar.Children.Add(languages); toolbar.Children.Add(themes);
+        var lastAction = new TextBlock { Margin = SyncWatchTokens.ControlCompactGapThickness };
+        toolbar.Children.Add(lastAction);
         DockPanel.SetDock(toolbar, Dock.Top); Children.Add(toolbar); Children.Add(Workspace);
         void Refresh() => Workspace.Render(LibraryPresentation.Gallery(Enum.Parse<LibraryVisualState>((string)states.SelectedItem, true)), (string)languages.SelectedItem);
         states.SelectionChanged += (_, _) => Refresh(); languages.SelectionChanged += (_, _) => Refresh();
@@ -230,7 +232,7 @@ public sealed class DesignGallery : DockPanel
             var source = Application.Current.Resources.MergedDictionaries[0];
             Resources.MergedDictionaries.Add((ResourceDictionary)source["theme." + themes.SelectedItem]);
         };
-        Workspace.ActionRequested += (action, value) => { if (action == "selectMovie") Workspace.Render(Workspace.Presentation with { SelectedId = value }, Workspace.Language); };
+        Workspace.ActionRequested += (action, value) => { lastAction.Text = action; if (action == "selectMovie") Workspace.Render(Workspace.Presentation with { SelectedId = value }, Workspace.Language); };
         Resources.MergedDictionaries.Add((ResourceDictionary)Application.Current.Resources.MergedDictionaries[0]["theme.dark"]);
         Refresh();
     }
