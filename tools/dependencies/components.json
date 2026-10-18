@@ -656,6 +656,171 @@
           "timeoutSeconds": 300
         }
       }
+    },
+    "kotlin-stdlib-sources": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/kotlin-stdlib"
+      ],
+      "sources": {
+        "3rdparty/kotlin-stdlib": {
+          "revision": "d57eb4a26ed01ab03cf195da686c8047032ff16f",
+          "license": "Apache-2.0 AND BSD-3-Clause AND BSL-1.0",
+          "notices": [
+            "license/COPYRIGHT.txt",
+            "license/LICENSE.txt",
+            "license/NOTICE.txt",
+            "license/README.md",
+            "license/third_party/boost_LICENSE.txt",
+            "license/third_party/guava_license.txt",
+            "license/third_party/gwt_license.txt",
+            "license/third_party/threetenbp_license.txt"
+          ],
+          "exports": [
+            "libraries/stdlib/ReadMe.md",
+            "libraries/stdlib/build.gradle.kts",
+            "libraries/stdlib/common/src",
+            "libraries/stdlib/gradle.properties",
+            "libraries/stdlib/jdk7/src",
+            "libraries/stdlib/jdk8/src",
+            "libraries/stdlib/jvm/builtins",
+            "libraries/stdlib/jvm/compileOnly",
+            "libraries/stdlib/jvm/java9",
+            "libraries/stdlib/jvm/runtime",
+            "libraries/stdlib/jvm/src",
+            "libraries/stdlib/src",
+            "libraries/stdlib/unsigned/src",
+            "libraries/tools/kotlin-stdlib-gen/src/generators/unicode",
+            "license/COPYRIGHT.txt",
+            "license/LICENSE.txt",
+            "license/NOTICE.txt",
+            "license/README.md",
+            "license/third_party/boost_LICENSE.txt",
+            "license/third_party/guava_license.txt",
+            "license/third_party/gwt_license.txt",
+            "license/third_party/threetenbp_license.txt"
+          ],
+          "requires": [
+            "3rdparty/unicode-data"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/unicode-data": {
+          "revision": "84a95001ba850554e65234dde62cbdb0ad41105a",
+          "license": "Unicode-DFS-2016",
+          "notices": [
+            "LICENSE",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "unicodetools/data/ucd/13.0.0-Update/SpecialCasing.txt",
+            "unicodetools/data/ucd/13.0.0-Update/UnicodeData.txt"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/jvm",
+        "LICENSE"
+      ],
+      "watch": [
+        "3rdparty/kotlin-stdlib",
+        "3rdparty/unicode-data",
+        "tools/jvm"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-sources-v1",
+            "version": "2.3.20"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-sources-v1",
+            "version": "2.3.20"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-sources-v1",
+            "version": "2.3.20"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/stdlib_sources.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 300
+        }
+      }
     }
   }
 }

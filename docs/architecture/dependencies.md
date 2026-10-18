@@ -12,6 +12,8 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 | `3rdparty/fastjsonschema` | `v2.21.2` / `4f1ed6d9c0462f3522a66f49c8f3dc482300101b` | Offline Draft 7 contract validation from pinned Python source | BSD 3-Clause; `LICENSE` |
 | `3rdparty/jvm-annotations` | `26.0.2` / `5ed7516e96eebef2a0cedc470d776b7351f52d6b` | JVM annotation classpath and named-module APIs | Apache 2.0; original license, repository declaration and source headers |
 | `3rdparty/jbr-api` | `v1.9.0` / `bf95b3ebdadbb81c193fdf45b8947fb20163d5dc` | Optional JBR service interfaces in the planned desktop graph | Apache 2.0; full license, original headers and build-source change notice |
+| `3rdparty/kotlin-stdlib` | `v2.3.20` / `d57eb4a26ed01ab03cf195da686c8047032ff16f` | Selected JVM stdlib source package and generator references | Apache-2.0, BSD-3-Clause and BSL-1.0 for the selected files; full original notices |
+| `3rdparty/unicode-data` | `release-20210720-u13` / `84a95001ba850554e65234dde62cbdb0ad41105a` | Two Unicode 13.0.0 files verified against the published release for titlecase provenance | Unicode-DFS-2016; full original permission notice and data attribution |
 
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
@@ -48,6 +50,8 @@ Python and Node.js are developer/runner toolchains. The CI artifact and dependen
 The [annotations build](../jvm-annotations.md) uses only its pinned Java sources and the separately declared Temurin developer JDK. The JDK is a compiler SDK exception, with complete vendor legal files preserved and exact archive/installation hashes checked; it is not an application library or bundled JVM. This exception does not extend to the Kotlin standard library, Compose, Skiko/Skia, fonts or other JVM libraries. The annotations component runs its license/source/API verifier on cold builds and restored caches before success or distribution.
 
 The [JBR API build](../jbr-api.md) uses this verified compiler SDK to build its own processor, compatibility plugin and optional-service interfaces from pinned sources. It has no external library dependency and includes no JBR runtime. The API's SDK module references do not clear packaging of a JVM. Its deterministic build-source modification, generated source, complete notices and artifacts are verified on cold builds and cache reuse.
+
+The [Kotlin stdlib source package](../kotlin-stdlib-sources.md) has a complete selected file/license inventory and an offline check of common/JVM titlecase provenance against pinned, published Unicode 13 data. Only reviewed source exports are packaged; compiler, Gradle and generator references are not executed. This source-only component does not enable a Kotlin binary or compiler SDK and does not complete the Linux runtime graph.
 
 | Component | Required source graph | Status |
 |---|---|---|

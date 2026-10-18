@@ -11,6 +11,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Inspecting JVM dependencies](jvm-dependencies.md): offline runtime metadata inventory before source adoption.
 - [Building JVM annotations](jvm-annotations.md): pinned Java sources, compiler SDK and verified JAR artifacts.
 - [Building JBR API](jbr-api.md): optional runtime-service interfaces, source generation and ordinary-JDK fallback checks.
+- [Kotlin stdlib sources](kotlin-stdlib-sources.md): reviewed source package, complete notices and pinned Unicode titlecase provenance.
 - [Licenses and distribution](licenses.md): first-party licensing and third-party notices.
 
 ## Architecture and design
