@@ -1,12 +1,12 @@
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Automation;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows;
 using SyncWatch.Design;
 
 internal static class Program

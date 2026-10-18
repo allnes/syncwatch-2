@@ -48,7 +48,7 @@ public sealed record LibraryPresentation
 public sealed class LibraryWorkspace : UserControl
 {
     public LibraryPresentation Presentation { get; private set; } = new();
-    public string Language { get; private set; } = "en";
+    public string UiLanguage { get; private set; } = "en";
     public event Action<string, string?>? ActionRequested;
     private readonly Grid root = new();
     private readonly Grid content = new();
@@ -74,7 +74,8 @@ public sealed class LibraryWorkspace : UserControl
     public void Render(LibraryPresentation presentation, string language = "en")
     {
         Presentation = presentation;
-        Language = language;
+        UiLanguage = language;
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(language);
         query = "";
         metricGrids.Clear();
         root.Children.Clear(); root.RowDefinitions.Clear();
@@ -105,7 +106,7 @@ public sealed class LibraryWorkspace : UserControl
         ResizeDetails();
     }
 
-    private string T(string key) => SyncWatchCopy.Text(key, Language);
+    private string T(string key) => SyncWatchCopy.Text(key, UiLanguage);
     private void Emit(string action, string? value = null) => Presentation.Dispatch(action, value, (a, v) => ActionRequested?.Invoke(a, v));
     private void ResizeDetails() => selectedRow.Height = new GridLength(Math.Clamp(
         ActualHeight - SyncWatchTokens.LayoutWorkspacePadding * 2 - SyncWatchTokens.LayoutHeaderHeight - SyncWatchTokens.LayoutPanelGap * 2 - SyncWatchTokens.LayoutLowerPanelMinHeight,
@@ -232,7 +233,7 @@ public sealed class DesignGallery : DockPanel
             var source = Application.Current.Resources.MergedDictionaries[0];
             Resources.MergedDictionaries.Add((ResourceDictionary)source["theme." + themes.SelectedItem]);
         };
-        Workspace.ActionRequested += (action, value) => { lastAction.Text = action; if (action == "selectMovie") Workspace.Render(Workspace.Presentation with { SelectedId = value }, Workspace.Language); };
+        Workspace.ActionRequested += (action, value) => { lastAction.Text = action; if (action == "selectMovie") Workspace.Render(Workspace.Presentation with { SelectedId = value }, Workspace.UiLanguage); };
         Resources.MergedDictionaries.Add((ResourceDictionary)Application.Current.Resources.MergedDictionaries[0]["theme.dark"]);
         Refresh();
     }
