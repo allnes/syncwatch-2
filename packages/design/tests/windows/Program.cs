@@ -1,12 +1,12 @@
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using System.Windows;
 using SyncWatch.Design;
 
 internal static class Program
@@ -52,7 +52,8 @@ internal static class Program
         var panel = new Border();
         panel.SetResourceReference(Border.BackgroundProperty, "theme.background.brush");
         var window = new Window { Content = panel, Width = 200, Height = 100, ShowInTaskbar = false };
-        window.Show();
+        panel.Measure(new Size(200, 100));
+        panel.Arrange(new Rect(0, 0, 200, 100));
         ResourceDictionary? previous = null;
         foreach (var theme in manifest.GetProperty("themes").EnumerateObject())
         {
