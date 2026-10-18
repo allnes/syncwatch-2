@@ -38,7 +38,7 @@ public struct SettingsEditor: Sendable {
         else { return false }
         return SyncWatchSettings.fields.allSatisfy { field in
             guard let value = values[field.id], value.utf16.count <= field.maxLength,
-                !value.unicodeScalars.contains(where: { $0.value < 32 })
+                !value.unicodeScalars.contains(where: { $0.value < 32 || (127...159).contains($0.value) })
             else { return false }
             if field.kind == "choice" { return field.options.contains(value) }
             if field.kind == "boolean" { return ["true", "false"].contains(value) }
@@ -158,6 +158,7 @@ public struct SettingsDialog: View {
             .padding(.horizontal, SyncWatchTokens.layoutSettingsCardPadding)
             .frame(height: SyncWatchTokens.layoutSettingsFooterHeight)
         }
+        .environment(\.locale, Locale(identifier: language))
         .font(.system(size: SyncWatchTokens.typeSettingsBodySize))
         .foregroundStyle(theme.text)
         .frame(width: SyncWatchTokens.layoutSettingsWidth, height: SyncWatchTokens.layoutSettingsHeight)
@@ -329,6 +330,7 @@ private struct SettingsToggleStyle: ToggleStyle {
                     }
             }
             .frame(minHeight: SyncWatchTokens.layoutSettingsControlHeight)
+            .contentShape(Rectangle())
         }.buttonStyle(.plain).opacity(enabled ? 1 : 0.4)
     }
 }

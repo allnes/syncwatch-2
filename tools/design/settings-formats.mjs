@@ -18,7 +18,7 @@ export function validateSettings(spec, components, copy) {
             if (!/^[a-z0-9]+$/.test(option) || !Object.hasOwn(copy.locales.en, 'option' + option[0].toUpperCase() + option.slice(1))) throw Error('Missing settings option copy');
         }
         const value = spec.defaults[field.id];
-        if (typeof value !== 'string' || value.length > field.maxLength || /[\x00-\x1f]/.test(value)
+        if (typeof value !== 'string' || value.length > field.maxLength || /[\x00-\x1f\x7f-\x9f]/.test(value)
             || (field.kind === 'choice' && !field.options.includes(value))
             || (field.kind === 'boolean' && !['true', 'false'].includes(value))) throw Error('Invalid settings default');
     }

@@ -38,6 +38,9 @@ import Testing
             return true
         })
     #expect(writes == 1)
+    var controls = SettingsEditor(editableFields: ["username"], canSave: true)
+    controls.edit("username", value: "bad\u{7F}")
+    #expect(!controls.isValid)
     let invalid = SettingsEditor(values: ["unexpected": "value"], canSave: true)
     #expect(!invalid.isValid)
     #expect(SettingsVisualState.allCases.map(\.rawValue) == SyncWatchSettings.states)

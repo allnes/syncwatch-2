@@ -35,9 +35,9 @@ public sealed class SettingsEditor
     }
 
     public bool IsValid => values.Keys.ToHashSet().SetEquals(SyncWatchSettings.Defaults.Keys)
-        && EditableFields.All(SyncWatchSettings.Defaults.ContainsKey) && SyncWatchSettings.Fields.All(field =>
-            values.TryGetValue(field.Id, out var value) && value.Length <= field.MaxLength && !value.Any(c => c < 32)
-            && (field.Kind != "choice" || field.Options.Contains(value)) && (field.Kind != "boolean" || value is "true" or "false"));
+        && EditableFields.All(SyncWatchSettings.Defaults.ContainsKey) && SyncWatchSettings.Fields.All(descriptor =>
+            values.TryGetValue(descriptor.Id, out var value) && value.Length <= descriptor.MaxLength && !value.Any(c => c < 32 || c is >= (char)127 and <= (char)159)
+            && (descriptor.Kind != "choice" || descriptor.Options.Contains(value)) && (descriptor.Kind != "boolean" || value is "true" or "false"));
 
     public bool Save(Func<IReadOnlyDictionary<string, string>, bool> persist)
     {
@@ -64,7 +64,7 @@ public sealed class SettingsDialog : UserControl
 
     public SettingsDialog(SettingsEditor? editor = null, string language = "en", string section = "interface")
     {
-        Editor = editor ?? new(); UiLanguage = language;
+        Editor = editor ?? new(); UiLanguage = language; Language = System.Windows.Markup.XmlLanguage.GetLanguage(language);
         Section = SyncWatchSettings.Sections.Contains(section) ? section : "interface";
         Width = SyncWatchTokens.LayoutSettingsWidth; Height = SyncWatchTokens.LayoutSettingsHeight;
         FontSize = SyncWatchTokens.TypeSettingsBodySize;
@@ -77,7 +77,7 @@ public sealed class SettingsDialog : UserControl
         Render();
     }
 
-    public void SetLanguage(string language) { UiLanguage = language; Render(); }
+    public void SetLanguage(string language) { UiLanguage = language; Language = System.Windows.Markup.XmlLanguage.GetLanguage(language); Render(); }
     public void SelectSection(string section) { if (SyncWatchSettings.Sections.Contains(section)) { Section = section; Render(); } }
     private string T(string id) => id.Length == 0 ? "" : SyncWatchCopy.Text(id, UiLanguage);
     private TextBlock Text(string value, bool muted = false) { var t = new TextBlock { Text = value, TextWrapping = TextWrapping.Wrap }; t.SetResourceReference(TextBlock.ForegroundProperty, muted ? "theme.textSecondary.brush" : "theme.text.brush"); return t; }
@@ -95,10 +95,11 @@ public sealed class SettingsDialog : UserControl
         foreach (var height in new[] { SyncWatchTokens.LayoutSettingsHeaderHeight, 1, -1, 1, SyncWatchTokens.LayoutSettingsFooterHeight })
             root.RowDefinitions.Add(new RowDefinition { Height = height < 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(height) });
         var header = new DockPanel { Margin = new Thickness(SyncWatchTokens.LayoutSettingsCardPadding, 0, SyncWatchTokens.LayoutSettingsCardPadding, 0) };
-        var close = Button("close", Close); close.TabIndex = 0; DockPanel.SetDock(close, Dock.Right); header.Children.Add(close);
-        var title = Text(T("brand") + " · " + T("openSettings")); title.FontWeight = FontWeights.Bold; title.FontSize = SyncWatchTokens.TypeSettingsTitleSize; title.VerticalAlignment = VerticalAlignment.Center; title.MouseLeftButtonDown += (_, _) => MoveRequested?.Invoke(); header.Children.Add(title); root.Children.Add(header);
+        var close = Button("close", Close); close.TabIndex = 0; close.VerticalAlignment = VerticalAlignment.Center; DockPanel.SetDock(close, Dock.Right); header.Children.Add(close);
+        var title = Text(T("brand") + " · " + T("openSettings")); title.FontWeight = FontWeights.Bold; title.FontSize = SyncWatchTokens.TypeSettingsTitleSize; title.VerticalAlignment = VerticalAlignment.Center; title.MouseLeftButtonDown += (_, _) => MoveRequested?.Invoke(); header.Children.Add(title);
+        var titleBar = new Border { Child = header }; titleBar.SetResourceReference(Border.BackgroundProperty, "theme.backgroundDeep.brush"); root.Children.Add(titleBar);
         var topLine = Line(); Grid.SetRow(topLine, 1); root.Children.Add(topLine);
-        var body = new Grid(); body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SyncWatchTokens.LayoutSettingsSidebarWidth) }); body.ColumnDefinitions.Add(new ColumnDefinition()); Grid.SetRow(body, 2); root.Children.Add(body);
+        var body = new Grid(); body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SyncWatchTokens.LayoutSettingsSidebarWidth) }); body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SyncWatchTokens.ControlBorderWidth) }); body.ColumnDefinitions.Add(new ColumnDefinition()); Grid.SetRow(body, 2); root.Children.Add(body);
         var sidebar = new StackPanel { Margin = SyncWatchTokens.LayoutSettingsCardPaddingThickness };
         foreach (var id in SyncWatchSettings.Sections)
         {
@@ -109,13 +110,14 @@ public sealed class SettingsDialog : UserControl
             button.TabIndex = 1 + tabButtons.Count; sidebar.Children.Add(button); tabButtons.Add(button);
         }
         var rail = new Border { Child = sidebar }; rail.SetResourceReference(Border.BackgroundProperty, "theme.backgroundDeep.brush"); body.Children.Add(rail);
+        var separator = new Border(); separator.SetResourceReference(Border.BackgroundProperty, "theme.border.brush"); Grid.SetColumn(separator, 1); body.Children.Add(separator);
         var form = new StackPanel { Margin = SyncWatchTokens.LayoutSettingsContentPaddingThickness };
         var heading = Text(T(Section)); heading.FontSize = SyncWatchTokens.TypeSettingsSectionSize; heading.FontWeight = FontWeights.Bold; form.Children.Add(heading);
         var hint = Text(T(Section + "Hint"), true); hint.Margin = new Thickness(0, SyncWatchTokens.ControlBorderWidth, 0, SyncWatchTokens.ControlCompactGap); form.Children.Add(hint);
         foreach (var field in SyncWatchSettings.Fields.Where(f => f.Section == Section)) form.Children.Add(Field(field));
         if (!SyncWatchSettings.Fields.Any(f => f.Section == Section && Editor.EditableFields.Contains(f.Id))) form.Children.Add(Text(T("settingsUnavailable"), true));
         var scroll = new ScrollViewer { Content = form, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
-        Grid.SetColumn(scroll, 1); body.Children.Add(scroll);
+        Grid.SetColumn(scroll, 2); body.Children.Add(scroll);
         var bottomLine = Line(); Grid.SetRow(bottomLine, 3); root.Children.Add(bottomLine);
         var footer = new DockPanel { Margin = SyncWatchTokens.LayoutSettingsCardPaddingThickness };
         var save = Button("save", () => { Editor.Save(Persist); UpdateStatus(); }, true); save.TabIndex = 101; save.IsEnabled = Editor.CanSave; save.IsDefault = true; DockPanel.SetDock(save, Dock.Right); footer.Children.Add(save);

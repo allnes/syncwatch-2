@@ -45,6 +45,7 @@ internal static class SettingsAssertions
         var snapshot = model.Values; model.Edit("theme", "light"); Check(snapshot["theme"] == "dark", "save receives a snapshot"); model.Cancel(); Check(model.Values["theme"] == "dark", "cancel preserves last saved base");
         Check(!new SettingsEditor().Save(_ => { writes++; return true; }) && writes == 1, "readonly cannot save");
         Check(!new SettingsEditor(new Dictionary<string, string> { ["unknown"] = "value" }).IsValid, "unknown initial field");
+        var controlCharacters = new SettingsEditor(editableFields: ["username"], canSave: true); controlCharacters.Edit("username", "bad\u007f"); Check(!controlCharacters.IsValid, "control characters are invalid");
         var store = new Store { Current = new(LocalStateStatus.Loaded, LocalState.CreateDefault() with { Preferences = LocalPreferences.CreateDefault() with { SkipSeconds = 42 }, SelectedMediaId = "movie-1", ResumePositions = [new ResumePosition { MediaId = "movie-1", PositionMs = 9000 }] }) };
         var preferences = new AppearancePreferences(store);
         Check(preferences.CreateEditor().EditableFields.SetEquals(new[] { "theme", "language" }), "appearance capabilities");

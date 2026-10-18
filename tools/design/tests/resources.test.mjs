@@ -188,7 +188,7 @@ test('settings schema rejects invalid defaults, metadata, options and component 
     for (const mutate of [s => { s.defaults.language = 'fr'; }, s => { s.sections.reverse(); },
         s => { s.fields[0].options.push('fr'); }, s => { s.fields.push(s.fields[0]); },
         s => { s.fields[0].kind = 'unknown'; }, s => { s.fields[0].label = 'missing'; },
-        s => { s.fields[0].maxLength = 0; }, s => { s.defaults.extra = ''; }]) {
+        s => { s.fields[0].maxLength = 0; }, s => { s.defaults.extra = ''; }, s => { s.defaults.username = '\x7f'; }]) {
         const design = fixture(); const path = join(design, 'settings.json'); const spec = JSON.parse(readFileSync(path));
         mutate(spec); writeFileSync(path, JSON.stringify(spec));
         assert.notEqual(generate(design, join(temporary, 'bad-settings')).status, 0);

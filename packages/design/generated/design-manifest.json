@@ -11,7 +11,7 @@
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "package.json": "843e7804e7b5d922cc0c86af6d3395d2902416ad0ce66adbab38213c578144d6"
   },
-  "generatorRevision": "c4c1a7fa407f6605b503b609b2c9f8a0fd1378f8ca30e2cb4456d8f75ac60ba7",
+  "generatorRevision": "f5499d9527df765a69497e3e82a06f3bf677af8d301a67e5b542d65cc20a8fba",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -22,7 +22,7 @@
       "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
       "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
       "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
-      "tools/design/settings-formats.mjs": "6d1e13e428bb7822cb7614eb1b0a5c15af0737244c9fcf231ec82b0b5b43fb5e"
+      "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
