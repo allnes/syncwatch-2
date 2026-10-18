@@ -65,7 +65,11 @@ internal static class SettingsAssertions
         var view = new SettingsDialog(editor); Layout(view);
         Element<ComboBox>(view, "settings.field.theme").SelectedValue = "dark"; Check(editor.Values["theme"] == "dark", "native choice edits draft");
         view.Persist = _ => false; Element<Button>(view, "settings.save").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Check(editor.State == SettingsVisualState.InvalidConfiguration, "native save failure");
-        view.Persist = _ => true; Element<Button>(view, "settings.save").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Check(editor.State == SettingsVisualState.SavedNotice, "native save success");
+        var nativeStore = new Store(); var nativePreferences = new AppearancePreferences(nativeStore);
+        Element<ComboBox>(view, "settings.field.language").SelectedValue = "ru";
+        view.Persist = values => { if (!nativePreferences.Save(values)) return false; view.SetLanguage(nativePreferences.State.Preferences.Language); return true; };
+        Element<Button>(view, "settings.save").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Check(editor.State == SettingsVisualState.SavedNotice && nativeStore.Writes == 1 && view.UiLanguage == "ru" && nativePreferences.State.Preferences.Theme == "dark", "native save applies appearance and rerenders language");
         Element<Button>(view, "settings.section.library").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(view);
         Check(view.Section == "library" && editor.Values["theme"] == "dark" && !Element<TextBox>(view, "settings.field.folder").IsEnabled, "tabs retain draft and unavailable fields are disabled");
         Check(KeyboardNavigation.GetTabNavigation(view) == KeyboardNavigationMode.Cycle, "keyboard remains in dialog");
