@@ -24,13 +24,14 @@ flowchart LR
 | `packages/design/themes.json` | Semantic dark/light color roles and logical units |
 | `packages/design/generated/` | Generated SwiftUI, C#, XAML, Kotlin and shared manifest |
 | `packages/design/copy.json` | English/Russian copy and Library gallery fixtures |
-| `packages/design/apple/`, `windows/`, `linux/` | Native Library presentation and reusable components |
+| `packages/design/settings.json` | Settings sections, field IDs/kinds/options/defaults and validation bounds |
+| `packages/design/apple/`, `windows/`, `linux/` | Native Library/Settings presentation and reusable components |
 | `packages/design/components.json` | Library, player, settings, and call window structures, states, and actions |
 | `packages/design/package.json` | Design package identity, version, license, and packaged assets |
 
 Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and density-independent units on Windows/Compose. Physical display scale is handled by the renderer rather than embedded in token values.
 
-The package contains design data, component specifications and the Library renderer. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render an empty Library workspace. An opt-in gallery exercises presentation fixtures. The Compose Library renderer is source-only until its complete dependency build is available. Player, settings and call components remain specifications.
+The package contains design data, component specifications and the Library/Settings renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. The Compose Library renderer is source-only until its complete dependency build is available. Player, player-settings and call components remain specifications.
 
 ## Generated resources
 
@@ -48,7 +49,7 @@ Generation must be deterministic: stable ordering and rounding, with no build-ti
 
 Style Dictionary provides Swift formats, but framework-specific SwiftUI/macOS and WPF output needs dedicated formatting. See the [format reference](https://styledictionary.com/reference/hooks/formats/predefined/).
 
-The Kotlin formatter runs in the same generation command. The Compose source uses Foundation primitives, explicitly maps RRGGBBAA channels to Compose colors, and reads the same token IDs, copy, states and actions. No Compose or compiler binary is adopted by adding this first-party source. The Linux application remains unavailable until its pinned source/native/compiler/license closure and real build pass.
+The Kotlin formatter runs in the same generation command. The Compose source uses Foundation primitives, explicitly maps RRGGBBAA channels to Compose colors, and reads the same token IDs, copy, states and actions. Settings metadata is also generated into all three languages. No Compose or compiler binary is adopted by adding this first-party source. The Linux application remains unavailable until its pinned source/native/compiler/license closure and real build pass.
 
 ## Component implementation
 
@@ -74,3 +75,14 @@ All renderers cover `empty`, `scanning`, `selected`, `missingMedia` and `reconne
 Use `--design-gallery` when launching the native executable; see [building](../building.md). The gallery switches state, English/Russian copy and dark/light themes. It is a development view with synthetic movie names. System appearance remains the normal shell default. Library filtering is local presentation behavior; catalog scanning and watch-session workflows require their application adapters.
 
 Native checks exercise action rejection, stale identities, theme resources, localized copy, and 40 actual renders per platform (five states, two themes, two languages, two viewports). macOS uses an unshown NSHostingView window so AppKit text/scroll controls are included without exposing the desktop; Windows uses WPF RenderTargetBitmap. PNGs under `artifacts/design/<platform>/` are retained with hashes in the native CI artifact. These checks establish component evidence, not full product or Linux visual acceptance.
+
+
+## Application settings
+
+`settings.json` defines the interface/library/call/connection sections, typed fields, choices, defaults and UTF-16 length bounds. `SettingsEditor` holds a draft independently of application services. Unknown fields, unsupported choices, invalid booleans, control characters and oversized values cannot reach its save callback. Field capabilities reject edits to unavailable controls. Save feedback requires the caller to acknowledge persistence; a failed write keeps the draft and shows an error. Cancel returns to the last successful save without invoking persistence.
+
+`SettingsDialog` uses the shared 680 by 420 content size and 150-unit sidebar. The same metadata drives compact fields, choices and switches in each renderer. The gallery supports editing/saved/error fixtures and an explicit save-failure switch. No fixture claims to persist real configuration or enumerate hardware.
+
+In the macOS and Windows applications, Settings opens from the Library header. The application controller maps only theme/language into the existing validated LocalState, preserving every other preference, selected-media ID and resume position. Successful writes update language and dark/light/system appearance without restarting; reopening the application restores them. Write failure leaves the applied appearance unchanged. A future-version or unreadable state file makes editing unavailable rather than overwriting that file. Library access, call devices and connection fields stay disabled until their service adapters are implemented. A stored preference does not start playback or a call.
+
+Native checks add 48 Settings images (four sections, three states, two themes and two languages) to the 40 Library images per platform. The native CI artifact requires the exact complete image-name set derived from the shared contracts and geometry, with bounded PNG payloads and hashes. Native control events, draft/save/cancel behavior, keyboard containment/default/cancel actions and actual appearance persistence are exercised separately from image generation. Full keyboard/provider/physical acceptance remains open. Compose renderer source remains excluded from available builds until Linux dependency/compiler/native/license closure passes.

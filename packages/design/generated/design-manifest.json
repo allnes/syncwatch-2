@@ -1,26 +1,28 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "35fd2df8aeab77f75b7672487a9a5581c92eb58f302a9025dc45701c30127622",
+  "sourceDigest": "47ec6e6d0498c350ef7930bfdc0b7a6f72dc09785b74b05099e06f0b9b94d7e6",
   "sources": {
-    "tokens/geometry.json": "8860dac1104611035ccfce0859e506410bdbda9a2c55e4226509727694ca4157",
+    "tokens/geometry.json": "6e516c63181c2a582bbdc14a8f2b8befdf862f606231f36e34c14322d50b4042",
     "tokens/palette.json": "437fff3952a17ff90f7dacdbf2bd5403039f7928c69f4cc40dd152965131b4ec",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "2bba1b720d727703d3fe8ab9ffe9541f753abf3787b7fb7abf7c0981a3506753",
-    "copy.json": "66dae82cf636742901a28076503ec67d30ae6167e976851030d13dd2d968470c",
-    "package.json": "0f0aa416e27ac344a9773f2e2a60b274f755aa57678c43a38749e07e470f3df0"
+    "components.json": "96e318c782dbd336b764f455efedf84a6d0e84a092cc5a3e2e30c25016776198",
+    "copy.json": "67117d773c70f377f4734d5a07eb62afcf882ab0e45cfbb95b072f604428783e",
+    "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
+    "package.json": "843e7804e7b5d922cc0c86af6d3395d2902416ad0ce66adbab38213c578144d6"
   },
-  "generatorRevision": "a7314013db2c459d7b887ab57fc0c27e2aabd9ccbefd68b43b8a1bd3858ec9a7",
+  "generatorRevision": "c4c1a7fa407f6605b503b609b2c9f8a0fd1378f8ca30e2cb4456d8f75ac60ba7",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "10779bb6cf7e9cfe5aa0ec8bbb3b03366728977225f185866c61defd8b8977a5",
+      "tools/design/generate.mjs": "4caa93cc7e6f0710fdf093fdffbc2a592401202b362351e285a20e7c844ed748",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
       "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
       "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
-      "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0"
+      "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
+      "tools/design/settings-formats.mjs": "6d1e13e428bb7822cb7614eb1b0a5c15af0737244c9fcf231ec82b0b5b43fb5e"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -109,7 +111,42 @@
         "gallery": "Component gallery",
         "state": "State",
         "theme": "Theme",
-        "language": "Language"
+        "language": "Language",
+        "interface": "Interface",
+        "call": "Call",
+        "connection": "Connection",
+        "interfaceHint": "Choose your language and appearance.",
+        "libraryHint": "Manage your movie folder and refresh preferences.",
+        "callHint": "Choose available call devices and video quality.",
+        "connectionHint": "Configure your viewing room and synchronization.",
+        "folder": "Movie folder",
+        "scanSubfolders": "Include subfolders",
+        "automaticRefresh": "Refresh automatically",
+        "inputDevice": "Microphone",
+        "outputDevice": "Audio output",
+        "cameraQuality": "Camera quality",
+        "ducking": "Lower movie volume during speech",
+        "syncServer": "Syncplay server",
+        "roomName": "Room name",
+        "username": "Display name",
+        "optionEn": "English",
+        "optionRu": "Русский",
+        "optionSystem": "System default",
+        "optionDark": "Dark",
+        "optionLight": "Light",
+        "option480p": "480p",
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close",
+        "changesSaved": "Changes saved",
+        "invalidConfiguration": "Check the settings and try again.",
+        "saveFailed": "Could not save changes. Try again.",
+        "settingsUnavailable": "These settings are not available yet.",
+        "settingsReadOnly": "Settings cannot be changed right now.",
+        "galleryLibrary": "Library",
+        "gallerySettings": "Settings",
+        "optionOn": "On",
+        "optionOff": "Off"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -145,7 +182,42 @@
         "gallery": "Галерея компонентов",
         "state": "Состояние",
         "theme": "Тема",
-        "language": "Язык"
+        "language": "Язык",
+        "interface": "Интерфейс",
+        "call": "Звонок",
+        "connection": "Подключение",
+        "interfaceHint": "Выберите язык и оформление.",
+        "libraryHint": "Папка с фильмами и обновление библиотеки.",
+        "callHint": "Устройства звонка и качество видео.",
+        "connectionHint": "Комната просмотра и синхронизация.",
+        "folder": "Папка с фильмами",
+        "scanSubfolders": "Включать вложенные папки",
+        "automaticRefresh": "Обновлять автоматически",
+        "inputDevice": "Микрофон",
+        "outputDevice": "Вывод звука",
+        "cameraQuality": "Качество камеры",
+        "ducking": "Приглушать фильм во время речи",
+        "syncServer": "Сервер Syncplay",
+        "roomName": "Название комнаты",
+        "username": "Имя пользователя",
+        "optionEn": "English",
+        "optionRu": "Русский",
+        "optionSystem": "Как в системе",
+        "optionDark": "Тёмная",
+        "optionLight": "Светлая",
+        "option480p": "480p",
+        "save": "Сохранить",
+        "cancel": "Отмена",
+        "close": "Закрыть",
+        "changesSaved": "Изменения сохранены",
+        "invalidConfiguration": "Проверьте настройки и попробуйте ещё раз.",
+        "saveFailed": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+        "settingsUnavailable": "Эти настройки пока недоступны.",
+        "settingsReadOnly": "Сейчас настройки изменить нельзя.",
+        "galleryLibrary": "Библиотека",
+        "gallerySettings": "Настройки",
+        "optionOn": "Вкл.",
+        "optionOff": "Выкл."
       }
     },
     "gallery": {
@@ -172,6 +244,145 @@
         "openSettings",
         "openCall"
       ]
+    }
+  },
+  "settings": {
+    "schemaVersion": 1,
+    "sections": [
+      "interface",
+      "library",
+      "call",
+      "connection"
+    ],
+    "states": [
+      "editing",
+      "savedNotice",
+      "invalidConfiguration"
+    ],
+    "fields": [
+      {
+        "id": "language",
+        "section": "interface",
+        "kind": "choice",
+        "label": "language",
+        "options": [
+          "en",
+          "ru"
+        ],
+        "maxLength": 512
+      },
+      {
+        "id": "theme",
+        "section": "interface",
+        "kind": "choice",
+        "label": "theme",
+        "options": [
+          "system",
+          "dark",
+          "light"
+        ],
+        "maxLength": 512
+      },
+      {
+        "id": "folder",
+        "section": "library",
+        "kind": "text",
+        "label": "folder",
+        "options": [],
+        "maxLength": 512
+      },
+      {
+        "id": "scanSubfolders",
+        "section": "library",
+        "kind": "boolean",
+        "label": "scanSubfolders",
+        "options": [],
+        "maxLength": 512
+      },
+      {
+        "id": "automaticRefresh",
+        "section": "library",
+        "kind": "boolean",
+        "label": "automaticRefresh",
+        "options": [],
+        "maxLength": 512
+      },
+      {
+        "id": "inputDevice",
+        "section": "call",
+        "kind": "choice",
+        "label": "inputDevice",
+        "options": [
+          "system"
+        ],
+        "maxLength": 512
+      },
+      {
+        "id": "outputDevice",
+        "section": "call",
+        "kind": "choice",
+        "label": "outputDevice",
+        "options": [
+          "system"
+        ],
+        "maxLength": 512
+      },
+      {
+        "id": "cameraQuality",
+        "section": "call",
+        "kind": "choice",
+        "label": "cameraQuality",
+        "options": [
+          "480p"
+        ],
+        "maxLength": 512
+      },
+      {
+        "id": "ducking",
+        "section": "call",
+        "kind": "boolean",
+        "label": "ducking",
+        "options": [],
+        "maxLength": 512
+      },
+      {
+        "id": "syncServer",
+        "section": "connection",
+        "kind": "text",
+        "label": "syncServer",
+        "options": [],
+        "maxLength": 256
+      },
+      {
+        "id": "roomName",
+        "section": "connection",
+        "kind": "text",
+        "label": "roomName",
+        "options": [],
+        "maxLength": 128
+      },
+      {
+        "id": "username",
+        "section": "connection",
+        "kind": "text",
+        "label": "username",
+        "options": [],
+        "maxLength": 128
+      }
+    ],
+    "defaults": {
+      "language": "en",
+      "theme": "system",
+      "folder": "",
+      "scanSubfolders": "true",
+      "automaticRefresh": "true",
+      "inputDevice": "system",
+      "outputDevice": "system",
+      "cameraQuality": "480p",
+      "ducking": "false",
+      "syncServer": "",
+      "roomName": "",
+      "username": ""
     }
   },
   "tokens": [
@@ -351,6 +562,26 @@
       "value": 11
     },
     {
+      "id": "control.settingsToggleHeight",
+      "type": "number",
+      "value": 16
+    },
+    {
+      "id": "control.settingsToggleInset",
+      "type": "number",
+      "value": 3
+    },
+    {
+      "id": "control.settingsToggleThumb",
+      "type": "number",
+      "value": 10
+    },
+    {
+      "id": "control.settingsToggleWidth",
+      "type": "number",
+      "value": 32
+    },
+    {
       "id": "control.sliderThumbRadius",
       "type": "number",
       "value": 6
@@ -461,9 +692,49 @@
       "value": 260
     },
     {
+      "id": "layout.settingsCardPadding",
+      "type": "number",
+      "value": 8
+    },
+    {
+      "id": "layout.settingsContentPadding",
+      "type": "number",
+      "value": 16
+    },
+    {
+      "id": "layout.settingsControlHeight",
+      "type": "number",
+      "value": 30
+    },
+    {
+      "id": "layout.settingsFieldWidth",
+      "type": "number",
+      "value": 360
+    },
+    {
+      "id": "layout.settingsFooterHeight",
+      "type": "number",
+      "value": 48
+    },
+    {
+      "id": "layout.settingsHeaderHeight",
+      "type": "number",
+      "value": 40
+    },
+    {
       "id": "layout.settingsHeight",
       "type": "number",
       "value": 420
+    },
+    {
+      "id": "layout.settingsInterfaceFieldWidth",
+      "type": "number",
+      "value": 300
+    },
+    {
+      "id": "layout.settingsSidebarRowHeight",
+      "type": "number",
+      "value": 32
     },
     {
       "id": "layout.settingsSidebarWidth",
@@ -499,6 +770,21 @@
       "id": "type.sectionSize",
       "type": "number",
       "value": 19
+    },
+    {
+      "id": "type.settingsBodySize",
+      "type": "number",
+      "value": 13
+    },
+    {
+      "id": "type.settingsSectionSize",
+      "type": "number",
+      "value": 18
+    },
+    {
+      "id": "type.settingsTitleSize",
+      "type": "number",
+      "value": 15
     },
     {
       "id": "type.titleSize",

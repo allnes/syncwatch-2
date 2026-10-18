@@ -119,15 +119,18 @@ class NativeJobChecks(unittest.TestCase):
     def test_design_images_retain_digests_and_reject_external_links(self):
         source = self.root / "artifacts/design/apple"
         source.mkdir(parents=True)
-        for state in ("empty", "scanning", "selected", "missingMedia", "reconnecting"):
-            for theme in ("dark", "light"):
-                for locale in ("en", "ru"):
-                    for size in ("1120x760", "800x600"):
-                        (source / f"{state}-{theme}-{locale}-{size}.png").write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        repository = Path(__file__).resolve().parents[3]
+        for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((repository / relative).read_bytes())
+        names = native_job.design_image_names(self.root)
+        for name in names:
+            (source / name).write_bytes(b"\x89PNG\r\n\x1a\nfixture")
         payload = self.root / "payload"
         payload.mkdir()
         native_job.retain_design_images(self.root, payload, "apple")
-        self.assertEqual(len(list((payload / "design").iterdir())), 40)
+        self.assertEqual(len(list((payload / "design").iterdir())), 88)
         image = next(source.iterdir())
         image.unlink()
         image.symlink_to(self.root / "source.txt")
@@ -135,6 +138,25 @@ class NativeJobChecks(unittest.TestCase):
         (self.root / "rejected").mkdir()
         with self.assertRaisesRegex(ValueError, "Unsafe design"):
             native_job.retain_design_images(self.root, self.root / "rejected", "apple")
+
+    def test_render_matrix_rejects_missing_and_stale_names(self):
+        repository = Path(__file__).resolve().parents[3]
+        source = self.root / "artifacts/design/apple"
+        source.mkdir(parents=True)
+        for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((repository / relative).read_bytes())
+        for name in native_job.design_image_names(self.root):
+            (source / name).write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        image = next(source.iterdir())
+        wrong = source / "stale-dark-en-680x420.png"
+        image.rename(wrong)
+        with self.assertRaisesRegex(ValueError, "differs"):
+            native_job.retain_design_images(self.root, self.root / "out", "apple")
+        wrong.unlink()
+        with self.assertRaisesRegex(ValueError, "differs"):
+            native_job.retain_design_images(self.root, self.root / "out", "apple")
 
     def test_failure_archive_contains_reports_without_an_application(self):
         self.initialize_repository()

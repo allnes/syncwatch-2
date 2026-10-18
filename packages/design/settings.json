@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "sections": [
+    "interface",
+    "library",
+    "call",
+    "connection"
+  ],
+  "states": [
+    "editing",
+    "savedNotice",
+    "invalidConfiguration"
+  ],
+  "fields": [
+    {
+      "id": "language",
+      "section": "interface",
+      "kind": "choice",
+      "label": "language",
+      "options": [
+        "en",
+        "ru"
+      ],
+      "maxLength": 512
+    },
+    {
+      "id": "theme",
+      "section": "interface",
+      "kind": "choice",
+      "label": "theme",
+      "options": [
+        "system",
+        "dark",
+        "light"
+      ],
+      "maxLength": 512
+    },
+    {
+      "id": "folder",
+      "section": "library",
+      "kind": "text",
+      "label": "folder",
+      "options": [],
+      "maxLength": 512
+    },
+    {
+      "id": "scanSubfolders",
+      "section": "library",
+      "kind": "boolean",
+      "label": "scanSubfolders",
+      "options": [],
+      "maxLength": 512
+    },
+    {
+      "id": "automaticRefresh",
+      "section": "library",
+      "kind": "boolean",
+      "label": "automaticRefresh",
+      "options": [],
+      "maxLength": 512
+    },
+    {
+      "id": "inputDevice",
+      "section": "call",
+      "kind": "choice",
+      "label": "inputDevice",
+      "options": [
+        "system"
+      ],
+      "maxLength": 512
+    },
+    {
+      "id": "outputDevice",
+      "section": "call",
+      "kind": "choice",
+      "label": "outputDevice",
+      "options": [
+        "system"
+      ],
+      "maxLength": 512
+    },
+    {
+      "id": "cameraQuality",
+      "section": "call",
+      "kind": "choice",
+      "label": "cameraQuality",
+      "options": [
+        "480p"
+      ],
+      "maxLength": 512
+    },
+    {
+      "id": "ducking",
+      "section": "call",
+      "kind": "boolean",
+      "label": "ducking",
+      "options": [],
+      "maxLength": 512
+    },
+    {
+      "id": "syncServer",
+      "section": "connection",
+      "kind": "text",
+      "label": "syncServer",
+      "options": [],
+      "maxLength": 256
+    },
+    {
+      "id": "roomName",
+      "section": "connection",
+      "kind": "text",
+      "label": "roomName",
+      "options": [],
+      "maxLength": 128
+    },
+    {
+      "id": "username",
+      "section": "connection",
+      "kind": "text",
+      "label": "username",
+      "options": [],
+      "maxLength": 128
+    }
+  ],
+  "defaults": {
+    "language": "en",
+    "theme": "system",
+    "folder": "",
+    "scanSubfolders": "true",
+    "automaticRefresh": "true",
+    "inputDevice": "system",
+    "outputDevice": "system",
+    "cameraQuality": "480p",
+    "ducking": "false",
+    "syncServer": "",
+    "roomName": "",
+    "username": ""
+  }
+}

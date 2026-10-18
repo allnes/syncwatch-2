@@ -12,6 +12,7 @@
     "copy.json",
     "apple",
     "windows",
-    "linux"
+    "linux",
+    "settings.json"
   ]
 }

@@ -107,3 +107,10 @@ apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe --design-gallery
 ```
 
 The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/apple/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
+
+
+## Application settings
+
+In a normal native launch, use **Settings** in the Library header. Change the language or theme and choose **Save** to persist the change and apply it immediately. **Cancel** discards unsaved edits. Settings use the application-owned `SyncWatch/local-state.json` under Application Support on macOS and Local Application Data on Windows. Existing media/resume preferences are retained. Files from a newer format are left unchanged and the dialog becomes read-only. Library, call and connection settings remain unavailable until their adapters exist.
+
+For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains 88 images per platform: 40 Library and 48 Settings renders.

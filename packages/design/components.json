@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows and Compose",
-  "status": "LibraryLayout renderers and gallery: SwiftUI/WPF; Compose source pending its dependency build. Other components remain specifications.",
+  "status": "Library and SettingsDialog renderers/gallery: SwiftUI/WPF; Compose source pending its dependency build. Other components remain specifications.",
   "components": {
     "LibraryLayout": {
       "structure": [
@@ -86,8 +86,8 @@
         "control.compactDialogRadius"
       ],
       "sections": [
-        "library",
         "interface",
+        "library",
         "call",
         "connection"
       ],
@@ -95,6 +95,14 @@
         "editing",
         "savedNotice",
         "invalidConfiguration"
+      ],
+      "actions": [
+        "selectSection",
+        "editField",
+        "chooseFolder",
+        "save",
+        "cancel",
+        "close"
       ]
     },
     "PlayerSettingsDialog": {

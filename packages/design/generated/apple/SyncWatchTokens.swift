@@ -59,6 +59,10 @@ public enum SyncWatchTokens {
     public static let controlOutlinedButtonMinHeight: CGFloat = 44
     public static let controlRowMinHeight: CGFloat = 62
     public static let controlRowRadius: CGFloat = 11
+    public static let controlSettingsToggleHeight: CGFloat = 16
+    public static let controlSettingsToggleInset: CGFloat = 3
+    public static let controlSettingsToggleThumb: CGFloat = 10
+    public static let controlSettingsToggleWidth: CGFloat = 32
     public static let controlSliderThumbRadius: CGFloat = 6
     public static let controlSliderTrackHeight: CGFloat = 3
     public static let layoutCallInitialHeight: CGFloat = 210
@@ -81,7 +85,15 @@ public enum SyncWatchTokens {
     public static let layoutSectionGap: CGFloat = 10
     public static let layoutSelectedPanelMaxHeight: CGFloat = 375
     public static let layoutSelectedPanelMinHeight: CGFloat = 260
+    public static let layoutSettingsCardPadding: CGFloat = 8
+    public static let layoutSettingsContentPadding: CGFloat = 16
+    public static let layoutSettingsControlHeight: CGFloat = 30
+    public static let layoutSettingsFieldWidth: CGFloat = 360
+    public static let layoutSettingsFooterHeight: CGFloat = 48
+    public static let layoutSettingsHeaderHeight: CGFloat = 40
     public static let layoutSettingsHeight: CGFloat = 420
+    public static let layoutSettingsInterfaceFieldWidth: CGFloat = 300
+    public static let layoutSettingsSidebarRowHeight: CGFloat = 32
     public static let layoutSettingsSidebarWidth: CGFloat = 150
     public static let layoutSettingsWidth: CGFloat = 680
     public static let layoutWorkspacePadding: CGFloat = 18
@@ -89,6 +101,9 @@ public enum SyncWatchTokens {
     public static let typeBrandSize: CGFloat = 23
     public static let typeCaptionSize: CGFloat = 12
     public static let typeSectionSize: CGFloat = 19
+    public static let typeSettingsBodySize: CGFloat = 13
+    public static let typeSettingsSectionSize: CGFloat = 18
+    public static let typeSettingsTitleSize: CGFloat = 15
     public static let typeTitleSize: CGFloat = 31
 
     public static let colors: [String: Color] = [
@@ -130,6 +145,10 @@ public enum SyncWatchTokens {
         "control.outlinedButtonMinHeight": controlOutlinedButtonMinHeight,
         "control.rowMinHeight": controlRowMinHeight,
         "control.rowRadius": controlRowRadius,
+        "control.settingsToggleHeight": controlSettingsToggleHeight,
+        "control.settingsToggleInset": controlSettingsToggleInset,
+        "control.settingsToggleThumb": controlSettingsToggleThumb,
+        "control.settingsToggleWidth": controlSettingsToggleWidth,
         "control.sliderThumbRadius": controlSliderThumbRadius,
         "control.sliderTrackHeight": controlSliderTrackHeight,
         "layout.callInitialHeight": layoutCallInitialHeight,
@@ -152,7 +171,15 @@ public enum SyncWatchTokens {
         "layout.sectionGap": layoutSectionGap,
         "layout.selectedPanelMaxHeight": layoutSelectedPanelMaxHeight,
         "layout.selectedPanelMinHeight": layoutSelectedPanelMinHeight,
+        "layout.settingsCardPadding": layoutSettingsCardPadding,
+        "layout.settingsContentPadding": layoutSettingsContentPadding,
+        "layout.settingsControlHeight": layoutSettingsControlHeight,
+        "layout.settingsFieldWidth": layoutSettingsFieldWidth,
+        "layout.settingsFooterHeight": layoutSettingsFooterHeight,
+        "layout.settingsHeaderHeight": layoutSettingsHeaderHeight,
         "layout.settingsHeight": layoutSettingsHeight,
+        "layout.settingsInterfaceFieldWidth": layoutSettingsInterfaceFieldWidth,
+        "layout.settingsSidebarRowHeight": layoutSettingsSidebarRowHeight,
         "layout.settingsSidebarWidth": layoutSettingsSidebarWidth,
         "layout.settingsWidth": layoutSettingsWidth,
         "layout.workspacePadding": layoutWorkspacePadding,
@@ -160,6 +187,9 @@ public enum SyncWatchTokens {
         "type.brandSize": typeBrandSize,
         "type.captionSize": typeCaptionSize,
         "type.sectionSize": typeSectionSize,
+        "type.settingsBodySize": typeSettingsBodySize,
+        "type.settingsSectionSize": typeSettingsSectionSize,
+        "type.settingsTitleSize": typeSettingsTitleSize,
         "type.titleSize": typeTitleSize,
     ]
 }
@@ -253,6 +283,41 @@ public enum SyncWatchCopy {
             "state": "State",
             "theme": "Theme",
             "language": "Language",
+            "interface": "Interface",
+            "call": "Call",
+            "connection": "Connection",
+            "interfaceHint": "Choose your language and appearance.",
+            "libraryHint": "Manage your movie folder and refresh preferences.",
+            "callHint": "Choose available call devices and video quality.",
+            "connectionHint": "Configure your viewing room and synchronization.",
+            "folder": "Movie folder",
+            "scanSubfolders": "Include subfolders",
+            "automaticRefresh": "Refresh automatically",
+            "inputDevice": "Microphone",
+            "outputDevice": "Audio output",
+            "cameraQuality": "Camera quality",
+            "ducking": "Lower movie volume during speech",
+            "syncServer": "Syncplay server",
+            "roomName": "Room name",
+            "username": "Display name",
+            "optionEn": "English",
+            "optionRu": "Русский",
+            "optionSystem": "System default",
+            "optionDark": "Dark",
+            "optionLight": "Light",
+            "option480p": "480p",
+            "save": "Save",
+            "cancel": "Cancel",
+            "close": "Close",
+            "changesSaved": "Changes saved",
+            "invalidConfiguration": "Check the settings and try again.",
+            "saveFailed": "Could not save changes. Try again.",
+            "settingsUnavailable": "These settings are not available yet.",
+            "settingsReadOnly": "Settings cannot be changed right now.",
+            "galleryLibrary": "Library",
+            "gallerySettings": "Settings",
+            "optionOn": "On",
+            "optionOff": "Off",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -289,6 +354,41 @@ public enum SyncWatchCopy {
             "state": "Состояние",
             "theme": "Тема",
             "language": "Язык",
+            "interface": "Интерфейс",
+            "call": "Звонок",
+            "connection": "Подключение",
+            "interfaceHint": "Выберите язык и оформление.",
+            "libraryHint": "Папка с фильмами и обновление библиотеки.",
+            "callHint": "Устройства звонка и качество видео.",
+            "connectionHint": "Комната просмотра и синхронизация.",
+            "folder": "Папка с фильмами",
+            "scanSubfolders": "Включать вложенные папки",
+            "automaticRefresh": "Обновлять автоматически",
+            "inputDevice": "Микрофон",
+            "outputDevice": "Вывод звука",
+            "cameraQuality": "Качество камеры",
+            "ducking": "Приглушать фильм во время речи",
+            "syncServer": "Сервер Syncplay",
+            "roomName": "Название комнаты",
+            "username": "Имя пользователя",
+            "optionEn": "English",
+            "optionRu": "Русский",
+            "optionSystem": "Как в системе",
+            "optionDark": "Тёмная",
+            "optionLight": "Светлая",
+            "option480p": "480p",
+            "save": "Сохранить",
+            "cancel": "Отмена",
+            "close": "Закрыть",
+            "changesSaved": "Изменения сохранены",
+            "invalidConfiguration": "Проверьте настройки и попробуйте ещё раз.",
+            "saveFailed": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+            "settingsUnavailable": "Эти настройки пока недоступны.",
+            "settingsReadOnly": "Сейчас настройки изменить нельзя.",
+            "galleryLibrary": "Библиотека",
+            "gallerySettings": "Настройки",
+            "optionOn": "Вкл.",
+            "optionOff": "Выкл.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -310,5 +410,71 @@ public enum SyncWatchCopy {
         "Example Movie 01.mkv",
         "A very long movie title for responsive layout and selection.mkv",
         "Example Movie 03.mp4",
+    ]
+}
+
+public struct SyncWatchSettingsField: Sendable {
+    public let id: String
+    public let section: String
+    public let kind: String
+    public let label: String
+    public let options: [String]
+    public let maxLength: Int
+}
+
+public enum SyncWatchSettings {
+    public static let sections = ["interface", "library", "call", "connection"]
+    public static let states = ["editing", "savedNotice", "invalidConfiguration"]
+    public static let defaults: [String: String] = [
+        "language": "en",
+        "theme": "system",
+        "folder": "",
+        "scanSubfolders": "true",
+        "automaticRefresh": "true",
+        "inputDevice": "system",
+        "outputDevice": "system",
+        "cameraQuality": "480p",
+        "ducking": "false",
+        "syncServer": "",
+        "roomName": "",
+        "username": "",
+    ]
+    public static let fields: [SyncWatchSettingsField] = [
+        SyncWatchSettingsField(
+            id: "language", section: "interface", kind: "choice", label: "language",
+            options: ["en", "ru"], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "theme", section: "interface", kind: "choice", label: "theme",
+            options: ["system", "dark", "light"], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "folder", section: "library", kind: "text", label: "folder",
+            options: [], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "scanSubfolders", section: "library", kind: "boolean", label: "scanSubfolders",
+            options: [], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "automaticRefresh", section: "library", kind: "boolean", label: "automaticRefresh",
+            options: [], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "inputDevice", section: "call", kind: "choice", label: "inputDevice",
+            options: ["system"], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "outputDevice", section: "call", kind: "choice", label: "outputDevice",
+            options: ["system"], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "cameraQuality", section: "call", kind: "choice", label: "cameraQuality",
+            options: ["480p"], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "ducking", section: "call", kind: "boolean", label: "ducking",
+            options: [], maxLength: 512),
+        SyncWatchSettingsField(
+            id: "syncServer", section: "connection", kind: "text", label: "syncServer",
+            options: [], maxLength: 256),
+        SyncWatchSettingsField(
+            id: "roomName", section: "connection", kind: "text", label: "roomName",
+            options: [], maxLength: 128),
+        SyncWatchSettingsField(
+            id: "username", section: "connection", kind: "text", label: "username",
+            options: [], maxLength: 128),
     ]
 }

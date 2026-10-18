@@ -9,6 +9,7 @@
         <Setter Property="Foreground" Value="{DynamicResource theme.text.brush}" />
         <Setter Property="Background" Value="{DynamicResource theme.surfaceRaised.brush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource theme.border.brush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource control.borderWidth.thickness}" />
         <Setter Property="MinHeight" Value="{StaticResource control.outlinedButtonMinHeight}" />
         <Setter Property="FontSize" Value="{StaticResource type.bodySize}" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -20,7 +21,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{StaticResource control.borderWidth.thickness}" CornerRadius="{StaticResource control.buttonRadius.cornerRadius}">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource control.buttonRadius.cornerRadius}">
                         <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
@@ -80,5 +81,65 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    <Style x:Key="SyncWatch.SettingsButton" TargetType="Button" BasedOn="{StaticResource SyncWatch.OutlinedButton}">
+        <Setter Property="MinHeight" Value="{StaticResource layout.settingsControlHeight}" />
+        <Setter Property="FontSize" Value="{StaticResource type.settingsBodySize}" />
+        <Setter Property="Padding"><Setter.Value><Thickness Left="{StaticResource layout.settingsCardPadding}" Right="{StaticResource layout.settingsCardPadding}" /></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SyncWatch.SettingsFilledButton" TargetType="Button" BasedOn="{StaticResource SyncWatch.SettingsButton}">
+        <Setter Property="Background" Value="{DynamicResource theme.accent.brush}" />
+        <Setter Property="Foreground" Value="{StaticResource color.dark.text.brush}" />
+    </Style>
+    <Style x:Key="SyncWatch.SettingsTab" TargetType="Button" BasedOn="{StaticResource SyncWatch.SettingsButton}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontSize" Value="{StaticResource type.settingsBodySize}" />
+        <Setter Property="Padding"><Setter.Value><Thickness Left="{StaticResource layout.settingsCardPadding}" Right="{StaticResource layout.settingsCardPadding}" /></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SyncWatch.SettingsField" TargetType="TextBox" BasedOn="{StaticResource SyncWatch.Field}">
+        <Setter Property="FontSize" Value="{StaticResource type.settingsBodySize}" />
+        <Setter Property="MinHeight" Value="{StaticResource layout.settingsControlHeight}" />
+        <Setter Property="Padding"><Setter.Value><Thickness Left="{StaticResource layout.settingsCardPadding}" Right="{StaticResource layout.settingsCardPadding}" /></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SyncWatch.SettingsChoice" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource theme.text.brush}" />
+        <Setter Property="Background" Value="{DynamicResource theme.inputFill.brush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource theme.border.brush}" />
+        <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource theme.text.brush}" />
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+                <Border x:Name="Row" Padding="8,4"><ContentPresenter /></Border>
+                <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Row" Property="Background" Value="{DynamicResource theme.selection.brush}" /></Trigger></ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style></Setter.Value></Setter>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+            <Grid>
+                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{StaticResource control.fieldRadius.cornerRadius}" />
+                <ContentPresenter Margin="8,0,24,0" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" IsHitTestVisible="False" />
+                <ToggleButton Background="Transparent" BorderThickness="0" Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                    <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent"><Path Data="M 0 0 L 8 0 L 4 4 Z" Fill="{DynamicResource theme.textSecondary.brush}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0" /></Border></ControlTemplate></ToggleButton.Template>
+                </ToggleButton>
+                <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False">
+                    <Border Background="{DynamicResource theme.surfaceRaised.brush}" BorderBrush="{DynamicResource theme.border.brush}" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" CornerRadius="{StaticResource control.fieldRadius.cornerRadius}"><ScrollViewer><ItemsPresenter /></ScrollViewer></Border>
+                </Popup>
+            </Grid>
+            <ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource theme.accent.brush}" /></Trigger></ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SyncWatch.SettingsToggle" TargetType="CheckBox">
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
+            <Grid Background="Transparent">
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <ContentPresenter VerticalAlignment="Center" />
+                <Border x:Name="Track" Grid.Column="1" Width="{StaticResource control.settingsToggleWidth}" Height="{StaticResource control.settingsToggleHeight}" CornerRadius="{StaticResource control.buttonRadius.cornerRadius}" Background="{DynamicResource theme.border.brush}" VerticalAlignment="Center">
+                    <Ellipse x:Name="Knob" Width="{StaticResource control.settingsToggleThumb}" Height="{StaticResource control.settingsToggleThumb}" Fill="{StaticResource color.dark.text.brush}" Margin="{StaticResource control.settingsToggleInset.thickness}" HorizontalAlignment="Left" />
+                </Border>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True"><Setter TargetName="Track" Property="Background" Value="{DynamicResource theme.accent.brush}" /><Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
     </Style>
 </ResourceDictionary>

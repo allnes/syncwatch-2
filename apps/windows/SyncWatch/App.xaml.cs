@@ -6,9 +6,11 @@ namespace SyncWatch;
 public partial class App : Application
 {
     private ResourceDictionary? selectedTheme;
+    internal AppearancePreferences? Preferences { get; private set; }
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        if (!e.Args.Contains("--design-gallery") && !e.Args.Contains("--settings-gallery")) Preferences = new AppearancePreferences(new Domain.FileLocalStateStore(AppearancePreferences.DefaultPath));
         ApplySystemTheme();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         base.OnStartup(e);
@@ -25,10 +27,11 @@ public partial class App : Application
         Dispatcher.BeginInvoke(new Action(ApplySystemTheme));
     }
 
-    private void ApplySystemTheme()
+    internal void ApplySystemTheme()
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-        var dark = key?.GetValue("AppsUseLightTheme") is int value && value == 0;
+        var selected = Preferences?.State.Preferences.Theme ?? "system";
+        var dark = selected == "dark" || (selected == "system" && key?.GetValue("AppsUseLightTheme") is int value && value == 0);
         var tokens = Resources.MergedDictionaries[0];
         if (selectedTheme is not null)
         {

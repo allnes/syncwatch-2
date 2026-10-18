@@ -71,6 +71,18 @@ public static class SyncWatchTokens
     public const double ControlRowRadius = 11;
     public static Thickness ControlRowRadiusThickness => new(ControlRowRadius);
     public static CornerRadius ControlRowRadiusCornerRadius => new(ControlRowRadius);
+    public const double ControlSettingsToggleHeight = 16;
+    public static Thickness ControlSettingsToggleHeightThickness => new(ControlSettingsToggleHeight);
+    public static CornerRadius ControlSettingsToggleHeightCornerRadius => new(ControlSettingsToggleHeight);
+    public const double ControlSettingsToggleInset = 3;
+    public static Thickness ControlSettingsToggleInsetThickness => new(ControlSettingsToggleInset);
+    public static CornerRadius ControlSettingsToggleInsetCornerRadius => new(ControlSettingsToggleInset);
+    public const double ControlSettingsToggleThumb = 10;
+    public static Thickness ControlSettingsToggleThumbThickness => new(ControlSettingsToggleThumb);
+    public static CornerRadius ControlSettingsToggleThumbCornerRadius => new(ControlSettingsToggleThumb);
+    public const double ControlSettingsToggleWidth = 32;
+    public static Thickness ControlSettingsToggleWidthThickness => new(ControlSettingsToggleWidth);
+    public static CornerRadius ControlSettingsToggleWidthCornerRadius => new(ControlSettingsToggleWidth);
     public const double ControlSliderThumbRadius = 6;
     public static Thickness ControlSliderThumbRadiusThickness => new(ControlSliderThumbRadius);
     public static CornerRadius ControlSliderThumbRadiusCornerRadius => new(ControlSliderThumbRadius);
@@ -137,9 +149,33 @@ public static class SyncWatchTokens
     public const double LayoutSelectedPanelMinHeight = 260;
     public static Thickness LayoutSelectedPanelMinHeightThickness => new(LayoutSelectedPanelMinHeight);
     public static CornerRadius LayoutSelectedPanelMinHeightCornerRadius => new(LayoutSelectedPanelMinHeight);
+    public const double LayoutSettingsCardPadding = 8;
+    public static Thickness LayoutSettingsCardPaddingThickness => new(LayoutSettingsCardPadding);
+    public static CornerRadius LayoutSettingsCardPaddingCornerRadius => new(LayoutSettingsCardPadding);
+    public const double LayoutSettingsContentPadding = 16;
+    public static Thickness LayoutSettingsContentPaddingThickness => new(LayoutSettingsContentPadding);
+    public static CornerRadius LayoutSettingsContentPaddingCornerRadius => new(LayoutSettingsContentPadding);
+    public const double LayoutSettingsControlHeight = 30;
+    public static Thickness LayoutSettingsControlHeightThickness => new(LayoutSettingsControlHeight);
+    public static CornerRadius LayoutSettingsControlHeightCornerRadius => new(LayoutSettingsControlHeight);
+    public const double LayoutSettingsFieldWidth = 360;
+    public static Thickness LayoutSettingsFieldWidthThickness => new(LayoutSettingsFieldWidth);
+    public static CornerRadius LayoutSettingsFieldWidthCornerRadius => new(LayoutSettingsFieldWidth);
+    public const double LayoutSettingsFooterHeight = 48;
+    public static Thickness LayoutSettingsFooterHeightThickness => new(LayoutSettingsFooterHeight);
+    public static CornerRadius LayoutSettingsFooterHeightCornerRadius => new(LayoutSettingsFooterHeight);
+    public const double LayoutSettingsHeaderHeight = 40;
+    public static Thickness LayoutSettingsHeaderHeightThickness => new(LayoutSettingsHeaderHeight);
+    public static CornerRadius LayoutSettingsHeaderHeightCornerRadius => new(LayoutSettingsHeaderHeight);
     public const double LayoutSettingsHeight = 420;
     public static Thickness LayoutSettingsHeightThickness => new(LayoutSettingsHeight);
     public static CornerRadius LayoutSettingsHeightCornerRadius => new(LayoutSettingsHeight);
+    public const double LayoutSettingsInterfaceFieldWidth = 300;
+    public static Thickness LayoutSettingsInterfaceFieldWidthThickness => new(LayoutSettingsInterfaceFieldWidth);
+    public static CornerRadius LayoutSettingsInterfaceFieldWidthCornerRadius => new(LayoutSettingsInterfaceFieldWidth);
+    public const double LayoutSettingsSidebarRowHeight = 32;
+    public static Thickness LayoutSettingsSidebarRowHeightThickness => new(LayoutSettingsSidebarRowHeight);
+    public static CornerRadius LayoutSettingsSidebarRowHeightCornerRadius => new(LayoutSettingsSidebarRowHeight);
     public const double LayoutSettingsSidebarWidth = 150;
     public static Thickness LayoutSettingsSidebarWidthThickness => new(LayoutSettingsSidebarWidth);
     public static CornerRadius LayoutSettingsSidebarWidthCornerRadius => new(LayoutSettingsSidebarWidth);
@@ -161,6 +197,15 @@ public static class SyncWatchTokens
     public const double TypeSectionSize = 19;
     public static Thickness TypeSectionSizeThickness => new(TypeSectionSize);
     public static CornerRadius TypeSectionSizeCornerRadius => new(TypeSectionSize);
+    public const double TypeSettingsBodySize = 13;
+    public static Thickness TypeSettingsBodySizeThickness => new(TypeSettingsBodySize);
+    public static CornerRadius TypeSettingsBodySizeCornerRadius => new(TypeSettingsBodySize);
+    public const double TypeSettingsSectionSize = 18;
+    public static Thickness TypeSettingsSectionSizeThickness => new(TypeSettingsSectionSize);
+    public static CornerRadius TypeSettingsSectionSizeCornerRadius => new(TypeSettingsSectionSize);
+    public const double TypeSettingsTitleSize = 15;
+    public static Thickness TypeSettingsTitleSizeThickness => new(TypeSettingsTitleSize);
+    public static CornerRadius TypeSettingsTitleSizeCornerRadius => new(TypeSettingsTitleSize);
     public const double TypeTitleSize = 31;
     public static Thickness TypeTitleSizeThickness => new(TypeTitleSize);
     public static CornerRadius TypeTitleSizeCornerRadius => new(TypeTitleSize);
@@ -204,6 +249,41 @@ public static class SyncWatchCopy
         ("en", "state") => "State",
         ("en", "theme") => "Theme",
         ("en", "language") => "Language",
+        ("en", "interface") => "Interface",
+        ("en", "call") => "Call",
+        ("en", "connection") => "Connection",
+        ("en", "interfaceHint") => "Choose your language and appearance.",
+        ("en", "libraryHint") => "Manage your movie folder and refresh preferences.",
+        ("en", "callHint") => "Choose available call devices and video quality.",
+        ("en", "connectionHint") => "Configure your viewing room and synchronization.",
+        ("en", "folder") => "Movie folder",
+        ("en", "scanSubfolders") => "Include subfolders",
+        ("en", "automaticRefresh") => "Refresh automatically",
+        ("en", "inputDevice") => "Microphone",
+        ("en", "outputDevice") => "Audio output",
+        ("en", "cameraQuality") => "Camera quality",
+        ("en", "ducking") => "Lower movie volume during speech",
+        ("en", "syncServer") => "Syncplay server",
+        ("en", "roomName") => "Room name",
+        ("en", "username") => "Display name",
+        ("en", "optionEn") => "English",
+        ("en", "optionRu") => "Русский",
+        ("en", "optionSystem") => "System default",
+        ("en", "optionDark") => "Dark",
+        ("en", "optionLight") => "Light",
+        ("en", "option480p") => "480p",
+        ("en", "save") => "Save",
+        ("en", "cancel") => "Cancel",
+        ("en", "close") => "Close",
+        ("en", "changesSaved") => "Changes saved",
+        ("en", "invalidConfiguration") => "Check the settings and try again.",
+        ("en", "saveFailed") => "Could not save changes. Try again.",
+        ("en", "settingsUnavailable") => "These settings are not available yet.",
+        ("en", "settingsReadOnly") => "Settings cannot be changed right now.",
+        ("en", "galleryLibrary") => "Library",
+        ("en", "gallerySettings") => "Settings",
+        ("en", "optionOn") => "On",
+        ("en", "optionOff") => "Off",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -238,10 +318,83 @@ public static class SyncWatchCopy
         ("ru", "state") => "Состояние",
         ("ru", "theme") => "Тема",
         ("ru", "language") => "Язык",
+        ("ru", "interface") => "Интерфейс",
+        ("ru", "call") => "Звонок",
+        ("ru", "connection") => "Подключение",
+        ("ru", "interfaceHint") => "Выберите язык и оформление.",
+        ("ru", "libraryHint") => "Папка с фильмами и обновление библиотеки.",
+        ("ru", "callHint") => "Устройства звонка и качество видео.",
+        ("ru", "connectionHint") => "Комната просмотра и синхронизация.",
+        ("ru", "folder") => "Папка с фильмами",
+        ("ru", "scanSubfolders") => "Включать вложенные папки",
+        ("ru", "automaticRefresh") => "Обновлять автоматически",
+        ("ru", "inputDevice") => "Микрофон",
+        ("ru", "outputDevice") => "Вывод звука",
+        ("ru", "cameraQuality") => "Качество камеры",
+        ("ru", "ducking") => "Приглушать фильм во время речи",
+        ("ru", "syncServer") => "Сервер Syncplay",
+        ("ru", "roomName") => "Название комнаты",
+        ("ru", "username") => "Имя пользователя",
+        ("ru", "optionEn") => "English",
+        ("ru", "optionRu") => "Русский",
+        ("ru", "optionSystem") => "Как в системе",
+        ("ru", "optionDark") => "Тёмная",
+        ("ru", "optionLight") => "Светлая",
+        ("ru", "option480p") => "480p",
+        ("ru", "save") => "Сохранить",
+        ("ru", "cancel") => "Отмена",
+        ("ru", "close") => "Закрыть",
+        ("ru", "changesSaved") => "Изменения сохранены",
+        ("ru", "invalidConfiguration") => "Проверьте настройки и попробуйте ещё раз.",
+        ("ru", "saveFailed") => "Не удалось сохранить изменения. Попробуйте ещё раз.",
+        ("ru", "settingsUnavailable") => "Эти настройки пока недоступны.",
+        ("ru", "settingsReadOnly") => "Сейчас настройки изменить нельзя.",
+        ("ru", "galleryLibrary") => "Библиотека",
+        ("ru", "gallerySettings") => "Настройки",
+        ("ru", "optionOn") => "Вкл.",
+        ("ru", "optionOff") => "Выкл.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
     public static string[] GalleryStates => ["empty", "scanning", "selected", "missingMedia", "reconnecting"];
     public static string[] LibraryActions => ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall"];
     public static string[] GalleryMovies => ["Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4"];
+}
+
+public sealed record SyncWatchSettingsField(string Id, string Section, string Kind, string Label, string[] Options, int MaxLength);
+
+public static class SyncWatchSettings
+{
+    public static string[] Sections => ["interface", "library", "call", "connection"];
+    public static string[] States => ["editing", "savedNotice", "invalidConfiguration"];
+    public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults => new System.Collections.Generic.Dictionary<string, string>
+    {
+        ["language"] = "en",
+        ["theme"] = "system",
+        ["folder"] = "",
+        ["scanSubfolders"] = "true",
+        ["automaticRefresh"] = "true",
+        ["inputDevice"] = "system",
+        ["outputDevice"] = "system",
+        ["cameraQuality"] = "480p",
+        ["ducking"] = "false",
+        ["syncServer"] = "",
+        ["roomName"] = "",
+        ["username"] = "",
+    };
+    public static SyncWatchSettingsField[] Fields =>
+    [
+        new("language", "interface", "choice", "language", ["en", "ru"], 512),
+        new("theme", "interface", "choice", "theme", ["system", "dark", "light"], 512),
+        new("folder", "library", "text", "folder", [], 512),
+        new("scanSubfolders", "library", "boolean", "scanSubfolders", [], 512),
+        new("automaticRefresh", "library", "boolean", "automaticRefresh", [], 512),
+        new("inputDevice", "call", "choice", "inputDevice", ["system"], 512),
+        new("outputDevice", "call", "choice", "outputDevice", ["system"], 512),
+        new("cameraQuality", "call", "choice", "cameraQuality", ["480p"], 512),
+        new("ducking", "call", "boolean", "ducking", [], 512),
+        new("syncServer", "connection", "text", "syncServer", [], 256),
+        new("roomName", "connection", "text", "roomName", [], 128),
+        new("username", "connection", "text", "username", [], 128),
+    ];
 }

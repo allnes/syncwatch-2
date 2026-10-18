@@ -95,6 +95,38 @@
     "lowerPanelMinHeight": {
       "value": 250,
       "type": "number"
+    },
+    "settingsHeaderHeight": {
+      "type": "number",
+      "value": 40
+    },
+    "settingsFooterHeight": {
+      "type": "number",
+      "value": 48
+    },
+    "settingsFieldWidth": {
+      "type": "number",
+      "value": 360
+    },
+    "settingsControlHeight": {
+      "type": "number",
+      "value": 30
+    },
+    "settingsSidebarRowHeight": {
+      "type": "number",
+      "value": 32
+    },
+    "settingsCardPadding": {
+      "type": "number",
+      "value": 8
+    },
+    "settingsContentPadding": {
+      "type": "number",
+      "value": 16
+    },
+    "settingsInterfaceFieldWidth": {
+      "type": "number",
+      "value": 300
     }
   },
   "control": {
@@ -161,6 +193,22 @@
     "brandSize": {
       "value": 38,
       "type": "number"
+    },
+    "settingsToggleWidth": {
+      "type": "number",
+      "value": 32
+    },
+    "settingsToggleHeight": {
+      "type": "number",
+      "value": 16
+    },
+    "settingsToggleThumb": {
+      "type": "number",
+      "value": 10
+    },
+    "settingsToggleInset": {
+      "type": "number",
+      "value": 3
     }
   },
   "type": {
@@ -183,6 +231,18 @@
     "titleSize": {
       "value": 31,
       "type": "number"
+    },
+    "settingsBodySize": {
+      "type": "number",
+      "value": 13
+    },
+    "settingsTitleSize": {
+      "type": "number",
+      "value": 15
+    },
+    "settingsSectionSize": {
+      "type": "number",
+      "value": 18
     }
   }
 }

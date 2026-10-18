@@ -6,7 +6,6 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
-import re
 import shutil
 import subprocess
 import sys
@@ -130,18 +129,30 @@ def apple_candidate(root: Path, output: Path) -> None:
                 archive.addfile(member)
 
 
+def design_image_names(root: Path) -> set[str]:
+    contract = json.loads((root / "packages/design/components.json").read_text())['components']
+    layout = json.loads((root / "packages/design/tokens/geometry.json").read_text())['layout']
+    size = lambda w, h: str(layout[w]['value']) + "x" + str(layout[h]['value'])
+    sizes = [size("galleryWidth", "galleryHeight"), size("minimumWidth", "minimumHeight")]
+    suffixes = [theme + "-" + locale for theme in ("dark", "light") for locale in ("en", "ru")]
+    names = {state + "-" + suffix + "-" + viewport + ".png" for state in contract['LibraryLayout']['states'] for suffix in suffixes for viewport in sizes}
+    names |= {"settings" + section + state + "-" + suffix + "-" + size("settingsWidth", "settingsHeight") + ".png" for section in contract['SettingsDialog']['sections'] for state in contract['SettingsDialog']['states'] for suffix in suffixes}
+    return {name.casefold() for name in names}
+
+
 def retain_design_images(root: Path, payload: Path, target: str) -> None:
     source = root / "artifacts/design" / target
     if not source.exists():
         return
     files = list(source.iterdir())
-    if source.is_symlink() or len(files) != 40:
-        raise ValueError("Design render matrix must contain 40 regular PNG files")
+    expected = design_image_names(root)
+    if source.is_symlink() or len(files) != len(expected) or {p.name.casefold() for p in files} != expected:
+        raise ValueError("Design render matrix differs from the shared contract")
     destination = payload / "design"
     destination.mkdir()
     total = 0
     for path in sorted(files):
-        if path.is_symlink() or not path.is_file() or not re.fullmatch(r"[A-Za-z]+-(dark|light)-(en|ru)-(1120x760|800x600)\.png", path.name):
+        if path.is_symlink() or not path.is_file():
             raise ValueError("Unsafe design image")
         total += path.stat().st_size
         if path.stat().st_size > 4 * 1024 * 1024 or total > 64 * 1024 * 1024:

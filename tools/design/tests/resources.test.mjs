@@ -182,3 +182,28 @@ test('copy preserves quotes, newlines and Kotlin dollar literals in all generate
     const manifest = JSON.parse(readFileSync(join(output, files[3])));
     assert.deepEqual(manifest.copy, copy);
 });
+
+
+test('settings schema rejects invalid defaults, metadata, options and component drift', () => {
+    for (const mutate of [s => { s.defaults.language = 'fr'; }, s => { s.sections.reverse(); },
+        s => { s.fields[0].options.push('fr'); }, s => { s.fields.push(s.fields[0]); },
+        s => { s.fields[0].kind = 'unknown'; }, s => { s.fields[0].label = 'missing'; },
+        s => { s.fields[0].maxLength = 0; }, s => { s.defaults.extra = ''; }]) {
+        const design = fixture(); const path = join(design, 'settings.json'); const spec = JSON.parse(readFileSync(path));
+        mutate(spec); writeFileSync(path, JSON.stringify(spec));
+        assert.notEqual(generate(design, join(temporary, 'bad-settings')).status, 0);
+    }
+});
+
+test('settings fields and defaults agree in all native metadata and the hashed manifest', () => {
+    const design = join(root, 'packages/design'); const output = join(temporary, 'settings'); success(generate(design, output));
+    const spec = JSON.parse(readFileSync(join(design, 'settings.json')));
+    const manifest = JSON.parse(readFileSync(join(output, files[3]))); assert.deepEqual(manifest.settings, spec);
+    for (const field of spec.fields) {
+        for (const file of [files[0], files[1], files[4]]) {
+            const source = readFileSync(join(output, file), 'utf8');
+            for (const value of [field.id, field.section, field.kind, field.label, ...field.options]) assert.ok(source.includes(JSON.stringify(value)), file + ': ' + value);
+            assert.ok(source.includes(JSON.stringify(spec.defaults[field.id])), file + ': default');
+        }
+    }
+});

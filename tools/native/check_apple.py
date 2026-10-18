@@ -39,6 +39,7 @@ def main() -> None:
     shutil.rmtree(ROOT / "artifacts/design/apple", ignore_errors=True)
     environment["SYNCWATCH_DESIGN_SCREENSHOTS"] = str(ROOT / "artifacts/design/apple")
     run("swift", "test", "--package-path", "packages/design", "-Xswiftc", "-warnings-as-errors", env=environment)
+    run("swift", "test", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors")
     run("swift", "build", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors")
     binary_directory = subprocess.check_output(
         ["swift", "build", "--package-path", "apps/apple", "--show-bin-path"], cwd=ROOT, text=True,
