@@ -78,7 +78,7 @@ class DependencyBuildTests(unittest.TestCase):
 
     @staticmethod
     def commit(root):
-        subprocess.run(["git", "add", "."], cwd=root, check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(["git", "add", "--sparse", "."], cwd=root, check=True, stdout=subprocess.DEVNULL)
         subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=root, check=True)
 
     def write_manifest(self):
@@ -330,6 +330,43 @@ class DependencyBuildTests(unittest.TestCase):
         self.component["sources"]["3rdparty/example"]["unusedSubmodules"] = {"omitted/nested": "Upstream tests, not used by this source profile"}
         self.write_manifest()
         self.assertEqual(self.run_build(cold=True)["result"], "success")
+
+    def test_fresh_export_checkout_fetches_exact_pin_without_materializing_omitted_paths(self):
+        source = self.root / "3rdparty/example"
+        blob = build.git(source, "rev-parse", "HEAD:library.txt").decode().strip()
+        # A valid Git name which cannot be materialized on Windows or POSIX filesystems.
+        omitted = "omitted/" + "x" * 270 + ".txt"
+        subprocess.run(["git", "update-index", "--add", "--cacheinfo", "100644", blob, omitted], cwd=source, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Unselected long path"], cwd=source, check=True)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        self.component["sources"]["3rdparty/example"]["revision"] = revision
+        subprocess.run(["git", "update-index", "--cacheinfo", "160000", revision, "3rdparty/example"], cwd=self.root, check=True)
+        # The remote default branch differs from the selected revision.
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-qm", "Newer default branch"], cwd=source, check=True)
+        remote = self.root / "remote.git"
+        subprocess.run(["git", "clone", "--bare", str(source), str(remote)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        shutil.rmtree(source)
+        self.set_exports(["LICENSE", "library.txt"])
+        subprocess.run(["git", "submodule", "init", "--", "3rdparty/example"], cwd=self.root, check=True)
+        build.initialize_export_source(self.root, "3rdparty/example", self.component["sources"]["3rdparty/example"], remote.as_uri())
+        self.assertEqual(build.git(source, "rev-parse", "HEAD").decode().strip(), revision)
+        self.assertEqual(build.git(source, "rev-list", "--count", "HEAD").strip(), b"1")
+        self.assertEqual((source / "library.txt").read_text(), "source payload\n")
+        self.assertFalse((source / "omitted").exists())
+        self.assertTrue((source / ".git").is_file())
+        self.assertFalse(build.git(source, "status", "--porcelain").strip())
+        result = self.run_build(cold=True)
+        self.assertEqual(result["result"], "success")
+
+    def test_uninitialized_export_source_does_not_replace_unrelated_files(self):
+        source = self.root / "3rdparty/example"
+        shutil.rmtree(source)
+        source.mkdir()
+        (source / "owner.txt").write_text("preserve\n")
+        self.set_exports(["LICENSE", "library.txt"])
+        with self.assertRaisesRegex(ValueError, "must be empty"):
+            self.prepare()
+        self.assertEqual((source / "owner.txt").read_text(), "preserve\n")
 
     def test_exported_tree_rejects_case_colliding_files_and_parent_directories(self):
         source = self.root / "3rdparty/example"

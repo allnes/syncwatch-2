@@ -274,6 +274,28 @@ def build_environment(specification):
     return {**{key: value for key, value in os.environ.items() if key.upper() in names}, **specification["environment"], **OFFLINE}
 
 
+def initialize_export_source(root, path, specification, url):
+    """Apply reviewed paths before the first checkout of a large upstream tree."""
+    source = inside(root, path)
+    created = not (source / ".git").exists()
+    if created:
+        require(not source.exists() or (source.is_dir() and not any(source.iterdir())), "Uninitialized source path must be empty")
+        subprocess.run(["git", "clone", "--no-checkout", "--filter=blob:none", "--depth=1", "--no-tags", "--", url, str(source)], cwd=root, check=True)
+        subprocess.run(["git", "submodule", "absorbgitdirs", "--", path], cwd=root, check=True)
+    revision = specification["revision"]
+    # Object-existence probes can trigger an unbounded promisor fetch of missing history.
+    if created or git(source, "rev-parse", "HEAD").decode().strip() != revision:
+        subprocess.run(["git", "-c", "fetch.recurseSubmodules=false", "fetch", "--filter=blob:none", "--depth=1", "--no-tags", "origin", revision], cwd=source, check=True)
+    if created:
+        # No worktree/index exists yet: detach at the exact pin before materializing files.
+        subprocess.run(["git", "update-ref", "--no-deref", "HEAD", revision], cwd=source, check=True)
+    patterns = "".join("/" + name + "\n" for name in export_paths(specification))
+    subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+                    "sparse-checkout", "set", "--no-cone", "--stdin"], cwd=source, input=patterns, text=True, check=True)
+    subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+                    "checkout", "--detach", revision], cwd=source, check=True)
+
+
 def initialize_sources(root, sources, directory):
     snapshots = {}
     config = configparser.ConfigParser(interpolation=None)
@@ -284,13 +306,20 @@ def initialize_sources(root, sources, directory):
         if (source / ".git").exists():
             require(not git(source, "status", "--porcelain", "--untracked-files=normal").strip(), "Source checkout has local changes")
     subprocess.run(["git", "submodule", "sync", "--", *sources], cwd=root, check=True)
-    subprocess.run(["git", "-c", "submodule.recurse=false", "-c", "fetch.recurseSubmodules=false", "submodule", "update", "--init", "--checkout", "--depth=1", "--", *sources], cwd=root, check=True)
+    subprocess.run(["git", "submodule", "init", "--", *sources], cwd=root, check=True)
+    whole = [path for path, specification in sources.items() if export_paths(specification) is None]
+    if whole:
+        subprocess.run(["git", "-c", "submodule.recurse=false", "-c", "fetch.recurseSubmodules=false", "submodule", "update", "--init", "--checkout", "--depth=1", "--", *whole], cwd=root, check=True)
+    for path, specification in sources.items():
+        if export_paths(specification) is not None:
+            initialize_export_source(root, path, specification, urls[path])
     for path, specification in sources.items():
         source = root / path
         require(git(source, "rev-parse", "HEAD").decode().strip() == specification["revision"], "Initialized source has the wrong revision")
         require(not git(source, "status", "--porcelain", "--untracked-files=normal").strip(), "Initialized source must be clean")
         nested = configparser.ConfigParser(interpolation=None)
-        nested.read(source / ".gitmodules", encoding="utf-8")
+        if subprocess.run(["git", "cat-file", "-e", "HEAD:.gitmodules"], cwd=source, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+            nested.read_string(git(source, "show", "HEAD:.gitmodules").decode("utf-8"))
         nested_paths = {nested[section]["path"] for section in nested.sections()}
         # Consumed nested dependencies must be flattened into separately pinned 3rdparty entries.
         nested_links = {name: revision for name, (mode, revision) in index(source).items() if mode == "160000"}

@@ -58,3 +58,9 @@
 [submodule "3rdparty/jbr-api"]
 	path = 3rdparty/jbr-api
 	url = https://github.com/JetBrains/JetBrainsRuntimeApi.git
+[submodule "3rdparty/kotlin-stdlib"]
+	path = 3rdparty/kotlin-stdlib
+	url = https://github.com/JetBrains/kotlin.git
+[submodule "3rdparty/unicode-data"]
+	path = 3rdparty/unicode-data
+	url = https://github.com/unicode-org/unicodetools.git

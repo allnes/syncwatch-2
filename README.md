@@ -7,10 +7,12 @@ SyncWatch is a desktop application for watching local movies together with synch
 External source dependencies are pinned Git submodules in `3rdparty/`:
 
 ```sh
-git clone --recurse-submodules https://github.com/salo-group/syncwatch.git
+git clone https://github.com/salo-group/syncwatch.git
 cd syncwatch
-git submodule update --init --recursive
+git submodule status
 ```
+
+Use the component preparation commands in [the build guide](docs/building.md#source-dependencies) to initialize the selected source dependencies. They apply sparse checkout before materializing large upstream repositories, including on Windows.
 
 The repository contains native shells in `apps/apple/` and `apps/windows/`, domain modules in `packages/apple-domain/` and `packages/windows-domain/`, the independent room service in `services/room-metadata/`, the platform-neutral design package, shared contracts in `contracts/`, pinned dependency sources, and validation/build tooling under `tools/`. See [building and running](docs/building.md) for declared toolchains and reproducible commands. Player, synchronization, call, and complete product UI integrations remain planned; the native shells are not yet the complete watch-together application.
 

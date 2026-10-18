@@ -5,12 +5,14 @@ These commands require this checkout and its declared source dependencies. The c
 ## Source checkout
 
 ```sh
-git clone --recurse-submodules https://github.com/salo-group/syncwatch.git
+git clone https://github.com/salo-group/syncwatch.git
 cd syncwatch
-git submodule update --init --recursive
+git submodule status
 ```
 
 External library sources are pinned under `3rdparty/`. The [dependency policy](architecture/dependencies.md) describes unresolved source graphs. Do not replace missing source dependencies with undeclared registry packages or floating revisions.
+
+Use Git 2.34 or newer and the component preparation commands below to initialize selected dependencies. Large upstream trees can contain unrelated test paths that exceed Windows limits; preparation applies reviewed sparse roots before checkout. Cloning all submodules recursively is unnecessary for these component builds.
 
 ## macOS
 
@@ -75,7 +77,7 @@ python3 tools/dependencies/build.py plan
 python3 tools/dependencies/build.py build --component fastjsonschema --platform macos-arm64 --cold
 ```
 
-The ready components are the dependency-free fastjsonschema source package, the native Node design-generator profile, [JVM annotations](jvm-annotations.md) and [JBR API](jbr-api.md), with `macos-arm64`, `linux-x64`, and `windows-x64` targets. The design tool requires Node 24.3 or newer within 24.x; see [building the design tools](design-generator.md). JVM profiles require their explicitly provisioned, pinned developer JDK. Media, synchronization, browser-host and full Linux Compose dependency graphs remain unavailable until their sources and real build recipes are registered. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
+The ready components are the dependency-free fastjsonschema source package, the native Node design-generator profile, [JVM annotations](jvm-annotations.md), [JBR API](jbr-api.md) and the [Kotlin stdlib source package](kotlin-stdlib-sources.md), with `macos-arm64`, `linux-x64`, and `windows-x64` targets. The design tool requires Node 24.3 or newer within 24.x; see [building the design tools](design-generator.md). Binary JVM profiles require their explicitly provisioned, pinned developer JDK; the stdlib source package uses only Python and Git and enables no Kotlin compiler or binary. Media, synchronization, browser-host and full Linux Compose dependency graphs remain unavailable until their sources and real build recipes are registered. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
 
 Components may use [explicit source exports](architecture/dependencies.md#complete-source-graph) to snapshot reviewed files/directories from a pinned submodule, including all declared notices. Exported bytes are checked against Git before cold compilation or cache reuse. The annotations profile exercises this path on every supported build platform while retaining its reviewed JAR digests. Run the dependency infrastructure regression tests with `python3 -m unittest discover -s tools/dependencies/tests -v`.
 
