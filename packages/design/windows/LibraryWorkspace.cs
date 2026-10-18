@@ -199,7 +199,10 @@ public sealed class LibraryWorkspace : UserControl
         stack.Children.Add(metrics);
         if (Presentation.State == LibraryVisualState.MissingMedia) stack.Children.Add(Text(T("missingMedia"), true));
         var actions = new WrapPanel(); actions.Children.Add(Button("startWatching", true)); actions.Children.Add(Button("continueWatching")); actions.Children.Add(Button("endWatching")); stack.Children.Add(actions);
-        var location = new StackPanel { Margin = new Thickness(0, SyncWatchTokens.LayoutPanelGap, 0, 0) }; location.Children.Add(Text(T("fileLocation"))); location.Children.Add(Text(entry.Location, true)); stack.Children.Add(location);
+        var location = new StackPanel(); location.Children.Add(Text(T("fileLocation"))); location.Children.Add(Text(entry.Location, true));
+        var locationCard = new Border { Child = location, CornerRadius = SyncWatchTokens.ControlButtonRadiusCornerRadius, Padding = SyncWatchTokens.LayoutPanelPaddingThickness, Margin = new Thickness(0, SyncWatchTokens.LayoutPanelGap, 0, 0) };
+        locationCard.SetResourceReference(Border.BackgroundProperty, "theme.backgroundDeep.brush");
+        stack.Children.Add(locationCard);
         return Panel(new ScrollViewer { Content = stack, VerticalScrollBarVisibility = ScrollBarVisibility.Auto }, SyncWatchTokens.LayoutDetailPadding);
     }
 

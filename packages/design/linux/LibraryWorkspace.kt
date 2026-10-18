@@ -159,9 +159,14 @@ private val gap get() = SyncWatchTokens.layoutPanelGap.dp
                                 } } }
                             }
                             if (presentation.state == LibraryVisualState.missingMedia) Label(text("missingMedia"), theme, muted = true)
-                            // Vertical action group keeps long translations usable at the minimum viewport.
-                            Column(verticalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp)) { button("startWatching", true); button("continueWatching"); button("endWatching") }
-                            Label(text("fileLocation"), theme); Label(entry.location, theme, muted = true)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp),
+                                verticalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp)) {
+                                button("startWatching", true); button("continueWatching"); button("endWatching")
+                            }
+                            Column(Modifier.fillMaxWidth().background(rgba(theme.backgroundDeep), RoundedCornerShape(SyncWatchTokens.controlButtonRadius.dp))
+                                .padding(SyncWatchTokens.layoutPanelPadding.dp), verticalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp)) {
+                                Label(text("fileLocation"), theme); Label(entry.location, theme, muted = true)
+                            }
                         }
                     }
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(gap)) {
