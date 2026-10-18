@@ -12,7 +12,10 @@
       "text": "color.dark.text",
       "accent": "color.shared.accent",
       "accentSoft": "color.shared.accentSoft",
-      "success": "color.shared.success"
+      "success": "color.shared.success",
+      "textSecondary": "color.dark.textSecondary",
+      "inputFill": "color.dark.inputFill",
+      "selection": "color.shared.selection"
     },
     "light": {
       "background": "color.light.background",
@@ -24,7 +27,10 @@
       "text": "color.light.text",
       "accent": "color.shared.accent",
       "accentSoft": "color.shared.accentSoft",
-      "success": "color.shared.success"
+      "success": "color.shared.success",
+      "textSecondary": "color.light.textSecondary",
+      "inputFill": "color.light.surfaceRaised",
+      "selection": "color.shared.selection"
     }
   }
 }

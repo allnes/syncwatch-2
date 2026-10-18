@@ -1,24 +1,26 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "2eb4c4c0397d0bcb1cb032144b2c0e6e47e43e54c3a86cd6715a7a126624f4a1",
+  "sourceDigest": "35fd2df8aeab77f75b7672487a9a5581c92eb58f302a9025dc45701c30127622",
   "sources": {
-    "tokens/geometry.json": "147fa728fd8f4cb5636c595ada4a705d5bfd44a7663450ab4b63862d5bbf84fd",
-    "tokens/palette.json": "22be27e09fb114ed5a38f4d438383da5e8706c2f0eae5e5162716766522bba7b",
-    "themes.json": "ebe160695a531af40214ed88af229de5acb3f0a3a7a25519feb8fefd9bb97571",
-    "components.json": "c4c25cc72531cfafc2563a78798ad3deeb0f3aa36b064d92ef936e69c99e8932",
-    "package.json": "eb7147dc50bc77c8eb96b2bead59b48e47f575fe0e52945db8bb2c8c4f2afd82"
+    "tokens/geometry.json": "8860dac1104611035ccfce0859e506410bdbda9a2c55e4226509727694ca4157",
+    "tokens/palette.json": "437fff3952a17ff90f7dacdbf2bd5403039f7928c69f4cc40dd152965131b4ec",
+    "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
+    "components.json": "2bba1b720d727703d3fe8ab9ffe9541f753abf3787b7fb7abf7c0981a3506753",
+    "copy.json": "66dae82cf636742901a28076503ec67d30ae6167e976851030d13dd2d968470c",
+    "package.json": "0f0aa416e27ac344a9773f2e2a60b274f755aa57678c43a38749e07e470f3df0"
   },
-  "generatorRevision": "3f258726e5fca45bf98955a9d5ab72d284dd2c907e37c5555745ac92e68d157d",
+  "generatorRevision": "a7314013db2c459d7b887ab57fc0c27e2aabd9ccbefd68b43b8a1bd3858ec9a7",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "4af03e15c1b79f4efcbe4aae46186c223a765afb7df7d95419d2c7cae04df86b",
-      "tools/design/native-formats.mjs": "7a4c9ffe942fdee5f4340a6ab9f895df644c0e0c0ac672def2bde22132f1e902",
+      "tools/design/generate.mjs": "10779bb6cf7e9cfe5aa0ec8bbb3b03366728977225f185866c61defd8b8977a5",
+      "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
       "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
-      "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3"
+      "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
+      "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -49,7 +51,10 @@
       "text": "color.dark.text",
       "accent": "color.shared.accent",
       "accentSoft": "color.shared.accentSoft",
-      "success": "color.shared.success"
+      "success": "color.shared.success",
+      "textSecondary": "color.dark.textSecondary",
+      "inputFill": "color.dark.inputFill",
+      "selection": "color.shared.selection"
     },
     "light": {
       "background": "color.light.background",
@@ -61,7 +66,112 @@
       "text": "color.light.text",
       "accent": "color.shared.accent",
       "accentSoft": "color.shared.accentSoft",
-      "success": "color.shared.success"
+      "success": "color.shared.success",
+      "textSecondary": "color.light.textSecondary",
+      "inputFill": "color.light.surfaceRaised",
+      "selection": "color.shared.selection"
+    }
+  },
+  "copy": {
+    "schemaVersion": 1,
+    "locales": {
+      "en": {
+        "brand": "SyncWatch",
+        "room": "Watching together",
+        "library": "Movie library",
+        "files": "files",
+        "chooseFolder": "Choose folder",
+        "rescan": "Refresh",
+        "search": "Search movies",
+        "empty": "Choose a folder to add movies",
+        "scanning": "Scanning your library…",
+        "selectedMovie": "Selected movie",
+        "selectMovie": "Select a movie from your library",
+        "duration": "Duration",
+        "resolution": "Resolution",
+        "audio": "Audio",
+        "subtitles": "Subtitles",
+        "startWatching": "Start watching",
+        "continueWatching": "Continue watching",
+        "endWatching": "End watching",
+        "fileLocation": "File location",
+        "roomStatus": "Room status",
+        "disconnected": "Not connected",
+        "reconnecting": "Reconnecting…",
+        "missingMedia": "This movie is not available locally",
+        "recentActivity": "Recent activity",
+        "noActivity": "No recent activity",
+        "callInactive": "Call inactive",
+        "friendOffline": "Friend not connected",
+        "openCall": "Open call",
+        "openSettings": "Settings",
+        "unknown": "Unknown",
+        "gallery": "Component gallery",
+        "state": "State",
+        "theme": "Theme",
+        "language": "Language"
+      },
+      "ru": {
+        "brand": "SyncWatch",
+        "room": "Смотрим вместе",
+        "library": "Библиотека фильмов",
+        "files": "файлов",
+        "chooseFolder": "Выбрать папку",
+        "rescan": "Обновить",
+        "search": "Поиск фильмов",
+        "empty": "Выберите папку с фильмами",
+        "scanning": "Сканирование библиотеки…",
+        "selectedMovie": "Выбранный фильм",
+        "selectMovie": "Выберите фильм в библиотеке",
+        "duration": "Длительность",
+        "resolution": "Разрешение",
+        "audio": "Аудио",
+        "subtitles": "Субтитры",
+        "startWatching": "Начать просмотр",
+        "continueWatching": "Продолжить просмотр",
+        "endWatching": "Завершить просмотр",
+        "fileLocation": "Расположение файла",
+        "roomStatus": "Комната",
+        "disconnected": "Нет подключения",
+        "reconnecting": "Переподключение…",
+        "missingMedia": "Фильм недоступен на этом устройстве",
+        "recentActivity": "Последние события",
+        "noActivity": "Пока нет событий",
+        "callInactive": "Звонок не активен",
+        "friendOffline": "Собеседник не подключён",
+        "openCall": "Открыть звонок",
+        "openSettings": "Настройки",
+        "unknown": "Неизвестно",
+        "gallery": "Галерея компонентов",
+        "state": "Состояние",
+        "theme": "Тема",
+        "language": "Язык"
+      }
+    },
+    "gallery": {
+      "states": [
+        "empty",
+        "scanning",
+        "selected",
+        "missingMedia",
+        "reconnecting"
+      ],
+      "movieTitles": [
+        "Example Movie 01.mkv",
+        "A very long movie title for responsive layout and selection.mkv",
+        "Example Movie 03.mp4"
+      ],
+      "actions": [
+        "chooseFolder",
+        "rescan",
+        "search",
+        "selectMovie",
+        "startWatching",
+        "continueWatching",
+        "endWatching",
+        "openSettings",
+        "openCall"
+      ]
     }
   },
   "tokens": [
@@ -104,6 +214,11 @@
       "id": "color.dark.text",
       "type": "color",
       "value": "#FFFFFFFF"
+    },
+    {
+      "id": "color.dark.textSecondary",
+      "type": "color",
+      "value": "#FFFFFFB3"
     },
     {
       "id": "color.light.background",
@@ -156,9 +271,24 @@
       "value": "#6AAFFFFF"
     },
     {
+      "id": "color.shared.selection",
+      "type": "color",
+      "value": "#2F8CFF26"
+    },
+    {
       "id": "color.shared.success",
       "type": "color",
       "value": "#30D98BFF"
+    },
+    {
+      "id": "control.borderWidth",
+      "type": "number",
+      "value": 1
+    },
+    {
+      "id": "control.brandSize",
+      "type": "number",
+      "value": 38
     },
     {
       "id": "control.buttonRadius",
@@ -171,14 +301,34 @@
       "value": 12
     },
     {
+      "id": "control.compactGap",
+      "type": "number",
+      "value": 8
+    },
+    {
       "id": "control.dialogRadius",
       "type": "number",
       "value": 18
     },
     {
+      "id": "control.fieldHeight",
+      "type": "number",
+      "value": 42
+    },
+    {
+      "id": "control.fieldRadius",
+      "type": "number",
+      "value": 11
+    },
+    {
       "id": "control.filledButtonMinHeight",
       "type": "number",
       "value": 46
+    },
+    {
+      "id": "control.iconSize",
+      "type": "number",
+      "value": 20
     },
     {
       "id": "control.menuRowHeight",
@@ -189,6 +339,16 @@
       "id": "control.outlinedButtonMinHeight",
       "type": "number",
       "value": 44
+    },
+    {
+      "id": "control.rowMinHeight",
+      "type": "number",
+      "value": 62
+    },
+    {
+      "id": "control.rowRadius",
+      "type": "number",
+      "value": 11
     },
     {
       "id": "control.sliderThumbRadius",
@@ -211,6 +371,21 @@
       "value": 300
     },
     {
+      "id": "layout.detailPadding",
+      "type": "number",
+      "value": 24
+    },
+    {
+      "id": "layout.galleryHeight",
+      "type": "number",
+      "value": 760
+    },
+    {
+      "id": "layout.galleryWidth",
+      "type": "number",
+      "value": 1120
+    },
+    {
       "id": "layout.headerHeight",
       "type": "number",
       "value": 64
@@ -221,9 +396,34 @@
       "value": 360
     },
     {
+      "id": "layout.lowerPanelMinHeight",
+      "type": "number",
+      "value": 250
+    },
+    {
+      "id": "layout.minimumHeight",
+      "type": "number",
+      "value": 600
+    },
+    {
+      "id": "layout.minimumWidth",
+      "type": "number",
+      "value": 800
+    },
+    {
       "id": "layout.panelGap",
       "type": "number",
       "value": 14
+    },
+    {
+      "id": "layout.panelPadding",
+      "type": "number",
+      "value": 14
+    },
+    {
+      "id": "layout.panelRadius",
+      "type": "number",
+      "value": 16
     },
     {
       "id": "layout.playerBottomInset",
@@ -246,6 +446,21 @@
       "value": 32
     },
     {
+      "id": "layout.sectionGap",
+      "type": "number",
+      "value": 10
+    },
+    {
+      "id": "layout.selectedPanelMaxHeight",
+      "type": "number",
+      "value": 375
+    },
+    {
+      "id": "layout.selectedPanelMinHeight",
+      "type": "number",
+      "value": 260
+    },
+    {
       "id": "layout.settingsHeight",
       "type": "number",
       "value": 420
@@ -264,6 +479,31 @@
       "id": "layout.workspacePadding",
       "type": "number",
       "value": 18
+    },
+    {
+      "id": "type.bodySize",
+      "type": "number",
+      "value": 14
+    },
+    {
+      "id": "type.brandSize",
+      "type": "number",
+      "value": 23
+    },
+    {
+      "id": "type.captionSize",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "type.sectionSize",
+      "type": "number",
+      "value": 19
+    },
+    {
+      "id": "type.titleSize",
+      "type": "number",
+      "value": 31
     }
   ]
 }

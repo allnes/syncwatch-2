@@ -12,6 +12,10 @@
       "success": {
         "value": "#30D98B",
         "type": "color"
+      },
+      "selection": {
+        "type": "color",
+        "value": "#2F8CFF26"
       }
     },
     "dark": {
@@ -45,6 +49,10 @@
       },
       "gradientStart": {
         "value": "#0B2440",
+        "type": "color"
+      },
+      "textSecondary": {
+        "value": "#FFFFFFB3",
         "type": "color"
       }
     },

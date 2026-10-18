@@ -116,6 +116,26 @@ class NativeJobChecks(unittest.TestCase):
                 self.assertEqual(executable.uid, 0)
                 self.assertEqual(executable.uname, "")
 
+    def test_design_images_retain_digests_and_reject_external_links(self):
+        source = self.root / "artifacts/design/apple"
+        source.mkdir(parents=True)
+        for state in ("empty", "scanning", "selected", "missingMedia", "reconnecting"):
+            for theme in ("dark", "light"):
+                for locale in ("en", "ru"):
+                    for size in ("1120x760", "800x600"):
+                        (source / f"{state}-{theme}-{locale}-{size}.png").write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        payload = self.root / "payload"
+        payload.mkdir()
+        native_job.retain_design_images(self.root, payload, "apple")
+        self.assertEqual(len(list((payload / "design").iterdir())), 40)
+        image = next(source.iterdir())
+        image.unlink()
+        image.symlink_to(self.root / "source.txt")
+        (self.root / "source.txt").write_text("private")
+        (self.root / "rejected").mkdir()
+        with self.assertRaisesRegex(ValueError, "Unsafe design"):
+            native_job.retain_design_images(self.root, self.root / "rejected", "apple")
+
     def test_failure_archive_contains_reports_without_an_application(self):
         self.initialize_repository()
         output = native_job.prepare_archive(self.root, self.root / "output", "windows", "x64", {}, self.report(), False)

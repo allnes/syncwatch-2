@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -129,6 +130,28 @@ def apple_candidate(root: Path, output: Path) -> None:
                 archive.addfile(member)
 
 
+def retain_design_images(root: Path, payload: Path, target: str) -> None:
+    source = root / "artifacts/design" / target
+    if not source.exists():
+        return
+    files = list(source.iterdir())
+    if source.is_symlink() or len(files) != 40:
+        raise ValueError("Design render matrix must contain 40 regular PNG files")
+    destination = payload / "design"
+    destination.mkdir()
+    total = 0
+    for path in sorted(files):
+        if path.is_symlink() or not path.is_file() or not re.fullmatch(r"[A-Za-z]+-(dark|light)-(en|ru)-(1120x760|800x600)\.png", path.name):
+            raise ValueError("Unsafe design image")
+        total += path.stat().st_size
+        if path.stat().st_size > 4 * 1024 * 1024 or total > 64 * 1024 * 1024:
+            raise ValueError("Design image artifact exceeds its size bound")
+        with path.open("rb") as image:
+            if image.read(8) != b"\x89PNG\r\n\x1a\n":
+                raise ValueError("Design image must be a PNG")
+        shutil.copyfile(path, destination / path.name)
+
+
 def prepare_archive(root: Path, directory: Path, target: str, architecture: str, versions: dict, report: Report, success: bool) -> Path:
     payload = directory / "payload"
     payload.mkdir(parents=True, exist_ok=True)
@@ -142,6 +165,8 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
             candidate.mkdir()
             for name in ("SyncWatch.exe", "SyncWatch.dll", "SyncWatch.Domain.dll", "SyncWatch.deps.json", "SyncWatch.runtimeconfig.json"):
                 shutil.copy2(source / name, candidate / name)
+    if success:
+        retain_design_images(root, payload, target)
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     manifest = {
         "schemaVersion": 1, "sourceCommit": commit,

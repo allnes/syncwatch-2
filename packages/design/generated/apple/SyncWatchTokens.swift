@@ -19,6 +19,8 @@ public enum SyncWatchTokens {
         .sRGB, red: 16.0 / 255, green: 42.0 / 255, blue: 67.0 / 255, opacity: 255.0 / 255)
     public static let colorDarkText = Color(
         .sRGB, red: 255.0 / 255, green: 255.0 / 255, blue: 255.0 / 255, opacity: 255.0 / 255)
+    public static let colorDarkTextSecondary = Color(
+        .sRGB, red: 255.0 / 255, green: 255.0 / 255, blue: 255.0 / 255, opacity: 179.0 / 255)
     public static let colorLightBackground = Color(
         .sRGB, red: 231.0 / 255, green: 238.0 / 255, blue: 244.0 / 255, opacity: 255.0 / 255)
     public static let colorLightBackgroundDeep = Color(
@@ -39,29 +41,55 @@ public enum SyncWatchTokens {
         .sRGB, red: 47.0 / 255, green: 140.0 / 255, blue: 255.0 / 255, opacity: 255.0 / 255)
     public static let colorSharedAccentSoft = Color(
         .sRGB, red: 106.0 / 255, green: 175.0 / 255, blue: 255.0 / 255, opacity: 255.0 / 255)
+    public static let colorSharedSelection = Color(
+        .sRGB, red: 47.0 / 255, green: 140.0 / 255, blue: 255.0 / 255, opacity: 38.0 / 255)
     public static let colorSharedSuccess = Color(
         .sRGB, red: 48.0 / 255, green: 217.0 / 255, blue: 139.0 / 255, opacity: 255.0 / 255)
+    public static let controlBorderWidth: CGFloat = 1
+    public static let controlBrandSize: CGFloat = 38
     public static let controlButtonRadius: CGFloat = 12
     public static let controlCompactDialogRadius: CGFloat = 12
+    public static let controlCompactGap: CGFloat = 8
     public static let controlDialogRadius: CGFloat = 18
+    public static let controlFieldHeight: CGFloat = 42
+    public static let controlFieldRadius: CGFloat = 11
     public static let controlFilledButtonMinHeight: CGFloat = 46
+    public static let controlIconSize: CGFloat = 20
     public static let controlMenuRowHeight: CGFloat = 30
     public static let controlOutlinedButtonMinHeight: CGFloat = 44
+    public static let controlRowMinHeight: CGFloat = 62
+    public static let controlRowRadius: CGFloat = 11
     public static let controlSliderThumbRadius: CGFloat = 6
     public static let controlSliderTrackHeight: CGFloat = 3
     public static let layoutCallInitialHeight: CGFloat = 210
     public static let layoutCallInitialWidth: CGFloat = 300
+    public static let layoutDetailPadding: CGFloat = 24
+    public static let layoutGalleryHeight: CGFloat = 760
+    public static let layoutGalleryWidth: CGFloat = 1120
     public static let layoutHeaderHeight: CGFloat = 64
     public static let layoutLibraryPanelWidth: CGFloat = 360
+    public static let layoutLowerPanelMinHeight: CGFloat = 250
+    public static let layoutMinimumHeight: CGFloat = 600
+    public static let layoutMinimumWidth: CGFloat = 800
     public static let layoutPanelGap: CGFloat = 14
+    public static let layoutPanelPadding: CGFloat = 14
+    public static let layoutPanelRadius: CGFloat = 16
     public static let layoutPlayerBottomInset: CGFloat = 78
     public static let layoutPlayerSettingsHeight: CGFloat = 460
     public static let layoutPlayerSettingsSidebarWidth: CGFloat = 170
     public static let layoutPlayerTopInset: CGFloat = 32
+    public static let layoutSectionGap: CGFloat = 10
+    public static let layoutSelectedPanelMaxHeight: CGFloat = 375
+    public static let layoutSelectedPanelMinHeight: CGFloat = 260
     public static let layoutSettingsHeight: CGFloat = 420
     public static let layoutSettingsSidebarWidth: CGFloat = 150
     public static let layoutSettingsWidth: CGFloat = 680
     public static let layoutWorkspacePadding: CGFloat = 18
+    public static let typeBodySize: CGFloat = 14
+    public static let typeBrandSize: CGFloat = 23
+    public static let typeCaptionSize: CGFloat = 12
+    public static let typeSectionSize: CGFloat = 19
+    public static let typeTitleSize: CGFloat = 31
 
     public static let colors: [String: Color] = [
         "color.dark.background": colorDarkBackground,
@@ -72,6 +100,7 @@ public enum SyncWatchTokens {
         "color.dark.surface": colorDarkSurface,
         "color.dark.surfaceRaised": colorDarkSurfaceRaised,
         "color.dark.text": colorDarkText,
+        "color.dark.textSecondary": colorDarkTextSecondary,
         "color.light.background": colorLightBackground,
         "color.light.backgroundDeep": colorLightBackgroundDeep,
         "color.light.border": colorLightBorder,
@@ -82,31 +111,56 @@ public enum SyncWatchTokens {
         "color.light.textSecondary": colorLightTextSecondary,
         "color.shared.accent": colorSharedAccent,
         "color.shared.accentSoft": colorSharedAccentSoft,
+        "color.shared.selection": colorSharedSelection,
         "color.shared.success": colorSharedSuccess,
     ]
 
     public static let dimensions: [String: CGFloat] = [
+        "control.borderWidth": controlBorderWidth,
+        "control.brandSize": controlBrandSize,
         "control.buttonRadius": controlButtonRadius,
         "control.compactDialogRadius": controlCompactDialogRadius,
+        "control.compactGap": controlCompactGap,
         "control.dialogRadius": controlDialogRadius,
+        "control.fieldHeight": controlFieldHeight,
+        "control.fieldRadius": controlFieldRadius,
         "control.filledButtonMinHeight": controlFilledButtonMinHeight,
+        "control.iconSize": controlIconSize,
         "control.menuRowHeight": controlMenuRowHeight,
         "control.outlinedButtonMinHeight": controlOutlinedButtonMinHeight,
+        "control.rowMinHeight": controlRowMinHeight,
+        "control.rowRadius": controlRowRadius,
         "control.sliderThumbRadius": controlSliderThumbRadius,
         "control.sliderTrackHeight": controlSliderTrackHeight,
         "layout.callInitialHeight": layoutCallInitialHeight,
         "layout.callInitialWidth": layoutCallInitialWidth,
+        "layout.detailPadding": layoutDetailPadding,
+        "layout.galleryHeight": layoutGalleryHeight,
+        "layout.galleryWidth": layoutGalleryWidth,
         "layout.headerHeight": layoutHeaderHeight,
         "layout.libraryPanelWidth": layoutLibraryPanelWidth,
+        "layout.lowerPanelMinHeight": layoutLowerPanelMinHeight,
+        "layout.minimumHeight": layoutMinimumHeight,
+        "layout.minimumWidth": layoutMinimumWidth,
         "layout.panelGap": layoutPanelGap,
+        "layout.panelPadding": layoutPanelPadding,
+        "layout.panelRadius": layoutPanelRadius,
         "layout.playerBottomInset": layoutPlayerBottomInset,
         "layout.playerSettingsHeight": layoutPlayerSettingsHeight,
         "layout.playerSettingsSidebarWidth": layoutPlayerSettingsSidebarWidth,
         "layout.playerTopInset": layoutPlayerTopInset,
+        "layout.sectionGap": layoutSectionGap,
+        "layout.selectedPanelMaxHeight": layoutSelectedPanelMaxHeight,
+        "layout.selectedPanelMinHeight": layoutSelectedPanelMinHeight,
         "layout.settingsHeight": layoutSettingsHeight,
         "layout.settingsSidebarWidth": layoutSettingsSidebarWidth,
         "layout.settingsWidth": layoutSettingsWidth,
         "layout.workspacePadding": layoutWorkspacePadding,
+        "type.bodySize": typeBodySize,
+        "type.brandSize": typeBrandSize,
+        "type.captionSize": typeCaptionSize,
+        "type.sectionSize": typeSectionSize,
+        "type.titleSize": typeTitleSize,
     ]
 }
 
@@ -117,10 +171,13 @@ public struct SyncWatchTheme: Sendable {
     public let backgroundDeep: Color
     public let border: Color
     public let gradientStart: Color
+    public let inputFill: Color
+    public let selection: Color
     public let success: Color
     public let surface: Color
     public let surfaceRaised: Color
     public let text: Color
+    public let textSecondary: Color
 
     public static let dark = SyncWatchTheme(
         accent: SyncWatchTokens.colorSharedAccent,
@@ -129,10 +186,13 @@ public struct SyncWatchTheme: Sendable {
         backgroundDeep: SyncWatchTokens.colorDarkBackgroundDeep,
         border: SyncWatchTokens.colorDarkBorder,
         gradientStart: SyncWatchTokens.colorDarkGradientStart,
+        inputFill: SyncWatchTokens.colorDarkInputFill,
+        selection: SyncWatchTokens.colorSharedSelection,
         success: SyncWatchTokens.colorSharedSuccess,
         surface: SyncWatchTokens.colorDarkSurface,
         surfaceRaised: SyncWatchTokens.colorDarkSurfaceRaised,
-        text: SyncWatchTokens.colorDarkText
+        text: SyncWatchTokens.colorDarkText,
+        textSecondary: SyncWatchTokens.colorDarkTextSecondary
     )
 
     public static let light = SyncWatchTheme(
@@ -142,13 +202,113 @@ public struct SyncWatchTheme: Sendable {
         backgroundDeep: SyncWatchTokens.colorLightBackgroundDeep,
         border: SyncWatchTokens.colorLightBorder,
         gradientStart: SyncWatchTokens.colorLightGradientStart,
+        inputFill: SyncWatchTokens.colorLightSurfaceRaised,
+        selection: SyncWatchTokens.colorSharedSelection,
         success: SyncWatchTokens.colorSharedSuccess,
         surface: SyncWatchTokens.colorLightSurface,
         surfaceRaised: SyncWatchTokens.colorLightSurfaceRaised,
-        text: SyncWatchTokens.colorLightText
+        text: SyncWatchTokens.colorLightText,
+        textSecondary: SyncWatchTokens.colorLightTextSecondary
     )
 
     public static func resolve(_ colorScheme: ColorScheme) -> SyncWatchTheme {
         colorScheme == .dark ? .dark : .light
     }
+}
+
+public enum SyncWatchCopy {
+    private static let values: [String: [String: String]] = [
+        "en": [
+            "brand": "SyncWatch",
+            "room": "Watching together",
+            "library": "Movie library",
+            "files": "files",
+            "chooseFolder": "Choose folder",
+            "rescan": "Refresh",
+            "search": "Search movies",
+            "empty": "Choose a folder to add movies",
+            "scanning": "Scanning your library…",
+            "selectedMovie": "Selected movie",
+            "selectMovie": "Select a movie from your library",
+            "duration": "Duration",
+            "resolution": "Resolution",
+            "audio": "Audio",
+            "subtitles": "Subtitles",
+            "startWatching": "Start watching",
+            "continueWatching": "Continue watching",
+            "endWatching": "End watching",
+            "fileLocation": "File location",
+            "roomStatus": "Room status",
+            "disconnected": "Not connected",
+            "reconnecting": "Reconnecting…",
+            "missingMedia": "This movie is not available locally",
+            "recentActivity": "Recent activity",
+            "noActivity": "No recent activity",
+            "callInactive": "Call inactive",
+            "friendOffline": "Friend not connected",
+            "openCall": "Open call",
+            "openSettings": "Settings",
+            "unknown": "Unknown",
+            "gallery": "Component gallery",
+            "state": "State",
+            "theme": "Theme",
+            "language": "Language",
+        ],
+        "ru": [
+            "brand": "SyncWatch",
+            "room": "Смотрим вместе",
+            "library": "Библиотека фильмов",
+            "files": "файлов",
+            "chooseFolder": "Выбрать папку",
+            "rescan": "Обновить",
+            "search": "Поиск фильмов",
+            "empty": "Выберите папку с фильмами",
+            "scanning": "Сканирование библиотеки…",
+            "selectedMovie": "Выбранный фильм",
+            "selectMovie": "Выберите фильм в библиотеке",
+            "duration": "Длительность",
+            "resolution": "Разрешение",
+            "audio": "Аудио",
+            "subtitles": "Субтитры",
+            "startWatching": "Начать просмотр",
+            "continueWatching": "Продолжить просмотр",
+            "endWatching": "Завершить просмотр",
+            "fileLocation": "Расположение файла",
+            "roomStatus": "Комната",
+            "disconnected": "Нет подключения",
+            "reconnecting": "Переподключение…",
+            "missingMedia": "Фильм недоступен на этом устройстве",
+            "recentActivity": "Последние события",
+            "noActivity": "Пока нет событий",
+            "callInactive": "Звонок не активен",
+            "friendOffline": "Собеседник не подключён",
+            "openCall": "Открыть звонок",
+            "openSettings": "Настройки",
+            "unknown": "Неизвестно",
+            "gallery": "Галерея компонентов",
+            "state": "Состояние",
+            "theme": "Тема",
+            "language": "Язык",
+        ],
+    ]
+    public static func text(_ key: String, language: String = "en") -> String {
+        values[language]?[key] ?? values["en"]?[key] ?? key
+    }
+    public static let galleryStates = ["empty", "scanning", "selected", "missingMedia", "reconnecting"]
+    public static let libraryActions = [
+        "chooseFolder",
+        "rescan",
+        "search",
+        "selectMovie",
+        "startWatching",
+        "continueWatching",
+        "endWatching",
+        "openSettings",
+        "openCall",
+    ]
+    public static let galleryMovies = [
+        "Example Movie 01.mkv",
+        "A very long movie title for responsive layout and selection.mkv",
+        "Example Movie 03.mp4",
+    ]
 }

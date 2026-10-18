@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; shared-design UI, media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows or connect to the room service.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; the shared Library workspace and gallery are present; media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows or connect to the room service.
 
 ## Technology decisions
 
@@ -138,7 +138,7 @@ The Linux client is planned in Kotlin/JVM with [Compose Multiplatform Desktop](h
 
 Compose's JetBrains-owned code uses [Apache 2.0](https://github.com/JetBrains/compose-multiplatform/blob/master/license/README.md). The selected dependency graph still needs pinned source revisions and a complete license inventory before use. That inventory must cover the selected Compose/AndroidX modules, Kotlin standard library, Skiko/Skia rendering graph, transitive and embedded code, and any bundled fonts. Declare the compiler, JDK and build-tool versions separately; a packaged Java runtime also needs its own source, notice and distribution review. Neither a toolchain exception nor Compose's top-level license clears those artifacts. See [dependency policy](dependencies.md) and [licenses and distribution](../licenses.md).
 
-Linux needs its own Kotlin domain implementation, Compose design formatter/renderer, VLC surface, helper/metadata adapters, and owned Meet host. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
+Linux needs its own Kotlin domain implementation, compiled Compose renderer, VLC surface, helper/metadata adapters, and owned Meet host. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
 
 ## Local data and permissions
 
@@ -154,7 +154,7 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | VLC | Native rendering, Windows overlays, previews, tracks, and player settings are not implemented |
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
 | Syncplay bridge | Headless runtime, native IPC adapters, and reconnect behavior are not implemented |
-| Shared design | Swift/WPF resources are generated; component renderers and planned Kotlin/Compose resources remain unimplemented |
+| Shared design | Swift/WPF Library renderers and gallery are present; Kotlin data and Compose Library source are present with the Linux build still unavailable; other component renderers remain planned |
 | Linux client | Kotlin/Compose Desktop is selected; dependency closure, toolchain, shell, domain implementation, application CI, playback, and calling are not implemented |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.

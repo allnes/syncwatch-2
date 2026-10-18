@@ -12,7 +12,7 @@ const platform = {'darwin': 'macos-arm64', 'linux': 'linux-x64', 'win32': 'windo
 const runtime = process.env.SYNCWATCH_DESIGN_RUNTIME ?? join(root, 'artifacts/dependencies/design-generator', platform, 'payload/runtime');
 const temporary = mkdtempSync(join(tmpdir(), 'syncwatch-native-design-'));
 after(() => rmSync(temporary, {recursive: true, force: true}));
-const files = ['apple/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json'];
+const files = ['apple/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 function generate(design, output, check = false) {
     const result = spawnSync(process.execPath, [join(root, 'tools/design/generate.mjs'), '--runtime', runtime,
         '--design', design, '--output', output, ...(check ? ['--check'] : [])], {
@@ -40,17 +40,20 @@ function verifyAllOutputs(directory) {
     const swift = readFileSync(join(directory, files[0]), 'utf8');
     const cs = readFileSync(join(directory, files[1]), 'utf8');
     const xaml = readFileSync(join(directory, files[2]), 'utf8');
+    const kotlin = readFileSync(join(directory, files[4]), 'utf8');
     for (const {id, type, value} of manifest.tokens) {
         const identifier = name(id);
         const swiftId = identifier[0].toLowerCase() + identifier.slice(1);
         if (type === 'color') {
             const [r, g, b, a] = value.slice(1).match(/../g).map(byte => parseInt(byte, 16));
             assert.ok(swift.includes(`let ${swiftId} = Color(\n        .sRGB, red: ${r}.0 / 255, green: ${g}.0 / 255, blue: ${b}.0 / 255, opacity: ${a}.0 / 255)`), id);
+            assert.ok(kotlin.includes(`const val ${swiftId}: Long = 0x${value.slice(1)}L`), id);
             assert.ok(cs.includes(`Color ${identifier} => Color.FromArgb(${a}, ${r}, ${g}, ${b});`), id);
             assert.ok(xaml.includes(`<Color x:Key="${id}">#${value.slice(7)}${value.slice(1, 7)}</Color>`), id);
             assert.ok(xaml.includes(`<SolidColorBrush x:Key="${id}.brush" Color="{StaticResource ${id}}" />`), id);
         } else {
             assert.ok(swift.includes(`let ${swiftId}: CGFloat = ${value}\n`), id);
+            assert.ok(kotlin.includes(`const val ${swiftId}: Float = ${Number.isInteger(value) ? value + '.0' : value}f`), id);
             assert.ok(cs.includes(`const double ${identifier} = ${value};`), id);
             assert.ok(xaml.includes(`<sys:Double x:Key="${id}">${value}</sys:Double>`), id);
             assert.ok(xaml.includes(`<Thickness x:Key="${id}.thickness">${value}</Thickness>`), id);
@@ -62,11 +65,11 @@ function verifyAllOutputs(directory) {
     return manifest;
 }
 
-test('all shared token IDs and values agree in Swift, typed C#, XAML and manifest', () => {
+test('all shared token IDs and values agree in Swift, typed C#, XAML, Kotlin and manifest', () => {
     const output = join(temporary, 'actual');
     success(generate(join(root, 'packages/design'), output));
     const manifest = verifyAllOutputs(output);
-    assert.equal(manifest.tokens.length, 40);
+    assert.ok(manifest.tokens.length >= 40);
     assert.equal(manifest.schemaVersion, 1);
     assert.equal(manifest.generator.styleDictionary, '5.7.0');
     assert.equal(manifest.units, 'logical');
@@ -77,6 +80,7 @@ test('all shared token IDs and values agree in Swift, typed C#, XAML and manifes
         else for (const [key, value] of Object.entries(group)) visit(value, [...prefix, key]);
     }
     for (const file of ['geometry', 'palette']) visit(JSON.parse(readFileSync(join(root, `packages/design/tokens/${file}.json`))));
+    assert.equal(manifest.tokens.length, Object.keys(expected).length);
     for (const token of manifest.tokens) assert.equal(token.value, token.type === 'color' ? expected[token.id].toUpperCase() + (expected[token.id].length === 7 ? 'FF' : '') : expected[token.id]);
 });
 
@@ -133,7 +137,7 @@ test('missing, cross-type and cyclic aliases fail through validation or upstream
 
 test('native name collisions and unsafe identifiers are rejected', () => {
     for (const change of [g => { g.a = {bc: {type: 'number', value: 1}}; g.aBc = {type: 'number', value: 2}; },
-        g => { g.class = {type: 'number', value: 1}; },
+        g => { g.class = {type: 'number', value: 1}; }, g => { g.when = {type: 'number', value: 1}; },
         g => { g.layout['bad-name'] = {type: 'number', value: 1}; }]) {
         const design = fixture(change);
         assert.notEqual(generate(design, join(temporary, 'collision')).status, 0);
@@ -157,4 +161,24 @@ test('check mode detects stale source, missing output and manual resource edits'
     success(generate(design, output));
     const palette = join(design, 'tokens/palette.json'); writeFileSync(palette, readFileSync(palette, 'utf8').replace('#2F8CFF', '#123456'));
     assert.notEqual(generate(design, output, true).status, 0);
+});
+
+
+test('localized copy and gallery reject incomplete locale and contract coverage', () => {
+    for (const mutate of [c => { delete c.locales.ru.library; }, c => { c.locales.en.library = ''; }, c => { c.locales.en.library = '\b'; },
+        c => { c.gallery.states.pop(); }, c => { c.gallery.actions.push('invented'); }]) {
+        const design = fixture(); const path = join(design, 'copy.json'); const copy = JSON.parse(readFileSync(path));
+        mutate(copy); writeFileSync(path, JSON.stringify(copy));
+        assert.notEqual(generate(design, join(temporary, 'bad-copy')).status, 0);
+    }
+});
+
+test('copy preserves quotes, newlines and Kotlin dollar literals in all generated clients', () => {
+    const design = fixture(); const path = join(design, 'copy.json'); const copy = JSON.parse(readFileSync(path));
+    copy.locales.en.library = 'A "title"\n$room \\ path'; writeFileSync(path, JSON.stringify(copy));
+    const output = join(temporary, 'escaped'); success(generate(design, output));
+    for (const file of [files[0], files[1]]) assert.ok(readFileSync(join(output, file), 'utf8').includes(JSON.stringify(copy.locales.en.library)));
+    assert.ok(readFileSync(join(output, files[4]), 'utf8').includes(JSON.stringify(copy.locales.en.library).replace(/\$/g, '\\$')));
+    const manifest = JSON.parse(readFileSync(join(output, files[3])));
+    assert.deepEqual(manifest.copy, copy);
 });

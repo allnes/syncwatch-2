@@ -18,6 +18,8 @@
     <SolidColorBrush x:Key="color.dark.surfaceRaised.brush" Color="{StaticResource color.dark.surfaceRaised}" />
     <Color x:Key="color.dark.text">#FFFFFFFF</Color>
     <SolidColorBrush x:Key="color.dark.text.brush" Color="{StaticResource color.dark.text}" />
+    <Color x:Key="color.dark.textSecondary">#B3FFFFFF</Color>
+    <SolidColorBrush x:Key="color.dark.textSecondary.brush" Color="{StaticResource color.dark.textSecondary}" />
     <Color x:Key="color.light.background">#FFE7EEF4</Color>
     <SolidColorBrush x:Key="color.light.background.brush" Color="{StaticResource color.light.background}" />
     <Color x:Key="color.light.backgroundDeep">#FFDCE6EE</Color>
@@ -38,26 +40,52 @@
     <SolidColorBrush x:Key="color.shared.accent.brush" Color="{StaticResource color.shared.accent}" />
     <Color x:Key="color.shared.accentSoft">#FF6AAFFF</Color>
     <SolidColorBrush x:Key="color.shared.accentSoft.brush" Color="{StaticResource color.shared.accentSoft}" />
+    <Color x:Key="color.shared.selection">#262F8CFF</Color>
+    <SolidColorBrush x:Key="color.shared.selection.brush" Color="{StaticResource color.shared.selection}" />
     <Color x:Key="color.shared.success">#FF30D98B</Color>
     <SolidColorBrush x:Key="color.shared.success.brush" Color="{StaticResource color.shared.success}" />
+    <sys:Double x:Key="control.borderWidth">1</sys:Double>
+    <Thickness x:Key="control.borderWidth.thickness">1</Thickness>
+    <CornerRadius x:Key="control.borderWidth.cornerRadius">1</CornerRadius>
+    <sys:Double x:Key="control.brandSize">38</sys:Double>
+    <Thickness x:Key="control.brandSize.thickness">38</Thickness>
+    <CornerRadius x:Key="control.brandSize.cornerRadius">38</CornerRadius>
     <sys:Double x:Key="control.buttonRadius">12</sys:Double>
     <Thickness x:Key="control.buttonRadius.thickness">12</Thickness>
     <CornerRadius x:Key="control.buttonRadius.cornerRadius">12</CornerRadius>
     <sys:Double x:Key="control.compactDialogRadius">12</sys:Double>
     <Thickness x:Key="control.compactDialogRadius.thickness">12</Thickness>
     <CornerRadius x:Key="control.compactDialogRadius.cornerRadius">12</CornerRadius>
+    <sys:Double x:Key="control.compactGap">8</sys:Double>
+    <Thickness x:Key="control.compactGap.thickness">8</Thickness>
+    <CornerRadius x:Key="control.compactGap.cornerRadius">8</CornerRadius>
     <sys:Double x:Key="control.dialogRadius">18</sys:Double>
     <Thickness x:Key="control.dialogRadius.thickness">18</Thickness>
     <CornerRadius x:Key="control.dialogRadius.cornerRadius">18</CornerRadius>
+    <sys:Double x:Key="control.fieldHeight">42</sys:Double>
+    <Thickness x:Key="control.fieldHeight.thickness">42</Thickness>
+    <CornerRadius x:Key="control.fieldHeight.cornerRadius">42</CornerRadius>
+    <sys:Double x:Key="control.fieldRadius">11</sys:Double>
+    <Thickness x:Key="control.fieldRadius.thickness">11</Thickness>
+    <CornerRadius x:Key="control.fieldRadius.cornerRadius">11</CornerRadius>
     <sys:Double x:Key="control.filledButtonMinHeight">46</sys:Double>
     <Thickness x:Key="control.filledButtonMinHeight.thickness">46</Thickness>
     <CornerRadius x:Key="control.filledButtonMinHeight.cornerRadius">46</CornerRadius>
+    <sys:Double x:Key="control.iconSize">20</sys:Double>
+    <Thickness x:Key="control.iconSize.thickness">20</Thickness>
+    <CornerRadius x:Key="control.iconSize.cornerRadius">20</CornerRadius>
     <sys:Double x:Key="control.menuRowHeight">30</sys:Double>
     <Thickness x:Key="control.menuRowHeight.thickness">30</Thickness>
     <CornerRadius x:Key="control.menuRowHeight.cornerRadius">30</CornerRadius>
     <sys:Double x:Key="control.outlinedButtonMinHeight">44</sys:Double>
     <Thickness x:Key="control.outlinedButtonMinHeight.thickness">44</Thickness>
     <CornerRadius x:Key="control.outlinedButtonMinHeight.cornerRadius">44</CornerRadius>
+    <sys:Double x:Key="control.rowMinHeight">62</sys:Double>
+    <Thickness x:Key="control.rowMinHeight.thickness">62</Thickness>
+    <CornerRadius x:Key="control.rowMinHeight.cornerRadius">62</CornerRadius>
+    <sys:Double x:Key="control.rowRadius">11</sys:Double>
+    <Thickness x:Key="control.rowRadius.thickness">11</Thickness>
+    <CornerRadius x:Key="control.rowRadius.cornerRadius">11</CornerRadius>
     <sys:Double x:Key="control.sliderThumbRadius">6</sys:Double>
     <Thickness x:Key="control.sliderThumbRadius.thickness">6</Thickness>
     <CornerRadius x:Key="control.sliderThumbRadius.cornerRadius">6</CornerRadius>
@@ -70,15 +98,39 @@
     <sys:Double x:Key="layout.callInitialWidth">300</sys:Double>
     <Thickness x:Key="layout.callInitialWidth.thickness">300</Thickness>
     <CornerRadius x:Key="layout.callInitialWidth.cornerRadius">300</CornerRadius>
+    <sys:Double x:Key="layout.detailPadding">24</sys:Double>
+    <Thickness x:Key="layout.detailPadding.thickness">24</Thickness>
+    <CornerRadius x:Key="layout.detailPadding.cornerRadius">24</CornerRadius>
+    <sys:Double x:Key="layout.galleryHeight">760</sys:Double>
+    <Thickness x:Key="layout.galleryHeight.thickness">760</Thickness>
+    <CornerRadius x:Key="layout.galleryHeight.cornerRadius">760</CornerRadius>
+    <sys:Double x:Key="layout.galleryWidth">1120</sys:Double>
+    <Thickness x:Key="layout.galleryWidth.thickness">1120</Thickness>
+    <CornerRadius x:Key="layout.galleryWidth.cornerRadius">1120</CornerRadius>
     <sys:Double x:Key="layout.headerHeight">64</sys:Double>
     <Thickness x:Key="layout.headerHeight.thickness">64</Thickness>
     <CornerRadius x:Key="layout.headerHeight.cornerRadius">64</CornerRadius>
     <sys:Double x:Key="layout.libraryPanelWidth">360</sys:Double>
     <Thickness x:Key="layout.libraryPanelWidth.thickness">360</Thickness>
     <CornerRadius x:Key="layout.libraryPanelWidth.cornerRadius">360</CornerRadius>
+    <sys:Double x:Key="layout.lowerPanelMinHeight">250</sys:Double>
+    <Thickness x:Key="layout.lowerPanelMinHeight.thickness">250</Thickness>
+    <CornerRadius x:Key="layout.lowerPanelMinHeight.cornerRadius">250</CornerRadius>
+    <sys:Double x:Key="layout.minimumHeight">600</sys:Double>
+    <Thickness x:Key="layout.minimumHeight.thickness">600</Thickness>
+    <CornerRadius x:Key="layout.minimumHeight.cornerRadius">600</CornerRadius>
+    <sys:Double x:Key="layout.minimumWidth">800</sys:Double>
+    <Thickness x:Key="layout.minimumWidth.thickness">800</Thickness>
+    <CornerRadius x:Key="layout.minimumWidth.cornerRadius">800</CornerRadius>
     <sys:Double x:Key="layout.panelGap">14</sys:Double>
     <Thickness x:Key="layout.panelGap.thickness">14</Thickness>
     <CornerRadius x:Key="layout.panelGap.cornerRadius">14</CornerRadius>
+    <sys:Double x:Key="layout.panelPadding">14</sys:Double>
+    <Thickness x:Key="layout.panelPadding.thickness">14</Thickness>
+    <CornerRadius x:Key="layout.panelPadding.cornerRadius">14</CornerRadius>
+    <sys:Double x:Key="layout.panelRadius">16</sys:Double>
+    <Thickness x:Key="layout.panelRadius.thickness">16</Thickness>
+    <CornerRadius x:Key="layout.panelRadius.cornerRadius">16</CornerRadius>
     <sys:Double x:Key="layout.playerBottomInset">78</sys:Double>
     <Thickness x:Key="layout.playerBottomInset.thickness">78</Thickness>
     <CornerRadius x:Key="layout.playerBottomInset.cornerRadius">78</CornerRadius>
@@ -91,6 +143,15 @@
     <sys:Double x:Key="layout.playerTopInset">32</sys:Double>
     <Thickness x:Key="layout.playerTopInset.thickness">32</Thickness>
     <CornerRadius x:Key="layout.playerTopInset.cornerRadius">32</CornerRadius>
+    <sys:Double x:Key="layout.sectionGap">10</sys:Double>
+    <Thickness x:Key="layout.sectionGap.thickness">10</Thickness>
+    <CornerRadius x:Key="layout.sectionGap.cornerRadius">10</CornerRadius>
+    <sys:Double x:Key="layout.selectedPanelMaxHeight">375</sys:Double>
+    <Thickness x:Key="layout.selectedPanelMaxHeight.thickness">375</Thickness>
+    <CornerRadius x:Key="layout.selectedPanelMaxHeight.cornerRadius">375</CornerRadius>
+    <sys:Double x:Key="layout.selectedPanelMinHeight">260</sys:Double>
+    <Thickness x:Key="layout.selectedPanelMinHeight.thickness">260</Thickness>
+    <CornerRadius x:Key="layout.selectedPanelMinHeight.cornerRadius">260</CornerRadius>
     <sys:Double x:Key="layout.settingsHeight">420</sys:Double>
     <Thickness x:Key="layout.settingsHeight.thickness">420</Thickness>
     <CornerRadius x:Key="layout.settingsHeight.cornerRadius">420</CornerRadius>
@@ -103,28 +164,75 @@
     <sys:Double x:Key="layout.workspacePadding">18</sys:Double>
     <Thickness x:Key="layout.workspacePadding.thickness">18</Thickness>
     <CornerRadius x:Key="layout.workspacePadding.cornerRadius">18</CornerRadius>
+    <sys:Double x:Key="type.bodySize">14</sys:Double>
+    <Thickness x:Key="type.bodySize.thickness">14</Thickness>
+    <CornerRadius x:Key="type.bodySize.cornerRadius">14</CornerRadius>
+    <sys:Double x:Key="type.brandSize">23</sys:Double>
+    <Thickness x:Key="type.brandSize.thickness">23</Thickness>
+    <CornerRadius x:Key="type.brandSize.cornerRadius">23</CornerRadius>
+    <sys:Double x:Key="type.captionSize">12</sys:Double>
+    <Thickness x:Key="type.captionSize.thickness">12</Thickness>
+    <CornerRadius x:Key="type.captionSize.cornerRadius">12</CornerRadius>
+    <sys:Double x:Key="type.sectionSize">19</sys:Double>
+    <Thickness x:Key="type.sectionSize.thickness">19</Thickness>
+    <CornerRadius x:Key="type.sectionSize.cornerRadius">19</CornerRadius>
+    <sys:Double x:Key="type.titleSize">31</sys:Double>
+    <Thickness x:Key="type.titleSize.thickness">31</Thickness>
+    <CornerRadius x:Key="type.titleSize.cornerRadius">31</CornerRadius>
     <ResourceDictionary x:Key="theme.dark">
+        <Color x:Key="theme.accent.color">#FF2F8CFF</Color>
         <SolidColorBrush x:Key="theme.accent.brush" Color="{StaticResource color.shared.accent}" />
+        <Color x:Key="theme.accentSoft.color">#FF6AAFFF</Color>
         <SolidColorBrush x:Key="theme.accentSoft.brush" Color="{StaticResource color.shared.accentSoft}" />
+        <Color x:Key="theme.background.color">#FF071827</Color>
         <SolidColorBrush x:Key="theme.background.brush" Color="{StaticResource color.dark.background}" />
+        <Color x:Key="theme.backgroundDeep.color">#FF05121E</Color>
         <SolidColorBrush x:Key="theme.backgroundDeep.brush" Color="{StaticResource color.dark.backgroundDeep}" />
+        <Color x:Key="theme.border.color">#FF1B4060</Color>
         <SolidColorBrush x:Key="theme.border.brush" Color="{StaticResource color.dark.border}" />
+        <Color x:Key="theme.gradientStart.color">#FF0B2440</Color>
         <SolidColorBrush x:Key="theme.gradientStart.brush" Color="{StaticResource color.dark.gradientStart}" />
+        <Color x:Key="theme.inputFill.color">#FF081B2C</Color>
+        <SolidColorBrush x:Key="theme.inputFill.brush" Color="{StaticResource color.dark.inputFill}" />
+        <Color x:Key="theme.selection.color">#262F8CFF</Color>
+        <SolidColorBrush x:Key="theme.selection.brush" Color="{StaticResource color.shared.selection}" />
+        <Color x:Key="theme.success.color">#FF30D98B</Color>
         <SolidColorBrush x:Key="theme.success.brush" Color="{StaticResource color.shared.success}" />
+        <Color x:Key="theme.surface.color">#FF0C2135</Color>
         <SolidColorBrush x:Key="theme.surface.brush" Color="{StaticResource color.dark.surface}" />
+        <Color x:Key="theme.surfaceRaised.color">#FF102A43</Color>
         <SolidColorBrush x:Key="theme.surfaceRaised.brush" Color="{StaticResource color.dark.surfaceRaised}" />
+        <Color x:Key="theme.text.color">#FFFFFFFF</Color>
         <SolidColorBrush x:Key="theme.text.brush" Color="{StaticResource color.dark.text}" />
+        <Color x:Key="theme.textSecondary.color">#B3FFFFFF</Color>
+        <SolidColorBrush x:Key="theme.textSecondary.brush" Color="{StaticResource color.dark.textSecondary}" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="theme.light">
+        <Color x:Key="theme.accent.color">#FF2F8CFF</Color>
         <SolidColorBrush x:Key="theme.accent.brush" Color="{StaticResource color.shared.accent}" />
+        <Color x:Key="theme.accentSoft.color">#FF6AAFFF</Color>
         <SolidColorBrush x:Key="theme.accentSoft.brush" Color="{StaticResource color.shared.accentSoft}" />
+        <Color x:Key="theme.background.color">#FFE7EEF4</Color>
         <SolidColorBrush x:Key="theme.background.brush" Color="{StaticResource color.light.background}" />
+        <Color x:Key="theme.backgroundDeep.color">#FFDCE6EE</Color>
         <SolidColorBrush x:Key="theme.backgroundDeep.brush" Color="{StaticResource color.light.backgroundDeep}" />
+        <Color x:Key="theme.border.color">#FFB9C9D6</Color>
         <SolidColorBrush x:Key="theme.border.brush" Color="{StaticResource color.light.border}" />
+        <Color x:Key="theme.gradientStart.color">#FFEAF1F6</Color>
         <SolidColorBrush x:Key="theme.gradientStart.brush" Color="{StaticResource color.light.gradientStart}" />
+        <Color x:Key="theme.inputFill.color">#FFF7FAFC</Color>
+        <SolidColorBrush x:Key="theme.inputFill.brush" Color="{StaticResource color.light.surfaceRaised}" />
+        <Color x:Key="theme.selection.color">#262F8CFF</Color>
+        <SolidColorBrush x:Key="theme.selection.brush" Color="{StaticResource color.shared.selection}" />
+        <Color x:Key="theme.success.color">#FF30D98B</Color>
         <SolidColorBrush x:Key="theme.success.brush" Color="{StaticResource color.shared.success}" />
+        <Color x:Key="theme.surface.color">#FFF1F5F8</Color>
         <SolidColorBrush x:Key="theme.surface.brush" Color="{StaticResource color.light.surface}" />
+        <Color x:Key="theme.surfaceRaised.color">#FFF7FAFC</Color>
         <SolidColorBrush x:Key="theme.surfaceRaised.brush" Color="{StaticResource color.light.surfaceRaised}" />
+        <Color x:Key="theme.text.color">#FF1A2B3A</Color>
         <SolidColorBrush x:Key="theme.text.brush" Color="{StaticResource color.light.text}" />
+        <Color x:Key="theme.textSecondary.color">#FF617386</Color>
+        <SolidColorBrush x:Key="theme.textSecondary.brush" Color="{StaticResource color.light.textSecondary}" />
     </ResourceDictionary>
 </ResourceDictionary>

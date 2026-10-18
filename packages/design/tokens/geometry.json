@@ -51,6 +51,50 @@
     "playerBottomInset": {
       "value": 78,
       "type": "number"
+    },
+    "panelPadding": {
+      "value": 14,
+      "type": "number"
+    },
+    "detailPadding": {
+      "value": 24,
+      "type": "number"
+    },
+    "sectionGap": {
+      "value": 10,
+      "type": "number"
+    },
+    "panelRadius": {
+      "value": 16,
+      "type": "number"
+    },
+    "minimumWidth": {
+      "value": 800,
+      "type": "number"
+    },
+    "minimumHeight": {
+      "value": 600,
+      "type": "number"
+    },
+    "galleryWidth": {
+      "value": 1120,
+      "type": "number"
+    },
+    "galleryHeight": {
+      "value": 760,
+      "type": "number"
+    },
+    "selectedPanelMinHeight": {
+      "value": 260,
+      "type": "number"
+    },
+    "selectedPanelMaxHeight": {
+      "value": 375,
+      "type": "number"
+    },
+    "lowerPanelMinHeight": {
+      "value": 250,
+      "type": "number"
     }
   },
   "control": {
@@ -84,6 +128,60 @@
     },
     "sliderThumbRadius": {
       "value": 6,
+      "type": "number"
+    },
+    "borderWidth": {
+      "value": 1,
+      "type": "number"
+    },
+    "fieldHeight": {
+      "value": 42,
+      "type": "number"
+    },
+    "fieldRadius": {
+      "value": 11,
+      "type": "number"
+    },
+    "rowRadius": {
+      "value": 11,
+      "type": "number"
+    },
+    "rowMinHeight": {
+      "value": 62,
+      "type": "number"
+    },
+    "compactGap": {
+      "value": 8,
+      "type": "number"
+    },
+    "iconSize": {
+      "value": 20,
+      "type": "number"
+    },
+    "brandSize": {
+      "value": 38,
+      "type": "number"
+    }
+  },
+  "type": {
+    "bodySize": {
+      "value": 14,
+      "type": "number"
+    },
+    "captionSize": {
+      "value": 12,
+      "type": "number"
+    },
+    "sectionSize": {
+      "value": 19,
+      "type": "number"
+    },
+    "brandSize": {
+      "value": 23,
+      "type": "number"
+    },
+    "titleSize": {
+      "value": 31,
       "type": "number"
     }
   }
