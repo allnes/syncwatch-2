@@ -152,7 +152,7 @@ public struct SettingsDialog: View {
                     .accessibilityIdentifier("settings.status")
                 Spacer(minLength: SyncWatchTokens.controlCompactGap)
                 compactButton("cancel") { cancel() }
-                compactButton("save", filled: true) { editor.save(using: onSave) }
+                compactButton("save", filled: true, enabled: editor.canSave) { editor.save(using: onSave) }
                     .disabled(!editor.canSave).keyboardShortcut(.defaultAction)
             }
             .padding(.horizontal, SyncWatchTokens.layoutSettingsCardPadding)
@@ -234,7 +234,9 @@ public struct SettingsDialog: View {
             alignment: .leading)
     }
 
-    private func compactButton(_ id: String, filled: Bool = false, action: @escaping () -> Void) -> some View {
+    private func compactButton(_ id: String, filled: Bool = false, enabled: Bool = true, action: @escaping () -> Void)
+        -> some View
+    {
         Button(text(id), action: action).buttonStyle(.plain)
             .padding(.horizontal, SyncWatchTokens.layoutSettingsCardPadding)
             .frame(height: SyncWatchTokens.layoutSettingsControlHeight)
@@ -244,6 +246,7 @@ public struct SettingsDialog: View {
                 in: RoundedRectangle(cornerRadius: SyncWatchTokens.controlButtonRadius)
             )
             .overlay(RoundedRectangle(cornerRadius: SyncWatchTokens.controlButtonRadius).stroke(theme.border))
+            .disabled(!enabled).opacity(enabled ? 1 : 0.4)
             .accessibilityIdentifier("settings." + id)
     }
 
