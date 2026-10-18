@@ -51,9 +51,9 @@ public sealed class LibraryWorkspace : UserControl
     public string UiLanguage { get; private set; } = "en";
     public event Action<string, string?>? ActionRequested;
     private readonly Grid root = new();
-    private readonly Grid content = new();
-    private readonly RowDefinition selectedRow = new();
-    private readonly StackPanel rows = new();
+    private Grid content = new();
+    private RowDefinition selectedRow = new();
+    private StackPanel rows = new();
     private string query = "";
     private readonly List<UniformGrid> metricGrids = [];
 
@@ -76,7 +76,10 @@ public sealed class LibraryWorkspace : UserControl
         Presentation = presentation;
         UiLanguage = language;
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(language);
-        query = "";
+        // Each render owns a fresh visual tree; WPF elements may have only one logical parent.
+        content = new Grid();
+        selectedRow = new RowDefinition();
+        rows = new StackPanel();
         metricGrids.Clear();
         root.Children.Clear(); root.RowDefinitions.Clear();
         root.Margin = SyncWatchTokens.LayoutWorkspacePaddingThickness;
@@ -157,7 +160,7 @@ public sealed class LibraryWorkspace : UserControl
         top.Children.Add(Text(T("library") + "  ·  " + Presentation.Entries.Count + " " + T("files"), size: SyncWatchTokens.TypeSectionSize, bold: true));
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, SyncWatchTokens.LayoutPanelGap, 0, SyncWatchTokens.LayoutPanelGap) };
         actions.Children.Add(Button("chooseFolder")); actions.Children.Add(Button("rescan")); top.Children.Add(actions);
-        var search = new TextBox { IsEnabled = Presentation.Allows("search"), ToolTip = T("search"), Tag = T("search"), Margin = new Thickness(0, 0, 0, SyncWatchTokens.LayoutPanelGap) };
+        var search = new TextBox { Text = query, IsEnabled = Presentation.Allows("search"), ToolTip = T("search"), Tag = T("search"), Margin = new Thickness(0, 0, 0, SyncWatchTokens.LayoutPanelGap) };
         search.SetResourceReference(StyleProperty, "SyncWatch.Field"); AutomationProperties.SetName(search, T("search")); AutomationProperties.SetAutomationId(search, "library.search");
         search.TextChanged += (_, _) => { query = search.Text; PopulateRows(); Emit("search", query); }; top.Children.Add(search);
         rows.Children.Clear();

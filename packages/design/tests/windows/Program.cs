@@ -145,6 +145,10 @@ internal static class Program
                             var movie = Descendants<Button>(workspace).Single(b => AutomationProperties.GetAutomationId(b).StartsWith("library.movie.", StringComparison.Ordinal));
                             movie.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                             Check(actualSelection == "1", "search and row action");
+                            // Selection rerenders must preserve the local query.
+                            workspace.Render(workspace.Presentation, language); workspace.UpdateLayout();
+                            Check(Descendants<TextBox>(workspace).Single().Text == "very long", "query survives selection render");
+                            Descendants<TextBox>(workspace).Single().Text = "";
                             // Reset before capturing the full gallery fixture.
                             workspace.Render(fixture with { SelectedId = "1" }, language); workspace.UpdateLayout();
                         }
