@@ -8,6 +8,8 @@
     <ItemGroup>
         <Compile Include="../../generated/windows/SyncWatchTokens.g.cs" Link="SyncWatchTokens.g.cs" />
         <Page Include="../../generated/windows/SyncWatchTheme.g.xaml" Link="SyncWatchTheme.g.xaml" />
+        <Compile Include="../../windows/LibraryWorkspace.cs" Link="LibraryWorkspace.cs" />
+        <Page Include="../../windows/SyncWatchComponents.xaml" Link="SyncWatchComponents.xaml" />
         <None Include="../../generated/design-manifest.json" Link="design-manifest.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

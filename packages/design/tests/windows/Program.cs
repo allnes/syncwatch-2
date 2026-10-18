@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Automation;
 using System.Windows.Threading;
 using SyncWatch.Design;
 
@@ -74,8 +76,90 @@ internal static class Program
         }
 
         window.Close();
+        application.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("SyncWatchComponents.xaml", UriKind.Relative) });
+        VerifyLibrary(application, dictionary);
         application.Shutdown();
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Verified {count} compiled C#/WPF resources and theme assertions"));
+    }
+
+    private static IEnumerable<T> Descendants<T>(DependencyObject parent) where T : DependencyObject
+    {
+        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, index);
+            if (child is T typed) yield return typed;
+            foreach (var descendant in Descendants<T>(child)) yield return descendant;
+        }
+    }
+
+    private static void VerifyLibrary(Application application, ResourceDictionary dictionary)
+    {
+        var events = new List<string>();
+        void Receive(string action, string? value) => events.Add(action + ":" + value);
+        new LibraryPresentation().Dispatch("chooseFolder", null, Receive);
+        foreach (var state in Enum.GetValues<LibraryVisualState>())
+        {
+            var presentation = LibraryPresentation.Gallery(state);
+            presentation.Dispatch("openCall", null, Receive);
+            presentation.Dispatch("selectMovie", "removed-id", Receive);
+            presentation.Dispatch("startWatching", null, Receive);
+        }
+        Check(events.SequenceEqual(new[] { "startWatching:" }), "capabilities and missing media");
+        LibraryPresentation.Gallery(LibraryVisualState.Scanning).Dispatch("search", "film", Receive);
+        var selected = LibraryPresentation.Gallery(LibraryVisualState.Selected);
+        selected.Dispatch("selectMovie", "1", Receive);
+        (selected with { SelectedId = "removed-id" }).Dispatch("startWatching", null, Receive);
+        Check(events.SequenceEqual(new[] { "startWatching:", "selectMovie:1" }), "stale selection");
+        Check(SyncWatchCopy.Text("library", "ru") == "Библиотека фильмов", "Russian copy");
+        Check(SyncWatchCopy.Text("library", "unknown") == SyncWatchCopy.Text("library"), "locale fallback");
+        Check(SyncWatchCopy.Text("unknown-key", "ru") == "unknown-key", "copy key fallback");
+        Check(Enum.GetNames<LibraryVisualState>().Select(name => char.ToLowerInvariant(name[0]) + name[1..]).SequenceEqual(SyncWatchCopy.GalleryStates), "state contract");
+        var output = Environment.GetEnvironmentVariable("SYNCWATCH_DESIGN_SCREENSHOTS");
+        if (output is not null) Directory.CreateDirectory(output);
+        foreach (var theme in new[] { "dark", "light" })
+        {
+            application.Resources.MergedDictionaries.Add((ResourceDictionary)dictionary["theme." + theme]);
+            foreach (var language in new[] { "en", "ru" })
+                foreach (var state in Enum.GetValues<LibraryVisualState>())
+                    foreach (var (width, height) in new[] { (1120, 760), (800, 600) })
+                    {
+                        var fixture = LibraryPresentation.Gallery(state);
+                        var workspace = new LibraryWorkspace();
+                        workspace.Render(fixture with { SelectedId = fixture.Entries.Count > 0 ? "1" : null }, language);
+                        workspace.Width = width; workspace.Height = height;
+                        workspace.Measure(new Size(width, height));
+                        workspace.Arrange(new Rect(0, 0, width, height));
+                        workspace.UpdateLayout();
+                        var start = Descendants<Button>(workspace).FirstOrDefault(b => AutomationProperties.GetAutomationId(b) == "library.startWatching");
+                        Check(start is null || start.IsEnabled == (state == LibraryVisualState.Selected), "rendered Start capability");
+                        foreach (var button in Descendants<Button>(workspace).Where(b => AutomationProperties.GetAutomationId(b) == "library.openCall"))
+                            Check(!button.IsEnabled, "unavailable call stays disabled");
+                        if (state == LibraryVisualState.Selected)
+                        {
+                            string? actualSelection = null;
+                            workspace.ActionRequested += (action, value) => { if (action == "selectMovie") actualSelection = value; };
+                            var search = Descendants<TextBox>(workspace).Single();
+                            search.Text = "very long";
+                            workspace.UpdateLayout();
+                            var movie = Descendants<Button>(workspace).Single(b => AutomationProperties.GetAutomationId(b).StartsWith("library.movie.", StringComparison.Ordinal));
+                            movie.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                            Check(actualSelection == "1", "search and row action");
+                            // Reset before capturing the full gallery fixture.
+                            workspace.Render(fixture with { SelectedId = "1" }, language); workspace.UpdateLayout();
+                        }
+                        var image = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+                        image.Render(workspace);
+                        var pixels = new byte[width * height * 4]; image.CopyPixels(pixels, width * 4, 0);
+                        Check(pixels[3] == 255 && pixels.Any(value => value != pixels[0]), "nonblank native render");
+                        if (output is not null)
+                        {
+                            var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(image));
+                            using var file = File.Create(Path.Combine(output, $"{state}-{theme}-{language}-{width}x{height}.png")); encoder.Save(file);
+                        }
+                    }
+            application.Resources.MergedDictionaries.Remove((ResourceDictionary)dictionary["theme." + theme]);
+        }
+        Console.WriteLine("Verified Library capabilities, search/selection events and 40 native theme/language/state/viewport renders");
     }
 
     private static void Check(bool condition, string name)

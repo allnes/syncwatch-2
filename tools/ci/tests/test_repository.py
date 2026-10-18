@@ -88,6 +88,8 @@ class RepositoryChecks(unittest.TestCase):
         )
 
     def copy_design(self):
+        for member in ("apple", "windows", "linux"):
+            (self.root / "packages/design" / member).mkdir(parents=True, exist_ok=True)
         for source in (REPOSITORY / "packages/design").rglob("*.json"):
             self.write(str(source.relative_to(REPOSITORY)), source.read_text())
 

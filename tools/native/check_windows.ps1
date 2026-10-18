@@ -8,6 +8,7 @@ $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 $env:DOTNET_NOLOGO = '1'
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
 $env:DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE = 'true'
+$env:SYNCWATCH_DESIGN_SCREENSHOTS = Join-Path $repositoryRoot 'artifacts/design/windows'
 $env:SYNCWATCH_CONTRACT_FIXTURES = Join-Path $repositoryRoot 'contracts/fixtures/acceptance.json'
 $toolchain = Get-Content (Join-Path $PSScriptRoot 'toolchains.json') -Raw | ConvertFrom-Json
 
@@ -32,5 +33,6 @@ Invoke-DotNet restore SyncWatch.slnx --configfile NuGet.Config
 Invoke-DotNet format SyncWatch.slnx --no-restore --verify-no-changes
 Invoke-DotNet build SyncWatch.slnx --no-restore --configuration Debug
 Invoke-DotNet run --project packages/windows-domain/SyncWatch.Domain.Tests --no-restore --no-build --configuration Debug
+if (Test-Path $env:SYNCWATCH_DESIGN_SCREENSHOTS) { Remove-Item -Recurse -Force $env:SYNCWATCH_DESIGN_SCREENSHOTS }
 Invoke-DotNet run --project packages/design/tests/windows --no-restore --no-build --configuration Debug
 Write-Output 'Built apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe; interactive launch/close is a separate acceptance step'

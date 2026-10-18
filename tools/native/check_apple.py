@@ -36,7 +36,9 @@ def main() -> None:
     environment = os.environ.copy()
     environment["SYNCWATCH_CONTRACT_FIXTURES"] = str(ROOT / "contracts/fixtures/acceptance.json")
     run("swift", "test", "--package-path", "packages/apple-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
-    run("swift", "test", "--package-path", "packages/design", "-Xswiftc", "-warnings-as-errors")
+    shutil.rmtree(ROOT / "artifacts/design/apple", ignore_errors=True)
+    environment["SYNCWATCH_DESIGN_SCREENSHOTS"] = str(ROOT / "artifacts/design/apple")
+    run("swift", "test", "--package-path", "packages/design", "-Xswiftc", "-warnings-as-errors", env=environment)
     run("swift", "build", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors")
     binary_directory = subprocess.check_output(
         ["swift", "build", "--package-path", "apps/apple", "--show-bin-path"], cwd=ROOT, text=True,

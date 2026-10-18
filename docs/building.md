@@ -92,3 +92,18 @@ python3 tools/contracts/check_contracts.py
 ```
 
 A successful shell build or source check does not establish functioning media, synchronization, calling, visual conformance, signing, or release readiness. The [architecture](architecture/README.md#integration-limitations) describes the current integration limitations.
+
+
+## Library component gallery
+
+The macOS and Windows shells display the shared Library workspace with unavailable service actions disabled. Launch the fixture gallery to select visual state, theme and language:
+
+```sh
+artifacts/apple/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
+```
+
+```powershell
+apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe --design-gallery
+```
+
+The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/apple/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.

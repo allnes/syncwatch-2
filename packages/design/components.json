@@ -1,37 +1,161 @@
 {
   "contractVersion": 1,
-  "units": "logical points on Apple; device-independent pixels on Windows",
-  "status": "Native resources are generated; component renderers remain specifications",
+  "units": "logical points on Apple; device-independent pixels on Windows and Compose",
+  "status": "LibraryLayout renderers and gallery: SwiftUI/WPF; Compose source pending its dependency build. Other components remain specifications.",
   "components": {
     "LibraryLayout": {
-      "structure": ["header", "libraryPanel", "selectedMoviePanel", "roomStatus", "recentActivity"],
-      "tokens": ["layout.workspacePadding", "layout.panelGap", "layout.headerHeight", "layout.libraryPanelWidth"],
-      "states": ["empty", "scanning", "selected", "missingMedia", "reconnecting"],
-      "actions": ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall"]
+      "structure": [
+        "header",
+        "libraryPanel",
+        "selectedMoviePanel",
+        "roomStatus",
+        "recentActivity"
+      ],
+      "tokens": [
+        "layout.workspacePadding",
+        "layout.panelGap",
+        "layout.headerHeight",
+        "layout.libraryPanelWidth"
+      ],
+      "states": [
+        "empty",
+        "scanning",
+        "selected",
+        "missingMedia",
+        "reconnecting"
+      ],
+      "actions": [
+        "chooseFolder",
+        "rescan",
+        "search",
+        "selectMovie",
+        "startWatching",
+        "continueWatching",
+        "endWatching",
+        "openSettings",
+        "openCall"
+      ]
     },
     "PlayerChrome": {
-      "tokens": ["layout.playerTopInset", "layout.playerBottomInset", "control.sliderTrackHeight", "control.sliderThumbRadius"],
-      "states": ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"],
-      "actions": ["playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles", "openExternalAudio", "openExternalSubtitles", "setMovieVolume", "setCallVolume", "muteMovie", "openCall", "showLibrary", "endWatching"],
-      "overlays": ["timelinePreview", "volumeOSD", "contextMenu", "playlist", "playerSettings"],
+      "tokens": [
+        "layout.playerTopInset",
+        "layout.playerBottomInset",
+        "control.sliderTrackHeight",
+        "control.sliderThumbRadius"
+      ],
+      "states": [
+        "loading",
+        "paused",
+        "playing",
+        "buffering",
+        "fullscreen",
+        "connectionInterrupted",
+        "ended"
+      ],
+      "actions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "selectAudio",
+        "selectSubtitles",
+        "openExternalAudio",
+        "openExternalSubtitles",
+        "setMovieVolume",
+        "setCallVolume",
+        "muteMovie",
+        "openCall",
+        "showLibrary",
+        "endWatching"
+      ],
+      "overlays": [
+        "timelinePreview",
+        "volumeOSD",
+        "contextMenu",
+        "playlist",
+        "playerSettings"
+      ],
       "cursorBehavior": "Hide an idle cursor over playing video; restore on movement, pause, or interaction, in windowed and fullscreen modes."
     },
     "SettingsDialog": {
-      "tokens": ["layout.settingsWidth", "layout.settingsHeight", "layout.settingsSidebarWidth", "control.compactDialogRadius"],
-      "sections": ["library", "interface", "call", "connection"],
-      "states": ["editing", "savedNotice", "invalidConfiguration"]
+      "tokens": [
+        "layout.settingsWidth",
+        "layout.settingsHeight",
+        "layout.settingsSidebarWidth",
+        "control.compactDialogRadius"
+      ],
+      "sections": [
+        "library",
+        "interface",
+        "call",
+        "connection"
+      ],
+      "states": [
+        "editing",
+        "savedNotice",
+        "invalidConfiguration"
+      ]
     },
     "PlayerSettingsDialog": {
-      "tokens": ["layout.settingsWidth", "layout.playerSettingsHeight", "layout.playerSettingsSidebarWidth", "control.compactDialogRadius"],
-      "sections": ["playback", "subtitles", "image", "audio", "advanced"],
-      "actions": ["moveDialog", "resetSection", "close"]
+      "tokens": [
+        "layout.settingsWidth",
+        "layout.playerSettingsHeight",
+        "layout.playerSettingsSidebarWidth",
+        "control.compactDialogRadius"
+      ],
+      "sections": [
+        "playback",
+        "subtitles",
+        "image",
+        "audio",
+        "advanced"
+      ],
+      "actions": [
+        "moveDialog",
+        "resetSection",
+        "close"
+      ]
     },
     "CallWindowShell": {
-      "tokens": ["layout.callInitialWidth", "layout.callInitialHeight"],
-      "states": ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"],
-      "actions": ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp"],
-      "regions": ["remoteCallSurface", "localCameraPreview", "windowControls", "callControls"],
-      "localPreviewStates": ["cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable"],
+      "tokens": [
+        "layout.callInitialWidth",
+        "layout.callInitialHeight"
+      ],
+      "states": [
+        "idle",
+        "opening",
+        "webSurfaceReady",
+        "userActionRequired",
+        "failed",
+        "closed"
+      ],
+      "actions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "regions": [
+        "remoteCallSurface",
+        "localCameraPreview",
+        "windowControls",
+        "callControls"
+      ],
+      "localPreviewStates": [
+        "cameraStarting",
+        "cameraActive",
+        "cameraDisabled",
+        "permissionDenied",
+        "deviceUnavailable"
+      ],
       "providerSurface": "Google Meet top-level web page. Authentication, actual self-view, initial camera state, isolated call volume, inactive-audio silence, and the minimum usable viewport must pass call acceptance."
     }
   }

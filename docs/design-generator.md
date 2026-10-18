@@ -48,7 +48,7 @@ The source recipe runs API checks in fresh processes, including shared token val
 
 ## Native resource generation
 
-The native formatters resolve `packages/design/tokens/*.json` with Style Dictionary and generate the four checked-in files under `packages/design/generated/`. The Swift package at `packages/design/Package.swift` exposes `SyncWatchDesign`. Both the WPF application and its SDK-only design assertion executable compile the linked generated C# and XAML directly.
+The native formatters resolve `packages/design/tokens/*.json` with Style Dictionary and generate the five checked-in files under `packages/design/generated/`. The Swift package at `packages/design/Package.swift` exposes `SyncWatchDesign`. Both the WPF application and its SDK-only design assertion executable compile the linked generated C# and XAML directly.
 
 ```sh
 python3 tools/design/resources.py
@@ -56,7 +56,7 @@ python3 tools/design/resources.py --check
 node --test tools/design/tests/resources.test.mjs
 ```
 
-The first command builds or verifies the source-only tool and writes resources. The second compares all four outputs without changing them. Use `--cold` to rebuild the tool without reading its dependency cache. CI runs the comparison and resource tests in each of the three design dependency jobs, including after a cache restore. Native jobs compile the committed resources and test real SwiftUI/AppKit and WPF values.
+The first command builds or verifies the source-only tool and writes resources. The second compares all five outputs without changing them. Use `--cold` to rebuild the tool without reading its dependency cache. CI runs the comparison and resource tests in each of the three design dependency jobs, including after a cache restore. Native jobs compile the committed resources and test real SwiftUI/AppKit and WPF values.
 
 Token files are flat JSON files with distinct root groups. Each leaf has `type` and `value`. Supported types are `color` and `number`. Colors use sRGB `#RRGGBB` or `#RRGGBBAA`; output alpha is preserved, including WPF's different `#AARRGGBB` order. Numbers are finite logical dimensions in `[0, 1000000]`, rounded to six decimal places using `Math.round(value * 1000000) / 1000000`. Physical-unit strings are rejected. A complete `{token.path}` alias must refer to the same type; Style Dictionary resolves chains and rejects cycles. Native identifiers use the path segments joined in camel/Pascal case. Invalid segments, reserved names, and collisions are errors.
 
@@ -64,4 +64,4 @@ Token files are flat JSON files with distinct root groups. Each leaf has `type` 
 
 Swift exposes typed constants and ID-indexed `colors`/`dimensions` dictionaries. C# exposes typed `Color` properties and `double` constants, with uniform `Thickness`/`CornerRadius` projections for dimensions. XAML uses the original token ID as each `Color`/`Double` resource key and adds `.brush`, `.thickness`, and `.cornerRadius` projections. These projections preserve values; callers choose the appropriate geometric meaning.
 
-`design-manifest.json` records schema version 1, units, sorted resolved token IDs/values, theme mappings, per-source SHA-256 digests, a combined source digest, and a generator revision. The generator revision hashes its implementation files and pinned upstream revisions. It is independent of the checkout path, unrelated Git commits, and build time. Tokens/components/package/theme changes update the design source digest. Do not edit generated files manually.
+`design-manifest.json` records schema version 1, units, sorted resolved token IDs/values, theme mappings, per-source SHA-256 digests, a combined source digest, and a generator revision. The generator revision hashes its implementation files and pinned upstream revisions. It is independent of the checkout path, unrelated Git commits, and build time. Tokens/copy/components/package/theme changes update the design source digest. Do not edit generated files manually.
