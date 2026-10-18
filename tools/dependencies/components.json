@@ -391,7 +391,14 @@
             "README.md"
           ],
           "requires": [],
-          "unusedSubmodules": {}
+          "unusedSubmodules": {},
+          "exports": [
+            "LICENSE.txt",
+            "README.md",
+            "build.gradle.kts",
+            "gradle.properties",
+            "src/jvmMain"
+          ]
         }
       },
       "inputs": [

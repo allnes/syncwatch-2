@@ -8,6 +8,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -212,6 +213,146 @@ class DependencyBuildTests(unittest.TestCase):
         self.assertEqual(self.prepare()["inputs"]["sources"]["3rdparty/example"]["archiveSha256"], baseline)
         self.run_build(cold=True)
         self.assertEqual((self.root / f"artifacts/dependencies/example/{TARGET}/payload/library.txt").read_bytes(), b"source payload\n")
+
+    def update_source_pin(self):
+        source = self.root / "3rdparty/example"
+        self.commit(source)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        subprocess.run(["git", "update-index", "--cacheinfo", "160000", revision, "3rdparty/example"], cwd=self.root, check=True)
+        self.component["sources"]["3rdparty/example"]["revision"] = revision
+        self.write_manifest()
+        return source
+
+    def set_exports(self, paths):
+        self.component["sources"]["3rdparty/example"]["exports"] = paths
+        self.write_manifest()
+
+    def test_selected_export_excludes_unselected_code_and_preserves_cold_cached_payload(self):
+        source = self.root / "3rdparty/example"
+        (source / "unselected.txt").write_text("Unselected upstream code\n")
+        self.update_source_pin()
+        self.set_exports(["LICENSE", "library.txt"])
+        cold = self.run_build(cold=True)
+        snapshot = self.root / f"artifacts/dependencies/example/{TARGET}/example.tar"
+        with tarfile.open(snapshot) as archive:
+            self.assertEqual({p.name for p in archive if p.isfile()}, {"LICENSE", "library.txt"})
+            self.assertEqual(archive.pax_headers["comment"], self.component["sources"]["3rdparty/example"]["revision"])
+        self.assertFalse((snapshot.parent / "sources/3rdparty/example/unselected.txt").exists())
+        warm = self.run_build()
+        self.assertTrue(warm["cacheHit"])
+        self.assertEqual(cold["key"], warm["key"])
+        self.assertEqual(cold["files"], warm["files"])
+        self.assertEqual(warm["inputs"]["sources"]["3rdparty/example"]["exports"], ["LICENSE", "library.txt"])
+
+    def test_export_selection_is_part_of_the_cache_key_even_if_payload_is_identical(self):
+        whole = self.prepare()
+        self.set_exports(["LICENSE", "library.txt"])
+        selected = self.run_build(cold=True)
+        self.assertNotEqual(whole["key"], selected["key"])
+        self.assertNotIn("exports", whole["inputs"]["sources"]["3rdparty/example"])
+        self.component["sources"]["3rdparty/example"].pop("exports")
+        self.write_manifest()
+        restored_whole = self.run_build()
+        self.assertFalse(restored_whole["cacheHit"])
+        self.assertEqual(selected["files"], restored_whole["files"])
+
+    def test_missing_declared_license_cannot_be_excluded_from_export(self):
+        self.set_exports(["library.txt"])
+        with self.assertRaisesRegex(ValueError, "every declared license/notice"):
+            self.prepare()
+
+    def test_missing_export_path_fails_before_recipe_or_cache_use(self):
+        self.set_exports(["LICENSE", "missing", "library.txt"])
+        self.component["sources"]["3rdparty/example"]["exports"].sort()
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "missing or has no file content"):
+            self.run_build()
+        self.assertFalse((self.root / "artifacts/counter").exists())
+
+    def test_export_paths_reject_empty_unsafe_unsorted_duplicate_overlapping_and_case_colliding_sets(self):
+        for paths in (None, [], "LICENSE", ["LICENSE", "../src"], ["LICENSE", "src/*"], ["LICENSE", ":(exclude)src"],
+                      ["library.txt", "LICENSE"], ["LICENSE", "LICENSE"], ["LICENSE", "src", "src/api"],
+                      ["LICENSE", "SRC", "src"], ["LICENSE", "SRC", "src/api"], ["LICENSE", "src"] * 130):
+            with self.subTest(paths=paths):
+                self.set_exports(paths)
+                with self.assertRaises(ValueError):
+                    build.registry(self.root)
+
+    def test_literal_file_and_directory_exports_do_not_interpret_git_pathspec_magic(self):
+        source = self.root / "3rdparty/example"
+        for name in ("!literal", "selected", "selected-other", "unselected"):
+            (source / name).mkdir()
+            (source / name / "file.txt").write_text(name + "\n")
+        self.update_source_pin()
+        self.set_exports(["!literal", "LICENSE", "selected"])
+        self.prepare()
+        with tarfile.open(self.root / f"artifacts/dependencies/example/{TARGET}/example.tar") as archive:
+            self.assertEqual({m.name for m in archive if m.isfile()}, {"!literal/file.txt", "LICENSE", "selected/file.txt"})
+
+    def test_git_export_ignore_cannot_silently_omit_selected_sources_or_licenses(self):
+        for ignored in ("library.txt", "LICENSE"):
+            with self.subTest(ignored=ignored):
+                source = self.root / "3rdparty/example"
+                (source / ".gitattributes").write_text(ignored + " export-ignore\n")
+                self.update_source_pin()
+                self.set_exports(["LICENSE", "library.txt"])
+                with self.assertRaisesRegex(ValueError, "omitted pinned files"):
+                    self.prepare()
+
+    def test_git_export_substitution_cannot_change_pinned_source_bytes(self):
+        source = self.root / "3rdparty/example"
+        (source / "library.txt").write_text("$Format:%H$\n")
+        (source / ".gitattributes").write_text("library.txt export-subst\n")
+        self.update_source_pin()
+        self.set_exports(["LICENSE", "library.txt"])
+        with self.assertRaisesRegex(ValueError, "changed pinned Git blob bytes"):
+            self.prepare()
+
+    def test_selected_tree_must_cover_all_nested_notices(self):
+        source = self.root / "3rdparty/example"
+        (source / "legal").mkdir()
+        (source / "legal/NOTICE").write_text("Fixture nested attribution\n")
+        self.update_source_pin()
+        self.component["sources"]["3rdparty/example"]["notices"].append("legal/NOTICE")
+        self.set_exports(["LICENSE", "legal", "library.txt"])
+        result = self.run_build(cold=True)
+        self.assertIn("payload/notices/example/legal/NOTICE", result["files"])
+
+    def test_exports_do_not_bypass_review_of_excluded_nested_submodules(self):
+        source = self.root / "3rdparty/example"
+        (source / ".gitmodules").write_text('[submodule "nested"]\n path = omitted/nested\n url = https://example.invalid/nested.git\n')
+        revision = self.component["sources"]["3rdparty/example"]["revision"]
+        subprocess.run(["git", "update-index", "--add", "--cacheinfo", "160000", revision, "omitted/nested"], cwd=source, check=True)
+        self.update_source_pin()
+        self.set_exports(["LICENSE", "library.txt"])
+        with self.assertRaisesRegex(ValueError, "Nested source is neither pinned separately nor explicitly unused"):
+            self.prepare()
+        self.component["sources"]["3rdparty/example"]["unusedSubmodules"] = {"omitted/nested": "Upstream tests, not used by this source profile"}
+        self.write_manifest()
+        self.assertEqual(self.run_build(cold=True)["result"], "success")
+
+    def test_exported_tree_rejects_case_colliding_files_and_parent_directories(self):
+        source = self.root / "3rdparty/example"
+        blob = build.git(source, "rev-parse", "HEAD:library.txt").decode().strip()
+        # Construct Git tree entries directly, including on case-insensitive hosts.
+        for name in ("module/Case/a.txt", "module/case/b.txt"):
+            subprocess.run(["git", "update-index", "--add", "--cacheinfo", "100644", blob, name], cwd=source, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Case-colliding upstream tree"], cwd=source, check=True)
+        with self.assertRaisesRegex(ValueError, "collide across platforms"):
+            build.exported_entries(source, ["module"])
+
+    @unittest.skipIf(os.name == "nt", "Windows symlink creation is host-policy dependent")
+    def test_selected_symlink_target_is_verified_and_not_followed_into_omitted_code(self):
+        source = self.root / "3rdparty/example"
+        (source / "unselected.txt").write_text("Omitted code\n")
+        (source / "alias.txt").symlink_to("unselected.txt")
+        self.update_source_pin()
+        self.set_exports(["LICENSE", "alias.txt", "library.txt"])
+        self.prepare()
+        with tarfile.open(self.root / f"artifacts/dependencies/example/{TARGET}/example.tar") as archive:
+            self.assertTrue(archive.getmember("alias.txt").issym())
+            self.assertEqual(archive.getmember("alias.txt").linkname, "unselected.txt")
+            self.assertNotIn("unselected.txt", archive.getnames())
 
     def test_dirty_source_checkout_is_rejected_before_checkout_changes(self):
         source = self.root / "3rdparty/example/library.txt"
