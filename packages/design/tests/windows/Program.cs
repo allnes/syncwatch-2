@@ -156,6 +156,10 @@ internal static class Program
                         image.Render(workspace);
                         var pixels = new byte[width * height * 4]; image.CopyPixels(pixels, width * 4, 0);
                         Check(pixels[3] == 255 && pixels.Any(value => value != pixels[0]), "nonblank native render");
+                        var expectedBackground = ((SolidColorBrush)application.Resources["theme.gradientStart.brush"]).Color;
+                        Check(Math.Abs(pixels[0] - expectedBackground.B) <= 1 && Math.Abs(pixels[1] - expectedBackground.G) <= 1 && Math.Abs(pixels[2] - expectedBackground.R) <= 1, "rendered gradient follows theme");
+                        foreach (var title in Descendants<TextBlock>(workspace).Where(t => AutomationProperties.GetAutomationId(t) == "library.selectedTitle"))
+                            Check(title.ActualHeight <= SyncWatchTokens.TypeTitleSize * 2.4 + 1, "long title stays within two lines");
                         if (output is not null)
                         {
                             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(image));

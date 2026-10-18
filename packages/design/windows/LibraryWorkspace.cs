@@ -195,7 +195,14 @@ public sealed class LibraryWorkspace : UserControl
         if (Presentation.Selected is not { } entry) return Panel(new TextBlock { Text = T("selectMovie"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         var stack = new StackPanel();
         stack.Children.Add(Text(T("selectedMovie"), true));
-        stack.Children.Add(Text(entry.Title, size: SyncWatchTokens.TypeTitleSize, bold: true));
+        var title = Text(entry.Title, size: SyncWatchTokens.TypeTitleSize, bold: true);
+        title.LineHeight = SyncWatchTokens.TypeTitleSize * 1.2;
+        title.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+        title.MaxHeight = title.LineHeight * 2;
+        title.TextTrimming = TextTrimming.WordEllipsis;
+        title.ToolTip = entry.Title;
+        AutomationProperties.SetAutomationId(title, "library.selectedTitle");
+        stack.Children.Add(title);
         var metrics = new UniformGrid { Columns = ActualWidth < 1000 ? 2 : 4, Margin = new Thickness(0, SyncWatchTokens.LayoutPanelGap, 0, SyncWatchTokens.LayoutPanelGap) };
         foreach (var key in new[] { "duration", "resolution", "audio", "subtitles" }) { var metric = new StackPanel(); metric.Children.Add(Text(T(key), true)); metric.Children.Add(Text(T("unknown"), bold: true)); metrics.Children.Add(metric); }
         metricGrids.Add(metrics);
