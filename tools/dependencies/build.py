@@ -283,9 +283,9 @@ def initialize_export_source(root, path, specification, url):
         subprocess.run(["git", "clone", "--no-checkout", "--filter=blob:none", "--depth=1", "--no-tags", "--", url, str(source)], cwd=root, check=True)
         subprocess.run(["git", "submodule", "absorbgitdirs", "--", path], cwd=root, check=True)
     revision = specification["revision"]
-    present = subprocess.run(["git", "cat-file", "-e", revision + "^{commit}"], cwd=source, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if present.returncode:
-        subprocess.run(["git", "-c", "fetch.recurseSubmodules=false", "fetch", "--depth=1", "--no-tags", "origin", revision], cwd=source, check=True)
+    # Object-existence probes can trigger an unbounded promisor fetch of missing history.
+    if created or git(source, "rev-parse", "HEAD").decode().strip() != revision:
+        subprocess.run(["git", "-c", "fetch.recurseSubmodules=false", "fetch", "--filter=blob:none", "--depth=1", "--no-tags", "origin", revision], cwd=source, check=True)
     if created:
         # No worktree/index exists yet: detach at the exact pin before materializing files.
         subprocess.run(["git", "update-ref", "--no-deref", "HEAD", revision], cwd=source, check=True)

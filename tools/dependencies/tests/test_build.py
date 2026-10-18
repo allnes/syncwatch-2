@@ -350,6 +350,7 @@ class DependencyBuildTests(unittest.TestCase):
         subprocess.run(["git", "submodule", "init", "--", "3rdparty/example"], cwd=self.root, check=True)
         build.initialize_export_source(self.root, "3rdparty/example", self.component["sources"]["3rdparty/example"], remote.as_uri())
         self.assertEqual(build.git(source, "rev-parse", "HEAD").decode().strip(), revision)
+        self.assertEqual(build.git(source, "rev-list", "--count", "HEAD").strip(), b"1")
         self.assertEqual((source / "library.txt").read_text(), "source payload\n")
         self.assertFalse((source / "omitted").exists())
         self.assertTrue((source / ".git").is_file())
