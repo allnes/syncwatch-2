@@ -5,12 +5,14 @@ These commands require this checkout and its declared source dependencies. The c
 ## Source checkout
 
 ```sh
-git clone --recurse-submodules https://github.com/salo-group/syncwatch.git
+git clone https://github.com/salo-group/syncwatch.git
 cd syncwatch
-git submodule update --init --recursive
+git submodule status
 ```
 
 External library sources are pinned under `3rdparty/`. The [dependency policy](architecture/dependencies.md) describes unresolved source graphs. Do not replace missing source dependencies with undeclared registry packages or floating revisions.
+
+Use Git 2.34 or newer and the component preparation commands below to initialize selected dependencies. Large upstream trees can contain unrelated test paths that exceed Windows limits; preparation applies reviewed sparse roots before checkout. Cloning all submodules recursively is unnecessary for these component builds.
 
 ## macOS
 

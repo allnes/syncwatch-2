@@ -33,6 +33,8 @@ A source graph entry may declare an optional `exports` list of literal files or 
 
 Selected snapshots must contain exactly the pinned Git blobs below those roots, preserving bytes, file types, symbolic-link targets and executable bits. Missing paths, `export-ignore` omissions, `export-subst` rewrites or missing notices fail preparation before compilation or cache reuse. Selection does not waive complete transitive-source or license review, change upstream pins, or replace component-specific source/API/license verification. It limits the snapshot passed to a trusted build recipe; it does not restrict that process's operating-system access.
 
+For explicit exports, preparation configures a non-cone sparse checkout before materializing a newly cloned source. This avoids unrelated upstream paths that exceed Windows filesystem limits. The clone uses Git's blob filter, fetches the exact revision when necessary, and remains a normal registered submodule. Existing clean checkouts are narrowed to the same selected roots; dirty or nonempty uninitialized paths are rejected. Nested dependency declarations are read from the pinned Git blob even when `.gitmodules` is outside the selected checkout. This affects source preparation only; archive identity and complete graph checks remain mandatory.
+
 Before building a component:
 
 1. Resolve its complete runtime and build dependency graph for the selected configuration.
@@ -73,10 +75,12 @@ WebView2's closed runtime and SDK cannot be represented by a source submodule; s
 Run from the repository root:
 
 ```sh
-git submodule update --init --recursive
-git submodule status --recursive
+git submodule status
 git diff --submodule=short
+python3 tools/dependencies/build.py prepare --component kotlin-stdlib-sources --platform macos-arm64
 ```
+
+Choose the component and host target from the [build guide](../building.md#source-dependencies). Preparation initializes its complete declared source graph and configures selected checkout roots before materialization. This avoids unrelated upstream test paths with incompatible host filesystem lengths; a blanket recursive checkout is unnecessary.
 
 Each source update records an exact revision and the corresponding license/notice requirements. Reproducible builds must not use `git submodule update --remote`.
 
