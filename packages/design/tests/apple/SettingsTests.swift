@@ -52,6 +52,7 @@ import Testing
         URL(fileURLWithPath: $0, isDirectory: true)
     }
     if let output { try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true) }
+    var referenceColors: [String: NSColor] = [:]
     for section in SyncWatchSettings.sections {
         for state in SettingsVisualState.allCases {
             for (name, scheme) in [("dark", ColorScheme.dark), ("light", ColorScheme.light)] {
@@ -71,6 +72,18 @@ import Testing
                     let bitmap = try #require(hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds))
                     hosting.cacheDisplay(in: hosting.bounds, to: bitmap)
                     #expect(!window.isVisible)
+                    if section == "interface" {
+                        let scale = CGFloat(bitmap.pixelsWide) / frame.width
+                        let actual = try #require(
+                            bitmap.colorAt(x: Int(430 * scale), y: Int(135 * scale))?.usingColorSpace(.sRGB))
+                        if referenceColors[name] == nil {
+                            referenceColors[name] = try renderedReferenceColor(SyncWatchTheme.resolve(scheme).inputFill)
+                        }
+                        let expected = try #require(referenceColors[name])
+                        #expect(abs(actual.redComponent - expected.redComponent) <= 1.0 / 255 + 0.0001)
+                        #expect(abs(actual.greenComponent - expected.greenComponent) <= 1.0 / 255 + 0.0001)
+                        #expect(abs(actual.blueComponent - expected.blueComponent) <= 1.0 / 255 + 0.0001)
+                    }
                     #expect(try #require(bitmap.colorAt(x: 40, y: 40)).alphaComponent > 0.99)
                     defer { window.close() }
                     if let output {
@@ -82,4 +95,20 @@ import Testing
             }
         }
     }
+}
+
+/// Compare rendered colors in the same display profile instead of assuming a backing bitmap is sRGB.
+@MainActor private func renderedReferenceColor(_ color: Color) throws -> NSColor {
+    let frame = NSRect(x: 0, y: 0, width: 10, height: 10)
+    let hosting = NSHostingView(rootView: color.frame(width: 10, height: 10))
+    hosting.frame = frame
+    let window = NSWindow(contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)
+    window.isReleasedWhenClosed = false
+    window.contentView = hosting
+    hosting.layoutSubtreeIfNeeded()
+    let bitmap = try #require(hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds))
+    hosting.cacheDisplay(in: hosting.bounds, to: bitmap)
+    #expect(!window.isVisible)
+    defer { window.close() }
+    return try #require(bitmap.colorAt(x: bitmap.pixelsWide / 2, y: bitmap.pixelsHigh / 2)?.usingColorSpace(.sRGB))
 }

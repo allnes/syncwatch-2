@@ -196,23 +196,20 @@ public struct SettingsDialog: View {
                             }
                         }
                     } label: {
-                        HStack {
-                            Text(
-                                text(
-                                    "option" + value.wrappedValue.prefix(1).uppercased()
-                                        + value.wrappedValue.dropFirst()))
-                            Spacer()
-                            SettingsChoiceMark().fill(theme.textSecondary).frame(width: 8, height: 4)
-                        }
-                        .padding(.horizontal, SyncWatchTokens.layoutSettingsCardPadding)
-                        .frame(height: SyncWatchTokens.layoutSettingsControlHeight)
-                        .background(
-                            theme.inputFill, in: RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius).stroke(theme.border))
+                        Text(
+                            text("option" + value.wrappedValue.prefix(1).uppercased() + value.wrappedValue.dropFirst()))
                     }
                     .menuStyle(.borderlessButton).menuIndicator(.hidden)
+                    .frame(
+                        maxWidth: .infinity, minHeight: SyncWatchTokens.layoutSettingsControlHeight, alignment: .leading
+                    )
+                    .padding(.horizontal, SyncWatchTokens.layoutSettingsCardPadding)
+                    .background(theme.inputFill, in: RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius))
+                    .overlay(RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius).stroke(theme.border))
+                    .overlay(alignment: .trailing) {
+                        SettingsChoiceMark().fill(theme.textSecondary).frame(width: 8, height: 4)
+                            .padding(.trailing, SyncWatchTokens.layoutSettingsCardPadding).allowsHitTesting(false)
+                    }
                     .accessibilityLabel(text(field.label))
                 } else {
                     TextField(text(field.label), text: value).textFieldStyle(.plain)

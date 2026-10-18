@@ -86,6 +86,9 @@ internal static class SettingsAssertions
                     {
                         var fixture = new SettingsEditor(editableFields: SyncWatchSettings.Defaults.Keys, canSave: true, state: state);
                         var dialog = new SettingsDialog(fixture, locale, section); Layout(dialog);
+                        foreach (var choice in Find<ComboBox>(dialog))
+                            if (choice.SelectedItem is KeyValuePair<string, string> selected)
+                                Check(Element<TextBlock>(choice, "settings.choiceLabel").Text == selected.Value, "choice displays localized label without internal ID");
                         var image = new RenderTargetBitmap(680, 420, 96, 96, PixelFormats.Pbgra32); image.Render(dialog);
                         var pixels = new byte[680 * 420 * 4]; image.CopyPixels(pixels, 680 * 4, 0);
                         int offset = (340 * 680 + 650) * 4; var expected = ((SolidColorBrush)application.Resources["theme.surface.brush"]).Color;
