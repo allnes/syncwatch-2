@@ -127,7 +127,7 @@ private fun designColor(value: String, theme: SyncWatchTheme): Color {
 private fun designWeight(value: String) = when(value) { "heavy" -> FontWeight.Black; "bold" -> FontWeight.Bold; "semibold" -> FontWeight.SemiBold; else -> FontWeight.Normal }
 private fun textStyle(n: DesignElement, theme: SyncWatchTheme) = TextStyle(color=designColor(n.text("foreground"),theme),fontSize=n.number("fontSize").sp,fontWeight=designWeight(n.text("weight")))
 private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modifier {
-    var m=this
+    var m=this.offset(n.number("offsetX").dp,n.number("offsetY").dp)
     if (n.text("width")=="fill") m=m.fillMaxWidth() else if (n.props.containsKey("width")) m=m.width(n.number("width").dp)
     if (n.text("height")=="fill") m=m.fillMaxHeight() else if (n.props.containsKey("height")) m=m.height(n.number("height").dp)
     if (n.props.containsKey("minWidth")) m=m.widthIn(min=n.number("minWidth").dp)
