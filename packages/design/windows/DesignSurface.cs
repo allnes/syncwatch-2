@@ -108,6 +108,16 @@ public class DesignSurface : UserControl
                     var child = Build(node.Children[index].Id); if (row) Grid.SetColumn(child, index * 2); else Grid.SetRow(child, index * 2); desired.Add(child);
                 }
                 Reconcile(grid, desired);
+                Bind(id, n =>
+                {
+                    for (int i = 0; i < n.Children.Length; i++)
+                    {
+                        var view = (FrameworkElement)grid.Children[i];
+                        var child = n.Children[i];
+                        if (row && child.Text("height") != "fill") view.VerticalAlignment = n.Text("align") == "top" ? VerticalAlignment.Top : VerticalAlignment.Center;
+                        if (!row && child.Text("width") != "fill") view.HorizontalAlignment = n.Text("align") == "center" ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+                    }
+                });
                 Bind(id, n => { for (int i = 0; i < n.Children.Length; i++) { var child = n.Children[i]; var size = child.Text(row ? "width" : "height") == "fill" || child.Kind == "spacer" ? new GridLength(1, GridUnitType.Star) : GridLength.Auto; if (row) { grid.ColumnDefinitions[i * 2].Width = size; if (i > 0) grid.ColumnDefinitions[i * 2 - 1].Width = new GridLength(n.Number("gap")); } else { grid.RowDefinitions[i * 2].Height = size; if (i > 0) grid.RowDefinitions[i * 2 - 1].Height = new GridLength(n.Number("gap")); } } }); core = grid; break;
             case "overlay": var overlay = Existing(() => new Grid()); Reconcile(overlay, node.Children.Select(child => (UIElement)Build(child.Id)).ToArray()); core = overlay; break;
             case "scroll":
