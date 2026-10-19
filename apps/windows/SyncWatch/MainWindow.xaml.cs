@@ -7,7 +7,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        if (Environment.GetCommandLineArgs().Contains("--settings-gallery")) WorkspaceRoot.Children.Add(new Design.SettingsGallery());
+        if (Environment.GetCommandLineArgs().Contains("--player-gallery")) WorkspaceRoot.Children.Add(new Design.PlayerGallery());
+        else if (Environment.GetCommandLineArgs().Contains("--settings-gallery")) WorkspaceRoot.Children.Add(new Design.SettingsGallery());
         else if (Environment.GetCommandLineArgs().Contains("--design-gallery")) WorkspaceRoot.Children.Add(new Design.DesignGallery());
         else
         {

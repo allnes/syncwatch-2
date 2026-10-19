@@ -25,6 +25,7 @@ object SyncWatchTokens {
     const val colorSharedAccentSoft: Long = 0x6AAFFFFFL
     const val colorSharedSelection: Long = 0x2F8CFF26L
     const val colorSharedSuccess: Long = 0x30D98BFFL
+    const val colorSharedVideoSurface: Long = 0x000000FFL
     const val controlBorderWidth: Float = 1.0f
     const val controlBrandSize: Float = 38.0f
     const val controlButtonRadius: Float = 12.0f
@@ -37,6 +38,11 @@ object SyncWatchTokens {
     const val controlIconSize: Float = 20.0f
     const val controlMenuRowHeight: Float = 30.0f
     const val controlOutlinedButtonMinHeight: Float = 44.0f
+    const val controlPlayerButtonSize: Float = 38.0f
+    const val controlPlayerIconSize: Float = 20.0f
+    const val controlPlayerProminentSize: Float = 46.0f
+    const val controlPlayerSliderHeight: Float = 20.0f
+    const val controlPlayerSliderThumbSize: Float = 12.0f
     const val controlRowMinHeight: Float = 62.0f
     const val controlRowRadius: Float = 11.0f
     const val controlSettingsToggleHeight: Float = 16.0f
@@ -59,9 +65,13 @@ object SyncWatchTokens {
     const val layoutPanelPadding: Float = 14.0f
     const val layoutPanelRadius: Float = 16.0f
     const val layoutPlayerBottomInset: Float = 78.0f
+    const val layoutPlayerFooterHeight: Float = 86.0f
     const val layoutPlayerSettingsHeight: Float = 460.0f
     const val layoutPlayerSettingsSidebarWidth: Float = 170.0f
+    const val layoutPlayerTimeWidth: Float = 64.0f
+    const val layoutPlayerToolbarHeight: Float = 40.0f
     const val layoutPlayerTopInset: Float = 32.0f
+    const val layoutPlayerVolumeWidth: Float = 96.0f
     const val layoutSectionGap: Float = 10.0f
     const val layoutSelectedPanelMaxHeight: Float = 375.0f
     const val layoutSelectedPanelMinHeight: Float = 260.0f
@@ -80,6 +90,7 @@ object SyncWatchTokens {
     const val typeBodySize: Float = 14.0f
     const val typeBrandSize: Float = 23.0f
     const val typeCaptionSize: Float = 12.0f
+    const val typePlayerLabelSize: Float = 12.0f
     const val typeSectionSize: Float = 19.0f
     const val typeSettingsBodySize: Float = 13.0f
     const val typeSettingsSectionSize: Float = 18.0f
@@ -207,6 +218,34 @@ object SyncWatchCopy {
         "en" to "gallerySettings" -> "Settings"
         "en" to "optionOn" -> "On"
         "en" to "optionOff" -> "Off"
+        "en" to "player" -> "Player"
+        "en" to "play" -> "Play"
+        "en" to "pause" -> "Pause"
+        "en" to "seek" -> "Seek"
+        "en" to "skipBackward" -> "Skip backward"
+        "en" to "skipForward" -> "Skip forward"
+        "en" to "previousFile" -> "Previous file"
+        "en" to "nextFile" -> "Next file"
+        "en" to "setMovieVolume" -> "Movie volume"
+        "en" to "muteMovie" -> "Mute movie"
+        "en" to "unmuteMovie" -> "Unmute movie"
+        "en" to "showLibrary" -> "Return to library"
+        "en" to "toggleFullscreen" -> "Toggle fullscreen"
+        "en" to "playerSettings" -> "Player settings"
+        "en" to "playlist" -> "Playlist"
+        "en" to "audioTracks" -> "Audio tracks"
+        "en" to "loading" -> "Loading movie"
+        "en" to "paused" -> "Paused"
+        "en" to "playing" -> "Playing"
+        "en" to "buffering" -> "Buffering"
+        "en" to "fullscreen" -> "Fullscreen"
+        "en" to "connectionInterrupted" -> "Synchronization interrupted"
+        "en" to "ended" -> "Playback ended"
+        "en" to "playerFixture" -> "Player component fixture"
+        "en" to "videoSurface" -> "Video surface"
+        "en" to "noVideoProvider" -> "Playback provider is not connected"
+        "en" to "noPlayerAction" -> "No user action"
+        "en" to "unsupportedPlayerControl" -> "Available after media integration"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -276,6 +315,34 @@ object SyncWatchCopy {
         "ru" to "gallerySettings" -> "Настройки"
         "ru" to "optionOn" -> "Вкл."
         "ru" to "optionOff" -> "Выкл."
+        "ru" to "player" -> "Плеер"
+        "ru" to "play" -> "Воспроизвести"
+        "ru" to "pause" -> "Пауза"
+        "ru" to "seek" -> "Перемотать"
+        "ru" to "skipBackward" -> "Назад на интервал"
+        "ru" to "skipForward" -> "Вперёд на интервал"
+        "ru" to "previousFile" -> "Предыдущий файл"
+        "ru" to "nextFile" -> "Следующий файл"
+        "ru" to "setMovieVolume" -> "Громкость фильма"
+        "ru" to "muteMovie" -> "Выключить звук фильма"
+        "ru" to "unmuteMovie" -> "Включить звук фильма"
+        "ru" to "showLibrary" -> "Вернуться в библиотеку"
+        "ru" to "toggleFullscreen" -> "Полноэкранный режим"
+        "ru" to "playerSettings" -> "Настройки плеера"
+        "ru" to "playlist" -> "Плейлист"
+        "ru" to "audioTracks" -> "Аудиодорожки"
+        "ru" to "loading" -> "Загрузка фильма"
+        "ru" to "paused" -> "Пауза"
+        "ru" to "playing" -> "Воспроизведение"
+        "ru" to "buffering" -> "Буферизация"
+        "ru" to "fullscreen" -> "Полный экран"
+        "ru" to "connectionInterrupted" -> "Синхронизация прервана"
+        "ru" to "ended" -> "Воспроизведение завершено"
+        "ru" to "playerFixture" -> "Образец компонента плеера"
+        "ru" to "videoSurface" -> "Область видео"
+        "ru" to "noVideoProvider" -> "Медиаплеер не подключён"
+        "ru" to "noPlayerAction" -> "Нет действий пользователя"
+        "ru" to "unsupportedPlayerControl" -> "Доступно после подключения медиаплеера"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -315,5 +382,29 @@ object SyncWatchSettings {
         SyncWatchSettingsField("syncServer", "connection", "text", "syncServer", listOf(), 256),
         SyncWatchSettingsField("roomName", "connection", "text", "roomName", listOf(), 128),
         SyncWatchSettingsField("username", "connection", "text", "username", listOf(), 128),
+    )
+}
+
+object SyncWatchPlayer {
+    val states = listOf("loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended")
+    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen")
+    const val maximumPositionMs: Long = 604800000L
+    val icons = mapOf(
+        "play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
+        "pause" to listOf(listOf(4.0f, 3.0f, 8.0f, 3.0f, 8.0f, 17.0f, 4.0f, 17.0f), listOf(12.0f, 3.0f, 16.0f, 3.0f, 16.0f, 17.0f, 12.0f, 17.0f)),
+        "backward" to listOf(listOf(10.0f, 3.0f, 2.0f, 10.0f, 10.0f, 17.0f), listOf(18.0f, 3.0f, 10.0f, 10.0f, 18.0f, 17.0f)),
+        "forward" to listOf(listOf(2.0f, 3.0f, 10.0f, 10.0f, 2.0f, 17.0f), listOf(10.0f, 3.0f, 18.0f, 10.0f, 10.0f, 17.0f)),
+        "previous" to listOf(listOf(3.0f, 3.0f, 5.0f, 3.0f, 5.0f, 17.0f, 3.0f, 17.0f), listOf(17.0f, 3.0f, 6.0f, 10.0f, 17.0f, 17.0f)),
+        "next" to listOf(listOf(15.0f, 3.0f, 17.0f, 3.0f, 17.0f, 17.0f, 15.0f, 17.0f), listOf(3.0f, 3.0f, 14.0f, 10.0f, 3.0f, 17.0f)),
+        "volume" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(14.0f, 5.0f, 16.0f, 5.0f, 18.0f, 10.0f, 16.0f, 15.0f, 14.0f, 15.0f, 16.0f, 10.0f)),
+        "muted" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(13.0f, 6.0f, 14.0f, 5.0f, 18.0f, 14.0f, 17.0f, 15.0f), listOf(17.0f, 5.0f, 18.0f, 6.0f, 14.0f, 15.0f, 13.0f, 14.0f)),
+        "library" to listOf(listOf(10.0f, 3.0f, 11.0f, 5.0f, 6.0f, 9.0f, 18.0f, 9.0f, 18.0f, 11.0f, 6.0f, 11.0f, 11.0f, 15.0f, 10.0f, 17.0f, 2.0f, 10.0f)),
+        "call" to listOf(listOf(2.0f, 5.0f, 12.0f, 5.0f, 12.0f, 15.0f, 2.0f, 15.0f), listOf(14.0f, 8.0f, 19.0f, 5.0f, 19.0f, 15.0f, 14.0f, 12.0f)),
+        "fullscreen" to listOf(listOf(2.0f, 2.0f, 8.0f, 2.0f, 8.0f, 4.0f, 4.0f, 4.0f, 4.0f, 8.0f, 2.0f, 8.0f), listOf(12.0f, 2.0f, 18.0f, 2.0f, 18.0f, 8.0f, 16.0f, 8.0f, 16.0f, 4.0f, 12.0f, 4.0f), listOf(2.0f, 12.0f, 4.0f, 12.0f, 4.0f, 16.0f, 8.0f, 16.0f, 8.0f, 18.0f, 2.0f, 18.0f), listOf(16.0f, 12.0f, 18.0f, 12.0f, 18.0f, 18.0f, 12.0f, 18.0f, 12.0f, 16.0f, 16.0f, 16.0f)),
+        "end" to listOf(listOf(4.0f, 4.0f, 16.0f, 4.0f, 16.0f, 16.0f, 4.0f, 16.0f)),
+        "settings" to listOf(listOf(3.0f, 4.0f, 17.0f, 4.0f, 17.0f, 6.0f, 3.0f, 6.0f), listOf(3.0f, 9.0f, 17.0f, 9.0f, 17.0f, 11.0f, 3.0f, 11.0f), listOf(3.0f, 14.0f, 17.0f, 14.0f, 17.0f, 16.0f, 3.0f, 16.0f), listOf(6.0f, 2.0f, 8.0f, 2.0f, 8.0f, 8.0f, 6.0f, 8.0f), listOf(12.0f, 7.0f, 14.0f, 7.0f, 14.0f, 13.0f, 12.0f, 13.0f), listOf(6.0f, 12.0f, 8.0f, 12.0f, 8.0f, 18.0f, 6.0f, 18.0f)),
+        "playlist" to listOf(listOf(2.0f, 4.0f, 14.0f, 4.0f, 14.0f, 6.0f, 2.0f, 6.0f), listOf(2.0f, 9.0f, 14.0f, 9.0f, 14.0f, 11.0f, 2.0f, 11.0f), listOf(2.0f, 14.0f, 9.0f, 14.0f, 9.0f, 16.0f, 2.0f, 16.0f), listOf(12.0f, 13.0f, 18.0f, 16.0f, 12.0f, 19.0f)),
+        "subtitles" to listOf(listOf(2.0f, 4.0f, 18.0f, 4.0f, 18.0f, 16.0f, 2.0f, 16.0f, 2.0f, 14.0f, 16.0f, 14.0f, 16.0f, 6.0f, 4.0f, 6.0f, 4.0f, 16.0f, 2.0f, 16.0f), listOf(5.0f, 9.0f, 9.0f, 9.0f, 9.0f, 11.0f, 5.0f, 11.0f), listOf(11.0f, 9.0f, 15.0f, 9.0f, 15.0f, 11.0f, 11.0f, 11.0f)),
+        "audio" to listOf(listOf(4.0f, 4.0f, 6.0f, 4.0f, 6.0f, 16.0f, 4.0f, 16.0f), listOf(9.0f, 1.0f, 11.0f, 1.0f, 11.0f, 19.0f, 9.0f, 19.0f), listOf(14.0f, 6.0f, 16.0f, 6.0f, 16.0f, 14.0f, 14.0f, 14.0f)),
     )
 }

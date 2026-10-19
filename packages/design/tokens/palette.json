@@ -16,6 +16,10 @@
       "selection": {
         "type": "color",
         "value": "#2F8CFF26"
+      },
+      "videoSurface": {
+        "type": "color",
+        "value": "#000000"
       }
     },
     "dark": {

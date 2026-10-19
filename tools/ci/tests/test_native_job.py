@@ -130,7 +130,7 @@ class NativeJobChecks(unittest.TestCase):
         payload = self.root / "payload"
         payload.mkdir()
         native_job.retain_design_images(self.root, payload, "apple")
-        self.assertEqual(len(list((payload / "design").iterdir())), 88)
+        self.assertEqual(len(list((payload / "design").iterdir())), 144)
         image = next(source.iterdir())
         image.unlink()
         image.symlink_to(self.root / "source.txt")

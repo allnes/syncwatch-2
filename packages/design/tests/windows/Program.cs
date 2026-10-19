@@ -80,6 +80,7 @@ internal static class Program
         application.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("SyncWatchComponents.xaml", UriKind.Relative) });
         VerifyLibrary(application, dictionary);
         SettingsAssertions.Run(application, dictionary);
+        PlayerAssertions.Run(application, dictionary);
         application.Shutdown();
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Verified {count} compiled C#/WPF resources and theme assertions"));
     }
