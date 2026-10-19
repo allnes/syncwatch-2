@@ -154,6 +154,16 @@ class ZlibBuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "2022 or 2026"):
             toolchain.visual_studio_generator("19.0.0.0", (4, 2))
 
+    def test_binary_repeatability_failure_retains_bounded_difference(self):
+        zlib.require_identical_library(b"same", b"same")
+        for first, second, offset in [(b"x" * 4096, b"x" * 300 + b"y" * 3796, 300), (b"prefix", b"prefix-more", 6)]:
+            with self.subTest(offset=offset), self.assertRaisesRegex(ValueError, "binary bytes") as error:
+                zlib.require_identical_library(first, second)
+            details = json.loads(str(error.exception).split(": ", 1)[1])
+            self.assertEqual(details["firstDifference"], offset)
+            self.assertEqual(details["sha256"], [zlib.digest(first), zlib.digest(second)])
+            self.assertLess(len(str(error.exception)), 2000)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -125,6 +125,16 @@ def configuration_header(path):
             + path.read_bytes())
 
 
+def require_identical_library(original, repeated):
+    if repeated != original:
+        offset = next((n for n, (a, b) in enumerate(zip(original, repeated)) if a != b), min(len(original), len(repeated)))
+        start, end = max(0, offset - 32), offset + 96
+        raise ValueError("Repeated native static build changed its binary bytes: " + json.dumps({
+            "sizes": [len(original), len(repeated)], "sha256": [digest(original), digest(repeated)],
+            "firstDifference": offset, "contextOffset": start,
+            "originalContext": repr(original[start:end]), "repeatedContext": repr(repeated[start:end])}))
+
+
 def build_or_verify(operation, payload, files, profile, cmake, sdk_args, sdk):
     validate_sources(files, profile)
     # Work stays outside the source snapshot and payload. No build SDK/runtime
@@ -141,8 +151,7 @@ def build_or_verify(operation, payload, files, profile, cmake, sdk_args, sdk):
             configured_header = configuration_header(directory / "cold/upstream/zconf.h")
             configure(cmake, sdk_args, source, directory / "repeat")
             repeated, repeated_probe = compile_probe(cmake, directory / "repeat")
-            if repeated.read_bytes() != library:
-                raise ValueError("Repeated native static build changed its binary bytes")
+            require_identical_library(library, repeated.read_bytes())
             if native_probe(repeated_probe, directory, profile) != probe:
                 raise ValueError("Repeated native build changed its probe result")
             expected = expected_payload(files, profile, sdk, library, configured_header, probe)
