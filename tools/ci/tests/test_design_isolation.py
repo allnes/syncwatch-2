@@ -18,7 +18,9 @@ class DesignIsolationTests(unittest.TestCase):
         root = Path(temporary.name)
         for target in ("apple", "windows", "linux"):
             (root / "packages/design" / target).mkdir(parents=True)
-        (root / "packages/design" / platform / name).write_text(content)
+        file = root / "packages/design" / platform / name
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(content)
         return root
 
     def test_native_screen_construction_is_rejected_on_each_platform(self):
@@ -33,6 +35,15 @@ class DesignIsolationTests(unittest.TestCase):
     def test_observations_and_domain_numbers_remain_allowed(self):
         root = self.fixture("apple", "Bindings.swift", 'let positionMs = 1000; let view = DesignSurface("Player", context: model)')
         self.assertEqual(isolation.check(root), [])
+
+    def test_component_subdirectories_cannot_bypass_isolation_or_impersonate_the_adapter(self):
+        for platform, name, source in [
+            ("apple", "selection/Bindings.swift", "HStack { Text(value) }.padding(2)"),
+            ("windows", "selection/DesignSurface.cs", "var control = new Button();"),
+            ("linux", "selection/DesignSurface.kt", "Row { BasicText(value) }.padding(2.dp)"),
+        ]:
+            with self.subTest(platform=platform):
+                self.assertTrue(isolation.check(self.fixture(platform, name, source)))
 
     def test_primitive_construction_is_confined_to_the_mechanical_adapter(self):
         root = self.fixture("windows", "DesignSurface.cs", "var control = new Button();")

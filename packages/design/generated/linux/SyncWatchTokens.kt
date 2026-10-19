@@ -43,7 +43,7 @@ object SyncWatchTokens {
     const val controlFieldRadius: Float = 11.0f
     const val controlFilledButtonMinHeight: Float = 46.0f
     const val controlIconSize: Float = 20.0f
-    const val controlMenuRowHeight: Float = 30.0f
+    const val controlMenuRowHeight: Float = 34.0f
     const val controlOutlinedButtonMinHeight: Float = 44.0f
     const val controlPlayerButtonSize: Float = 38.0f
     const val controlPlayerIconSize: Float = 20.0f
@@ -102,6 +102,22 @@ object SyncWatchTokens {
     const val layoutSectionGap: Float = 10.0f
     const val layoutSelectedPanelMaxHeight: Float = 375.0f
     const val layoutSelectedPanelMinHeight: Float = 260.0f
+    const val layoutSelectionAudioMaxHeight: Float = 260.0f
+    const val layoutSelectionAudioWidth: Float = 300.0f
+    const val layoutSelectionEdgeInset: Float = 8.0f
+    const val layoutSelectionGalleryHeight: Float = 360.0f
+    const val layoutSelectionGalleryWidth: Float = 420.0f
+    const val layoutSelectionLabelGap: Float = 4.0f
+    const val layoutSelectionMarkerArea: Float = 14.0f
+    const val layoutSelectionMarkerSize: Float = 7.0f
+    const val layoutSelectionMinHeight: Float = 48.0f
+    const val layoutSelectionPaddingX: Float = 8.0f
+    const val layoutSelectionPaddingY: Float = 4.0f
+    const val layoutSelectionPlaylistMaxHeight: Float = 300.0f
+    const val layoutSelectionPlaylistWidth: Float = 340.0f
+    const val layoutSelectionRadius: Float = 12.0f
+    const val layoutSelectionSubtitleMaxHeight: Float = 220.0f
+    const val layoutSelectionSubtitleWidth: Float = 240.0f
     const val layoutSettingsCardPadding: Float = 8.0f
     const val layoutSettingsContentPadding: Float = 16.0f
     const val layoutSettingsControlHeight: Float = 30.0f
@@ -119,6 +135,7 @@ object SyncWatchTokens {
     const val typeCaptionSize: Float = 12.0f
     const val typePlayerLabelSize: Float = 12.0f
     const val typeSectionSize: Float = 19.0f
+    const val typeSelectionLabelSize: Float = 12.5f
     const val typeSettingsBodySize: Float = 13.0f
     const val typeSettingsSectionSize: Float = 18.0f
     const val typeSettingsTitleSize: Float = 15.0f
@@ -364,6 +381,11 @@ object SyncWatchCopy {
         "en" to "closeCall" -> "Close call window"
         "en" to "moveCall" -> "Move call window"
         "en" to "resizeCall" -> "Resize call window"
+        "en" to "selectionEmpty" -> "No items available"
+        "en" to "selectionUnavailable" -> "Selection unavailable"
+        "en" to "selectionFixtureLabel" -> "Selection menu fixture"
+        "en" to "selectionFixtureLong" -> "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv"
+        "en" to "galleryKind" -> "Menu"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -552,6 +574,11 @@ object SyncWatchCopy {
         "ru" to "closeCall" -> "Закрыть окно звонка"
         "ru" to "moveCall" -> "Переместить окно звонка"
         "ru" to "resizeCall" -> "Изменить размер окна звонка"
+        "ru" to "selectionEmpty" -> "Нет доступных элементов"
+        "ru" to "selectionUnavailable" -> "Выбор недоступен"
+        "ru" to "selectionFixtureLabel" -> "Пример меню выбора"
+        "ru" to "selectionFixtureLong" -> "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv"
+        "ru" to "galleryKind" -> "Меню"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -706,8 +733,19 @@ object SyncWatchCall {
     )
 }
 
+data class SelectionMenuKind(val id: String, val label: String, val action: String, val scope: String)
+object SyncWatchSelectionMenu {
+    const val maximumEntries = 500
+    const val maximumIDBytes = 128
+    const val maximumLabelBytes = 4096
+    const val maximumRevision: Long = 9007199254740991L
+    const val galleryEntryCount = 24
+    val states = listOf("empty", "available", "readOnly", "longList")
+    val kinds = listOf(SelectionMenuKind("playlist", "playlist", "selectMovie", "shared"), SelectionMenuKind("audio", "audioTracks", "selectAudioTrack", "local"), SelectionMenuKind("subtitles", "subtitles", "selectSubtitleTrack", "local"))
+}
+
 object SyncWatchLayouts {
-    const val sourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e"
+    const val sourceDigest = "41f7dfe5f4f468ee2dbf9870a8258bc17d3536a58c1b374b41844e134c729e7c"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -770,7 +808,7 @@ object SyncWatchLayouts {
         "control.fieldRadius" to "11",
         "control.filledButtonMinHeight" to "46",
         "control.iconSize" to "20",
-        "control.menuRowHeight" to "30",
+        "control.menuRowHeight" to "34",
         "control.outlinedButtonMinHeight" to "44",
         "control.playerButtonSize" to "38",
         "control.playerIconSize" to "20",
@@ -829,6 +867,22 @@ object SyncWatchLayouts {
         "layout.sectionGap" to "10",
         "layout.selectedPanelMaxHeight" to "375",
         "layout.selectedPanelMinHeight" to "260",
+        "layout.selectionAudioMaxHeight" to "260",
+        "layout.selectionAudioWidth" to "300",
+        "layout.selectionEdgeInset" to "8",
+        "layout.selectionGalleryHeight" to "360",
+        "layout.selectionGalleryWidth" to "420",
+        "layout.selectionLabelGap" to "4",
+        "layout.selectionMarkerArea" to "14",
+        "layout.selectionMarkerSize" to "7",
+        "layout.selectionMinHeight" to "48",
+        "layout.selectionPaddingX" to "8",
+        "layout.selectionPaddingY" to "4",
+        "layout.selectionPlaylistMaxHeight" to "300",
+        "layout.selectionPlaylistWidth" to "340",
+        "layout.selectionRadius" to "12",
+        "layout.selectionSubtitleMaxHeight" to "220",
+        "layout.selectionSubtitleWidth" to "240",
         "layout.settingsCardPadding" to "8",
         "layout.settingsContentPadding" to "16",
         "layout.settingsControlHeight" to "30",
@@ -846,6 +900,7 @@ object SyncWatchLayouts {
         "type.captionSize" to "12",
         "type.playerLabelSize" to "12",
         "type.sectionSize" to "19",
+        "type.selectionLabelSize" to "12.5",
         "type.settingsBodySize" to "13",
         "type.settingsSectionSize" to "18",
         "type.settingsTitleSize" to "15",
@@ -896,6 +951,8 @@ object SyncWatchLayouts {
         "callFixture" to makecallFixture(),
         "callRemoteFixture" to makecallRemoteFixture(),
         "callLocalFixture" to makecallLocalFixture(),
+        "SelectionMenu" to makeSelectionMenu(),
+        "selectionFixture" to makeselectionFixture(),
     )
     private fun makeLibrary(): DesignNode {
         val node62 = DesignNode("node62", "icon", mapOf(
@@ -4448,5 +4505,183 @@ object SyncWatchLayouts {
             "height" to "fill",
         ), listOf())
         return callLocalFixtureRoot
+    }
+    private fun makeSelectionMenu(): DesignNode {
+        val selectionMarker = DesignNode("selectionMarker", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.selectionMarkerSize",
+            "height" to "@layout.selectionMarkerSize",
+            "radius" to "circle",
+            "background" to "@color.shared.accentSoft",
+        ), listOf())
+        val selectionMarkerIf = DesignNode("selectionMarkerIf", "if", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "condition" to "\$selected",
+        ), listOf(selectionMarker))
+        val selectionMarkerArea = DesignNode("selectionMarkerArea", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.selectionMarkerArea",
+            "height" to "fill",
+        ), listOf(selectionMarkerIf))
+        val selectionLabel = DesignNode("selectionLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "\$label",
+            "width" to "fill",
+            "lines" to "1",
+            "truncate" to "end",
+        ), listOf())
+        val selectionEntryContent = DesignNode("selectionEntryContent", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "gap" to "@layout.selectionLabelGap",
+        ), listOf(selectionMarkerArea, selectionLabel))
+        val selectionEntry = DesignNode("selectionEntry", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "@control.menuRowHeight",
+            "paddingX" to "@layout.selectionPaddingX",
+            "radius" to "0",
+            "background" to "= \$selected theme.selection transparent if",
+            "selected" to "\$selected",
+            "contentAlign" to "leading",
+            "enabled" to "\$enabled",
+            "label" to "\$label",
+            "automation" to "selection.{id}",
+            "action" to "selectEntry",
+            "value" to "\$id",
+            "payload" to "\$contextToken",
+        ), listOf(selectionEntryContent))
+        val selectionRepeat = DesignNode("selectionRepeat", "repeat", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "items" to "entries",
+        ), listOf(selectionEntry))
+        val selectionRows = DesignNode("selectionRows", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "width" to "fill",
+            "gap" to "0",
+        ), listOf(selectionRepeat))
+        val selectionScroll = DesignNode("selectionScroll", "scroll", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "barWidth" to "@control.compactGap",
+            "thumbMinimum" to "@control.iconSize",
+            "thumbRadius" to "@control.buttonRadius",
+            "thumbFill" to "theme.border",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf(selectionRows))
+        val selectionEmpty = DesignNode("selectionEmpty", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "foreground" to "theme.textSecondary",
+            "text" to "~{emptyLabel}",
+            "width" to "fill",
+            "height" to "fill",
+            "lines" to "1",
+            "paddingX" to "@layout.selectionPaddingX",
+        ), listOf())
+        val selectionBody = DesignNode("selectionBody", "if", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "condition" to "\$hasEntries",
+        ), listOf(selectionScroll, selectionEmpty))
+        val selectionPanel = DesignNode("selectionPanel", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "width" to "= \$kind playlist == @layout.selectionPlaylistWidth \$kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if \$viewport.width @layout.selectionEdgeInset 2 * - 0 max min",
+            "height" to "= \$entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max \$kind playlist == @layout.selectionPlaylistMaxHeight \$kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min \$viewport.height @layout.selectionEdgeInset 2 * - 0 max min",
+            "paddingY" to "@layout.selectionPaddingY",
+            "radius" to "@layout.selectionRadius",
+            "clip" to "true",
+            "background" to "theme.surface",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.selectionLabelSize",
+            "gap" to "0",
+            "cycleFocus" to "true",
+            "automation" to "selection.menu",
+            "label" to "~{menuLabel}",
+        ), listOf(selectionBody))
+        val selectionRoot = DesignNode("selectionRoot", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf(selectionPanel))
+        return selectionRoot
+    }
+    private fun makeselectionFixture(): DesignNode {
+        val selectionFixtureSlot = DesignNode("selectionFixtureSlot", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "selectionFixtureContent",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val selectionFixtureRoot = DesignNode("selectionFixtureRoot", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "background" to "theme.backgroundDeep",
+        ), listOf(selectionFixtureSlot))
+        return selectionFixtureRoot
     }
 }

@@ -184,6 +184,35 @@
       "border": "theme.border",
       "borderWidth": "@control.borderWidth",
       "clip": "true"
+    },
+    "selectionMenu": {
+      "width": "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if $viewport.width @layout.selectionEdgeInset 2 * - 0 max min",
+      "height": "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min $viewport.height @layout.selectionEdgeInset 2 * - 0 max min",
+      "paddingY": "@layout.selectionPaddingY",
+      "radius": "@layout.selectionRadius",
+      "clip": "true",
+      "background": "theme.surface",
+      "foreground": "theme.text",
+      "fontSize": "@type.selectionLabelSize",
+      "gap": "0",
+      "cycleFocus": "true",
+      "automation": "selection.menu",
+      "label": "~{menuLabel}"
+    },
+    "selectionRow": {
+      "width": "fill",
+      "height": "@control.menuRowHeight",
+      "paddingX": "@layout.selectionPaddingX",
+      "radius": "0",
+      "background": "= $selected theme.selection transparent if",
+      "selected": "$selected",
+      "contentAlign": "leading",
+      "enabled": "$enabled",
+      "label": "$label",
+      "automation": "selection.{id}",
+      "action": "selectEntry",
+      "value": "$id",
+      "payload": "$contextToken"
     }
   },
   "controls": {
@@ -3765,6 +3794,175 @@
         "align": "center"
       },
       "children": []
+    },
+    "SelectionMenu": {
+      "id": "selectionRoot",
+      "kind": "overlay",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill"
+      },
+      "children": [
+        {
+          "id": "selectionPanel",
+          "kind": "column",
+          "styles": [
+            "selectionMenu"
+          ],
+          "props": {},
+          "children": [
+            {
+              "id": "selectionBody",
+              "kind": "if",
+              "styles": [],
+              "props": {
+                "condition": "$hasEntries"
+              },
+              "children": [
+                {
+                  "id": "selectionScroll",
+                  "kind": "scroll",
+                  "styles": [],
+                  "props": {
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "selectionRows",
+                      "kind": "column",
+                      "styles": [],
+                      "props": {
+                        "width": "fill",
+                        "gap": "0"
+                      },
+                      "children": [
+                        {
+                          "id": "selectionRepeat",
+                          "kind": "repeat",
+                          "styles": [],
+                          "props": {
+                            "items": "entries"
+                          },
+                          "children": [
+                            {
+                              "id": "selectionEntry",
+                              "kind": "button",
+                              "styles": [
+                                "selectionRow"
+                              ],
+                              "props": {},
+                              "children": [
+                                {
+                                  "id": "selectionEntryContent",
+                                  "kind": "row",
+                                  "styles": [],
+                                  "props": {
+                                    "width": "fill",
+                                    "height": "fill",
+                                    "gap": "@layout.selectionLabelGap"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "selectionMarkerArea",
+                                      "kind": "overlay",
+                                      "styles": [],
+                                      "props": {
+                                        "width": "@layout.selectionMarkerArea",
+                                        "height": "fill"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "selectionMarkerIf",
+                                          "kind": "if",
+                                          "styles": [],
+                                          "props": {
+                                            "condition": "$selected"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "selectionMarker",
+                                              "kind": "overlay",
+                                              "styles": [],
+                                              "props": {
+                                                "width": "@layout.selectionMarkerSize",
+                                                "height": "@layout.selectionMarkerSize",
+                                                "radius": "circle",
+                                                "background": "@color.shared.accentSoft"
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "selectionLabel",
+                                      "kind": "text",
+                                      "styles": [],
+                                      "props": {
+                                        "text": "$label",
+                                        "width": "fill",
+                                        "lines": "1",
+                                        "truncate": "end"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "selectionEmpty",
+                  "kind": "text",
+                  "styles": [
+                    "muted"
+                  ],
+                  "props": {
+                    "text": "~{emptyLabel}",
+                    "width": "fill",
+                    "height": "fill",
+                    "align": "center",
+                    "lines": "1",
+                    "paddingX": "@layout.selectionPaddingX"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "selectionFixture": {
+      "id": "selectionFixtureRoot",
+      "kind": "overlay",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill",
+        "background": "theme.backgroundDeep"
+      },
+      "children": [
+        {
+          "id": "selectionFixtureSlot",
+          "kind": "slot",
+          "styles": [],
+          "props": {
+            "name": "selectionFixtureContent",
+            "width": "fill",
+            "height": "fill"
+          },
+          "children": []
+        }
+      ]
     }
   },
   "defaults": {

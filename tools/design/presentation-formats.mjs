@@ -16,7 +16,7 @@ export function validateCopy(copy, components) {
 }
 export function swiftCopy(copy) {
     return '\npublic enum SyncWatchCopy {\n    private static let values: [String: [String: String]] = [\n' + Object.entries(copy.locales).map(([locale, values]) =>
-        `        ${quote(locale)}: [\n` + Object.entries(values).map(([key, text]) => `            ${quote(key)}: ${quote(text)},\n`).join('') + '        ],\n').join('') +
+        `        ${quote(locale)}: [\n` + Object.entries(values).map(([key, text]) => { const line = `            ${quote(key)}: ${quote(text)},`; return (line.length <= 120 ? line : `            ${quote(key)}:\n                ${quote(text)},`) + '\n'; }).join('') + '        ],\n').join('') +
         '    ]\n    public static func text(_ key: String, language: String = "en") -> String {\n        values[language]?[key] ?? values["en"]?[key] ?? key\n    }\n' +
         `    public static let galleryStates = [${copy.gallery.states.map(quote).join(', ')}]\n` +
         `    public static let libraryActions = [\n${copy.gallery.actions.map(v => '        ' + quote(v) + ',\n').join('')}    ]\n` +

@@ -144,3 +144,10 @@ Resource generation and repository validation run the design-isolation check. Na
 Launch the native executable with `--call-gallery` to inspect the compact call shell, remote/self-view slots and call/window controls. Choose a host/preview case, English or Russian, and a dark or light theme. The gallery simulates microphone, camera, volume, pin/fullscreen/minimized and closed observations in memory. Move/resize requests are recorded; the gallery does not operate an OS call window.
 
 The shell enables media controls only after explicit joined observations and capabilities are supplied. Missing camera content stays a placeholder. These fixtures do not access normal preferences, open Google Meet, initialize a browser, request device permission or start/stop capture/audio. The Linux renderer/gallery remains source-only until its complete dependency/compiler/native/font/license build is available.
+
+
+## Selection-menu component gallery
+
+Launch the native executable with `--selection-menu-gallery` to review playlist, audio-track and subtitle menus. Choose a menu kind, empty/available/read-only/long-list case, theme and language. Selection updates only the gallery's in-memory fixture and records the correlated request. It does not read preferences, select real media/tracks or contact a provider. Normal player track/playlist actions remain unavailable until their integration supplies capabilities.
+
+Native checks add 48 menu renders per platform to the required artifact matrix. The common input corpus verifies identity/revision, action scopes, invalid observations and UTF-8 bounds through the generator, Swift and C#. Actual WPF controls verify input-free observation refresh, selection requests and long-list scrolling. Linux carries matching data/model/renderer/gallery source; it has no runnable gallery until compiler/Compose/native/font/license closure passes.

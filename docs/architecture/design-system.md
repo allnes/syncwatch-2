@@ -129,3 +129,12 @@ All fixture galleries also use the shared tree. They keep model state in memory 
 ## Call shell
 
 The Call component also consumes the neutral document. Its header, owned remote/self-view slots, observation-gated controls, volume, preview placement and window variants share the same compiled tree. The generic two-axis gesture primitive declares delta or bounded extent coordinates, keyboard step and limits as data. Platform adapters implement pointer/keyboard input; Call bindings only validate and forward requests. In WPF, removing a declared slot detaches its supplied child, and a single object cannot occupy both Call slots. Hiding a surface does not claim provider/audio shutdown.
+
+
+## Selection menu
+
+`SelectionMenu` is a reusable playlist, audio-track and subtitle component. Its compact rows, selected marker, bounded scroll area, long-label truncation and per-kind responsive dimensions come from the common document. `selection-menu.json` owns supported kinds, action scopes and input limits. Focused model, binding and gallery files keep these responsibilities separate from other screens and native primitive adapters.
+
+The caller supplies an observed source ID, revision, entries, selection and capability. Requests preserve that identity and revision. Duplicate/unknown IDs, invalid observations, disabled choices, stale context tokens and the already observed selection cannot produce a request. Rendering does not change selection. Playlist requests describe shared movie selection; audio and subtitle choices are local. The application coordinator must validate and route requests and supply authoritative observations; the design component does not replicate actions or invoke a provider.
+
+The isolated gallery covers empty, available, read-only and long-list cases in both themes and languages. Real video-overlay placement, outside-click dismissal, focus return, display-scale/window transitions and VLC-backed track selection belong to native playback integration. Matching Compose models, bindings and gallery remain source-only until their declared build prerequisites pass.

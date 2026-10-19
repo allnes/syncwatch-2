@@ -10,7 +10,7 @@ let package = Package(
             name: "SyncWatchDesign", path: ".",
             exclude: [
                 "tests", "LICENSE", "README.md", "generated/windows", "generated/linux", "tokens", "themes.json",
-                "components.json", "layouts.json", "call.json",
+                "components.json", "layouts.json", "call.json", "selection-menu.json",
                 "copy.json", "settings.json", "player.json", "player-settings.json", "package.json", "windows", "linux",
                 "generated/design-manifest.json",
             ],

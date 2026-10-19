@@ -15,8 +15,8 @@ PRIMITIVES = {
 def check(root: Path = ROOT) -> list[str]:
     errors = []
     for platform in ("apple", "windows", "linux"):
-        for path in sorted((root / "packages/design" / platform).iterdir()):
-            if path.suffix not in PRIMITIVES or platform + "/" + path.name in ADAPTERS:
+        for path in sorted((root / "packages/design" / platform).rglob("*")):
+            if path.suffix not in PRIMITIVES or path.relative_to(root / "packages/design").as_posix() in ADAPTERS:
                 continue
             source = path.read_text()
             for pattern in PRIMITIVES[path.suffix]:

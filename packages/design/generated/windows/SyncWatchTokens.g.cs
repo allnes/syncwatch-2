@@ -67,7 +67,7 @@ public static class SyncWatchTokens
     public const double ControlIconSize = 20;
     public static Thickness ControlIconSizeThickness => new(ControlIconSize);
     public static CornerRadius ControlIconSizeCornerRadius => new(ControlIconSize);
-    public const double ControlMenuRowHeight = 30;
+    public const double ControlMenuRowHeight = 34;
     public static Thickness ControlMenuRowHeightThickness => new(ControlMenuRowHeight);
     public static CornerRadius ControlMenuRowHeightCornerRadius => new(ControlMenuRowHeight);
     public const double ControlOutlinedButtonMinHeight = 44;
@@ -244,6 +244,54 @@ public static class SyncWatchTokens
     public const double LayoutSelectedPanelMinHeight = 260;
     public static Thickness LayoutSelectedPanelMinHeightThickness => new(LayoutSelectedPanelMinHeight);
     public static CornerRadius LayoutSelectedPanelMinHeightCornerRadius => new(LayoutSelectedPanelMinHeight);
+    public const double LayoutSelectionAudioMaxHeight = 260;
+    public static Thickness LayoutSelectionAudioMaxHeightThickness => new(LayoutSelectionAudioMaxHeight);
+    public static CornerRadius LayoutSelectionAudioMaxHeightCornerRadius => new(LayoutSelectionAudioMaxHeight);
+    public const double LayoutSelectionAudioWidth = 300;
+    public static Thickness LayoutSelectionAudioWidthThickness => new(LayoutSelectionAudioWidth);
+    public static CornerRadius LayoutSelectionAudioWidthCornerRadius => new(LayoutSelectionAudioWidth);
+    public const double LayoutSelectionEdgeInset = 8;
+    public static Thickness LayoutSelectionEdgeInsetThickness => new(LayoutSelectionEdgeInset);
+    public static CornerRadius LayoutSelectionEdgeInsetCornerRadius => new(LayoutSelectionEdgeInset);
+    public const double LayoutSelectionGalleryHeight = 360;
+    public static Thickness LayoutSelectionGalleryHeightThickness => new(LayoutSelectionGalleryHeight);
+    public static CornerRadius LayoutSelectionGalleryHeightCornerRadius => new(LayoutSelectionGalleryHeight);
+    public const double LayoutSelectionGalleryWidth = 420;
+    public static Thickness LayoutSelectionGalleryWidthThickness => new(LayoutSelectionGalleryWidth);
+    public static CornerRadius LayoutSelectionGalleryWidthCornerRadius => new(LayoutSelectionGalleryWidth);
+    public const double LayoutSelectionLabelGap = 4;
+    public static Thickness LayoutSelectionLabelGapThickness => new(LayoutSelectionLabelGap);
+    public static CornerRadius LayoutSelectionLabelGapCornerRadius => new(LayoutSelectionLabelGap);
+    public const double LayoutSelectionMarkerArea = 14;
+    public static Thickness LayoutSelectionMarkerAreaThickness => new(LayoutSelectionMarkerArea);
+    public static CornerRadius LayoutSelectionMarkerAreaCornerRadius => new(LayoutSelectionMarkerArea);
+    public const double LayoutSelectionMarkerSize = 7;
+    public static Thickness LayoutSelectionMarkerSizeThickness => new(LayoutSelectionMarkerSize);
+    public static CornerRadius LayoutSelectionMarkerSizeCornerRadius => new(LayoutSelectionMarkerSize);
+    public const double LayoutSelectionMinHeight = 48;
+    public static Thickness LayoutSelectionMinHeightThickness => new(LayoutSelectionMinHeight);
+    public static CornerRadius LayoutSelectionMinHeightCornerRadius => new(LayoutSelectionMinHeight);
+    public const double LayoutSelectionPaddingX = 8;
+    public static Thickness LayoutSelectionPaddingXThickness => new(LayoutSelectionPaddingX);
+    public static CornerRadius LayoutSelectionPaddingXCornerRadius => new(LayoutSelectionPaddingX);
+    public const double LayoutSelectionPaddingY = 4;
+    public static Thickness LayoutSelectionPaddingYThickness => new(LayoutSelectionPaddingY);
+    public static CornerRadius LayoutSelectionPaddingYCornerRadius => new(LayoutSelectionPaddingY);
+    public const double LayoutSelectionPlaylistMaxHeight = 300;
+    public static Thickness LayoutSelectionPlaylistMaxHeightThickness => new(LayoutSelectionPlaylistMaxHeight);
+    public static CornerRadius LayoutSelectionPlaylistMaxHeightCornerRadius => new(LayoutSelectionPlaylistMaxHeight);
+    public const double LayoutSelectionPlaylistWidth = 340;
+    public static Thickness LayoutSelectionPlaylistWidthThickness => new(LayoutSelectionPlaylistWidth);
+    public static CornerRadius LayoutSelectionPlaylistWidthCornerRadius => new(LayoutSelectionPlaylistWidth);
+    public const double LayoutSelectionRadius = 12;
+    public static Thickness LayoutSelectionRadiusThickness => new(LayoutSelectionRadius);
+    public static CornerRadius LayoutSelectionRadiusCornerRadius => new(LayoutSelectionRadius);
+    public const double LayoutSelectionSubtitleMaxHeight = 220;
+    public static Thickness LayoutSelectionSubtitleMaxHeightThickness => new(LayoutSelectionSubtitleMaxHeight);
+    public static CornerRadius LayoutSelectionSubtitleMaxHeightCornerRadius => new(LayoutSelectionSubtitleMaxHeight);
+    public const double LayoutSelectionSubtitleWidth = 240;
+    public static Thickness LayoutSelectionSubtitleWidthThickness => new(LayoutSelectionSubtitleWidth);
+    public static CornerRadius LayoutSelectionSubtitleWidthCornerRadius => new(LayoutSelectionSubtitleWidth);
     public const double LayoutSettingsCardPadding = 8;
     public static Thickness LayoutSettingsCardPaddingThickness => new(LayoutSettingsCardPadding);
     public static CornerRadius LayoutSettingsCardPaddingCornerRadius => new(LayoutSettingsCardPadding);
@@ -295,6 +343,9 @@ public static class SyncWatchTokens
     public const double TypeSectionSize = 19;
     public static Thickness TypeSectionSizeThickness => new(TypeSectionSize);
     public static CornerRadius TypeSectionSizeCornerRadius => new(TypeSectionSize);
+    public const double TypeSelectionLabelSize = 12.5;
+    public static Thickness TypeSelectionLabelSizeThickness => new(TypeSelectionLabelSize);
+    public static CornerRadius TypeSelectionLabelSizeCornerRadius => new(TypeSelectionLabelSize);
     public const double TypeSettingsBodySize = 13;
     public static Thickness TypeSettingsBodySizeThickness => new(TypeSettingsBodySize);
     public static CornerRadius TypeSettingsBodySizeCornerRadius => new(TypeSettingsBodySize);
@@ -501,6 +552,11 @@ public static class SyncWatchCopy
         ("en", "closeCall") => "Close call window",
         ("en", "moveCall") => "Move call window",
         ("en", "resizeCall") => "Resize call window",
+        ("en", "selectionEmpty") => "No items available",
+        ("en", "selectionUnavailable") => "Selection unavailable",
+        ("en", "selectionFixtureLabel") => "Selection menu fixture",
+        ("en", "selectionFixtureLong") => "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
+        ("en", "galleryKind") => "Menu",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -689,6 +745,11 @@ public static class SyncWatchCopy
         ("ru", "closeCall") => "Закрыть окно звонка",
         ("ru", "moveCall") => "Переместить окно звонка",
         ("ru", "resizeCall") => "Изменить размер окна звонка",
+        ("ru", "selectionEmpty") => "Нет доступных элементов",
+        ("ru", "selectionUnavailable") => "Выбор недоступен",
+        ("ru", "selectionFixtureLabel") => "Пример меню выбора",
+        ("ru", "selectionFixtureLong") => "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
+        ("ru", "galleryKind") => "Меню",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -855,9 +916,21 @@ public static class SyncWatchCall
     };
 }
 
+public sealed record SelectionMenuKind(string Id, string Label, string Action, string Scope);
+public static class SyncWatchSelectionMenu
+{
+    public const int MaximumEntries = 500;
+    public const int MaximumIDBytes = 128;
+    public const int MaximumLabelBytes = 4096;
+    public const long MaximumRevision = 9007199254740991;
+    public const int GalleryEntryCount = 24;
+    public static string[] States => ["empty", "available", "readOnly", "longList"];
+    public static SelectionMenuKind[] Kinds => [new("playlist", "playlist", "selectMovie", "shared"), new("audio", "audioTracks", "selectAudioTrack", "local"), new("subtitles", "subtitles", "selectSubtitleTrack", "local")];
+}
+
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e";
+    public const string SourceDigest = "41f7dfe5f4f468ee2dbf9870a8258bc17d3536a58c1b374b41844e134c729e7c";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -906,7 +979,7 @@ public static class SyncWatchLayouts
         ["control.fieldRadius"] = "11",
         ["control.filledButtonMinHeight"] = "46",
         ["control.iconSize"] = "20",
-        ["control.menuRowHeight"] = "30",
+        ["control.menuRowHeight"] = "34",
         ["control.outlinedButtonMinHeight"] = "44",
         ["control.playerButtonSize"] = "38",
         ["control.playerIconSize"] = "20",
@@ -965,6 +1038,22 @@ public static class SyncWatchLayouts
         ["layout.sectionGap"] = "10",
         ["layout.selectedPanelMaxHeight"] = "375",
         ["layout.selectedPanelMinHeight"] = "260",
+        ["layout.selectionAudioMaxHeight"] = "260",
+        ["layout.selectionAudioWidth"] = "300",
+        ["layout.selectionEdgeInset"] = "8",
+        ["layout.selectionGalleryHeight"] = "360",
+        ["layout.selectionGalleryWidth"] = "420",
+        ["layout.selectionLabelGap"] = "4",
+        ["layout.selectionMarkerArea"] = "14",
+        ["layout.selectionMarkerSize"] = "7",
+        ["layout.selectionMinHeight"] = "48",
+        ["layout.selectionPaddingX"] = "8",
+        ["layout.selectionPaddingY"] = "4",
+        ["layout.selectionPlaylistMaxHeight"] = "300",
+        ["layout.selectionPlaylistWidth"] = "340",
+        ["layout.selectionRadius"] = "12",
+        ["layout.selectionSubtitleMaxHeight"] = "220",
+        ["layout.selectionSubtitleWidth"] = "240",
         ["layout.settingsCardPadding"] = "8",
         ["layout.settingsContentPadding"] = "16",
         ["layout.settingsControlHeight"] = "30",
@@ -982,6 +1071,7 @@ public static class SyncWatchLayouts
         ["type.captionSize"] = "12",
         ["type.playerLabelSize"] = "12",
         ["type.sectionSize"] = "19",
+        ["type.selectionLabelSize"] = "12.5",
         ["type.settingsBodySize"] = "13",
         ["type.settingsSectionSize"] = "18",
         ["type.settingsTitleSize"] = "15",
@@ -1034,6 +1124,8 @@ public static class SyncWatchLayouts
         ["callFixture"] = MakecallFixture(),
         ["callRemoteFixture"] = MakecallRemoteFixture(),
         ["callLocalFixture"] = MakecallLocalFixture(),
+        ["SelectionMenu"] = MakeSelectionMenu(),
+        ["selectionFixture"] = MakeselectionFixture(),
     };
     private static DesignNode MakeLibrary()
     {
@@ -4885,5 +4977,200 @@ public static class SyncWatchLayouts
             ["height"] = "fill",
         }, []);
         return callLocalFixtureRoot;
+    }
+    private static DesignNode MakeSelectionMenu()
+    {
+        var selectionMarker = new DesignNode("selectionMarker", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.selectionMarkerSize",
+            ["height"] = "@layout.selectionMarkerSize",
+            ["radius"] = "circle",
+            ["background"] = "@color.shared.accentSoft",
+        }, []);
+        var selectionMarkerIf = new DesignNode("selectionMarkerIf", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$selected",
+        }, [selectionMarker]);
+        var selectionMarkerArea = new DesignNode("selectionMarkerArea", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.selectionMarkerArea",
+            ["height"] = "fill",
+        }, [selectionMarkerIf]);
+        var selectionLabel = new DesignNode("selectionLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "$label",
+            ["width"] = "fill",
+            ["lines"] = "1",
+            ["truncate"] = "end",
+        }, []);
+        var selectionEntryContent = new DesignNode("selectionEntryContent", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["gap"] = "@layout.selectionLabelGap",
+        }, [selectionMarkerArea, selectionLabel]);
+        var selectionEntry = new DesignNode("selectionEntry", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "@control.menuRowHeight",
+            ["paddingX"] = "@layout.selectionPaddingX",
+            ["radius"] = "0",
+            ["background"] = "= $selected theme.selection transparent if",
+            ["selected"] = "$selected",
+            ["contentAlign"] = "leading",
+            ["enabled"] = "$enabled",
+            ["label"] = "$label",
+            ["automation"] = "selection.{id}",
+            ["action"] = "selectEntry",
+            ["value"] = "$id",
+            ["payload"] = "$contextToken",
+        }, [selectionEntryContent]);
+        var selectionRepeat = new DesignNode("selectionRepeat", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "entries",
+        }, [selectionEntry]);
+        var selectionRows = new DesignNode("selectionRows", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "fill",
+            ["gap"] = "0",
+        }, [selectionRepeat]);
+        var selectionScroll = new DesignNode("selectionScroll", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [selectionRows]);
+        var selectionEmpty = new DesignNode("selectionEmpty", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{emptyLabel}",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["lines"] = "1",
+            ["paddingX"] = "@layout.selectionPaddingX",
+        }, []);
+        var selectionBody = new DesignNode("selectionBody", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$hasEntries",
+        }, [selectionScroll, selectionEmpty]);
+        var selectionPanel = new DesignNode("selectionPanel", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if $viewport.width @layout.selectionEdgeInset 2 * - 0 max min",
+            ["height"] = "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min $viewport.height @layout.selectionEdgeInset 2 * - 0 max min",
+            ["paddingY"] = "@layout.selectionPaddingY",
+            ["radius"] = "@layout.selectionRadius",
+            ["clip"] = "true",
+            ["background"] = "theme.surface",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.selectionLabelSize",
+            ["gap"] = "0",
+            ["cycleFocus"] = "true",
+            ["automation"] = "selection.menu",
+            ["label"] = "~{menuLabel}",
+        }, [selectionBody]);
+        var selectionRoot = new DesignNode("selectionRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [selectionPanel]);
+        return selectionRoot;
+    }
+    private static DesignNode MakeselectionFixture()
+    {
+        var selectionFixtureSlot = new DesignNode("selectionFixtureSlot", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "selectionFixtureContent",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var selectionFixtureRoot = new DesignNode("selectionFixtureRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["background"] = "theme.backgroundDeep",
+        }, [selectionFixtureSlot]);
+        return selectionFixtureRoot;
     }
 }

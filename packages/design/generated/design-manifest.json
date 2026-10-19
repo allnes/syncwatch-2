@@ -1,36 +1,38 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "0a968e1bf6356884c9bcde939cb36141512e9c87454bac700a1783fc6d6a7c38",
+  "sourceDigest": "dfa7197ca13803920454bbe28f504c829b9676253b9aa31784355ad2e42dba87",
   "sources": {
-    "tokens/geometry.json": "1c60acd9453ab4320482ef0a01d1ae4ed69331c89ec96e32911908b9725edada",
+    "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "1983a2ff612cf0ab2f030e93da294b24ec37e6080ad5f81fcde6fc3f6f0477be",
-    "copy.json": "703290ee9d1a23b46e5509176fd4395843729c250ce2af900bf545ad677e218d",
+    "components.json": "176ffb4f8795a0330d8b03883426b358b5d06a40a57fdb798544bf55548f81b9",
+    "copy.json": "d9201e03964b5e0db06b142a4b0e9806e4e7676f67f4f90e91dc54d8e70117f9",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "layouts.json": "f2b080c3311467889d7447c4770ec1ec60e564a4320a07550e1a546adf15a845",
+    "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
+    "layouts.json": "998acccfa058d8dd516e3e76ece8eb686ec27a46aa72b3482dd7664e1e990b76",
     "package.json": "50a4f888922c6eeb0bc6d5b5845465cb329006b73935a5dc94ef8c1b8998b41b"
   },
-  "generatorRevision": "8cdbb916f6bbae47ee9ae6d7e5b3b9f0801047d19bf24ee67a286089f1d20e9c",
+  "generatorRevision": "525499ee1e99c89a998a095dcc977fbd5b37ee9b3d0e77478761086dfd323e0d",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "bd8000e88bdd902e68b2176eaf300cdac742f2702c582a98c6f7f0ef890a01a5",
+      "tools/design/generate.mjs": "d93f83acfccf0dc12dad1ee022b7d1776f00f93607b24996c541eedd0a5dcdd9",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
       "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
       "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
-      "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
+      "tools/design/presentation-formats.mjs": "47a8570026c429720ac121c0ad1c4067cd1e1f29395d6e390512ea39d2e8bb7a",
       "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
       "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
       "tools/design/layout-formats.mjs": "f225c788257b7e771a1f2042a27f8495594be1dbf130f9c8740e129a2f4589cc",
-      "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c"
+      "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
+      "tools/design/selection-menu-formats.mjs": "f5c6334203d99b239f1e2397af158efad317fb7aa9c237f01226e183445b2df3"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -273,7 +275,12 @@
         "exitFullscreenCall": "Restore call size",
         "closeCall": "Close call window",
         "moveCall": "Move call window",
-        "resizeCall": "Resize call window"
+        "resizeCall": "Resize call window",
+        "selectionEmpty": "No items available",
+        "selectionUnavailable": "Selection unavailable",
+        "selectionFixtureLabel": "Selection menu fixture",
+        "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
+        "galleryKind": "Menu"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -463,7 +470,12 @@
         "exitFullscreenCall": "Вернуть размер окна",
         "closeCall": "Закрыть окно звонка",
         "moveCall": "Переместить окно звонка",
-        "resizeCall": "Изменить размер окна звонка"
+        "resizeCall": "Изменить размер окна звонка",
+        "selectionEmpty": "Нет доступных элементов",
+        "selectionUnavailable": "Выбор недоступен",
+        "selectionFixtureLabel": "Пример меню выбора",
+        "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
+        "galleryKind": "Меню"
       }
     },
     "gallery": {
@@ -1940,6 +1952,40 @@
       }
     ]
   },
+  "selectionMenu": {
+    "schemaVersion": 1,
+    "kinds": [
+      {
+        "id": "playlist",
+        "label": "playlist",
+        "action": "selectMovie",
+        "scope": "shared"
+      },
+      {
+        "id": "audio",
+        "label": "audioTracks",
+        "action": "selectAudioTrack",
+        "scope": "local"
+      },
+      {
+        "id": "subtitles",
+        "label": "subtitles",
+        "action": "selectSubtitleTrack",
+        "scope": "local"
+      }
+    ],
+    "states": [
+      "empty",
+      "available",
+      "readOnly",
+      "longList"
+    ],
+    "maximumEntries": 500,
+    "maximumIDBytes": 128,
+    "maximumLabelBytes": 4096,
+    "maximumRevision": 9007199254740991,
+    "galleryEntryCount": 24
+  },
   "layouts": {
     "schemaVersion": 1,
     "coordinateSize": 20,
@@ -2126,6 +2172,35 @@
         "border": "theme.border",
         "borderWidth": "@control.borderWidth",
         "clip": "true"
+      },
+      "selectionMenu": {
+        "width": "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if $viewport.width @layout.selectionEdgeInset 2 * - 0 max min",
+        "height": "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min $viewport.height @layout.selectionEdgeInset 2 * - 0 max min",
+        "paddingY": "@layout.selectionPaddingY",
+        "radius": "@layout.selectionRadius",
+        "clip": "true",
+        "background": "theme.surface",
+        "foreground": "theme.text",
+        "fontSize": "@type.selectionLabelSize",
+        "gap": "0",
+        "cycleFocus": "true",
+        "automation": "selection.menu",
+        "label": "~{menuLabel}"
+      },
+      "selectionRow": {
+        "width": "fill",
+        "height": "@control.menuRowHeight",
+        "paddingX": "@layout.selectionPaddingX",
+        "radius": "0",
+        "background": "= $selected theme.selection transparent if",
+        "selected": "$selected",
+        "contentAlign": "leading",
+        "enabled": "$enabled",
+        "label": "$label",
+        "automation": "selection.{id}",
+        "action": "selectEntry",
+        "value": "$id",
+        "payload": "$contextToken"
       }
     },
     "controls": {
@@ -5707,6 +5782,175 @@
           "align": "center"
         },
         "children": []
+      },
+      "SelectionMenu": {
+        "id": "selectionRoot",
+        "kind": "overlay",
+        "styles": [],
+        "props": {
+          "width": "fill",
+          "height": "fill"
+        },
+        "children": [
+          {
+            "id": "selectionPanel",
+            "kind": "column",
+            "styles": [
+              "selectionMenu"
+            ],
+            "props": {},
+            "children": [
+              {
+                "id": "selectionBody",
+                "kind": "if",
+                "styles": [],
+                "props": {
+                  "condition": "$hasEntries"
+                },
+                "children": [
+                  {
+                    "id": "selectionScroll",
+                    "kind": "scroll",
+                    "styles": [],
+                    "props": {
+                      "width": "fill",
+                      "height": "fill"
+                    },
+                    "children": [
+                      {
+                        "id": "selectionRows",
+                        "kind": "column",
+                        "styles": [],
+                        "props": {
+                          "width": "fill",
+                          "gap": "0"
+                        },
+                        "children": [
+                          {
+                            "id": "selectionRepeat",
+                            "kind": "repeat",
+                            "styles": [],
+                            "props": {
+                              "items": "entries"
+                            },
+                            "children": [
+                              {
+                                "id": "selectionEntry",
+                                "kind": "button",
+                                "styles": [
+                                  "selectionRow"
+                                ],
+                                "props": {},
+                                "children": [
+                                  {
+                                    "id": "selectionEntryContent",
+                                    "kind": "row",
+                                    "styles": [],
+                                    "props": {
+                                      "width": "fill",
+                                      "height": "fill",
+                                      "gap": "@layout.selectionLabelGap"
+                                    },
+                                    "children": [
+                                      {
+                                        "id": "selectionMarkerArea",
+                                        "kind": "overlay",
+                                        "styles": [],
+                                        "props": {
+                                          "width": "@layout.selectionMarkerArea",
+                                          "height": "fill"
+                                        },
+                                        "children": [
+                                          {
+                                            "id": "selectionMarkerIf",
+                                            "kind": "if",
+                                            "styles": [],
+                                            "props": {
+                                              "condition": "$selected"
+                                            },
+                                            "children": [
+                                              {
+                                                "id": "selectionMarker",
+                                                "kind": "overlay",
+                                                "styles": [],
+                                                "props": {
+                                                  "width": "@layout.selectionMarkerSize",
+                                                  "height": "@layout.selectionMarkerSize",
+                                                  "radius": "circle",
+                                                  "background": "@color.shared.accentSoft"
+                                                },
+                                                "children": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "id": "selectionLabel",
+                                        "kind": "text",
+                                        "styles": [],
+                                        "props": {
+                                          "text": "$label",
+                                          "width": "fill",
+                                          "lines": "1",
+                                          "truncate": "end"
+                                        },
+                                        "children": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "selectionEmpty",
+                    "kind": "text",
+                    "styles": [
+                      "muted"
+                    ],
+                    "props": {
+                      "text": "~{emptyLabel}",
+                      "width": "fill",
+                      "height": "fill",
+                      "align": "center",
+                      "lines": "1",
+                      "paddingX": "@layout.selectionPaddingX"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "selectionFixture": {
+        "id": "selectionFixtureRoot",
+        "kind": "overlay",
+        "styles": [],
+        "props": {
+          "width": "fill",
+          "height": "fill",
+          "background": "theme.backgroundDeep"
+        },
+        "children": [
+          {
+            "id": "selectionFixtureSlot",
+            "kind": "slot",
+            "styles": [],
+            "props": {
+              "name": "selectionFixtureContent",
+              "width": "fill",
+              "height": "fill"
+            },
+            "children": []
+          }
+        ]
       }
     },
     "defaults": {
@@ -5914,7 +6158,7 @@
     {
       "id": "control.menuRowHeight",
       "type": "number",
-      "value": 30
+      "value": 34
     },
     {
       "id": "control.outlinedButtonMinHeight",
@@ -6207,6 +6451,86 @@
       "value": 260
     },
     {
+      "id": "layout.selectionAudioMaxHeight",
+      "type": "number",
+      "value": 260
+    },
+    {
+      "id": "layout.selectionAudioWidth",
+      "type": "number",
+      "value": 300
+    },
+    {
+      "id": "layout.selectionEdgeInset",
+      "type": "number",
+      "value": 8
+    },
+    {
+      "id": "layout.selectionGalleryHeight",
+      "type": "number",
+      "value": 360
+    },
+    {
+      "id": "layout.selectionGalleryWidth",
+      "type": "number",
+      "value": 420
+    },
+    {
+      "id": "layout.selectionLabelGap",
+      "type": "number",
+      "value": 4
+    },
+    {
+      "id": "layout.selectionMarkerArea",
+      "type": "number",
+      "value": 14
+    },
+    {
+      "id": "layout.selectionMarkerSize",
+      "type": "number",
+      "value": 7
+    },
+    {
+      "id": "layout.selectionMinHeight",
+      "type": "number",
+      "value": 48
+    },
+    {
+      "id": "layout.selectionPaddingX",
+      "type": "number",
+      "value": 8
+    },
+    {
+      "id": "layout.selectionPaddingY",
+      "type": "number",
+      "value": 4
+    },
+    {
+      "id": "layout.selectionPlaylistMaxHeight",
+      "type": "number",
+      "value": 300
+    },
+    {
+      "id": "layout.selectionPlaylistWidth",
+      "type": "number",
+      "value": 340
+    },
+    {
+      "id": "layout.selectionRadius",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "layout.selectionSubtitleMaxHeight",
+      "type": "number",
+      "value": 220
+    },
+    {
+      "id": "layout.selectionSubtitleWidth",
+      "type": "number",
+      "value": 240
+    },
+    {
       "id": "layout.settingsCardPadding",
       "type": "number",
       "value": 8
@@ -6290,6 +6614,11 @@
       "id": "type.sectionSize",
       "type": "number",
       "value": 19
+    },
+    {
+      "id": "type.selectionLabelSize",
+      "type": "number",
+      "value": 12.5
     },
     {
       "id": "type.settingsBodySize",

@@ -189,7 +189,12 @@
       "exitFullscreenCall": "Restore call size",
       "closeCall": "Close call window",
       "moveCall": "Move call window",
-      "resizeCall": "Resize call window"
+      "resizeCall": "Resize call window",
+      "selectionEmpty": "No items available",
+      "selectionUnavailable": "Selection unavailable",
+      "selectionFixtureLabel": "Selection menu fixture",
+      "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
+      "galleryKind": "Menu"
     },
     "ru": {
       "brand": "SyncWatch",
@@ -379,7 +384,12 @@
       "exitFullscreenCall": "Вернуть размер окна",
       "closeCall": "Закрыть окно звонка",
       "moveCall": "Переместить окно звонка",
-      "resizeCall": "Изменить размер окна звонка"
+      "resizeCall": "Изменить размер окна звонка",
+      "selectionEmpty": "Нет доступных элементов",
+      "selectionUnavailable": "Выбор недоступен",
+      "selectionFixtureLabel": "Пример меню выбора",
+      "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
+      "galleryKind": "Меню"
     }
   },
   "gallery": {

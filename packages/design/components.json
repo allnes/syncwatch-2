@@ -205,6 +205,25 @@
         "previewDenied",
         "previewUnavailable"
       ]
+    },
+    "SelectionMenu": {
+      "tokens": [
+        "control.menuRowHeight",
+        "layout.selectionPlaylistWidth",
+        "layout.selectionAudioWidth",
+        "layout.selectionSubtitleWidth"
+      ],
+      "kinds": [
+        "playlist",
+        "audio",
+        "subtitles"
+      ],
+      "states": [
+        "empty",
+        "available",
+        "readOnly",
+        "longList"
+      ]
     }
   }
 }
