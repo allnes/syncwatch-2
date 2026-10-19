@@ -141,6 +141,19 @@ class ZlibBuildTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "host architecture"):
                 toolchain.resolve()
 
+    def test_visual_studio_generation_selects_matching_native_toolset(self):
+        self.assertEqual(toolchain.visual_studio_generator("17.14.37710.0", (3, 30)), ("Visual Studio 17 2022", "v143"))
+        self.assertEqual(toolchain.visual_studio_generator("18.0.10000.0", (4, 2)), ("Visual Studio 18 2026", "v145"))
+
+    def test_visual_studio_2026_rejects_cmake_without_its_generator(self):
+        for version in [(3, 30), (4, 1)]:
+            with self.subTest(version=version), self.assertRaisesRegex(ValueError, "requires CMake 4.2"):
+                toolchain.visual_studio_generator("18.0.10000.0", version)
+
+    def test_unknown_visual_studio_generation_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "2022 or 2026"):
+            toolchain.visual_studio_generator("19.0.0.0", (4, 2))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,7 +11,7 @@ Use Python 3.12 or newer, CMake 3.30 through 4.x and the installed platform C co
 | Host | SDK |
 |---|---|
 | macOS arm64 | Xcode command-line tools with clang, ar, make and macOS SDK; deployment target 13.0 |
-| Windows x64 | Visual Studio 2022 x64 C tools (v143) and Windows 10/11 SDK |
+| Windows x64 | Visual Studio 2022 (v143) or 2026 (v145) x64 C tools and Windows 10/11 SDK; Visual Studio 2026 requires CMake 4.2 or newer |
 | Linux x64 | Native C compiler, ar and make |
 
 CMake may be on PATH, in its standard macOS installation, or in an isolated developer SDK under the toolchain directory. The build does not install SDKs or change system configuration. The SDK probe records CMake/compiler identities and executable digests, platform SDK and selected build tools in dependency inputs/cache keys. No CMake, compiler, redistributable runtime or test executable is copied into the library payload.

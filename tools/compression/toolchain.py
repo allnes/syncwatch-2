@@ -28,6 +28,17 @@ def checksum(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def visual_studio_generator(installation_version, cmake_version):
+    major = int(installation_version.split(".")[0])
+    if major == 17:
+        return "Visual Studio 17 2022", "v143"
+    if major == 18:
+        if cmake_version < (4, 2):
+            raise ValueError("Visual Studio 2026 requires CMake 4.2 or newer")
+        return "Visual Studio 18 2026", "v145"
+    raise ValueError("Visual Studio 2022 or 2026 x64 C SDK is required")
+
+
 def resolve():
     system, machine = platform.system(), platform.machine()
     target = {("Darwin", "arm64"): "macos-arm64", ("Linux", "x86_64"): "linux-x64",
@@ -46,10 +57,13 @@ def resolve():
     configure = []
     if system == "Windows":
         installer = Path(os.environ["ProgramFiles(x86)"]) / "Microsoft Visual Studio/Installer/vswhere.exe"
-        location = output([str(installer), "-latest", "-products", "*", "-version", "[17.0,18.0)",
-                           "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "-property", "installationPath"])
-        if not location:
-            raise ValueError("Visual Studio 2022 x64 C SDK is required")
+        installations = json.loads(output([str(installer), "-latest", "-products", "*", "-version", "[17.0,19.0)",
+                                          "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "-format", "json", "-utf8"]))
+        if not installations:
+            raise ValueError("Visual Studio 2022 or 2026 x64 C SDK is required")
+        selected = installations[0]
+        generator, platform_toolset = visual_studio_generator(selected["installationVersion"], tuple(map(int, match.groups())))
+        location = selected["installationPath"]
         home = Path(location)
         toolset = (home / "VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt").read_text().strip()
         compiler = home / "VC/Tools/MSVC" / toolset / "bin/Hostx64/x64/cl.exe"
@@ -58,9 +72,9 @@ def resolve():
         if not versions:
             raise ValueError("Windows 10/11 platform SDK is required")
         sdk = max(versions, key=lambda v: tuple(map(int, v.split("."))))
-        identity.update(compiler="MSVC " + toolset, compilerSha256=checksum(compiler), sdk=sdk,
+        identity.update(compiler="MSVC " + toolset, compilerSha256=checksum(compiler), sdk=sdk, generator=generator,
                         archiverSha256=checksum(compiler.with_name("lib.exe")), linkerSha256=checksum(compiler.with_name("link.exe")))
-        configure = ["-G", "Visual Studio 17 2022", "-A", "x64", "-T", "v143,version=" + toolset,
+        configure = ["-G", generator, "-A", "x64", "-T", platform_toolset + ",version=" + toolset + ",host=x64",
                      "-DCMAKE_GENERATOR_INSTANCE=" + location, "-DCMAKE_SYSTEM_VERSION=" + sdk]
     else:
         compiler = output(["xcrun", "--find", "clang"]) if system == "Darwin" else executable("cc")
