@@ -25,6 +25,7 @@ flowchart LR
 | `packages/design/generated/` | Generated SwiftUI, C#, XAML, Kotlin and shared manifest |
 | `packages/design/copy.json` | English/Russian copy and Library gallery fixtures |
 | `packages/design/player.json` | Player states/actions and first-party normalized icons |
+| `packages/design/call.json` | Call presentation states, preview states, action payload kinds, gallery cases and first-party icons |
 | `packages/design/player-settings.json` | Player settings sections, fields, bounds, steps, choices, swatches, units and defaults |
 | `packages/design/settings.json` | Settings sections, field IDs/kinds/options/defaults and validation bounds |
 | `packages/design/apple/`, `windows/`, `linux/` | Native Library/Settings/Player presentation and reusable components |
@@ -33,7 +34,7 @@ flowchart LR
 
 Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and density-independent units on Windows/Compose. Physical display scale is handled by the renderer rather than embedded in token values.
 
-The package contains design data, component specifications and the Library, Settings, PlayerChrome and PlayerSettingsDialog renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. Matching Compose renderers are source-only until their complete dependency build is available. Call components and remaining player overlays await implementation.
+The package contains design data, component specifications and the Library, Settings, PlayerChrome, PlayerSettingsDialog and CallWindowShell renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. Matching Compose renderers are source-only until their complete dependency build is available. Remaining player overlays and provider integration await implementation.
 
 ## Generated resources
 
@@ -110,3 +111,14 @@ SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolba
 The isolated `--player-settings-gallery` selects each section, editing/saved/error/read-only state, theme and language, and can simulate failure. The gear in `--player-gallery` opens an owned dialog; successful save updates only in-memory fixture values and skip/default-volume observations. Neither gallery reads application preferences or starts a provider. Applying and persisting player preferences in a real session requires the application/media adapters.
 
 Native validation retains 80 PlayerSettings images per platform (five sections, four states, two themes and two languages), giving 224 images per native artifact. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
+
+
+## Call window component
+
+`call.json` defines six host states, five local-preview states, eleven presentation requests and ten gallery cases. SwiftUI/WPF `CallWindowShell` and matching Compose source share a 300 by 210 initial viewport, a 420 by 300 gallery viewport, rounded 22-unit chrome, a compact header, 34-unit media buttons, a separate call-volume range and a 74 by 48 self-view slot. Palette, geometry, English/Russian copy and first-party polygon icons are generated from the common library.
+
+`CallPresentation` accepts explicit nullable joined, microphone, camera and volume observations plus enabled action IDs. `webSurfaceReady` does not mean joined. Media requests require a ready surface, confirmed membership, the relevant capability and a known observation for that control. Unknown membership/observations disable the corresponding controls. Request payloads are finite and bounded: move carries two deltas, resize carries a width/height from the shared minimum to 8192, volume is 0 through 1, booleans are 0 or 1, and window/hangup requests carry no values. Requests neither acknowledge themselves nor mutate observations.
+
+The host supplies distinct owned remote and local view slots. A remote surface may be shown during authentication/user action or readiness. The local slot is shown only for confirmed membership, ready state, an enabled camera and an active preview observation; missing content shows a localized placeholder rather than claiming video is available. WPF observation updates detach/reparent the same owned slots without duplicating parents or echoing commands. Hiding/detaching content is a rendering operation, not proof that audio/capture stopped.
+
+`--call-gallery` is isolated from normal preferences and providers. It simulates observations and requests in memory; window controls do not operate an OS window. Eighty new native renders cover ten call/preview cases, two themes, two languages and two viewports on each platform. A shared 45-case corpus exercises membership, unknown observations, capabilities and payload bounds. Actual Google Meet hosting, media/capture shutdown, initial camera operation, independent call audio and owned-window lifecycle require their adapters and acceptance checks. The presentation capability IDs are not a revision of the provider wire contract.

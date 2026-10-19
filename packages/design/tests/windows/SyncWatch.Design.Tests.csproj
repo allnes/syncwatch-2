@@ -18,5 +18,7 @@
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
         <None Include="../fixtures/player-settings.json" Link="player-settings.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="../fixtures/player-actions.json" Link="player-actions.json" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Include="../../windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
+        <None Include="../fixtures/call-actions.json" Link="call-actions.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

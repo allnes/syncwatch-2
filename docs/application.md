@@ -1,6 +1,6 @@
 # Application behavior
 
-This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: Library, appearance settings and isolated component galleries are present; the complete playback/call workflows below still require their adapters.
+This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: Library, appearance settings and isolated player/player-settings/call component galleries are present; the complete playback/call workflows below still require their adapters.
 
 ## Library and watch session
 

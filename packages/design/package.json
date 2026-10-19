@@ -15,6 +15,7 @@
     "linux",
     "settings.json",
     "player.json",
-    "player-settings.json"
+    "player-settings.json",
+    "call.json"
   ]
 }

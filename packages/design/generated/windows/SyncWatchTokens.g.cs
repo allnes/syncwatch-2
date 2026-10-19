@@ -27,6 +27,7 @@ public static class SyncWatchTokens
     public static Color ColorLightTextSecondary => Color.FromArgb(255, 97, 115, 134);
     public static Color ColorSharedAccent => Color.FromArgb(255, 47, 140, 255);
     public static Color ColorSharedAccentSoft => Color.FromArgb(255, 106, 175, 255);
+    public static Color ColorSharedCallHangup => Color.FromArgb(255, 179, 38, 30);
     public static Color ColorSharedSelection => Color.FromArgb(38, 47, 140, 255);
     public static Color ColorSharedSuccess => Color.FromArgb(255, 48, 217, 139);
     public static Color ColorSharedVideoSurface => Color.FromArgb(255, 0, 0, 0);
@@ -111,12 +112,60 @@ public static class SyncWatchTokens
     public const double ControlSliderTrackHeight = 3;
     public static Thickness ControlSliderTrackHeightThickness => new(ControlSliderTrackHeight);
     public static CornerRadius ControlSliderTrackHeightCornerRadius => new(ControlSliderTrackHeight);
+    public const double LayoutCallButtonSize = 34;
+    public static Thickness LayoutCallButtonSizeThickness => new(LayoutCallButtonSize);
+    public static CornerRadius LayoutCallButtonSizeCornerRadius => new(LayoutCallButtonSize);
+    public const double LayoutCallFooterHeight = 62;
+    public static Thickness LayoutCallFooterHeightThickness => new(LayoutCallFooterHeight);
+    public static CornerRadius LayoutCallFooterHeightCornerRadius => new(LayoutCallFooterHeight);
+    public const double LayoutCallGalleryHeight = 300;
+    public static Thickness LayoutCallGalleryHeightThickness => new(LayoutCallGalleryHeight);
+    public static CornerRadius LayoutCallGalleryHeightCornerRadius => new(LayoutCallGalleryHeight);
+    public const double LayoutCallGalleryWidth = 420;
+    public static Thickness LayoutCallGalleryWidthThickness => new(LayoutCallGalleryWidth);
+    public static CornerRadius LayoutCallGalleryWidthCornerRadius => new(LayoutCallGalleryWidth);
+    public const double LayoutCallGap = 8;
+    public static Thickness LayoutCallGapThickness => new(LayoutCallGap);
+    public static CornerRadius LayoutCallGapCornerRadius => new(LayoutCallGap);
+    public const double LayoutCallHeaderHeight = 36;
+    public static Thickness LayoutCallHeaderHeightThickness => new(LayoutCallHeaderHeight);
+    public static CornerRadius LayoutCallHeaderHeightCornerRadius => new(LayoutCallHeaderHeight);
+    public const double LayoutCallIconSize = 18;
+    public static Thickness LayoutCallIconSizeThickness => new(LayoutCallIconSize);
+    public static CornerRadius LayoutCallIconSizeCornerRadius => new(LayoutCallIconSize);
     public const double LayoutCallInitialHeight = 210;
     public static Thickness LayoutCallInitialHeightThickness => new(LayoutCallInitialHeight);
     public static CornerRadius LayoutCallInitialHeightCornerRadius => new(LayoutCallInitialHeight);
     public const double LayoutCallInitialWidth = 300;
     public static Thickness LayoutCallInitialWidthThickness => new(LayoutCallInitialWidth);
     public static CornerRadius LayoutCallInitialWidthCornerRadius => new(LayoutCallInitialWidth);
+    public const double LayoutCallInset = 8;
+    public static Thickness LayoutCallInsetThickness => new(LayoutCallInset);
+    public static CornerRadius LayoutCallInsetCornerRadius => new(LayoutCallInset);
+    public const double LayoutCallMinimumHeight = 210;
+    public static Thickness LayoutCallMinimumHeightThickness => new(LayoutCallMinimumHeight);
+    public static CornerRadius LayoutCallMinimumHeightCornerRadius => new(LayoutCallMinimumHeight);
+    public const double LayoutCallMinimumWidth = 260;
+    public static Thickness LayoutCallMinimumWidthThickness => new(LayoutCallMinimumWidth);
+    public static CornerRadius LayoutCallMinimumWidthCornerRadius => new(LayoutCallMinimumWidth);
+    public const double LayoutCallPreviewHeight = 48;
+    public static Thickness LayoutCallPreviewHeightThickness => new(LayoutCallPreviewHeight);
+    public static CornerRadius LayoutCallPreviewHeightCornerRadius => new(LayoutCallPreviewHeight);
+    public const double LayoutCallPreviewWidth = 74;
+    public static Thickness LayoutCallPreviewWidthThickness => new(LayoutCallPreviewWidth);
+    public static CornerRadius LayoutCallPreviewWidthCornerRadius => new(LayoutCallPreviewWidth);
+    public const double LayoutCallRadius = 22;
+    public static Thickness LayoutCallRadiusThickness => new(LayoutCallRadius);
+    public static CornerRadius LayoutCallRadiusCornerRadius => new(LayoutCallRadius);
+    public const double LayoutCallResizeSize = 12;
+    public static Thickness LayoutCallResizeSizeThickness => new(LayoutCallResizeSize);
+    public static CornerRadius LayoutCallResizeSizeCornerRadius => new(LayoutCallResizeSize);
+    public const double LayoutCallVolumeWidth = 64;
+    public static Thickness LayoutCallVolumeWidthThickness => new(LayoutCallVolumeWidth);
+    public static CornerRadius LayoutCallVolumeWidthCornerRadius => new(LayoutCallVolumeWidth);
+    public const double LayoutCallWindowButtonSize = 26;
+    public static Thickness LayoutCallWindowButtonSizeThickness => new(LayoutCallWindowButtonSize);
+    public static CornerRadius LayoutCallWindowButtonSizeCornerRadius => new(LayoutCallWindowButtonSize);
     public const double LayoutDetailPadding = 24;
     public static Thickness LayoutDetailPaddingThickness => new(LayoutDetailPadding);
     public static CornerRadius LayoutDetailPaddingCornerRadius => new(LayoutDetailPadding);
@@ -416,6 +465,37 @@ public static class SyncWatchCopy
         ("en", "skip15") => "15 s",
         ("en", "skip30") => "30 s",
         ("en", "skip60") => "60 s",
+        ("en", "callWindow") => "Google Meet call",
+        ("en", "callFixture") => "Call presentation fixture",
+        ("en", "remoteFixture") => "Remote video fixture",
+        ("en", "localFixture") => "Camera fixture",
+        ("en", "callStateIdle") => "Call inactive",
+        ("en", "callStateOpening") => "Opening call…",
+        ("en", "callStateWebSurfaceReady") => "Call surface ready",
+        ("en", "callStateUserActionRequired") => "Continue in Google Meet",
+        ("en", "callStateFailed") => "Call unavailable",
+        ("en", "callStateClosed") => "Call closed",
+        ("en", "cameraStarting") => "Camera starting",
+        ("en", "cameraActive") => "Local camera preview",
+        ("en", "cameraDisabled") => "Camera off",
+        ("en", "permissionDenied") => "Camera permission denied",
+        ("en", "deviceUnavailable") => "Camera unavailable",
+        ("en", "callSurface") => "Google Meet surface",
+        ("en", "callVolume") => "Call volume",
+        ("en", "microphoneOn") => "Mute microphone",
+        ("en", "microphoneOff") => "Enable microphone",
+        ("en", "cameraOn") => "Disable camera",
+        ("en", "cameraOff") => "Enable camera",
+        ("en", "hangUp") => "End call",
+        ("en", "pinCall") => "Keep call on top",
+        ("en", "unpinCall") => "Unpin call",
+        ("en", "minimizeCall") => "Minimize call",
+        ("en", "restoreCall") => "Restore call",
+        ("en", "fullscreenCall") => "Expand call",
+        ("en", "exitFullscreenCall") => "Restore call size",
+        ("en", "closeCall") => "Close call window",
+        ("en", "moveCall") => "Move call window",
+        ("en", "resizeCall") => "Resize call window",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -568,6 +648,37 @@ public static class SyncWatchCopy
         ("ru", "skip15") => "15 с",
         ("ru", "skip30") => "30 с",
         ("ru", "skip60") => "60 с",
+        ("ru", "callWindow") => "Звонок Google Meet",
+        ("ru", "callFixture") => "Тестовый интерфейс звонка",
+        ("ru", "remoteFixture") => "Тестовое видео собеседника",
+        ("ru", "localFixture") => "Тестовая камера",
+        ("ru", "callStateIdle") => "Звонок не активен",
+        ("ru", "callStateOpening") => "Открытие звонка…",
+        ("ru", "callStateWebSurfaceReady") => "Окно звонка готово",
+        ("ru", "callStateUserActionRequired") => "Продолжите в Google Meet",
+        ("ru", "callStateFailed") => "Звонок недоступен",
+        ("ru", "callStateClosed") => "Звонок закрыт",
+        ("ru", "cameraStarting") => "Камера запускается",
+        ("ru", "cameraActive") => "Превью своей камеры",
+        ("ru", "cameraDisabled") => "Камера выключена",
+        ("ru", "permissionDenied") => "Нет доступа к камере",
+        ("ru", "deviceUnavailable") => "Камера недоступна",
+        ("ru", "callSurface") => "Окно Google Meet",
+        ("ru", "callVolume") => "Громкость звонка",
+        ("ru", "microphoneOn") => "Выключить микрофон",
+        ("ru", "microphoneOff") => "Включить микрофон",
+        ("ru", "cameraOn") => "Выключить камеру",
+        ("ru", "cameraOff") => "Включить камеру",
+        ("ru", "hangUp") => "Завершить звонок",
+        ("ru", "pinCall") => "Закрепить поверх окон",
+        ("ru", "unpinCall") => "Открепить окно",
+        ("ru", "minimizeCall") => "Свернуть звонок",
+        ("ru", "restoreCall") => "Восстановить окно",
+        ("ru", "fullscreenCall") => "Развернуть звонок",
+        ("ru", "exitFullscreenCall") => "Вернуть размер окна",
+        ("ru", "closeCall") => "Закрыть окно звонка",
+        ("ru", "moveCall") => "Переместить окно звонка",
+        ("ru", "resizeCall") => "Изменить размер окна звонка",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -704,5 +815,32 @@ public static class SyncWatchPlayerSettings
         "charcoal" => SyncWatchTokens.ColorSubtitleCharcoal,
         "gray" => SyncWatchTokens.ColorSubtitleGray,
         _ => null,
+    };
+}
+
+public sealed record CallGalleryCase(string Id, string State, string Preview);
+
+public static class SyncWatchCall
+{
+    public static string[] States => ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"];
+    public static string[] Actions => ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp"];
+    public const double MaximumExtent = 8192;
+    public static string[] PreviewStates => ["cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable"];
+    public static System.Collections.Generic.IReadOnlyDictionary<string,string> ActionKinds => new System.Collections.Generic.Dictionary<string,string> { ["move"] = "delta", ["resize"] = "size", ["minimize"] = "none", ["restore"] = "none", ["fullscreen"] = "none", ["pin"] = "none", ["close"] = "none", ["setCallVolume"] = "volume", ["setMicrophoneEnabled"] = "boolean", ["setCameraEnabled"] = "boolean", ["hangUp"] = "none" };
+    public static CallGalleryCase[] GalleryCases => [new("idle", "idle", "cameraDisabled"), new("opening", "opening", "cameraStarting"), new("ready", "webSurfaceReady", "cameraActive"), new("actionRequired", "userActionRequired", "permissionDenied"), new("failed", "failed", "deviceUnavailable"), new("closed", "closed", "cameraDisabled"), new("previewStarting", "webSurfaceReady", "cameraStarting"), new("previewDisabled", "webSurfaceReady", "cameraDisabled"), new("previewDenied", "webSurfaceReady", "permissionDenied"), new("previewUnavailable", "webSurfaceReady", "deviceUnavailable")];
+    public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
+    {
+        ["volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
+        ["muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
+        ["fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
+        ["end"] = [[2,8,5,5,8,4,12,4,15,5,18,8,18,12,14,12,14,9,12,8,8,8,6,9,6,12,2,12]],
+        ["microphone"] = [[7,2,13,2,13,11,7,11],[4,8,6,8,6,13,14,13,14,8,16,8,16,15,11,15,11,18,9,18,9,15,4,15]],
+        ["camera"] = [[2,5,13,5,13,15,2,15],[14,8,19,5,19,15,14,12]],
+        ["pin"] = [[6,2,14,2,13,8,16,12,11,12,11,19,9,19,9,12,4,12,7,8]],
+        ["minimize"] = [[3,13,17,13,17,15,3,15]],
+        ["restore"] = [[3,4,17,4,17,6,3,6],[3,6,5,6,5,17,3,17],[5,15,17,15,17,17,5,17],[15,6,17,6,17,15,15,15]],
+        ["close"] = [[3,4,4,3,17,16,16,17],[16,3,17,4,4,17,3,16]],
+        ["resize"] = [[10,17,17,10,17,13,13,17],[4,17,17,4,17,7,7,17]],
+        ["slash"] = [[2,3,3,2,18,17,17,18]],
     };
 }

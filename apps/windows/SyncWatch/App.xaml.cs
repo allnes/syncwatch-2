@@ -10,7 +10,7 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        if (!e.Args.Contains("--design-gallery") && !e.Args.Contains("--settings-gallery") && !e.Args.Contains("--player-gallery") && !e.Args.Contains("--player-settings-gallery")) Preferences = new AppearancePreferences(new Domain.FileLocalStateStore(AppearancePreferences.DefaultPath));
+        if (!e.Args.Contains("--call-gallery") && !e.Args.Contains("--design-gallery") && !e.Args.Contains("--settings-gallery") && !e.Args.Contains("--player-gallery") && !e.Args.Contains("--player-settings-gallery")) Preferences = new AppearancePreferences(new Domain.FileLocalStateStore(AppearancePreferences.DefaultPath));
         ApplySystemTheme();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         base.OnStartup(e);

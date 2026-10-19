@@ -1,23 +1,24 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "28de589b7fa0c56e06d7abdb71e5a94da7b75f2c2ae4b58c88f496704cd13b61",
+  "sourceDigest": "3735720e946e3c17ff7419ea860c43b32df870550eb393ae1abcf3412a7499de",
   "sources": {
-    "tokens/geometry.json": "99ac2cd29798ccdbf3209609ac5360c2fbcc62c3df6718641f7058ea28a1679f",
-    "tokens/palette.json": "8ee1b4fbd21568cf2b03f5b82ada0edbe6578979610fdb526301931861bc657a",
+    "tokens/geometry.json": "e13ae532357d34f81fcdbeb0ad132c6acdbdace6e4f05a67073212bc55885781",
+    "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "eee8165a2339a5e5b82c2a58257822d2e0b98108426d4117aa9fad7cebfa79d9",
-    "copy.json": "10687fe3b518dbd95940d0b6c2028aa401adc56f256e2c783b58c0df2d9c7f16",
+    "components.json": "395deadfdc18154c6caf518fd19754ab7bc309fba4a47a056ebe382ea7e5e807",
+    "copy.json": "5d8425afd21627a0af71819ff43d15e2caee3b99d8b514d0c53d79a7678ac8d1",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
+    "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "package.json": "0707573164a704831f56eb1c033932109a8e08cc0329b3f4072a6750927d3a14"
+    "package.json": "d7a64fcb2731373d100c5a0ce4b5d5024ccf4cb49dae5650850f82d95817c142"
   },
-  "generatorRevision": "2de90226a92dac949bb9d7f0e53d370a11856021bc68ff39a512b698979534e2",
+  "generatorRevision": "caf8dee72ef8473c26c2ed15a0da4c6e8954678b01f0aeddeee22f87cb2b525c",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "70f91571477d4343becd8fbcb6101afae492cb68527fe805106647c2229c7429",
+      "tools/design/generate.mjs": "d4dc223a960cf80c5cd6bcc31e83e14816c98b6e820c156da7a93ce09b2c68f0",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
@@ -26,6 +27,7 @@
       "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
       "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
       "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
+      "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927"
     },
     "sourceRevisions": {
@@ -233,7 +235,38 @@
         "skip10": "10 s",
         "skip15": "15 s",
         "skip30": "30 s",
-        "skip60": "60 s"
+        "skip60": "60 s",
+        "callWindow": "Google Meet call",
+        "callFixture": "Call presentation fixture",
+        "remoteFixture": "Remote video fixture",
+        "localFixture": "Camera fixture",
+        "callStateIdle": "Call inactive",
+        "callStateOpening": "Opening call…",
+        "callStateWebSurfaceReady": "Call surface ready",
+        "callStateUserActionRequired": "Continue in Google Meet",
+        "callStateFailed": "Call unavailable",
+        "callStateClosed": "Call closed",
+        "cameraStarting": "Camera starting",
+        "cameraActive": "Local camera preview",
+        "cameraDisabled": "Camera off",
+        "permissionDenied": "Camera permission denied",
+        "deviceUnavailable": "Camera unavailable",
+        "callSurface": "Google Meet surface",
+        "callVolume": "Call volume",
+        "microphoneOn": "Mute microphone",
+        "microphoneOff": "Enable microphone",
+        "cameraOn": "Disable camera",
+        "cameraOff": "Enable camera",
+        "hangUp": "End call",
+        "pinCall": "Keep call on top",
+        "unpinCall": "Unpin call",
+        "minimizeCall": "Minimize call",
+        "restoreCall": "Restore call",
+        "fullscreenCall": "Expand call",
+        "exitFullscreenCall": "Restore call size",
+        "closeCall": "Close call window",
+        "moveCall": "Move call window",
+        "resizeCall": "Resize call window"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -387,7 +420,38 @@
         "skip10": "10 с",
         "skip15": "15 с",
         "skip30": "30 с",
-        "skip60": "60 с"
+        "skip60": "60 с",
+        "callWindow": "Звонок Google Meet",
+        "callFixture": "Тестовый интерфейс звонка",
+        "remoteFixture": "Тестовое видео собеседника",
+        "localFixture": "Тестовая камера",
+        "callStateIdle": "Звонок не активен",
+        "callStateOpening": "Открытие звонка…",
+        "callStateWebSurfaceReady": "Окно звонка готово",
+        "callStateUserActionRequired": "Продолжите в Google Meet",
+        "callStateFailed": "Звонок недоступен",
+        "callStateClosed": "Звонок закрыт",
+        "cameraStarting": "Камера запускается",
+        "cameraActive": "Превью своей камеры",
+        "cameraDisabled": "Камера выключена",
+        "permissionDenied": "Нет доступа к камере",
+        "deviceUnavailable": "Камера недоступна",
+        "callSurface": "Окно Google Meet",
+        "callVolume": "Громкость звонка",
+        "microphoneOn": "Выключить микрофон",
+        "microphoneOff": "Включить микрофон",
+        "cameraOn": "Выключить камеру",
+        "cameraOff": "Включить камеру",
+        "hangUp": "Завершить звонок",
+        "pinCall": "Закрепить поверх окон",
+        "unpinCall": "Открепить окно",
+        "minimizeCall": "Свернуть звонок",
+        "restoreCall": "Восстановить окно",
+        "fullscreenCall": "Развернуть звонок",
+        "exitFullscreenCall": "Вернуть размер окна",
+        "closeCall": "Закрыть окно звонка",
+        "moveCall": "Переместить окно звонка",
+        "resizeCall": "Изменить размер окна звонка"
       }
     },
     "gallery": {
@@ -1428,6 +1492,442 @@
       "previewCache": "150"
     }
   },
+  "call": {
+    "schemaVersion": 1,
+    "states": [
+      "idle",
+      "opening",
+      "webSurfaceReady",
+      "userActionRequired",
+      "failed",
+      "closed"
+    ],
+    "previewStates": [
+      "cameraStarting",
+      "cameraActive",
+      "cameraDisabled",
+      "permissionDenied",
+      "deviceUnavailable"
+    ],
+    "actions": {
+      "move": "delta",
+      "resize": "size",
+      "minimize": "none",
+      "restore": "none",
+      "fullscreen": "none",
+      "pin": "none",
+      "close": "none",
+      "setCallVolume": "volume",
+      "setMicrophoneEnabled": "boolean",
+      "setCameraEnabled": "boolean",
+      "hangUp": "none"
+    },
+    "maximumExtent": 8192,
+    "icons": {
+      "volume": [
+        [
+          2,
+          7,
+          6,
+          7,
+          11,
+          3,
+          11,
+          17,
+          6,
+          13,
+          2,
+          13
+        ],
+        [
+          14,
+          5,
+          16,
+          5,
+          18,
+          10,
+          16,
+          15,
+          14,
+          15,
+          16,
+          10
+        ]
+      ],
+      "muted": [
+        [
+          2,
+          7,
+          6,
+          7,
+          11,
+          3,
+          11,
+          17,
+          6,
+          13,
+          2,
+          13
+        ],
+        [
+          13,
+          6,
+          14,
+          5,
+          18,
+          14,
+          17,
+          15
+        ],
+        [
+          17,
+          5,
+          18,
+          6,
+          14,
+          15,
+          13,
+          14
+        ]
+      ],
+      "fullscreen": [
+        [
+          2,
+          2,
+          8,
+          2,
+          8,
+          4,
+          4,
+          4,
+          4,
+          8,
+          2,
+          8
+        ],
+        [
+          12,
+          2,
+          18,
+          2,
+          18,
+          8,
+          16,
+          8,
+          16,
+          4,
+          12,
+          4
+        ],
+        [
+          2,
+          12,
+          4,
+          12,
+          4,
+          16,
+          8,
+          16,
+          8,
+          18,
+          2,
+          18
+        ],
+        [
+          16,
+          12,
+          18,
+          12,
+          18,
+          18,
+          12,
+          18,
+          12,
+          16,
+          16,
+          16
+        ]
+      ],
+      "end": [
+        [
+          2,
+          8,
+          5,
+          5,
+          8,
+          4,
+          12,
+          4,
+          15,
+          5,
+          18,
+          8,
+          18,
+          12,
+          14,
+          12,
+          14,
+          9,
+          12,
+          8,
+          8,
+          8,
+          6,
+          9,
+          6,
+          12,
+          2,
+          12
+        ]
+      ],
+      "microphone": [
+        [
+          7,
+          2,
+          13,
+          2,
+          13,
+          11,
+          7,
+          11
+        ],
+        [
+          4,
+          8,
+          6,
+          8,
+          6,
+          13,
+          14,
+          13,
+          14,
+          8,
+          16,
+          8,
+          16,
+          15,
+          11,
+          15,
+          11,
+          18,
+          9,
+          18,
+          9,
+          15,
+          4,
+          15
+        ]
+      ],
+      "camera": [
+        [
+          2,
+          5,
+          13,
+          5,
+          13,
+          15,
+          2,
+          15
+        ],
+        [
+          14,
+          8,
+          19,
+          5,
+          19,
+          15,
+          14,
+          12
+        ]
+      ],
+      "pin": [
+        [
+          6,
+          2,
+          14,
+          2,
+          13,
+          8,
+          16,
+          12,
+          11,
+          12,
+          11,
+          19,
+          9,
+          19,
+          9,
+          12,
+          4,
+          12,
+          7,
+          8
+        ]
+      ],
+      "minimize": [
+        [
+          3,
+          13,
+          17,
+          13,
+          17,
+          15,
+          3,
+          15
+        ]
+      ],
+      "restore": [
+        [
+          3,
+          4,
+          17,
+          4,
+          17,
+          6,
+          3,
+          6
+        ],
+        [
+          3,
+          6,
+          5,
+          6,
+          5,
+          17,
+          3,
+          17
+        ],
+        [
+          5,
+          15,
+          17,
+          15,
+          17,
+          17,
+          5,
+          17
+        ],
+        [
+          15,
+          6,
+          17,
+          6,
+          17,
+          15,
+          15,
+          15
+        ]
+      ],
+      "close": [
+        [
+          3,
+          4,
+          4,
+          3,
+          17,
+          16,
+          16,
+          17
+        ],
+        [
+          16,
+          3,
+          17,
+          4,
+          4,
+          17,
+          3,
+          16
+        ]
+      ],
+      "resize": [
+        [
+          10,
+          17,
+          17,
+          10,
+          17,
+          13,
+          13,
+          17
+        ],
+        [
+          4,
+          17,
+          17,
+          4,
+          17,
+          7,
+          7,
+          17
+        ]
+      ],
+      "slash": [
+        [
+          2,
+          3,
+          3,
+          2,
+          18,
+          17,
+          17,
+          18
+        ]
+      ]
+    },
+    "galleryCases": [
+      {
+        "id": "idle",
+        "state": "idle",
+        "preview": "cameraDisabled"
+      },
+      {
+        "id": "opening",
+        "state": "opening",
+        "preview": "cameraStarting"
+      },
+      {
+        "id": "ready",
+        "state": "webSurfaceReady",
+        "preview": "cameraActive"
+      },
+      {
+        "id": "actionRequired",
+        "state": "userActionRequired",
+        "preview": "permissionDenied"
+      },
+      {
+        "id": "failed",
+        "state": "failed",
+        "preview": "deviceUnavailable"
+      },
+      {
+        "id": "closed",
+        "state": "closed",
+        "preview": "cameraDisabled"
+      },
+      {
+        "id": "previewStarting",
+        "state": "webSurfaceReady",
+        "preview": "cameraStarting"
+      },
+      {
+        "id": "previewDisabled",
+        "state": "webSurfaceReady",
+        "preview": "cameraDisabled"
+      },
+      {
+        "id": "previewDenied",
+        "state": "webSurfaceReady",
+        "preview": "permissionDenied"
+      },
+      {
+        "id": "previewUnavailable",
+        "state": "webSurfaceReady",
+        "preview": "deviceUnavailable"
+      }
+    ]
+  },
   "tokens": [
     {
       "id": "color.dark.background",
@@ -1523,6 +2023,11 @@
       "id": "color.shared.accentSoft",
       "type": "color",
       "value": "#6AAFFFFF"
+    },
+    {
+      "id": "color.shared.callHangup",
+      "type": "color",
+      "value": "#B3261EFF"
     },
     {
       "id": "color.shared.selection",
@@ -1695,6 +2200,41 @@
       "value": 3
     },
     {
+      "id": "layout.callButtonSize",
+      "type": "number",
+      "value": 34
+    },
+    {
+      "id": "layout.callFooterHeight",
+      "type": "number",
+      "value": 62
+    },
+    {
+      "id": "layout.callGalleryHeight",
+      "type": "number",
+      "value": 300
+    },
+    {
+      "id": "layout.callGalleryWidth",
+      "type": "number",
+      "value": 420
+    },
+    {
+      "id": "layout.callGap",
+      "type": "number",
+      "value": 8
+    },
+    {
+      "id": "layout.callHeaderHeight",
+      "type": "number",
+      "value": 36
+    },
+    {
+      "id": "layout.callIconSize",
+      "type": "number",
+      "value": 18
+    },
+    {
       "id": "layout.callInitialHeight",
       "type": "number",
       "value": 210
@@ -1703,6 +2243,51 @@
       "id": "layout.callInitialWidth",
       "type": "number",
       "value": 300
+    },
+    {
+      "id": "layout.callInset",
+      "type": "number",
+      "value": 8
+    },
+    {
+      "id": "layout.callMinimumHeight",
+      "type": "number",
+      "value": 210
+    },
+    {
+      "id": "layout.callMinimumWidth",
+      "type": "number",
+      "value": 260
+    },
+    {
+      "id": "layout.callPreviewHeight",
+      "type": "number",
+      "value": 48
+    },
+    {
+      "id": "layout.callPreviewWidth",
+      "type": "number",
+      "value": 74
+    },
+    {
+      "id": "layout.callRadius",
+      "type": "number",
+      "value": 22
+    },
+    {
+      "id": "layout.callResizeSize",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "layout.callVolumeWidth",
+      "type": "number",
+      "value": 64
+    },
+    {
+      "id": "layout.callWindowButtonSize",
+      "type": "number",
+      "value": 26
     },
     {
       "id": "layout.detailPadding",

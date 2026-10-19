@@ -23,6 +23,7 @@ object SyncWatchTokens {
     const val colorLightTextSecondary: Long = 0x617386FFL
     const val colorSharedAccent: Long = 0x2F8CFFFFL
     const val colorSharedAccentSoft: Long = 0x6AAFFFFFL
+    const val colorSharedCallHangup: Long = 0xB3261EFFL
     const val colorSharedSelection: Long = 0x2F8CFF26L
     const val colorSharedSuccess: Long = 0x30D98BFFL
     const val colorSharedVideoSurface: Long = 0x000000FFL
@@ -57,8 +58,24 @@ object SyncWatchTokens {
     const val controlSettingsToggleWidth: Float = 32.0f
     const val controlSliderThumbRadius: Float = 6.0f
     const val controlSliderTrackHeight: Float = 3.0f
+    const val layoutCallButtonSize: Float = 34.0f
+    const val layoutCallFooterHeight: Float = 62.0f
+    const val layoutCallGalleryHeight: Float = 300.0f
+    const val layoutCallGalleryWidth: Float = 420.0f
+    const val layoutCallGap: Float = 8.0f
+    const val layoutCallHeaderHeight: Float = 36.0f
+    const val layoutCallIconSize: Float = 18.0f
     const val layoutCallInitialHeight: Float = 210.0f
     const val layoutCallInitialWidth: Float = 300.0f
+    const val layoutCallInset: Float = 8.0f
+    const val layoutCallMinimumHeight: Float = 210.0f
+    const val layoutCallMinimumWidth: Float = 260.0f
+    const val layoutCallPreviewHeight: Float = 48.0f
+    const val layoutCallPreviewWidth: Float = 74.0f
+    const val layoutCallRadius: Float = 22.0f
+    const val layoutCallResizeSize: Float = 12.0f
+    const val layoutCallVolumeWidth: Float = 64.0f
+    const val layoutCallWindowButtonSize: Float = 26.0f
     const val layoutDetailPadding: Float = 24.0f
     const val layoutGalleryHeight: Float = 760.0f
     const val layoutGalleryWidth: Float = 1120.0f
@@ -311,6 +328,37 @@ object SyncWatchCopy {
         "en" to "skip15" -> "15 s"
         "en" to "skip30" -> "30 s"
         "en" to "skip60" -> "60 s"
+        "en" to "callWindow" -> "Google Meet call"
+        "en" to "callFixture" -> "Call presentation fixture"
+        "en" to "remoteFixture" -> "Remote video fixture"
+        "en" to "localFixture" -> "Camera fixture"
+        "en" to "callStateIdle" -> "Call inactive"
+        "en" to "callStateOpening" -> "Opening call…"
+        "en" to "callStateWebSurfaceReady" -> "Call surface ready"
+        "en" to "callStateUserActionRequired" -> "Continue in Google Meet"
+        "en" to "callStateFailed" -> "Call unavailable"
+        "en" to "callStateClosed" -> "Call closed"
+        "en" to "cameraStarting" -> "Camera starting"
+        "en" to "cameraActive" -> "Local camera preview"
+        "en" to "cameraDisabled" -> "Camera off"
+        "en" to "permissionDenied" -> "Camera permission denied"
+        "en" to "deviceUnavailable" -> "Camera unavailable"
+        "en" to "callSurface" -> "Google Meet surface"
+        "en" to "callVolume" -> "Call volume"
+        "en" to "microphoneOn" -> "Mute microphone"
+        "en" to "microphoneOff" -> "Enable microphone"
+        "en" to "cameraOn" -> "Disable camera"
+        "en" to "cameraOff" -> "Enable camera"
+        "en" to "hangUp" -> "End call"
+        "en" to "pinCall" -> "Keep call on top"
+        "en" to "unpinCall" -> "Unpin call"
+        "en" to "minimizeCall" -> "Minimize call"
+        "en" to "restoreCall" -> "Restore call"
+        "en" to "fullscreenCall" -> "Expand call"
+        "en" to "exitFullscreenCall" -> "Restore call size"
+        "en" to "closeCall" -> "Close call window"
+        "en" to "moveCall" -> "Move call window"
+        "en" to "resizeCall" -> "Resize call window"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -463,6 +511,37 @@ object SyncWatchCopy {
         "ru" to "skip15" -> "15 с"
         "ru" to "skip30" -> "30 с"
         "ru" to "skip60" -> "60 с"
+        "ru" to "callWindow" -> "Звонок Google Meet"
+        "ru" to "callFixture" -> "Тестовый интерфейс звонка"
+        "ru" to "remoteFixture" -> "Тестовое видео собеседника"
+        "ru" to "localFixture" -> "Тестовая камера"
+        "ru" to "callStateIdle" -> "Звонок не активен"
+        "ru" to "callStateOpening" -> "Открытие звонка…"
+        "ru" to "callStateWebSurfaceReady" -> "Окно звонка готово"
+        "ru" to "callStateUserActionRequired" -> "Продолжите в Google Meet"
+        "ru" to "callStateFailed" -> "Звонок недоступен"
+        "ru" to "callStateClosed" -> "Звонок закрыт"
+        "ru" to "cameraStarting" -> "Камера запускается"
+        "ru" to "cameraActive" -> "Превью своей камеры"
+        "ru" to "cameraDisabled" -> "Камера выключена"
+        "ru" to "permissionDenied" -> "Нет доступа к камере"
+        "ru" to "deviceUnavailable" -> "Камера недоступна"
+        "ru" to "callSurface" -> "Окно Google Meet"
+        "ru" to "callVolume" -> "Громкость звонка"
+        "ru" to "microphoneOn" -> "Выключить микрофон"
+        "ru" to "microphoneOff" -> "Включить микрофон"
+        "ru" to "cameraOn" -> "Выключить камеру"
+        "ru" to "cameraOff" -> "Включить камеру"
+        "ru" to "hangUp" -> "Завершить звонок"
+        "ru" to "pinCall" -> "Закрепить поверх окон"
+        "ru" to "unpinCall" -> "Открепить окно"
+        "ru" to "minimizeCall" -> "Свернуть звонок"
+        "ru" to "restoreCall" -> "Восстановить окно"
+        "ru" to "fullscreenCall" -> "Развернуть звонок"
+        "ru" to "exitFullscreenCall" -> "Вернуть размер окна"
+        "ru" to "closeCall" -> "Закрыть окно звонка"
+        "ru" to "moveCall" -> "Переместить окно звонка"
+        "ru" to "resizeCall" -> "Изменить размер окна звонка"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -590,4 +669,29 @@ object SyncWatchPlayerSettings {
         "gray" -> SyncWatchTokens.colorSubtitleGray
         else -> null
     }
+}
+
+data class CallGalleryCase(val id: String, val state: String, val preview: String)
+
+object SyncWatchCall {
+    val states = listOf("idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed")
+    val actions = setOf("move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp")
+    const val maximumExtent: Double = 8192.0
+    val previewStates = listOf("cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable")
+    val actionKinds = mapOf("move" to "delta", "resize" to "size", "minimize" to "none", "restore" to "none", "fullscreen" to "none", "pin" to "none", "close" to "none", "setCallVolume" to "volume", "setMicrophoneEnabled" to "boolean", "setCameraEnabled" to "boolean", "hangUp" to "none")
+    val galleryCases = listOf(CallGalleryCase("idle", "idle", "cameraDisabled"), CallGalleryCase("opening", "opening", "cameraStarting"), CallGalleryCase("ready", "webSurfaceReady", "cameraActive"), CallGalleryCase("actionRequired", "userActionRequired", "permissionDenied"), CallGalleryCase("failed", "failed", "deviceUnavailable"), CallGalleryCase("closed", "closed", "cameraDisabled"), CallGalleryCase("previewStarting", "webSurfaceReady", "cameraStarting"), CallGalleryCase("previewDisabled", "webSurfaceReady", "cameraDisabled"), CallGalleryCase("previewDenied", "webSurfaceReady", "permissionDenied"), CallGalleryCase("previewUnavailable", "webSurfaceReady", "deviceUnavailable"))
+    val icons = mapOf(
+        "volume" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(14.0f, 5.0f, 16.0f, 5.0f, 18.0f, 10.0f, 16.0f, 15.0f, 14.0f, 15.0f, 16.0f, 10.0f)),
+        "muted" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(13.0f, 6.0f, 14.0f, 5.0f, 18.0f, 14.0f, 17.0f, 15.0f), listOf(17.0f, 5.0f, 18.0f, 6.0f, 14.0f, 15.0f, 13.0f, 14.0f)),
+        "fullscreen" to listOf(listOf(2.0f, 2.0f, 8.0f, 2.0f, 8.0f, 4.0f, 4.0f, 4.0f, 4.0f, 8.0f, 2.0f, 8.0f), listOf(12.0f, 2.0f, 18.0f, 2.0f, 18.0f, 8.0f, 16.0f, 8.0f, 16.0f, 4.0f, 12.0f, 4.0f), listOf(2.0f, 12.0f, 4.0f, 12.0f, 4.0f, 16.0f, 8.0f, 16.0f, 8.0f, 18.0f, 2.0f, 18.0f), listOf(16.0f, 12.0f, 18.0f, 12.0f, 18.0f, 18.0f, 12.0f, 18.0f, 12.0f, 16.0f, 16.0f, 16.0f)),
+        "end" to listOf(listOf(2.0f, 8.0f, 5.0f, 5.0f, 8.0f, 4.0f, 12.0f, 4.0f, 15.0f, 5.0f, 18.0f, 8.0f, 18.0f, 12.0f, 14.0f, 12.0f, 14.0f, 9.0f, 12.0f, 8.0f, 8.0f, 8.0f, 6.0f, 9.0f, 6.0f, 12.0f, 2.0f, 12.0f)),
+        "microphone" to listOf(listOf(7.0f, 2.0f, 13.0f, 2.0f, 13.0f, 11.0f, 7.0f, 11.0f), listOf(4.0f, 8.0f, 6.0f, 8.0f, 6.0f, 13.0f, 14.0f, 13.0f, 14.0f, 8.0f, 16.0f, 8.0f, 16.0f, 15.0f, 11.0f, 15.0f, 11.0f, 18.0f, 9.0f, 18.0f, 9.0f, 15.0f, 4.0f, 15.0f)),
+        "camera" to listOf(listOf(2.0f, 5.0f, 13.0f, 5.0f, 13.0f, 15.0f, 2.0f, 15.0f), listOf(14.0f, 8.0f, 19.0f, 5.0f, 19.0f, 15.0f, 14.0f, 12.0f)),
+        "pin" to listOf(listOf(6.0f, 2.0f, 14.0f, 2.0f, 13.0f, 8.0f, 16.0f, 12.0f, 11.0f, 12.0f, 11.0f, 19.0f, 9.0f, 19.0f, 9.0f, 12.0f, 4.0f, 12.0f, 7.0f, 8.0f)),
+        "minimize" to listOf(listOf(3.0f, 13.0f, 17.0f, 13.0f, 17.0f, 15.0f, 3.0f, 15.0f)),
+        "restore" to listOf(listOf(3.0f, 4.0f, 17.0f, 4.0f, 17.0f, 6.0f, 3.0f, 6.0f), listOf(3.0f, 6.0f, 5.0f, 6.0f, 5.0f, 17.0f, 3.0f, 17.0f), listOf(5.0f, 15.0f, 17.0f, 15.0f, 17.0f, 17.0f, 5.0f, 17.0f), listOf(15.0f, 6.0f, 17.0f, 6.0f, 17.0f, 15.0f, 15.0f, 15.0f)),
+        "close" to listOf(listOf(3.0f, 4.0f, 4.0f, 3.0f, 17.0f, 16.0f, 16.0f, 17.0f), listOf(16.0f, 3.0f, 17.0f, 4.0f, 4.0f, 17.0f, 3.0f, 16.0f)),
+        "resize" to listOf(listOf(10.0f, 17.0f, 17.0f, 10.0f, 17.0f, 13.0f, 13.0f, 17.0f), listOf(4.0f, 17.0f, 17.0f, 4.0f, 17.0f, 7.0f, 7.0f, 17.0f)),
+        "slash" to listOf(listOf(2.0f, 3.0f, 3.0f, 2.0f, 18.0f, 17.0f, 17.0f, 18.0f)),
+    )
 }

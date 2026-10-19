@@ -9,7 +9,9 @@ struct SyncWatchApp: App {
 
     var body: some Scene {
         Window("SyncWatch", id: "main") {
-            if CommandLine.arguments.contains("--player-settings-gallery") {
+            if CommandLine.arguments.contains("--call-gallery") {
+                CallGallery()
+            } else if CommandLine.arguments.contains("--player-settings-gallery") {
                 PlayerSettingsGallery()
             } else if CommandLine.arguments.contains("--player-gallery") {
                 PlayerGallery()
