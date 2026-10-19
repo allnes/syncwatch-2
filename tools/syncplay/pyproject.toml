@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-syncplay-source-tools"
+version = "1.0.0"
+description = "Offline inspection and reproducible packaging of pinned Syncplay sources"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/syncplay/tests -v"
