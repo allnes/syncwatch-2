@@ -155,7 +155,7 @@ public class DesignSurface : UserControl
                 var toggle = Existing(() => new CheckBox()); toggle.SetResourceReference(StyleProperty, "Design.Toggle"); Bind(id, n => { toggle.Content = n.Text("text"); toggle.IsChecked = n.Flag("value"); toggle.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); }); if (fresh) { toggle.Checked += (_, _) => Emit(id, "true"); toggle.Unchecked += (_, _) => Emit(id, "false"); }
                 core = toggle; break;
             case "gesture":
-                var gesture = Existing(() => new Thumb());
+                var gesture = Existing(() => new Thumb { Focusable = true });
                 var gestureChild = node.Children.Length == 1 ? Build(node.Children[0].Id) : null;
                 if (!ReferenceEquals(gesture.Tag, gestureChild))
                 {
