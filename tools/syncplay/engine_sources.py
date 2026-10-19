@@ -130,9 +130,11 @@ def smoke(archive, version):
             for name in package.namelist():
                 safe_name(name)
             package.extractall(root)
-        output = subprocess.check_output([sys.executable, "-I", "-S", "-B", str(ROOT / "tools/syncplay/smoke.py"), str(root), version],
-                                         text=True, stderr=subprocess.STDOUT, timeout=30)
-        result = json.loads(output)
+        process = subprocess.run([sys.executable, "-I", "-S", "-B", str(ROOT / "tools/syncplay/smoke.py"), str(root), version],
+                                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
+        if process.returncode:
+            raise ValueError("Isolated upstream module probe failed:\n" + process.stdout)
+        result = json.loads(process.stdout)
         if result["runtimeReady"] is not False or result["engineInitialized"] is not False or result["attempts"] != []:
             raise ValueError("Unexpected isolated upstream module probe")
         return result

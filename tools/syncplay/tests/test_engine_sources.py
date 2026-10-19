@@ -163,6 +163,11 @@ class EngineSourcesTests(unittest.TestCase):
                 else:
                     self.assertIn("Source-only", result.stderr)
 
+    def test_failed_child_probe_preserves_its_diagnostic(self):
+        files = {"syncplay/__init__.py": b"raise RuntimeError('fixture diagnostic')\n"}
+        with self.assertRaisesRegex(ValueError, "fixture diagnostic"):
+            engine.smoke(engine.archive_bytes(files), "fixture")
+
 
 if __name__ == "__main__":
     unittest.main()
