@@ -831,7 +831,7 @@
       "sources": {
         "3rdparty/syncplay": {
           "revision": "993232ab095bb810593459bc705b3e6fc64ad161",
-          "license": "Apache-2.0 AND MIT",
+          "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
           "notices": [
             "LICENSE",
             "README.md",
@@ -866,6 +866,23 @@
             "syncplay/resources/third-party-notices.txt",
             "syncplay/utils.py"
           ],
+          "requires": [
+            "3rdparty/retry-decorator"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/retry-decorator": {
+          "revision": "a26fe27039f45f3e83cfcad7046e1761ae056498",
+          "license": "BSD-3-Clause",
+          "notices": [
+            "LICENSE",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "retry_decorator.py"
+          ],
           "requires": [],
           "unusedSubmodules": {}
         }
@@ -876,7 +893,8 @@
       ],
       "watch": [
         "3rdparty/syncplay",
-        "tools/syncplay"
+        "tools/syncplay",
+        "3rdparty/retry-decorator"
       ],
       "targets": {
         "linux-x64": {

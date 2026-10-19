@@ -9,11 +9,15 @@ import warnings
 
 root = Path(sys.argv[1]).resolve()
 attempts = []
+# CPython 3.12 platform.py probes its Windows-only private SDK extension even
+# on Linux; that build omits _wmi from stdlib_module_names. No external module
+# is provided here, and the isolated source inventory contains no _wmi file.
+standard_library = sys.stdlib_module_names | {"_wmi"}
 
 
 class RejectExternalImports(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.split(".")[0] not in sys.stdlib_module_names | {"syncplay"}:
+        if fullname.split(".")[0] not in standard_library | {"syncplay"}:
             attempts.append("import:" + fullname)
             raise ImportError("External modules are unavailable in a source-only probe")
 

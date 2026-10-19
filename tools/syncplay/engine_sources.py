@@ -1,6 +1,7 @@
 """Build and verify a reviewed, non-executable Syncplay source artifact."""
 
 import argparse
+import ast
 import hashlib
 import io
 import json
@@ -42,9 +43,13 @@ def profile_data():
     if profile["schemaVersion"] != 1 or profile["runtimeReady"] is not False:
         raise ValueError("Only the reviewed non-executable source profile is supported")
     expected = {k: profile["source"][k] for k in ("revision", "license", "notices", "exports")}
-    expected.update(requires=[], unusedSubmodules={})
+    origin = profile["embeddedOrigin"]
+    expected.update(requires=[origin["path"]], unusedSubmodules={})
+    origin_specification = {k: origin[k] for k in ("revision", "license", "notices", "exports")}
+    origin_specification.update(requires=[], unusedSubmodules={})
     component = registry[COMPONENT]
-    if component["sources"] != {profile["source"]["path"]: expected} or component["roots"] != [profile["source"]["path"]]:
+    if (component["sources"] != {profile["source"]["path"]: expected, origin["path"]: origin_specification}
+            or component["roots"] != [profile["source"]["path"]]):
         raise ValueError("Engine source/license profile differs from the registered graph")
     if registry["syncplay-runtime"]["status"] != "unavailable":
         raise ValueError("Source packaging cannot enable an unresolved runtime")
@@ -92,20 +97,39 @@ def archive_bytes(files):
     return stream.getvalue()
 
 
-def payload_files(files, profile):
+def function_bytes(data, name):
+    nodes = [n for n in ast.parse(data).body if isinstance(n, ast.FunctionDef) and n.name == name]
+    if len(nodes) != 1:
+        raise ValueError("Embedded symbol must have one top-level definition")
+    node = nodes[0]
+    return b"".join(data.splitlines(keepends=True)[node.lineno - 1:node.end_lineno])
+
+
+def payload_files(files, profile, origin_files):
+    origin = profile["embeddedOrigin"]
+    if {n: digest(d) for n, d in origin_files.items()} != origin["files"]:
+        raise ValueError("Embedded origin source or full notice differs")
+    fragment = profile["embeddedFragment"]
+    host = function_bytes(files[fragment["hostFile"]], fragment["symbol"])
+    original = function_bytes(origin_files[fragment["originFile"]], fragment["symbol"])
+    if digest(host) != fragment["hostSha256"] or digest(original) != fragment["originSha256"]:
+        raise ValueError("Embedded retry origin correspondence differs")
     analysis = analyze(files, profile["standardLibraryRoots"])
     if digest(encoded(analysis)) != profile["analysisSha256"]:
         raise ValueError("Import/API/configuration analysis differs from the reviewed profile")
-    archive = archive_bytes(files)
+    archive = archive_bytes(files | {"provenance/retry-decorator/" + n: d for n, d in origin_files.items()})
     if digest(archive) != profile["archiveSha256"]:
         raise ValueError("Unchanged source archive differs from the reviewed profile")
     result = {ARCHIVE: archive, "source-analysis.json": encoded(analysis),
               "source-manifest.json": encoded({"schemaVersion": 1, "runtimeReady": False,
                                                "version": profile["version"], "source": profile["source"],
+                                               "embeddedOrigin": origin, "embeddedFragment": fragment,
                                                "sourceArchiveSha256": digest(archive),
                                                "analysisSha256": digest(encoded(analysis))})}
     for name in profile["source"]["notices"]:
         result["notices/syncplay/" + name] = files[name]
+    for name in origin["notices"]:
+        result["notices/retry-decorator/" + name] = origin_files[name]
     return result
 
 
@@ -150,13 +174,16 @@ def main():
         if json.loads(os.environ["SYNCWATCH_DEPENDENCY_FLAGS"]) != {"profile": "reviewed-engine-sources-v1", "version": profile["version"]}:
             raise ValueError("Unknown engine source build profile")
         snapshot = Path(os.environ["SYNCWATCH_DEPENDENCY_SOURCES"]) / profile["source"]["path"]
+        origin_snapshot = Path(os.environ["SYNCWATCH_DEPENDENCY_SOURCES"]) / profile["embeddedOrigin"]["path"]
         payload = Path(os.environ["SYNCWATCH_DEPENDENCY_OUTPUT"])
     else:
         target = args.platform or {("Darwin", "arm64"): "macos-arm64", ("Linux", "x86_64"): "linux-x64", ("Windows", "AMD64"): "windows-x64"}[(platform.system(), platform.machine())]
         directory = ROOT / "artifacts/dependencies" / COMPONENT / target
         snapshot, payload = directory / "syncplay.tar", directory / "payload"
+        origin_snapshot = directory / "retry-decorator.tar"
     files = read_snapshot(snapshot, profile["source"])
-    expected = payload_files(files, profile)
+    origin_files = read_snapshot(origin_snapshot, profile["embeddedOrigin"])
+    expected = payload_files(files, profile, origin_files)
     if args.operation == "build":
         for name, data in expected.items():
             target = payload / name

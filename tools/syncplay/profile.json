@@ -1,6 +1,34 @@
 {
   "analysisSha256": "36788a44bba3b85801db7a36d14e99588297b726a3dcdb40e5116a4c08e7a4a2",
-  "archiveSha256": "8bedc129406aff4a536349496b6288773cc29b63013a7b9318462b7472bf6912",
+  "archiveSha256": "8abbec5d36c4909bfc4aed87e0214d8d585ce2da3fe877959af56799cf6c6235",
+  "embeddedFragment": {
+    "hostFile": "syncplay/utils.py",
+    "hostSha256": "d037bd7343399ef838c1b748ab7da29f40160ee68dc0cddcb7bc59f69bdcec29",
+    "originFile": "retry_decorator.py",
+    "originSha256": "52843cedc24382c8bf35cb6a10bb35d2474699c883b5696c75737aca64eeb65a",
+    "relationship": "Syncplay retains the cited retry decorator with upstream modifications; original BSD notice applies to the embedded portion.",
+    "sourcePublication": "https://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/",
+    "symbol": "retry"
+  },
+  "embeddedOrigin": {
+    "exports": [
+      "LICENSE",
+      "README.md",
+      "retry_decorator.py"
+    ],
+    "files": {
+      "LICENSE": "3684cfcd985ee60e38b0f4016f8ba7b5796ef1d553f36798e71a5ee9ac4cdb21",
+      "README.md": "a413745639b63dac522263bfcf6d5731b79e2894b5635c0d91575d37d932933d",
+      "retry_decorator.py": "46d3061766740dc2e8b23b5f8ca2188b618bf61453d03b3db9d8499dae0f1771"
+    },
+    "license": "BSD-3-Clause",
+    "notices": [
+      "LICENSE",
+      "README.md"
+    ],
+    "path": "3rdparty/retry-decorator",
+    "revision": "a26fe27039f45f3e83cfcad7046e1761ae056498"
+  },
   "runtimeReady": false,
   "schemaVersion": 1,
   "source": {
@@ -62,7 +90,7 @@
       "syncplay/resources/third-party-notices.txt": "d7ea2379be68529b16875a342aae6161dc227cb531f34e74986f6bc1e8768023",
       "syncplay/utils.py": "8fb0048e265eceb89a973c0035d8f69ce6030100f337858599ea0e51892b4b9f"
     },
-    "license": "Apache-2.0 AND MIT",
+    "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
     "notices": [
       "LICENSE",
       "README.md",

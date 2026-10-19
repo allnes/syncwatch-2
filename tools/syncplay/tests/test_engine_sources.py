@@ -21,11 +21,18 @@ class EngineSourcesTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.files = {"LICENSE": b"Complete fixture license\n", "README.md": b"Original fixture notice\n",
                       "syncplay/__init__.py": b"version = 'fixture'\n",
-                      "syncplay/client.py": b"from twisted.internet import reactor\nclass SyncplayClient:\n def __init__(self, playerClass, ui, config):\n  self.name = config['name']\n"}
+                      "syncplay/client.py": b"from twisted.internet import reactor\nclass SyncplayClient:\n def __init__(self, playerClass, ui, config):\n  self.name = config['name']\n",
+                      "syncplay/utils.py": b"def retry(value):\n return value\n"}
+        self.origin_files = {"LICENSE": b"Complete original fixture BSD notice\n",
+                             "retry_decorator.py": b"def retry(value):\n return value\n"}
         self.specification = {"revision": "a" * 40, "files": {n: engine.digest(d) for n, d in self.files.items()},
                               "notices": ["LICENSE", "README.md"]}
         self.profile = {"version": "fixture", "source": self.specification, "standardLibraryRoots": [],
-                        "archiveSha256": engine.digest(engine.archive_bytes(self.files)),
+                        "embeddedOrigin": {"files": {n: engine.digest(d) for n, d in self.origin_files.items()}, "notices": ["LICENSE"]},
+                        "embeddedFragment": {"hostFile": "syncplay/utils.py", "originFile": "retry_decorator.py", "symbol": "retry",
+                                             "hostSha256": engine.digest(engine.function_bytes(self.files["syncplay/utils.py"], "retry")),
+                                             "originSha256": engine.digest(engine.function_bytes(self.origin_files["retry_decorator.py"], "retry"))},
+                        "archiveSha256": engine.digest(engine.archive_bytes(self.files | {"provenance/retry-decorator/" + n: d for n, d in self.origin_files.items()})),
                         "analysisSha256": engine.digest(engine.encoded(analyze(self.files, [])))}
 
     def write(self, directory, files):
@@ -86,15 +93,15 @@ class EngineSourcesTests(unittest.TestCase):
                 self.assertEqual(info.external_attr >> 16, 0o100644)
 
     def test_payload_refuses_changed_analysis_or_archive_identity(self):
-        expected = engine.payload_files(self.files, self.profile)
+        expected = engine.payload_files(self.files, self.profile, self.origin_files)
         manifest = json.loads(expected["source-manifest.json"])
         self.assertIs(manifest["runtimeReady"], False)
         for key in ["analysisSha256", "archiveSha256"]:
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, "reviewed profile"):
-                engine.payload_files(self.files, self.profile | {key: "0" * 64})
+                engine.payload_files(self.files, self.profile | {key: "0" * 64}, self.origin_files)
 
     def test_cached_output_rechecks_complete_notices_and_exact_payload(self):
-        expected = engine.payload_files(self.files, self.profile)
+        expected = engine.payload_files(self.files, self.profile, self.origin_files)
         for name in expected:
             self.write(self.root / "payload", expected)
             engine.verify(self.root / "payload", expected)
@@ -167,6 +174,17 @@ class EngineSourcesTests(unittest.TestCase):
         files = {"syncplay/__init__.py": b"raise RuntimeError('fixture diagnostic')\n"}
         with self.assertRaisesRegex(ValueError, "fixture diagnostic"):
             engine.smoke(engine.archive_bytes(files), "fixture")
+
+    def test_embedded_origin_notice_and_function_correspondence_are_required(self):
+        with self.assertRaisesRegex(ValueError, "origin source or full notice"):
+            engine.payload_files(self.files, self.profile, self.origin_files | {"LICENSE": b"changed"})
+        profile = self.profile | {"embeddedFragment": self.profile["embeddedFragment"] | {"hostSha256": "0" * 64}}
+        with self.assertRaisesRegex(ValueError, "correspondence"):
+            engine.payload_files(self.files, profile, self.origin_files)
+        output = engine.payload_files(self.files, self.profile, self.origin_files)
+        with zipfile.ZipFile(io.BytesIO(output[engine.ARCHIVE])) as package:
+            self.assertEqual(package.read("provenance/retry-decorator/LICENSE"), self.origin_files["LICENSE"])
+        self.assertEqual(output["notices/retry-decorator/LICENSE"], self.origin_files["LICENSE"])
 
 
 if __name__ == "__main__":
