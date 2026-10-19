@@ -3,6 +3,8 @@
 #include <string.h>
 #include "zlib.h"
 
+_Static_assert(sizeof(void *) == 8, "Compression probe requires 64-bit pointers");
+
 #define REQUIRE(expression) do { if (!(expression)) { \
     fprintf(stderr, "Compression probe failed at line %d: %s\n", __LINE__, #expression); \
     return 1; } } while (0)
@@ -52,7 +54,6 @@ int main(int argc, char **argv) {
     int result;
     const unsigned char dictionary[] = "SyncWatch compression fixture dictionary";
     REQUIRE(argc == 3);
-    REQUIRE(sizeof(void *) == 8);
     REQUIRE(strcmp(zlibVersion(), ZLIB_VERSION) == 0);
     REQUIRE(strcmp(zlibVersion(), argv[1]) == 0);
     for (i = 0; i < sizeof(input); ++i) input[i] = (unsigned char)((i * 37U) % 251U);
