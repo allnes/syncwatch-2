@@ -857,7 +857,7 @@ public static class SyncWatchCall
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "c5cd2e1147d1cd8e7c20e938bf1b2b735eed1f86fe39a2ed9125a03679382267";
+    public const string SourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -4788,8 +4788,9 @@ public static class SyncWatchLayouts
             ["originWidth"] = "$viewport.width",
             ["originHeight"] = "$viewport.height",
             ["padding"] = "2",
-            ["offsetX"] = "= $viewport.width @layout.callResizeSize - 2 / 2 -",
-            ["offsetY"] = "= $viewport.height @layout.callResizeSize - 2 / 2 -",
+            ["offsetX"] = "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            ["offsetY"] = "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            ["align"] = "center",
         }, [callResizeMark]);
         var callRoot = new DesignNode("callRoot", "overlay", new()
         {

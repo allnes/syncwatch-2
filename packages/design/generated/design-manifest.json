@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "4c2bdcb07a9499ea1a49c86661a1427f8cdb5a7830b3a263633d482676509c89",
+  "sourceDigest": "0a968e1bf6356884c9bcde939cb36141512e9c87454bac700a1783fc6d6a7c38",
   "sources": {
     "tokens/geometry.json": "1c60acd9453ab4320482ef0a01d1ae4ed69331c89ec96e32911908b9725edada",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -12,7 +12,7 @@
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "layouts.json": "3ed81cf2a98227891325b49d7a8c2106a9855150c27c70d0c1f231e8474aeb98",
+    "layouts.json": "f2b080c3311467889d7447c4770ec1ec60e564a4320a07550e1a546adf15a845",
     "package.json": "50a4f888922c6eeb0bc6d5b5845465cb329006b73935a5dc94ef8c1b8998b41b"
   },
   "generatorRevision": "8cdbb916f6bbae47ee9ae6d7e5b3b9f0801047d19bf24ee67a286089f1d20e9c",
@@ -5621,8 +5621,9 @@
               "originWidth": "$viewport.width",
               "originHeight": "$viewport.height",
               "padding": "2",
-              "offsetX": "= $viewport.width @layout.callResizeSize - 2 / 2 -",
-              "offsetY": "= $viewport.height @layout.callResizeSize - 2 / 2 -"
+              "offsetX": "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+              "offsetY": "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+              "align": "center"
             },
             "children": [
               {

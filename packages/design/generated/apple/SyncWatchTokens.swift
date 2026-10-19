@@ -1887,7 +1887,7 @@ public enum SyncWatchCall {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "c5cd2e1147d1cd8e7c20e938bf1b2b735eed1f86fe39a2ed9125a03679382267"
+    public static let sourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -7203,8 +7203,9 @@ public enum SyncWatchLayouts {
                 "originWidth": "$viewport.width",
                 "originHeight": "$viewport.height",
                 "padding": "2",
-                "offsetX": "= $viewport.width @layout.callResizeSize - 2 / 2 -",
-                "offsetY": "= $viewport.height @layout.callResizeSize - 2 / 2 -",
+                "offsetX": "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+                "offsetY": "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+                "align": "center",
             ],
             children: [callResizeMark])
         let callRoot = DesignNode(

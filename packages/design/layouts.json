@@ -3679,8 +3679,9 @@
             "originWidth": "$viewport.width",
             "originHeight": "$viewport.height",
             "padding": "2",
-            "offsetX": "= $viewport.width @layout.callResizeSize - 2 / 2 -",
-            "offsetY": "= $viewport.height @layout.callResizeSize - 2 / 2 -"
+            "offsetX": "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            "offsetY": "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            "align": "center"
           },
           "children": [
             {

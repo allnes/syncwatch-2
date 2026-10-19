@@ -707,7 +707,7 @@ object SyncWatchCall {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "c5cd2e1147d1cd8e7c20e938bf1b2b735eed1f86fe39a2ed9125a03679382267"
+    const val sourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -4360,8 +4360,9 @@ object SyncWatchLayouts {
             "originWidth" to "\$viewport.width",
             "originHeight" to "\$viewport.height",
             "padding" to "2",
-            "offsetX" to "= \$viewport.width @layout.callResizeSize - 2 / 2 -",
-            "offsetY" to "= \$viewport.height @layout.callResizeSize - 2 / 2 -",
+            "offsetX" to "= \$viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            "offsetY" to "= \$viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            "align" to "center",
         ), listOf(callResizeMark))
         val callRoot = DesignNode("callRoot", "overlay", mapOf(
             "disabledOpacity" to "0.4",

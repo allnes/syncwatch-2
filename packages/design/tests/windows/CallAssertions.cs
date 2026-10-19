@@ -74,6 +74,8 @@ internal static class CallAssertions
                             Check(button.ActualWidth >= SyncWatchTokens.LayoutCallWindowButtonSize && point.X >= 0 && point.Y >= 0 && point.X + button.ActualWidth <= width && point.Y + button.ActualHeight <= height, "buttons fit compact viewport");
                             Check(!string.IsNullOrWhiteSpace(AutomationProperties.GetName(button)), "localized button accessibility");
                         }
+                        var grip = Element<Thumb>(view, "call.resize"); var gripOrigin = grip.TransformToAncestor(view).Transform(new Point());
+                        Check(grip.Focusable && gripOrigin.X > width / 2 && gripOrigin.Y > height / 2 && gripOrigin.X + grip.ActualWidth <= width && gripOrigin.Y + grip.ActualHeight <= height, "keyboard-capable resize grip stays inside the bottom-right quadrant");
                         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(view); byte[] pixel = new byte[4];
                         bitmap.CopyPixels(new Int32Rect(width - 20, 110, 1, 1), pixel, 4, 0); Check(p.ShowsRemoteSurface ? pixel[1] > 100 : pixel[1] == 0, "remote surface gated independently of membership");
                         bitmap.CopyPixels(new Int32Rect(16, 48, 1, 1), pixel, 4, 0); Check(p.ShowsLocalPreview ? pixel[0] > pixel[2] + 80 : pixel[0] < pixel[2] + 80, "true self-view slot gating");
