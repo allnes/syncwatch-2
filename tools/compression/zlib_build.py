@@ -140,7 +140,7 @@ def build_or_verify(operation, payload, files, profile, cmake, sdk_args, sdk):
     # Work stays outside the source snapshot and payload. No build SDK/runtime
     # executable or native test process is distributed in the component.
     with tempfile.TemporaryDirectory(prefix="syncwatch-zlib-") as temporary:
-        directory = Path(temporary)
+        directory = Path(temporary).resolve()
         source = directory / "source"
         materialize(source, files)
         if operation == "build":

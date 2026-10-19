@@ -29,6 +29,8 @@ python3 -m unittest discover -s tools/compression/tests -v
 
 Use `windows-x64` or `linux-x64` for the other hosts. The first build compiles the exact selected original source twice in separate build directories and requires identical static library bytes and probe results. A cache hit still configures from verified source, checks every original/generated header, source archive, notice and SDK report, then compiles a fresh independent probe against the restored static archive and executes it. Original source/checksum mismatches, unexpected payload files, wrong versions/architectures and native failures reject the artifact.
 
+The Windows compiler uses deterministic compilation and maps owned source/build paths to stable metadata prefixes; the librarian uses reproducible archive output. The build compares the resulting complete library bytes directly and never patches or ignores differing binary fields. Failed comparisons retain bounded archive/object diagnostics.
+
 The probe exercises round trips, output bounds, truncated input, corrupt checksums, known CRC/Adler values, raw DEFLATE, gzip streams, preset dictionary and gzip file close/removal. Its input/output buffers and execution deadline are bounded; it accesses only its owned synthetic file and starts no provider or network connection. These checks are not a complete fuzzing or performance assessment.
 
 ## Payload and source/license correspondence

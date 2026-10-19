@@ -15,7 +15,13 @@ add_subdirectory("${SYNCWATCH_ZLIB_SOURCE}" upstream EXCLUDE_FROM_ALL)
 set_property(TARGET zlibstatic PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(MSVC)
-    target_compile_options(zlibstatic PRIVATE /Brepro)
+    # MSVC records build paths in COFF metadata even for optimized builds.
+    # Remap compiler inputs, not the resulting archive bytes.
+    cmake_path(NATIVE_PATH CMAKE_BINARY_DIR NORMALIZE native_build)
+    cmake_path(NATIVE_PATH SYNCWATCH_ZLIB_SOURCE NORMALIZE native_source)
+    target_compile_options(zlibstatic PRIVATE /experimental:deterministic
+        "/pathmap:${native_build}=syncwatch-build"
+        "/pathmap:${native_source}=zlib-source")
     set_property(TARGET zlibstatic APPEND PROPERTY STATIC_LIBRARY_OPTIONS /Brepro)
 endif()
 
