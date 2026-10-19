@@ -19,8 +19,12 @@ public sealed class SelectionMenu : UserControl
     }
     public void Render(SelectionMenuPresentation presentation, string language = "en")
     {
-        Presentation = presentation;
-        surface.Render(SelectionMenuBindings.Context(presentation), language);
+        VerifyAccess();
+        // Retain one overflow entry so an oversized observation stays invalid without an unbounded copy.
+        var entries = presentation.Entries.Take(SyncWatchSelectionMenu.MaximumEntries + 1).ToArray();
+        var snapshot = presentation with { Entries = Array.AsReadOnly(entries) };
+        surface.Render(SelectionMenuBindings.Context(snapshot), language);
+        Presentation = snapshot;
     }
 }
 

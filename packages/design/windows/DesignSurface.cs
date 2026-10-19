@@ -46,6 +46,7 @@ public class DesignSurface : UserControl
     }
     public void Render(DesignContext context, string language = "en")
     {
+        VerifyAccess();
         Context = context; UiLanguage = language; Language = System.Windows.Markup.XmlLanguage.GetLanguage(language);
         var source = Source; if (source is null) return;
         double? Dimension(string key) => source.Props.TryGetValue(key, out var value) && value != "fill" ? Math.Max(0, DesignContext.Number(context.Resolve(value, language))) : null;

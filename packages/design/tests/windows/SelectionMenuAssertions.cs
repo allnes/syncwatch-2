@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
@@ -17,6 +18,18 @@ internal static class SelectionMenuAssertions
     }
     private static void Layout(FrameworkElement view, int width, int height) { view.Measure(new Size(width, height)); view.Arrange(new Rect(0, 0, width, height)); view.UpdateLayout(); }
     private static Button Entry(FrameworkElement view, string id) => Find<Button>(view).Single(b => AutomationProperties.GetAutomationId(b) == "selection." + id);
+    private static void RejectWorkerMutation(Action operation, Func<bool> unchanged)
+    {
+        bool rejected = false;
+        var worker = new Thread(() =>
+        {
+            try { operation(); }
+            catch (InvalidOperationException) { rejected = true; }
+        });
+        worker.IsBackground = true;
+        worker.Start();
+        Check(worker.Join(TimeSpan.FromSeconds(5)) && rejected && unchanged(), "worker fails before publishing UI state");
+    }
     public static void Run(Application application, ResourceDictionary dictionary)
     {
         using var corpus = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "selection-menu.json")));
@@ -33,8 +46,18 @@ internal static class SelectionMenuAssertions
         }
         Check(cases == 28, "shared request corpus");
         var ready = SelectionMenuFixtures.Presentation("playlist", "available");
+        var mutableEntries = ready.Entries.ToList();
+        var snapshotView = new SelectionMenu(); snapshotView.Render(ready with { Entries = mutableEntries });
+        mutableEntries[1] = new("replaced", "Changed outside the observation");
+        Check(snapshotView.Presentation.Entries[1] == ready.Entries[1], "accepted observation isolates caller-owned lists");
+        var observed = snapshotView.Presentation;
+        RejectWorkerMutation(() => snapshotView.Render(ready with { Revision = 99 }), () => ReferenceEquals(snapshotView.Presentation, observed));
+        var primitive = new DesignSurface("SelectionMenu"); var context = primitive.Context;
+        RejectWorkerMutation(() => primitive.Render(new() { Values = new() { ["kind"] = "audio" } }), () => ReferenceEquals(primitive.Context, context));
         var limit = ready with { Entries = Enumerable.Range(0, SyncWatchSelectionMenu.MaximumEntries).Select(i => new SelectionMenuEntry("item" + i, "Item")).ToArray() };
         Check(limit.IsValid && !(limit with { Entries = [.. limit.Entries, new("extra", "Overflow")] }).IsValid, "bounded entries");
+        snapshotView.Render(limit with { Entries = [.. limit.Entries, new("extra", "Overflow"), new("extra2", "Overflow")] });
+        Check(snapshotView.Presentation.Entries.Count == SyncWatchSelectionMenu.MaximumEntries + 1 && !snapshotView.Presentation.IsValid, "overflow snapshot remains bounded and invalid");
         int width = (int)SyncWatchTokens.LayoutSelectionGalleryWidth, height = (int)SyncWatchTokens.LayoutSelectionGalleryHeight;
         var view = new SelectionMenu(); var requests = new List<SelectionMenuRequest>(); view.SelectionRequested += requests.Add;
         view.Render(ready); Layout(view, width, height);

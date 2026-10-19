@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
     modifier: Modifier = Modifier,
     onSelection: (SelectionMenuRequest) -> Unit = {},
 ) {
-    DesignSurface("SelectionMenu", SelectionMenuBindings.context(presentation), language, theme, modifier) { event ->
+    // Copy the accepted observation; one overflow entry preserves invalidity with bounded allocation.
+    val snapshot = presentation.copy(entries = presentation.entries.take(SyncWatchSelectionMenu.maximumEntries + 1))
+    DesignSurface("SelectionMenu", SelectionMenuBindings.context(snapshot), language, theme, modifier) { event ->
         if (event.action == "selectEntry" && event.value != null && event.payload != null) {
-            presentation.dispatch(event.value, event.payload, onSelection)
+            snapshot.dispatch(event.value, event.payload, onSelection)
         }
     }
 }
