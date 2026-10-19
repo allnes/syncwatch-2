@@ -367,7 +367,12 @@ def prepare(root, name, target):
     versions = {}
     environment = build_environment(specification)
     for tool, definition in specification["toolchains"].items():
-        output = subprocess.check_output(command(definition["command"]), cwd=root, env=environment, stderr=subprocess.STDOUT, timeout=60).decode().strip()
+        try:
+            output = subprocess.check_output(command(definition["command"]), cwd=root, env=environment, stderr=subprocess.STDOUT, timeout=60).decode().strip()
+        except subprocess.CalledProcessError as error:
+            print(f"Developer SDK probe failed: {name}/{target}/{tool}", file=sys.stderr)
+            print(error.output.decode(errors="replace")[-8192:], file=sys.stderr)
+            raise
         require(len(output) < 65536 and re.fullmatch(definition["pattern"], output), "Installed toolchain does not match its declared compatibility")
         versions[tool] = output
     inputs = {

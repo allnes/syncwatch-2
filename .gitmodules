@@ -67,3 +67,6 @@
 [submodule "3rdparty/retry-decorator"]
 	path = 3rdparty/retry-decorator
 	url = https://github.com/saltycrane/retry-decorator.git
+[submodule "3rdparty/zlib"]
+	path = 3rdparty/zlib
+	url = https://github.com/madler/zlib.git

@@ -15,6 +15,9 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 | `3rdparty/kotlin-stdlib` | `v2.3.20` / `d57eb4a26ed01ab03cf195da686c8047032ff16f` | Selected JVM stdlib source package and generator references | Apache-2.0, BSD-3-Clause and BSL-1.0 for the selected files; full original notices |
 | `3rdparty/unicode-data` | `release-20210720-u13` / `84a95001ba850554e65234dde62cbdb0ad41105a` | Two Unicode 13.0.0 files verified against the published release for titlecase provenance | Unicode-DFS-2016; full original permission notice and data attribution |
 | `3rdparty/retry-decorator` | `a26fe27039f45f3e83cfcad7046e1761ae056498` | Provenance and full BSD notice for the retry function already embedded in Syncplay | BSD 3-Clause; original LICENSE and README |
+| `3rdparty/zlib` | `v1.3.2` / `da607da739fa6047df13e66a2af6b8bec7c2a498` | Static native compression prerequisite for the planned CPython runtime | Zlib; original LICENSE, README and public-header notice |
+
+The [native compression component](../native-compression.md) builds static zlib from its selected original source with the platform C SDK and CMake developer SDK. Its isolated static-link probes and complete source/notices are revalidated after cache restoration. CPython and the headless Syncplay runtime are not enabled by this prerequisite.
 
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 

@@ -266,6 +266,9 @@ def check_workflows(root: Path) -> None:
             "archive": f"artifacts/native/{name}/artifact.zip",
             "name": f"syncwatch-{name}-" + "${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
         }, "native artifacts must identify platform, commit, run, and attempt")
+    windows_commands = {step.get("run") for step in jobs["windows"]["steps"]}
+    require("python -m unittest discover -s tools/dependencies/tests -v\npython -m unittest discover -s tools/compression/tests -v" in windows_commands,
+            "Windows dependency regression tests must execute on the native Windows runner")
     test_commands = {step.get("run") for step in jobs["tests"]["steps"]}
     require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
