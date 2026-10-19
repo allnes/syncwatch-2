@@ -151,7 +151,20 @@ def build_or_verify(operation, payload, files, profile, cmake, sdk_args, sdk):
             configured_header = configuration_header(directory / "cold/upstream/zconf.h")
             configure(cmake, sdk_args, source, directory / "repeat")
             repeated, repeated_probe = compile_probe(cmake, directory / "repeat")
-            require_identical_library(library, repeated.read_bytes())
+            try:
+                require_identical_library(library, repeated.read_bytes())
+            except ValueError:
+                # Diagnose only owned build outputs; never normalize away a difference.
+                for original in sorted((directory / "cold/upstream").rglob("*.obj"))[:32]:
+                    relative = original.relative_to(directory / "cold")
+                    other = directory / "repeat" / relative
+                    if other.is_file() and original.read_bytes() != other.read_bytes():
+                        try:
+                            require_identical_library(original.read_bytes(), other.read_bytes())
+                        except ValueError as difference:
+                            print("Native object difference " + relative.as_posix() + ": " + str(difference), flush=True)
+                        break
+                raise
             if native_probe(repeated_probe, directory, profile) != probe:
                 raise ValueError("Repeated native build changed its probe result")
             expected = expected_payload(files, profile, sdk, library, configured_header, probe)
