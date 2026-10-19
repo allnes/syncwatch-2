@@ -15,6 +15,7 @@ def main():
     root = Path(__file__).resolve().parents[2]
     subprocess.run([sys.executable, "tools/design/check.py", *(["--cold"] if args.cold else [])], cwd=root, check=True)
     targets = {("Darwin", "arm64"): "macos-arm64", ("Linux", "x86_64"): "linux-x64", ("Windows", "AMD64"): "windows-x64"}
+    subprocess.run([sys.executable, "tools/design/check_isolation.py"], cwd=root, check=True)
     target = targets[(platform.system(), platform.machine())]
     runtime = root / "artifacts/dependencies/design-generator" / target / "payload/runtime"
     subprocess.run(["node", "tools/design/generate.mjs", "--runtime", str(runtime), *(["--check"] if args.check else [])], cwd=root, check=True)

@@ -416,6 +416,11 @@ public static class SyncWatchCopy
         ("en", "skip15") => "15 s",
         ("en", "skip30") => "30 s",
         ("en", "skip60") => "60 s",
+        ("en", "galleryState") => "State",
+        ("en", "gallerySection") => "Section",
+        ("en", "galleryLanguage") => "Language",
+        ("en", "galleryDark") => "Dark theme",
+        ("en", "galleryFailSave") => "Fail save",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -568,6 +573,11 @@ public static class SyncWatchCopy
         ("ru", "skip15") => "15 с",
         ("ru", "skip30") => "30 с",
         ("ru", "skip60") => "60 с",
+        ("ru", "galleryState") => "Состояние",
+        ("ru", "gallerySection") => "Раздел",
+        ("ru", "galleryLanguage") => "Язык",
+        ("ru", "galleryDark") => "Тёмная тема",
+        ("ru", "galleryFailSave") => "Ошибка сохранения",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -705,4 +715,3229 @@ public static class SyncWatchPlayerSettings
         "gray" => SyncWatchTokens.ColorSubtitleGray,
         _ => null,
     };
+}
+
+public static class SyncWatchLayouts
+{
+    public const string SourceDigest = "91beeac8e9e6359960e9a0c4a264c9adcab38e3fc73b56d51e26b966497ca926";
+    public const double CoordinateSize = 20;
+    public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
+    {
+        ["fontSize"] = "@type.bodySize",
+        ["foreground"] = "theme.text",
+        ["weight"] = "normal",
+    };
+    public static System.Collections.Generic.IReadOnlyDictionary<string, string> Values { get; } = new System.Collections.Generic.Dictionary<string, string>
+    {
+        ["color.dark.background"] = "#071827FF",
+        ["color.dark.backgroundDeep"] = "#05121EFF",
+        ["color.dark.border"] = "#1B4060FF",
+        ["color.dark.gradientStart"] = "#0B2440FF",
+        ["color.dark.inputFill"] = "#081B2CFF",
+        ["color.dark.surface"] = "#0C2135FF",
+        ["color.dark.surfaceRaised"] = "#102A43FF",
+        ["color.dark.text"] = "#FFFFFFFF",
+        ["color.dark.textSecondary"] = "#FFFFFFB3",
+        ["color.light.background"] = "#E7EEF4FF",
+        ["color.light.backgroundDeep"] = "#DCE6EEFF",
+        ["color.light.border"] = "#B9C9D6FF",
+        ["color.light.gradientStart"] = "#EAF1F6FF",
+        ["color.light.surface"] = "#F1F5F8FF",
+        ["color.light.surfaceRaised"] = "#F7FAFCFF",
+        ["color.light.text"] = "#1A2B3AFF",
+        ["color.light.textSecondary"] = "#617386FF",
+        ["color.shared.accent"] = "#2F8CFFFF",
+        ["color.shared.accentSoft"] = "#6AAFFFFF",
+        ["color.shared.selection"] = "#2F8CFF26",
+        ["color.shared.success"] = "#30D98BFF",
+        ["color.shared.videoSurface"] = "#000000FF",
+        ["color.subtitle.black"] = "#000000FF",
+        ["color.subtitle.charcoal"] = "#202020FF",
+        ["color.subtitle.cyan"] = "#9FE7FFFF",
+        ["color.subtitle.gray"] = "#4A4A4AFF",
+        ["color.subtitle.warm"] = "#FFF3A6FF",
+        ["color.subtitle.white"] = "#FFFFFFFF",
+        ["control.borderWidth"] = "1",
+        ["control.brandSize"] = "38",
+        ["control.buttonRadius"] = "12",
+        ["control.compactDialogRadius"] = "12",
+        ["control.compactGap"] = "8",
+        ["control.dialogRadius"] = "18",
+        ["control.fieldHeight"] = "42",
+        ["control.fieldRadius"] = "11",
+        ["control.filledButtonMinHeight"] = "46",
+        ["control.iconSize"] = "20",
+        ["control.menuRowHeight"] = "30",
+        ["control.outlinedButtonMinHeight"] = "44",
+        ["control.playerButtonSize"] = "38",
+        ["control.playerIconSize"] = "20",
+        ["control.playerProminentSize"] = "46",
+        ["control.playerSliderHeight"] = "20",
+        ["control.playerSliderThumbSize"] = "12",
+        ["control.rowMinHeight"] = "62",
+        ["control.rowRadius"] = "11",
+        ["control.settingsToggleHeight"] = "16",
+        ["control.settingsToggleInset"] = "3",
+        ["control.settingsToggleThumb"] = "10",
+        ["control.settingsToggleWidth"] = "32",
+        ["control.sliderThumbRadius"] = "6",
+        ["control.sliderTrackHeight"] = "3",
+        ["layout.callInitialHeight"] = "210",
+        ["layout.callInitialWidth"] = "300",
+        ["layout.detailPadding"] = "24",
+        ["layout.galleryHeight"] = "760",
+        ["layout.galleryWidth"] = "1120",
+        ["layout.headerHeight"] = "64",
+        ["layout.libraryPanelWidth"] = "360",
+        ["layout.lowerPanelMinHeight"] = "250",
+        ["layout.minimumHeight"] = "600",
+        ["layout.minimumWidth"] = "800",
+        ["layout.panelGap"] = "14",
+        ["layout.panelPadding"] = "14",
+        ["layout.panelRadius"] = "16",
+        ["layout.playerBottomInset"] = "78",
+        ["layout.playerFooterHeight"] = "86",
+        ["layout.playerSettingsCardPadding"] = "11",
+        ["layout.playerSettingsCardRadius"] = "10",
+        ["layout.playerSettingsColorSize"] = "22",
+        ["layout.playerSettingsHeight"] = "460",
+        ["layout.playerSettingsPreviewHeight"] = "130",
+        ["layout.playerSettingsSidebarWidth"] = "170",
+        ["layout.playerTimeWidth"] = "64",
+        ["layout.playerToolbarHeight"] = "40",
+        ["layout.playerTopInset"] = "32",
+        ["layout.playerVolumeWidth"] = "96",
+        ["layout.sectionGap"] = "10",
+        ["layout.selectedPanelMaxHeight"] = "375",
+        ["layout.selectedPanelMinHeight"] = "260",
+        ["layout.settingsCardPadding"] = "8",
+        ["layout.settingsContentPadding"] = "16",
+        ["layout.settingsControlHeight"] = "30",
+        ["layout.settingsFieldWidth"] = "360",
+        ["layout.settingsFooterHeight"] = "48",
+        ["layout.settingsHeaderHeight"] = "40",
+        ["layout.settingsHeight"] = "420",
+        ["layout.settingsInterfaceFieldWidth"] = "300",
+        ["layout.settingsSidebarRowHeight"] = "32",
+        ["layout.settingsSidebarWidth"] = "150",
+        ["layout.settingsWidth"] = "680",
+        ["layout.workspacePadding"] = "18",
+        ["type.bodySize"] = "14",
+        ["type.brandSize"] = "23",
+        ["type.captionSize"] = "12",
+        ["type.playerLabelSize"] = "12",
+        ["type.sectionSize"] = "19",
+        ["type.settingsBodySize"] = "13",
+        ["type.settingsSectionSize"] = "18",
+        ["type.settingsTitleSize"] = "15",
+        ["type.titleSize"] = "31",
+    };
+    public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Assets { get; } = new System.Collections.Generic.Dictionary<string, double[][]>
+    {
+        ["symbols.playMark"] = [[5,3,17,10,5,17]],
+        ["symbols.chevronDown"] = [[0,0,20,0,10,20]],
+        ["player.play"] = [[6,3,17,10,6,17]],
+        ["player.pause"] = [[4,3,8,3,8,17,4,17],[12,3,16,3,16,17,12,17]],
+        ["player.backward"] = [[10,3,2,10,10,17],[18,3,10,10,18,17]],
+        ["player.forward"] = [[2,3,10,10,2,17],[10,3,18,10,10,17]],
+        ["player.previous"] = [[3,3,5,3,5,17,3,17],[17,3,6,10,17,17]],
+        ["player.next"] = [[15,3,17,3,17,17,15,17],[3,3,14,10,3,17]],
+        ["player.volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
+        ["player.muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
+        ["player.library"] = [[10,3,11,5,6,9,18,9,18,11,6,11,11,15,10,17,2,10]],
+        ["player.call"] = [[2,5,12,5,12,15,2,15],[14,8,19,5,19,15,14,12]],
+        ["player.fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
+        ["player.end"] = [[4,4,16,4,16,16,4,16]],
+        ["player.settings"] = [[3,4,17,4,17,6,3,6],[3,9,17,9,17,11,3,11],[3,14,17,14,17,16,3,16],[6,2,8,2,8,8,6,8],[12,7,14,7,14,13,12,13],[6,12,8,12,8,18,6,18]],
+        ["player.playlist"] = [[2,4,14,4,14,6,2,6],[2,9,14,9,14,11,2,11],[2,14,9,14,9,16,2,16],[12,13,18,16,12,19]],
+        ["player.subtitles"] = [[2,4,18,4,18,16,2,16,2,14,16,14,16,6,4,6,4,16,2,16],[5,9,9,9,9,11,5,11],[11,9,15,9,15,11,11,11]],
+        ["player.audio"] = [[4,4,6,4,6,16,4,16],[9,1,11,1,11,19,9,19],[14,6,16,6,16,14,14,14]],
+    };
+    public static System.Collections.Generic.IReadOnlyDictionary<string, DesignNode> Components { get; } = new System.Collections.Generic.Dictionary<string, DesignNode>
+    {
+        ["Library"] = MakeLibrary(),
+        ["Settings"] = MakeSettings(),
+        ["PlayerSettings"] = MakePlayerSettings(),
+        ["Player"] = MakePlayer(),
+        ["field"] = Makefield(),
+        ["subtitlePreview"] = MakesubtitlePreview(),
+        ["Gallery"] = MakeGallery(),
+        ["fixtureVideo"] = MakefixtureVideo(),
+    };
+    private static DesignNode MakeLibrary()
+    {
+        var node62 = new DesignNode("node62", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.brandSize",
+            ["height"] = "@control.brandSize",
+            ["name"] = "symbols.playMark",
+            ["padding"] = "9",
+            ["background"] = "theme.accent",
+            ["foreground"] = "@color.dark.text",
+            ["radius"] = "@control.buttonRadius",
+        }, []);
+        var node63 = new DesignNode("node63", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.brandSize",
+            ["weight"] = "heavy",
+            ["text"] = "~brand",
+        }, []);
+        var node64 = new DesignNode("node64", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "vertical",
+            ["length"] = "= @layout.headerHeight @layout.panelPadding 2 * -",
+        }, []);
+        var node65 = new DesignNode("node65", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~room",
+            ["lines"] = "1",
+        }, []);
+        var node66 = new DesignNode("node66", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var libraryFriendStatus = new DesignNode("libraryFriendStatus", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~friendOffline",
+            ["lines"] = "1",
+            ["when"] = "= $viewport.width 1000 >=",
+        }, []);
+        var node67 = new DesignNode("node67", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~callInactive",
+            ["lines"] = "1",
+        }, []);
+        var node68 = new DesignNode("node68", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~openSettings",
+        }, []);
+        var node69 = new DesignNode("node69", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "openSettings",
+            ["enabled"] = "$can.openSettings",
+            ["automation"] = "{namespace}.openSettings",
+            ["label"] = "~openSettings",
+        }, [node68]);
+        var node70 = new DesignNode("node70", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surface",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["radius"] = "@layout.panelRadius",
+            ["clip"] = "true",
+            ["gap"] = "@layout.panelGap",
+            ["height"] = "@layout.headerHeight",
+            ["paddingX"] = "@layout.workspacePadding",
+        }, [node62, node63, node64, node65, node66, libraryFriendStatus, node67, node69]);
+        var node71 = new DesignNode("node71", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.sectionSize",
+            ["weight"] = "bold",
+            ["text"] = "~library",
+        }, []);
+        var node72 = new DesignNode("node72", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node73 = new DesignNode("node73", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "{entryCount} {filesLabel}",
+        }, []);
+        var node74 = new DesignNode("node74", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node71, node72, node73]);
+        var node75 = new DesignNode("node75", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~chooseFolder",
+        }, []);
+        var node76 = new DesignNode("node76", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "chooseFolder",
+            ["enabled"] = "$can.chooseFolder",
+            ["automation"] = "{namespace}.chooseFolder",
+            ["label"] = "~chooseFolder",
+        }, [node75]);
+        var node77 = new DesignNode("node77", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~rescan",
+        }, []);
+        var node78 = new DesignNode("node78", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "rescan",
+            ["enabled"] = "$can.rescan",
+            ["automation"] = "{namespace}.rescan",
+            ["label"] = "~rescan",
+        }, [node77]);
+        var node79 = new DesignNode("node79", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node76, node78]);
+        var node80 = new DesignNode("node80", "input", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accent",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["placeholderFill"] = "theme.textSecondary",
+            ["height"] = "@control.fieldHeight",
+            ["paddingX"] = "@layout.panelPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "theme.inputFill",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["value"] = "$query",
+            ["label"] = "~search",
+            ["enabled"] = "$can.search",
+            ["action"] = "search",
+            ["automation"] = "library.search",
+            ["width"] = "fill",
+        }, []);
+        var node81 = new DesignNode("node81", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{title}",
+            ["lines"] = "2",
+            ["width"] = "fill",
+        }, []);
+        var node82 = new DesignNode("node82", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["minHeight"] = "@control.rowMinHeight",
+            ["padding"] = "@layout.panelPadding",
+            ["radius"] = "@control.rowRadius",
+            ["background"] = "= $selected theme.selection theme.surfaceRaised if",
+            ["selected"] = "$selected",
+            ["contentAlign"] = "leading",
+            ["action"] = "selectMovie",
+            ["value"] = "{id}",
+            ["enabled"] = "$can.selectMovie",
+            ["automation"] = "library.movie.{id}",
+            ["label"] = "{title}",
+        }, [node81]);
+        var node83 = new DesignNode("node83", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "entries",
+        }, [node82]);
+        var node84 = new DesignNode("node84", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node83]);
+        var node85 = new DesignNode("node85", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node84]);
+        var node86 = new DesignNode("node86", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{emptyMessage}",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node87 = new DesignNode("node87", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$hasEntries",
+        }, [node85, node86]);
+        var node88 = new DesignNode("node88", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["background"] = "theme.surface",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["radius"] = "@layout.panelRadius",
+            ["clip"] = "true",
+            ["width"] = "@layout.libraryPanelWidth",
+            ["height"] = "fill",
+            ["gap"] = "@layout.panelGap",
+            ["padding"] = "@layout.panelPadding",
+        }, [node74, node79, node80, node87]);
+        var node51 = new DesignNode("node51", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~selectedMovie",
+        }, []);
+        var node52 = new DesignNode("node52", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.titleSize",
+            ["weight"] = "heavy",
+            ["lines"] = "2",
+            ["minScale"] = "0.65",
+            ["text"] = "{selectedTitle}",
+        }, []);
+        var node15 = new DesignNode("node15", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~duration",
+        }, []);
+        var node16 = new DesignNode("node16", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node17 = new DesignNode("node17", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node15, node16]);
+        var node18 = new DesignNode("node18", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~resolution",
+        }, []);
+        var node19 = new DesignNode("node19", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node20 = new DesignNode("node20", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node18, node19]);
+        var node21 = new DesignNode("node21", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~audio",
+        }, []);
+        var node22 = new DesignNode("node22", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node23 = new DesignNode("node23", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node21, node22]);
+        var node24 = new DesignNode("node24", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~subtitles",
+        }, []);
+        var node25 = new DesignNode("node25", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node26 = new DesignNode("node26", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node24, node25]);
+        var node27 = new DesignNode("node27", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["case"] = "1",
+            ["gap"] = "@control.compactGap",
+        }, [node17, node20, node23, node26]);
+        var node28 = new DesignNode("node28", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~duration",
+        }, []);
+        var node29 = new DesignNode("node29", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node30 = new DesignNode("node30", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node28, node29]);
+        var node31 = new DesignNode("node31", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~resolution",
+        }, []);
+        var node32 = new DesignNode("node32", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node33 = new DesignNode("node33", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node31, node32]);
+        var node34 = new DesignNode("node34", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node30, node33]);
+        var node35 = new DesignNode("node35", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~audio",
+        }, []);
+        var node36 = new DesignNode("node36", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node37 = new DesignNode("node37", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node35, node36]);
+        var node38 = new DesignNode("node38", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~subtitles",
+        }, []);
+        var node39 = new DesignNode("node39", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~unknown",
+            ["weight"] = "semibold",
+        }, []);
+        var node40 = new DesignNode("node40", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node38, node39]);
+        var node41 = new DesignNode("node41", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node37, node40]);
+        var node42 = new DesignNode("node42", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["case"] = "default",
+            ["gap"] = "@control.compactGap",
+        }, [node34, node41]);
+        var node43 = new DesignNode("node43", "switch", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["value"] = "= $viewport.width 1000 >=",
+        }, [node27, node42]);
+        var node53 = new DesignNode("node53", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~missingMedia",
+            ["foreground"] = "theme.accentSoft",
+            ["when"] = "$missingMedia",
+        }, []);
+        var node44 = new DesignNode("node44", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~startWatching",
+        }, []);
+        var node45 = new DesignNode("node45", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.filledButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.accent",
+            ["foreground"] = "@color.dark.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "startWatching",
+            ["enabled"] = "$can.startWatching",
+            ["automation"] = "{namespace}.startWatching",
+            ["label"] = "~startWatching",
+        }, [node44]);
+        var node46 = new DesignNode("node46", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~continueWatching",
+        }, []);
+        var node47 = new DesignNode("node47", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "continueWatching",
+            ["enabled"] = "$can.continueWatching",
+            ["automation"] = "{namespace}.continueWatching",
+            ["label"] = "~continueWatching",
+        }, [node46]);
+        var node48 = new DesignNode("node48", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~endWatching",
+        }, []);
+        var node49 = new DesignNode("node49", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "endWatching",
+            ["enabled"] = "$can.endWatching",
+            ["automation"] = "{namespace}.endWatching",
+            ["label"] = "~endWatching",
+        }, [node48]);
+        var node50 = new DesignNode("node50", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["wrapAt"] = "1000",
+        }, [node45, node47, node49]);
+        var node54 = new DesignNode("node54", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~fileLocation",
+        }, []);
+        var node55 = new DesignNode("node55", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "{selectedLocation}",
+            ["lines"] = "2",
+        }, []);
+        var node56 = new DesignNode("node56", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["padding"] = "@layout.panelPadding",
+            ["background"] = "theme.backgroundDeep",
+            ["radius"] = "@control.buttonRadius",
+            ["width"] = "fill",
+        }, [node54, node55]);
+        var node57 = new DesignNode("node57", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@layout.panelGap",
+            ["padding"] = "@layout.detailPadding",
+            ["width"] = "fill",
+        }, [node51, node52, node43, node53, node50, node56]);
+        var node58 = new DesignNode("node58", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node57]);
+        var node59 = new DesignNode("node59", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~selectMovie",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node60 = new DesignNode("node60", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$hasSelection",
+        }, [node58, node59]);
+        var node61 = new DesignNode("node61", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["background"] = "theme.surface",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["radius"] = "@layout.panelRadius",
+            ["clip"] = "true",
+            ["height"] = "= $viewport.height @layout.workspacePadding 2 * - @layout.headerHeight - @layout.panelGap 2 * - @layout.lowerPanelMinHeight - @layout.selectedPanelMinHeight max @layout.selectedPanelMaxHeight min",
+            ["width"] = "fill",
+        }, [node60]);
+        var node89 = new DesignNode("node89", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.sectionSize",
+            ["weight"] = "bold",
+            ["text"] = "~roomStatus",
+        }, []);
+        var node90 = new DesignNode("node90", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{roomMessage}",
+        }, []);
+        var node91 = new DesignNode("node91", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node92 = new DesignNode("node92", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~openCall",
+        }, []);
+        var node93 = new DesignNode("node93", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.panelPadding",
+            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+            ["weight"] = "semibold",
+            ["contentAlign"] = "center",
+            ["action"] = "openCall",
+            ["enabled"] = "$can.openCall",
+            ["automation"] = "{namespace}.openCall",
+            ["label"] = "~openCall",
+        }, [node92]);
+        var node94 = new DesignNode("node94", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["background"] = "theme.surface",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["radius"] = "@layout.panelRadius",
+            ["clip"] = "true",
+            ["gap"] = "@layout.panelGap",
+            ["padding"] = "@layout.panelPadding",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node89, node90, node91, node93]);
+        var node95 = new DesignNode("node95", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.sectionSize",
+            ["weight"] = "bold",
+            ["text"] = "~recentActivity",
+        }, []);
+        var node96 = new DesignNode("node96", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~noActivity",
+        }, []);
+        var node97 = new DesignNode("node97", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node98 = new DesignNode("node98", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["background"] = "theme.surface",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["radius"] = "@layout.panelRadius",
+            ["clip"] = "true",
+            ["gap"] = "@layout.panelGap",
+            ["padding"] = "@layout.panelPadding",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node95, node96, node97]);
+        var node99 = new DesignNode("node99", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@layout.panelGap",
+            ["height"] = "fill",
+        }, [node94, node98]);
+        var node100 = new DesignNode("node100", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@layout.panelGap",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node61, node99]);
+        var node101 = new DesignNode("node101", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@layout.panelGap",
+            ["height"] = "fill",
+            ["align"] = "top",
+        }, [node88, node100]);
+        var node102 = new DesignNode("node102", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["minWidth"] = "@layout.minimumWidth",
+            ["minHeight"] = "@layout.minimumHeight",
+            ["padding"] = "@layout.workspacePadding",
+            ["fontSize"] = "@type.bodySize",
+            ["foreground"] = "theme.text",
+            ["gradient"] = "theme.gradientStart|theme.background|theme.backgroundDeep",
+            ["gradientStart"] = "0,0",
+            ["gradientEnd"] = "1,1",
+            ["gradientOffsets"] = "0|0.5|1",
+            ["gap"] = "@layout.panelGap",
+        }, [node70, node101]);
+        return node102;
+    }
+    private static DesignNode MakeSettings()
+    {
+        var node162 = new DesignNode("node162", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.settingsTitleSize",
+            ["weight"] = "bold",
+            ["text"] = "{~brand} · {~openSettings}",
+            ["width"] = "fill",
+            ["moveAction"] = "moveDialog",
+        }, []);
+        var node163 = new DesignNode("node163", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~close",
+        }, []);
+        var node164 = new DesignNode("node164", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "close",
+            ["enabled"] = "$can.close",
+            ["automation"] = "{namespace}.close",
+            ["shortcut"] = "cancel",
+            ["label"] = "~close",
+        }, [node163]);
+        var node165 = new DesignNode("node165", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["height"] = "@layout.settingsHeaderHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["background"] = "theme.backgroundDeep",
+        }, [node162, node164]);
+        var node166 = new DesignNode("node166", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "horizontal",
+        }, []);
+        var node167 = new DesignNode("node167", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{id}",
+            ["width"] = "fill",
+        }, []);
+        var node168 = new DesignNode("node168", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "@layout.settingsSidebarRowHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "= $selected theme.selection transparent if",
+            ["contentAlign"] = "leading",
+            ["action"] = "selectSection",
+            ["value"] = "{id}",
+            ["automation"] = "{namespace}.section.{id}",
+            ["selected"] = "$selected",
+            ["label"] = "~{id}",
+        }, [node167]);
+        var node169 = new DesignNode("node169", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "sections",
+        }, [node168]);
+        var node170 = new DesignNode("node170", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node171 = new DesignNode("node171", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.borderWidth",
+            ["padding"] = "@layout.settingsCardPadding",
+            ["width"] = "@layout.settingsSidebarWidth",
+            ["height"] = "fill",
+            ["background"] = "theme.backgroundDeep",
+        }, [node169, node170]);
+        var node172 = new DesignNode("node172", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "vertical",
+        }, []);
+        var node155 = new DesignNode("node155", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.settingsSectionSize",
+            ["weight"] = "bold",
+            ["text"] = "~{section}",
+        }, []);
+        var node156 = new DesignNode("node156", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node157 = new DesignNode("node157", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node155, node156]);
+        var node158 = new DesignNode("node158", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{section}Hint",
+        }, []);
+        var node159 = new DesignNode("node159", "include", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["component"] = "field",
+            ["width"] = "= $interfaceSection @layout.settingsInterfaceFieldWidth @layout.settingsFieldWidth if",
+        }, []);
+        var node160 = new DesignNode("node160", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "fields",
+        }, [node159]);
+        var node161 = new DesignNode("node161", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~settingsUnavailable",
+            ["when"] = "$unavailable",
+        }, []);
+        var node173 = new DesignNode("node173", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["padding"] = "@layout.settingsContentPadding",
+            ["width"] = "fill",
+        }, [node157, node158, node160, node161]);
+        var node174 = new DesignNode("node174", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node173]);
+        var node175 = new DesignNode("node175", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "fill",
+            ["gap"] = "0",
+        }, [node171, node172, node174]);
+        var node176 = new DesignNode("node176", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "horizontal",
+        }, []);
+        var node177 = new DesignNode("node177", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.captionSize",
+            ["text"] = "~{status}",
+            ["foreground"] = "= $saved theme.success theme.textSecondary if",
+            ["automation"] = "{namespace}.status",
+        }, []);
+        var node178 = new DesignNode("node178", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node179 = new DesignNode("node179", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~cancel",
+        }, []);
+        var node180 = new DesignNode("node180", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "cancel",
+            ["enabled"] = "$can.cancel",
+            ["automation"] = "{namespace}.cancel",
+            ["shortcut"] = "cancel",
+            ["tabIndex"] = "1000",
+            ["label"] = "~cancel",
+        }, [node179]);
+        var node181 = new DesignNode("node181", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~save",
+        }, []);
+        var node182 = new DesignNode("node182", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.accent",
+            ["foreground"] = "@color.dark.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "save",
+            ["enabled"] = "$can.save",
+            ["automation"] = "{namespace}.save",
+            ["shortcut"] = "default",
+            ["tabIndex"] = "1001",
+            ["label"] = "~save",
+        }, [node181]);
+        var node183 = new DesignNode("node183", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["height"] = "@layout.settingsFooterHeight",
+        }, [node177, node178, node180, node182]);
+        var node184 = new DesignNode("node184", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "@layout.settingsWidth",
+            ["height"] = "@layout.settingsHeight",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["foreground"] = "theme.text",
+            ["background"] = "theme.surface",
+            ["radius"] = "@control.compactDialogRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["clip"] = "true",
+            ["cycleFocus"] = "true",
+            ["gap"] = "0",
+        }, [node165, node166, node175, node176, node183]);
+        return node184;
+    }
+    private static DesignNode MakePlayerSettings()
+    {
+        var node198 = new DesignNode("node198", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.settingsTitleSize",
+            ["weight"] = "bold",
+            ["text"] = "~{dialogTitle}",
+            ["width"] = "fill",
+            ["moveAction"] = "moveDialog",
+        }, []);
+        var node199 = new DesignNode("node199", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~close",
+        }, []);
+        var node200 = new DesignNode("node200", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "close",
+            ["enabled"] = "$can.close",
+            ["automation"] = "{namespace}.close",
+            ["shortcut"] = "cancel",
+            ["label"] = "~close",
+        }, [node199]);
+        var node201 = new DesignNode("node201", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["height"] = "@layout.settingsHeaderHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["background"] = "theme.backgroundDeep",
+        }, [node198, node200]);
+        var node202 = new DesignNode("node202", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "horizontal",
+        }, []);
+        var node203 = new DesignNode("node203", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{id}",
+            ["width"] = "fill",
+        }, []);
+        var node204 = new DesignNode("node204", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "@layout.settingsSidebarRowHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "= $selected theme.selection transparent if",
+            ["contentAlign"] = "leading",
+            ["action"] = "selectSection",
+            ["value"] = "{id}",
+            ["automation"] = "{namespace}.section.{id}",
+            ["selected"] = "$selected",
+            ["label"] = "~{id}",
+        }, [node203]);
+        var node205 = new DesignNode("node205", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "sections",
+        }, [node204]);
+        var node206 = new DesignNode("node206", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node207 = new DesignNode("node207", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.borderWidth",
+            ["padding"] = "@layout.settingsCardPadding",
+            ["width"] = "@layout.playerSettingsSidebarWidth",
+            ["height"] = "fill",
+            ["background"] = "theme.backgroundDeep",
+        }, [node205, node206]);
+        var node208 = new DesignNode("node208", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "vertical",
+        }, []);
+        var node185 = new DesignNode("node185", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.settingsSectionSize",
+            ["weight"] = "bold",
+            ["text"] = "~{section}",
+        }, []);
+        var node186 = new DesignNode("node186", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node187 = new DesignNode("node187", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~resetSection",
+        }, []);
+        var node188 = new DesignNode("node188", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "resetSection",
+            ["enabled"] = "$can.resetSection",
+            ["automation"] = "{namespace}.resetSection",
+            ["label"] = "~resetSection",
+        }, [node187]);
+        var node189 = new DesignNode("node189", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node185, node186, node188]);
+        var node190 = new DesignNode("node190", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{section}Hint",
+        }, []);
+        var node191 = new DesignNode("node191", "include", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["component"] = "field",
+            ["width"] = "fill",
+        }, []);
+        var node192 = new DesignNode("node192", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "fields",
+        }, [node191]);
+        var node193 = new DesignNode("node193", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["align"] = "top",
+        }, [node192]);
+        var node194 = new DesignNode("node194", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "rows",
+        }, [node193]);
+        var node195 = new DesignNode("node195", "include", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["component"] = "subtitlePreview",
+        }, []);
+        var node196 = new DesignNode("node196", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$showSubtitle",
+        }, [node195]);
+        var node197 = new DesignNode("node197", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["padding"] = "@layout.playerSettingsCardPadding",
+            ["background"] = "theme.backgroundDeep",
+            ["backgroundOpacity"] = "0.34",
+            ["radius"] = "@layout.playerSettingsCardRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+        }, [node194, node196]);
+        var node209 = new DesignNode("node209", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["padding"] = "@layout.settingsContentPadding",
+            ["width"] = "fill",
+        }, [node189, node190, node197]);
+        var node210 = new DesignNode("node210", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node209]);
+        var node211 = new DesignNode("node211", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "fill",
+            ["gap"] = "0",
+        }, [node207, node208, node210]);
+        var node212 = new DesignNode("node212", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "horizontal",
+        }, []);
+        var node213 = new DesignNode("node213", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.captionSize",
+            ["text"] = "~{status}",
+            ["foreground"] = "= $saved theme.success theme.textSecondary if",
+            ["automation"] = "{namespace}.status",
+        }, []);
+        var node214 = new DesignNode("node214", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node215 = new DesignNode("node215", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~cancel",
+        }, []);
+        var node216 = new DesignNode("node216", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "cancel",
+            ["enabled"] = "$can.cancel",
+            ["automation"] = "{namespace}.cancel",
+            ["shortcut"] = "cancel",
+            ["tabIndex"] = "1000",
+            ["label"] = "~cancel",
+        }, [node215]);
+        var node217 = new DesignNode("node217", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~save",
+        }, []);
+        var node218 = new DesignNode("node218", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.accent",
+            ["foreground"] = "@color.dark.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "save",
+            ["enabled"] = "$can.save",
+            ["automation"] = "{namespace}.save",
+            ["shortcut"] = "default",
+            ["tabIndex"] = "1001",
+            ["label"] = "~save",
+        }, [node217]);
+        var node219 = new DesignNode("node219", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["height"] = "@layout.settingsFooterHeight",
+        }, [node213, node214, node216, node218]);
+        var node220 = new DesignNode("node220", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "@layout.settingsWidth",
+            ["height"] = "@layout.playerSettingsHeight",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["foreground"] = "theme.text",
+            ["background"] = "theme.surface",
+            ["radius"] = "@control.compactDialogRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["clip"] = "true",
+            ["cycleFocus"] = "true",
+            ["gap"] = "0",
+        }, [node201, node202, node211, node212, node219]);
+        return node220;
+    }
+    private static DesignNode MakePlayer()
+    {
+        var node103 = new DesignNode("node103", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.library",
+        }, []);
+        var node104 = new DesignNode("node104", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "showLibrary",
+            ["enabled"] = "$can.showLibrary",
+            ["automation"] = "player.showLibrary",
+            ["label"] = "~showLibrary",
+        }, [node103]);
+        var node105 = new DesignNode("node105", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{title}",
+            ["width"] = "fill",
+            ["lines"] = "1",
+            ["truncate"] = "middle",
+        }, []);
+        var node106 = new DesignNode("node106", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{state}",
+            ["lines"] = "1",
+        }, []);
+        var node107 = new DesignNode("node107", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.call",
+        }, []);
+        var node108 = new DesignNode("node108", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "openCall",
+            ["enabled"] = "$can.openCall",
+            ["automation"] = "player.openCall",
+            ["label"] = "~openCall",
+        }, [node107]);
+        var node109 = new DesignNode("node109", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.fullscreen",
+        }, []);
+        var node110 = new DesignNode("node110", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "toggleFullscreen",
+            ["enabled"] = "$can.toggleFullscreen",
+            ["automation"] = "player.toggleFullscreen",
+            ["label"] = "~toggleFullscreen",
+        }, [node109]);
+        var node111 = new DesignNode("node111", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.end",
+        }, []);
+        var node112 = new DesignNode("node112", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "endWatching",
+            ["enabled"] = "$can.endWatching",
+            ["automation"] = "player.endWatching",
+            ["label"] = "~endWatching",
+        }, [node111]);
+        var node113 = new DesignNode("node113", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["height"] = "@layout.playerToolbarHeight",
+            ["paddingX"] = "@layout.panelPadding",
+            ["background"] = "theme.backgroundDeep",
+        }, [node104, node105, node106, node108, node110, node112]);
+        var node114 = new DesignNode("node114", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "video",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["background"] = "@color.shared.videoSurface",
+            ["label"] = "~videoSurface",
+            ["clip"] = "true",
+        }, []);
+        var node115 = new DesignNode("node115", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "{positionText}",
+            ["width"] = "@layout.playerTimeWidth",
+        }, []);
+        var node116 = new DesignNode("node116", "range", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@control.playerSliderHeight",
+            ["trackHeight"] = "@control.sliderTrackHeight",
+            ["thumbSize"] = "@control.playerSliderThumbSize",
+            ["trackFill"] = "theme.border",
+            ["progressFill"] = "theme.accent",
+            ["thumbFill"] = "theme.accent",
+            ["focusRadius"] = "@control.fieldRadius",
+            ["borderWidth"] = "@control.borderWidth",
+            ["value"] = "$position",
+            ["maximum"] = "$duration",
+            ["minimum"] = "0",
+            ["step"] = "1000",
+            ["round"] = "true",
+            ["enabled"] = "$can.seek",
+            ["action"] = "seek",
+            ["automation"] = "player.seek",
+            ["label"] = "~seek",
+            ["width"] = "fill",
+        }, []);
+        var node117 = new DesignNode("node117", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "{durationText}",
+            ["width"] = "@layout.playerTimeWidth",
+        }, []);
+        var node118 = new DesignNode("node118", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["height"] = "@control.playerSliderHeight",
+        }, [node115, node116, node117]);
+        var node119 = new DesignNode("node119", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.settings",
+        }, []);
+        var node120 = new DesignNode("node120", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "openPlayerSettings",
+            ["enabled"] = "$can.openPlayerSettings",
+            ["automation"] = "player.playerSettings",
+            ["label"] = "~playerSettings",
+        }, [node119]);
+        var node121 = new DesignNode("node121", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.playlist",
+        }, []);
+        var node122 = new DesignNode("node122", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "openPlaylist",
+            ["enabled"] = "$can.openPlaylist",
+            ["automation"] = "player.playlist",
+            ["label"] = "~playlist",
+        }, [node121]);
+        var node123 = new DesignNode("node123", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+            ["align"] = "leading",
+        }, [node120, node122]);
+        var node124 = new DesignNode("node124", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.previous",
+        }, []);
+        var node125 = new DesignNode("node125", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "previousFile",
+            ["enabled"] = "$can.previousFile",
+            ["automation"] = "player.previousFile",
+            ["label"] = "~previousFile",
+        }, [node124]);
+        var node126 = new DesignNode("node126", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.backward",
+        }, []);
+        var node127 = new DesignNode("node127", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "skip",
+            ["enabled"] = "$can.skip",
+            ["automation"] = "player.skipBackward",
+            ["label"] = "~skipBackward",
+            ["value"] = "-1",
+        }, [node126]);
+        var node128 = new DesignNode("node128", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "$playIcon",
+        }, []);
+        var node129 = new DesignNode("node129", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerProminentSize",
+            ["height"] = "@control.playerProminentSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.accent",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "@color.dark.text",
+            ["action"] = "playPause",
+            ["enabled"] = "$can.playPause",
+            ["automation"] = "player.{playLabel}",
+            ["label"] = "~{playLabel}",
+        }, [node128]);
+        var node130 = new DesignNode("node130", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.forward",
+        }, []);
+        var node131 = new DesignNode("node131", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "skip",
+            ["enabled"] = "$can.skip",
+            ["automation"] = "player.skipForward",
+            ["label"] = "~skipForward",
+            ["value"] = "1",
+        }, [node130]);
+        var node132 = new DesignNode("node132", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.next",
+        }, []);
+        var node133 = new DesignNode("node133", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "nextFile",
+            ["enabled"] = "$can.nextFile",
+            ["automation"] = "player.nextFile",
+            ["label"] = "~nextFile",
+        }, [node132]);
+        var node134 = new DesignNode("node134", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node125, node127, node129, node131, node133]);
+        var node135 = new DesignNode("node135", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.subtitles",
+        }, []);
+        var node136 = new DesignNode("node136", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "selectSubtitles",
+            ["enabled"] = "$can.selectSubtitles",
+            ["automation"] = "player.subtitles",
+            ["label"] = "~subtitles",
+        }, [node135]);
+        var node137 = new DesignNode("node137", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "player.audio",
+        }, []);
+        var node138 = new DesignNode("node138", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "selectAudio",
+            ["enabled"] = "$can.selectAudio",
+            ["automation"] = "player.audioTracks",
+            ["label"] = "~audioTracks",
+        }, [node137]);
+        var node139 = new DesignNode("node139", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerIconSize",
+            ["height"] = "@control.playerIconSize",
+            ["name"] = "$volumeIcon",
+        }, []);
+        var node140 = new DesignNode("node140", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@control.playerButtonSize",
+            ["height"] = "@control.playerButtonSize",
+            ["radius"] = "circle",
+            ["background"] = "theme.surfaceRaised",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "theme.text",
+            ["action"] = "muteMovie",
+            ["enabled"] = "$can.muteMovie",
+            ["automation"] = "player.{volumeLabel}",
+            ["label"] = "~{volumeLabel}",
+        }, [node139]);
+        var node141 = new DesignNode("node141", "range", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@control.playerSliderHeight",
+            ["trackHeight"] = "@control.sliderTrackHeight",
+            ["thumbSize"] = "@control.playerSliderThumbSize",
+            ["trackFill"] = "theme.border",
+            ["progressFill"] = "theme.accent",
+            ["thumbFill"] = "theme.accent",
+            ["focusRadius"] = "@control.fieldRadius",
+            ["borderWidth"] = "@control.borderWidth",
+            ["value"] = "$volume",
+            ["minimum"] = "0",
+            ["maximum"] = "1",
+            ["step"] = "0.05",
+            ["enabled"] = "$can.setMovieVolume",
+            ["action"] = "setMovieVolume",
+            ["automation"] = "player.setMovieVolume",
+            ["label"] = "~setMovieVolume",
+            ["width"] = "@layout.playerVolumeWidth",
+        }, []);
+        var node142 = new DesignNode("node142", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+            ["align"] = "trailing",
+        }, [node136, node138, node140, node141]);
+        var node143 = new DesignNode("node143", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "fill",
+            ["gap"] = "0",
+        }, [node123, node134, node142]);
+        var node144 = new DesignNode("node144", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["height"] = "@layout.playerFooterHeight",
+            ["paddingX"] = "@layout.panelPadding",
+            ["background"] = "theme.backgroundDeep",
+            ["gap"] = "0",
+        }, [node118, node143]);
+        var node145 = new DesignNode("node145", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["minWidth"] = "@layout.minimumWidth",
+            ["minHeight"] = "@layout.minimumHeight",
+            ["fontSize"] = "@type.playerLabelSize",
+            ["foreground"] = "theme.text",
+            ["gap"] = "0",
+        }, [node113, node114, node144]);
+        return node145;
+    }
+    private static DesignNode Makefield()
+    {
+        var node1 = new DesignNode("node1", "toggle", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@layout.settingsControlHeight",
+            ["trackWidth"] = "@control.settingsToggleWidth",
+            ["trackHeight"] = "@control.settingsToggleHeight",
+            ["thumbSize"] = "@control.settingsToggleThumb",
+            ["thumbInset"] = "@control.settingsToggleInset",
+            ["onFill"] = "theme.accent",
+            ["offFill"] = "theme.border",
+            ["thumbFill"] = "@color.dark.text",
+            ["case"] = "boolean",
+            ["text"] = "~{label}",
+            ["value"] = "$value",
+            ["enabled"] = "$editable",
+            ["action"] = "editField",
+            ["payload"] = "{id}",
+            ["automation"] = "{namespace}.field.{id}",
+            ["width"] = "fill",
+        }, []);
+        var node2 = new DesignNode("node2", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~{label}",
+        }, []);
+        var node3 = new DesignNode("node3", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node4 = new DesignNode("node4", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{value}{unitText}",
+            ["when"] = "$isRange",
+        }, []);
+        var node5 = new DesignNode("node5", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+        }, [node2, node3, node4]);
+        var node6 = new DesignNode("node6", "range", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@control.playerSliderHeight",
+            ["trackHeight"] = "@control.sliderTrackHeight",
+            ["thumbSize"] = "@control.playerSliderThumbSize",
+            ["trackFill"] = "theme.border",
+            ["progressFill"] = "theme.accent",
+            ["thumbFill"] = "theme.accent",
+            ["focusRadius"] = "@control.fieldRadius",
+            ["borderWidth"] = "@control.borderWidth",
+            ["case"] = "range",
+            ["value"] = "$number",
+            ["minimum"] = "$minimum",
+            ["maximum"] = "$maximum",
+            ["step"] = "$step",
+            ["enabled"] = "$editable",
+            ["action"] = "editField",
+            ["payload"] = "{id}",
+            ["automation"] = "{namespace}.field.{id}",
+            ["width"] = "fill",
+        }, []);
+        var node7 = new DesignNode("node7", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.playerSettingsColorSize",
+            ["height"] = "@layout.playerSettingsColorSize",
+            ["radius"] = "circle",
+            ["background"] = "$swatchColor",
+            ["border"] = "= $selected theme.accent theme.border if",
+            ["borderWidth"] = "= @control.borderWidth 2 *",
+            ["padding"] = "= @control.borderWidth 2 *",
+            ["action"] = "editField",
+            ["payload"] = "{fieldID}",
+            ["value"] = "{id}",
+            ["enabled"] = "$editable",
+            ["automation"] = "playerSettings.color.{id}",
+            ["label"] = "~{label}",
+            ["text"] = "",
+        }, []);
+        var node8 = new DesignNode("node8", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "options",
+        }, [node7]);
+        var node9 = new DesignNode("node9", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["case"] = "color",
+            ["gap"] = "@control.compactGap",
+        }, [node8]);
+        var node10 = new DesignNode("node10", "choice", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accent",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["markWidth"] = "8",
+            ["markHeight"] = "4",
+            ["markInset"] = "@layout.settingsCardPadding",
+            ["markName"] = "symbols.chevronDown",
+            ["markFill"] = "theme.textSecondary",
+            ["rowPaddingX"] = "@layout.settingsCardPadding",
+            ["rowPaddingY"] = "4",
+            ["rowFill"] = "theme.surfaceRaised",
+            ["rowHighlight"] = "theme.selection",
+            ["rowForeground"] = "theme.text",
+            ["labelAutomation"] = "settings.choiceLabel",
+            ["height"] = "@layout.settingsControlHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "theme.inputFill",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["align"] = "leading",
+            ["case"] = "choice",
+            ["options"] = "options",
+            ["value"] = "$value",
+            ["enabled"] = "$editable",
+            ["action"] = "editField",
+            ["payload"] = "{id}",
+            ["automation"] = "{namespace}.field.{id}",
+            ["label"] = "~{label}",
+            ["width"] = "fill",
+        }, []);
+        var node11 = new DesignNode("node11", "input", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accent",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["placeholderFill"] = "theme.textSecondary",
+            ["height"] = "@layout.settingsControlHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "theme.inputFill",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["align"] = "leading",
+            ["case"] = "text",
+            ["value"] = "$value",
+            ["enabled"] = "$editable",
+            ["action"] = "editField",
+            ["payload"] = "{id}",
+            ["automation"] = "{namespace}.field.{id}",
+            ["label"] = "~{label}",
+            ["width"] = "fill",
+        }, []);
+        var node12 = new DesignNode("node12", "switch", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["value"] = "$kind",
+        }, [node6, node9, node10, node11]);
+        var node13 = new DesignNode("node13", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["case"] = "default",
+            ["gap"] = "@control.borderWidth",
+            ["width"] = "fill",
+        }, [node5, node12]);
+        var node14 = new DesignNode("node14", "switch", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["value"] = "$kind",
+            ["width"] = "fill",
+        }, [node1, node13]);
+        return node14;
+    }
+    private static DesignNode MakesubtitlePreview()
+    {
+        var node221 = new DesignNode("node221", "subtitle", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@layout.playerSettingsPreviewHeight",
+            ["background"] = "@color.shared.videoSurface",
+            ["foreground"] = "$subtitleFill",
+            ["outline"] = "$outlineFill",
+            ["outlineWidth"] = "$outlineWidth",
+            ["fontSize"] = "$subtitleSize",
+            ["fontFamily"] = "$subtitleFont",
+            ["weight"] = "bold",
+            ["lines"] = "2",
+            ["outlineSamples"] = "8",
+            ["text"] = "~subtitlePreview",
+            ["centerY"] = "= $subtitleTop $subtitlePadding $subtitleSize 2 / + $local.height $subtitlePadding - $subtitleSize 2 / - if $subtitleOffset 120 / $local.height * 0.34 * $subtitleTop 1 -1 if * + $subtitleSize 2 / max $local.height $subtitleSize 2 / - min",
+            ["textPaddingX"] = "$subtitlePadding",
+            ["width"] = "fill",
+        }, []);
+        return node221;
+    }
+    private static DesignNode MakeGallery()
+    {
+        var node146 = new DesignNode("node146", "choice", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accent",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["markWidth"] = "8",
+            ["markHeight"] = "4",
+            ["markInset"] = "@layout.settingsCardPadding",
+            ["markName"] = "symbols.chevronDown",
+            ["markFill"] = "theme.textSecondary",
+            ["rowPaddingX"] = "@layout.settingsCardPadding",
+            ["rowPaddingY"] = "4",
+            ["rowFill"] = "theme.surfaceRaised",
+            ["rowHighlight"] = "theme.selection",
+            ["rowForeground"] = "theme.text",
+            ["labelAutomation"] = "settings.choiceLabel",
+            ["height"] = "@layout.settingsControlHeight",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "theme.inputFill",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["align"] = "leading",
+            ["case"] = "choice",
+            ["value"] = "$value",
+            ["options"] = "options",
+            ["action"] = "gallery",
+            ["payload"] = "{id}",
+            ["automation"] = "gallery.{id}",
+            ["width"] = "= $id language == 100 160 if",
+            ["label"] = "~{label}",
+            ["enabled"] = "$editable",
+        }, []);
+        var node147 = new DesignNode("node147", "toggle", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@layout.settingsControlHeight",
+            ["trackWidth"] = "@control.settingsToggleWidth",
+            ["trackHeight"] = "@control.settingsToggleHeight",
+            ["thumbSize"] = "@control.settingsToggleThumb",
+            ["thumbInset"] = "@control.settingsToggleInset",
+            ["onFill"] = "theme.accent",
+            ["offFill"] = "theme.border",
+            ["thumbFill"] = "@color.dark.text",
+            ["case"] = "boolean",
+            ["value"] = "$value",
+            ["action"] = "gallery",
+            ["payload"] = "{id}",
+            ["automation"] = "gallery.{id}",
+            ["text"] = "~{label}",
+            ["enabled"] = "$editable",
+        }, []);
+        var node148 = new DesignNode("node148", "switch", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["value"] = "$kind",
+        }, [node146, node147]);
+        var node149 = new DesignNode("node149", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "galleryControls",
+        }, [node148]);
+        var node150 = new DesignNode("node150", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{lastAction}",
+            ["lines"] = "1",
+        }, []);
+        var node151 = new DesignNode("node151", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["padding"] = "@layout.panelPadding",
+        }, [node149, node150]);
+        var node152 = new DesignNode("node152", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "galleryContent",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var node153 = new DesignNode("node153", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node152]);
+        var node154 = new DesignNode("node154", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "0",
+            ["background"] = "theme.background",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.bodySize",
+        }, [node151, node153]);
+        var galleryModalSlot = new DesignNode("galleryModalSlot", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "modalContent",
+        }, []);
+        var galleryModalPosition = new DesignNode("galleryModalPosition", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["offsetX"] = "= $modalOffsetX 0 $viewport.width @layout.settingsWidth - 2 / 0 max - max $viewport.width @layout.settingsWidth - 2 / 0 max min",
+            ["offsetY"] = "= $modalOffsetY 0 $viewport.height @layout.playerSettingsHeight - 2 / 0 max - max $viewport.height @layout.playerSettingsHeight - 2 / 0 max min",
+        }, [galleryModalSlot]);
+        var galleryModal = new DesignNode("galleryModal", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["background"] = "theme.backgroundDeep",
+            ["backgroundOpacity"] = "0.6",
+            ["blockInput"] = "true",
+        }, [galleryModalPosition]);
+        var galleryModalCondition = new DesignNode("galleryModalCondition", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$modalOpen",
+        }, [galleryModal]);
+        var galleryRoot = new DesignNode("galleryRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [node154, galleryModalCondition]);
+        return galleryRoot;
+    }
+    private static DesignNode MakefixtureVideo()
+    {
+        var fixtureVideoText = new DesignNode("fixtureVideoText", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "~{fixtureLabel}",
+        }, []);
+        var fixtureVideoRoot = new DesignNode("fixtureVideoRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["background"] = "@color.shared.videoSurface",
+            ["foreground"] = "@color.dark.text",
+            ["fontSize"] = "@type.bodySize",
+        }, [fixtureVideoText]);
+        return fixtureVideoRoot;
+    }
 }

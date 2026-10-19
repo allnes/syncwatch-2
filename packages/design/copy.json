@@ -153,7 +153,12 @@
       "skip10": "10 s",
       "skip15": "15 s",
       "skip30": "30 s",
-      "skip60": "60 s"
+      "skip60": "60 s",
+      "galleryState": "State",
+      "gallerySection": "Section",
+      "galleryLanguage": "Language",
+      "galleryDark": "Dark theme",
+      "galleryFailSave": "Fail save"
     },
     "ru": {
       "brand": "SyncWatch",
@@ -307,7 +312,12 @@
       "skip10": "10 с",
       "skip15": "15 с",
       "skip30": "30 с",
-      "skip60": "60 с"
+      "skip60": "60 с",
+      "galleryState": "Состояние",
+      "gallerySection": "Раздел",
+      "galleryLanguage": "Язык",
+      "galleryDark": "Тёмная тема",
+      "galleryFailSave": "Ошибка сохранения"
     }
   },
   "gallery": {

@@ -1,6 +1,6 @@
 # Shared design system
 
-`packages/design` is the platform-neutral SyncWatch Design library, licensed under Apache 2.0. It defines visual values and component contracts independently of a UI framework. Style Dictionary, also Apache 2.0, generates resources for the Swift, C# and Kotlin clients at build time.
+`packages/design` is the platform-neutral SyncWatch Design library, licensed under Apache 2.0. It defines composition, responsive layout, visual values, typography, primitive appearance and component contracts independently of a UI framework. Style Dictionary, also Apache 2.0, generates resources for the Swift, C# and Kotlin clients at build time.
 
 ```mermaid
 flowchart LR
@@ -21,6 +21,7 @@ flowchart LR
 |---|---|
 | `packages/design/tokens/palette.json` | Shared accent colors and dark/light color values |
 | `packages/design/tokens/geometry.json` | Screen dimensions, spacing, and control geometry |
+| `packages/design/layouts.json` | Shared component trees, styles, responsive expressions, primitive visual states and gallery composition |
 | `packages/design/themes.json` | Semantic dark/light color roles and logical units |
 | `packages/design/generated/` | Generated SwiftUI, C#, XAML, Kotlin and shared manifest |
 | `packages/design/copy.json` | English/Russian copy and Library gallery fixtures |
@@ -33,7 +34,7 @@ flowchart LR
 
 Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and density-independent units on Windows/Compose. Physical display scale is handled by the renderer rather than embedded in token values.
 
-The package contains design data, component specifications and the Library, Settings, PlayerChrome and PlayerSettingsDialog renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. Matching Compose renderers are source-only until their complete dependency build is available. Call components and remaining player overlays await implementation.
+The package contains design data, component specifications and the Library, Settings, PlayerChrome and PlayerSettingsDialog renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated formatters compile the same declarative tree and visual rules into committed Swift/C#/Kotlin data. Generic native adapters interpret that data; presentation bindings supply observations and events. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. Matching Compose renderers are source-only until their complete dependency build is available. Call components and remaining player overlays await implementation.
 
 ## Generated resources
 
@@ -55,7 +56,9 @@ The Kotlin formatter runs in the same generation command. The Compose source use
 
 ## Component implementation
 
-Tokens define values. Component contracts define structure, semantic roles, interaction states, focus behavior, and actions. Native renderers implement these contracts; Style Dictionary does not render controls or implement their behavior.
+`layouts.json` owns the actual component tree. Nodes declare rows, columns, overlays, scrolling, text, icons, buttons, inputs, choices, toggles, ranges and native surface slots. Includes, repeats, conditions and switches describe reusable fields and data-dependent structure. Styles specify geometry, typography, paint, state appearance and clipping; primitive profiles specify control-part dimensions. Application bindings supply facts and actions, including validated user preferences, and never construct a screen tree or choose base visual values.
+
+Style Dictionary handles tokens. The first-party layout compiler validates and emits the shared tree as typed data. `DesignSurface` maps primitive kinds to SwiftUI, WPF or Compose SDK operations. Primitive implementations contain no Library, Settings or Player composition branches. Native control parts and semantic system-font mappings remain platform adapters. The same layout change is regenerated for every client. Generated files are not maintained as independent designs.
 
 The visual language includes a two-column library, deep blue surfaces and gradients, compact controls and menus, player overlays, settings sidebars, and consistent status indicators. Theme roles select dark or light resources; system mode follows the current operating-system appearance.
 
@@ -110,3 +113,14 @@ SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolba
 The isolated `--player-settings-gallery` selects each section, editing/saved/error/read-only state, theme and language, and can simulate failure. The gear in `--player-gallery` opens an owned dialog; successful save updates only in-memory fixture values and skip/default-volume observations. Neither gallery reads application preferences or starts a provider. Applying and persisting player preferences in a real session requires the application/media adapters.
 
 Native validation retains 80 PlayerSettings images per platform (five sections, four states, two themes and two languages), giving 224 images per native artifact. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
+
+
+## Declarative document and binding boundary
+
+A node has an ID, primitive kind, style references, string properties and children. The compiler merges primitive profiles, styles and explicit properties. `@` references a declared token, `$` reads a presentation value, `~` selects localized copy, and `{name}` interpolates a bound string. Bounded postfix expressions support numeric layout calculations, comparisons and conditional values. These expressions are data rather than executable application code. Unknown primitives, properties, styles, references, recursive includes, malformed expressions and invalid geometry are rejected during generation.
+
+`DesignContext` supplies value maps and named collections. Rendering a collection inherits parent context and binds each item. Presentation models continue to validate requests and persistence acknowledgements; the layout layer does not start or acknowledge providers. A viewport comes from the host, and the document owns responsive decisions. Native-owned content is inserted through named leaf slots. Product screens use the video slot; the shared fixture gallery hosts already-declarative components and its modal editor.
+
+Library, Settings, Player and PlayerSettings bindings select a named component and translate observations/events. Their source files contain no native stacks, grids, fields, visual modifiers, palette literals or geometry assignments. `tools/design/check_isolation.py` checks that boundary in repository validation and resource generation, including the source-only Linux direction. Native window sizes consume the shared geometry resources.
+
+All fixture galleries also use the shared tree. They keep model state in memory and do not access normal preferences or services. WPF reconciles changed child lists while retaining stable controls; value updates preserve input identity/caret and suppress input echoes. Native assertions exercise data-driven axis/order/spacing changes using the same probe document on both platforms. The complete component image matrix remains mandatory. OS menu/scroll behavior, font metrics and physical keyboard/display-scale acceptance retain their native validation boundaries; the Compose application remains unavailable until its source/build/license prerequisites pass.

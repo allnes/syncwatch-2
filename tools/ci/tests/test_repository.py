@@ -93,6 +93,9 @@ class RepositoryChecks(unittest.TestCase):
         for source in (REPOSITORY / "packages/design").rglob("*.json"):
             self.write(str(source.relative_to(REPOSITORY)), source.read_text())
 
+        for member in ("LICENSE", "README.md"):
+            self.write("packages/design/" + member, (REPOSITORY / "packages/design" / member).read_text())
+
     def test_missing_token_reference_fails(self):
         self.copy_design()
         path = self.root / "packages/design/components.json"

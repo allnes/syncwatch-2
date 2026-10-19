@@ -1,9 +1,9 @@
 {
   "name": "@syncwatch/design",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "Platform-neutral SyncWatch design tokens and component contracts",
+  "description": "Platform-neutral declarative SyncWatch components, visual rules, bindings and generated native data",
   "files": [
     "tokens",
     "themes.json",
@@ -15,6 +15,9 @@
     "linux",
     "settings.json",
     "player.json",
-    "player-settings.json"
+    "player-settings.json",
+    "layouts.json",
+    "LICENSE",
+    "README.md"
   ]
 }

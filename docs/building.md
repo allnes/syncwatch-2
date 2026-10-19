@@ -130,3 +130,10 @@ Native tests exercise shared boundary fixtures, WPF control input, observation u
 Launch the native executable with `--player-settings-gallery` to inspect playback, subtitles, image, audio and advanced sections in the compact dialog. Select editing, saved, invalid or read-only state and enable **Fail save** to exercise a failed acknowledgement. Save succeeds only when the caller accepts the complete valid draft. Reset changes editable fields in the selected section; Cancel discards changes since the last successful save.
 
 The gear in `--player-gallery` opens the same component and retains acknowledged values for that gallery instance. Only fixture skip/default-volume observations are updated. The subtitle preview draws native text from the current draft. These galleries do not read/write normal preferences, initialize VLC, apply real image/audio/subtitle filters, synchronize playback or start calls. Normal application playback awaits its adapters. Linux has matching first-party source, with no executable gallery until dependency/compiler/native/font/license prerequisites pass.
+
+
+## Declarative component library
+
+Screen composition, responsive rules, styles and primitive appearance are declared in `packages/design/layouts.json`; tokens and form/action metadata remain in the same Apache-2.0 package. Regenerate committed native data with the [design generator](design-generator.md#native-resource-generation) after changing the document. Application/presentation bindings consume the component by name and do not specify another native layout.
+
+Resource generation and repository validation run the design-isolation check. Native validation also renders the same axis/order/spacing probe document through the actual SwiftUI/WPF adapters and verifies stable WPF inputs when observations or list contents change. Existing model, persistence, capability and image-matrix checks still run. Linux checks cover shared data/tooling and matching first-party source until its complete application build is available.
