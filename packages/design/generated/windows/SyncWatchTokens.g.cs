@@ -30,6 +30,12 @@ public static class SyncWatchTokens
     public static Color ColorSharedSelection => Color.FromArgb(38, 47, 140, 255);
     public static Color ColorSharedSuccess => Color.FromArgb(255, 48, 217, 139);
     public static Color ColorSharedVideoSurface => Color.FromArgb(255, 0, 0, 0);
+    public static Color ColorSubtitleBlack => Color.FromArgb(255, 0, 0, 0);
+    public static Color ColorSubtitleCharcoal => Color.FromArgb(255, 32, 32, 32);
+    public static Color ColorSubtitleCyan => Color.FromArgb(255, 159, 231, 255);
+    public static Color ColorSubtitleGray => Color.FromArgb(255, 74, 74, 74);
+    public static Color ColorSubtitleWarm => Color.FromArgb(255, 255, 243, 166);
+    public static Color ColorSubtitleWhite => Color.FromArgb(255, 255, 255, 255);
     public const double ControlBorderWidth = 1;
     public static Thickness ControlBorderWidthThickness => new(ControlBorderWidth);
     public static CornerRadius ControlBorderWidthCornerRadius => new(ControlBorderWidth);
@@ -150,9 +156,21 @@ public static class SyncWatchTokens
     public const double LayoutPlayerFooterHeight = 86;
     public static Thickness LayoutPlayerFooterHeightThickness => new(LayoutPlayerFooterHeight);
     public static CornerRadius LayoutPlayerFooterHeightCornerRadius => new(LayoutPlayerFooterHeight);
+    public const double LayoutPlayerSettingsCardPadding = 11;
+    public static Thickness LayoutPlayerSettingsCardPaddingThickness => new(LayoutPlayerSettingsCardPadding);
+    public static CornerRadius LayoutPlayerSettingsCardPaddingCornerRadius => new(LayoutPlayerSettingsCardPadding);
+    public const double LayoutPlayerSettingsCardRadius = 10;
+    public static Thickness LayoutPlayerSettingsCardRadiusThickness => new(LayoutPlayerSettingsCardRadius);
+    public static CornerRadius LayoutPlayerSettingsCardRadiusCornerRadius => new(LayoutPlayerSettingsCardRadius);
+    public const double LayoutPlayerSettingsColorSize = 22;
+    public static Thickness LayoutPlayerSettingsColorSizeThickness => new(LayoutPlayerSettingsColorSize);
+    public static CornerRadius LayoutPlayerSettingsColorSizeCornerRadius => new(LayoutPlayerSettingsColorSize);
     public const double LayoutPlayerSettingsHeight = 460;
     public static Thickness LayoutPlayerSettingsHeightThickness => new(LayoutPlayerSettingsHeight);
     public static CornerRadius LayoutPlayerSettingsHeightCornerRadius => new(LayoutPlayerSettingsHeight);
+    public const double LayoutPlayerSettingsPreviewHeight = 130;
+    public static Thickness LayoutPlayerSettingsPreviewHeightThickness => new(LayoutPlayerSettingsPreviewHeight);
+    public static CornerRadius LayoutPlayerSettingsPreviewHeightCornerRadius => new(LayoutPlayerSettingsPreviewHeight);
     public const double LayoutPlayerSettingsSidebarWidth = 170;
     public static Thickness LayoutPlayerSettingsSidebarWidthThickness => new(LayoutPlayerSettingsSidebarWidth);
     public static CornerRadius LayoutPlayerSettingsSidebarWidthCornerRadius => new(LayoutPlayerSettingsSidebarWidth);
@@ -310,7 +328,7 @@ public static class SyncWatchCopy
         ("en", "invalidConfiguration") => "Check the settings and try again.",
         ("en", "saveFailed") => "Could not save changes. Try again.",
         ("en", "settingsUnavailable") => "These settings are not available yet.",
-        ("en", "settingsReadOnly") => "Settings cannot be changed right now.",
+        ("en", "settingsReadOnly") => "Settings are read-only",
         ("en", "galleryLibrary") => "Library",
         ("en", "gallerySettings") => "Settings",
         ("en", "optionOn") => "On",
@@ -343,6 +361,61 @@ public static class SyncWatchCopy
         ("en", "noVideoProvider") => "Playback provider is not connected",
         ("en", "noPlayerAction") => "No user action",
         ("en", "unsupportedPlayerControl") => "Available after media integration",
+        ("en", "playback") => "Playback",
+        ("en", "image") => "Image",
+        ("en", "advanced") => "Advanced",
+        ("en", "playbackHint") => "Local playback and timeline previews.",
+        ("en", "subtitlesHint") => "Configure the local subtitle presentation.",
+        ("en", "imageHint") => "Local image adjustments.",
+        ("en", "audioHint") => "Movie output preferences.",
+        ("en", "advancedHint") => "Rendering, cursor and preview cache.",
+        ("en", "skipInterval") => "Skip interval",
+        ("en", "timelinePreview") => "Timeline previews",
+        ("en", "subtitleFont") => "Font",
+        ("en", "subtitleSize") => "Size",
+        ("en", "subtitleTextColor") => "Text color",
+        ("en", "subtitleOutlineColor") => "Outline color",
+        ("en", "subtitleOutlineWidth") => "Outline width",
+        ("en", "subtitlePosition") => "Position",
+        ("en", "subtitleVerticalOffset") => "Vertical offset",
+        ("en", "subtitlePadding") => "Edge padding",
+        ("en", "brightness") => "Brightness",
+        ("en", "contrast") => "Contrast",
+        ("en", "saturation") => "Saturation",
+        ("en", "hue") => "Hue",
+        ("en", "defaultVolume") => "Default movie volume",
+        ("en", "rememberVolume") => "Remember movie volume",
+        ("en", "normalizeAudio") => "Normalize movie audio",
+        ("en", "smoothScaling") => "Smooth scaling",
+        ("en", "hideIdleCursor") => "Hide idle cursor over playing video",
+        ("en", "cursorDelay") => "Cursor hide delay",
+        ("en", "previewCache") => "Preview cache",
+        ("en", "fontSystem") => "System font",
+        ("en", "fontSerif") => "Serif",
+        ("en", "fontMonospace") => "Monospace",
+        ("en", "colorWhite") => "White",
+        ("en", "colorWarm") => "Warm yellow",
+        ("en", "colorCyan") => "Cyan",
+        ("en", "colorBlack") => "Black",
+        ("en", "colorCharcoal") => "Charcoal",
+        ("en", "colorGray") => "Gray",
+        ("en", "positionTop") => "Top",
+        ("en", "positionBottom") => "Bottom",
+        ("en", "unitNone") => "None",
+        ("en", "unitPoints") => "pt",
+        ("en", "unitPercent") => "%",
+        ("en", "unitMegabytes") => "MB",
+        ("en", "unitDegrees") => "°",
+        ("en", "unitMilliseconds") => "ms",
+        ("en", "resetSection") => "Reset section",
+        ("en", "subtitlePreview") => "Subtitle preview",
+        ("en", "playerSettingsFixture") => "Player settings fixture",
+        ("en", "readOnly") => "Read-only",
+        ("en", "skip5") => "5 s",
+        ("en", "skip10") => "10 s",
+        ("en", "skip15") => "15 s",
+        ("en", "skip30") => "30 s",
+        ("en", "skip60") => "60 s",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -407,7 +480,7 @@ public static class SyncWatchCopy
         ("ru", "invalidConfiguration") => "Проверьте настройки и попробуйте ещё раз.",
         ("ru", "saveFailed") => "Не удалось сохранить изменения. Попробуйте ещё раз.",
         ("ru", "settingsUnavailable") => "Эти настройки пока недоступны.",
-        ("ru", "settingsReadOnly") => "Сейчас настройки изменить нельзя.",
+        ("ru", "settingsReadOnly") => "Настройки доступны только для чтения",
         ("ru", "galleryLibrary") => "Библиотека",
         ("ru", "gallerySettings") => "Настройки",
         ("ru", "optionOn") => "Вкл.",
@@ -440,6 +513,61 @@ public static class SyncWatchCopy
         ("ru", "noVideoProvider") => "Медиаплеер не подключён",
         ("ru", "noPlayerAction") => "Нет действий пользователя",
         ("ru", "unsupportedPlayerControl") => "Доступно после подключения медиаплеера",
+        ("ru", "playback") => "Воспроизведение",
+        ("ru", "image") => "Изображение",
+        ("ru", "advanced") => "Дополнительно",
+        ("ru", "playbackHint") => "Локальная перемотка и предпросмотр.",
+        ("ru", "subtitlesHint") => "Локальное оформление субтитров.",
+        ("ru", "imageHint") => "Локальные параметры изображения.",
+        ("ru", "audioHint") => "Настройки звука фильма.",
+        ("ru", "advancedHint") => "Масштабирование, курсор и кэш.",
+        ("ru", "skipInterval") => "Интервал перемотки",
+        ("ru", "timelinePreview") => "Предпросмотр на шкале времени",
+        ("ru", "subtitleFont") => "Шрифт",
+        ("ru", "subtitleSize") => "Размер",
+        ("ru", "subtitleTextColor") => "Цвет текста",
+        ("ru", "subtitleOutlineColor") => "Цвет обводки",
+        ("ru", "subtitleOutlineWidth") => "Толщина обводки",
+        ("ru", "subtitlePosition") => "Положение",
+        ("ru", "subtitleVerticalOffset") => "Смещение по вертикали",
+        ("ru", "subtitlePadding") => "Отступ от края",
+        ("ru", "brightness") => "Яркость",
+        ("ru", "contrast") => "Контраст",
+        ("ru", "saturation") => "Насыщенность",
+        ("ru", "hue") => "Оттенок",
+        ("ru", "defaultVolume") => "Начальная громкость фильма",
+        ("ru", "rememberVolume") => "Запоминать громкость фильма",
+        ("ru", "normalizeAudio") => "Нормализация звука фильма",
+        ("ru", "smoothScaling") => "Плавное масштабирование",
+        ("ru", "hideIdleCursor") => "Скрывать курсор над играющим видео",
+        ("ru", "cursorDelay") => "Задержка скрытия курсора",
+        ("ru", "previewCache") => "Кэш предпросмотра",
+        ("ru", "fontSystem") => "Системный шрифт",
+        ("ru", "fontSerif") => "С засечками",
+        ("ru", "fontMonospace") => "Моноширинный",
+        ("ru", "colorWhite") => "Белый",
+        ("ru", "colorWarm") => "Тёплый жёлтый",
+        ("ru", "colorCyan") => "Голубой",
+        ("ru", "colorBlack") => "Чёрный",
+        ("ru", "colorCharcoal") => "Угольный",
+        ("ru", "colorGray") => "Серый",
+        ("ru", "positionTop") => "Сверху",
+        ("ru", "positionBottom") => "Снизу",
+        ("ru", "unitNone") => "Нет",
+        ("ru", "unitPoints") => "пт",
+        ("ru", "unitPercent") => "%",
+        ("ru", "unitMegabytes") => "МБ",
+        ("ru", "unitDegrees") => "°",
+        ("ru", "unitMilliseconds") => "мс",
+        ("ru", "resetSection") => "Сбросить раздел",
+        ("ru", "subtitlePreview") => "Пример субтитров",
+        ("ru", "playerSettingsFixture") => "Образец настроек плеера",
+        ("ru", "readOnly") => "Только чтение",
+        ("ru", "skip5") => "5 с",
+        ("ru", "skip10") => "10 с",
+        ("ru", "skip15") => "15 с",
+        ("ru", "skip30") => "30 с",
+        ("ru", "skip60") => "60 с",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -489,7 +617,7 @@ public static class SyncWatchSettings
 public static class SyncWatchPlayer
 {
     public static string[] States => ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"];
-    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen"];
+    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings"];
     public const long MaximumPositionMs = 604800000;
     public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
     {
@@ -509,5 +637,72 @@ public static class SyncWatchPlayer
         ["playlist"] = [[2,4,14,4,14,6,2,6],[2,9,14,9,14,11,2,11],[2,14,9,14,9,16,2,16],[12,13,18,16,12,19]],
         ["subtitles"] = [[2,4,18,4,18,16,2,16,2,14,16,14,16,6,4,6,4,16,2,16],[5,9,9,9,9,11,5,11],[11,9,15,9,15,11,11,11]],
         ["audio"] = [[4,4,6,4,6,16,4,16],[9,1,11,1,11,19,9,19],[14,6,16,6,16,14,14,14]],
+    };
+}
+
+public sealed record PlayerSettingOption(string Id, string Label, string? ColorToken);
+public sealed record PlayerSettingField(string Id, string Section, string Kind, string Label, int Row, double Minimum, double Maximum, double Step, string Unit, PlayerSettingOption[] Options);
+
+public static class SyncWatchPlayerSettings
+{
+    public static string[] Sections => ["playback", "subtitles", "image", "audio", "advanced"];
+    public static string[] States => ["editing", "savedNotice", "invalidConfiguration", "readOnly"];
+    public static System.Collections.Generic.IReadOnlyDictionary<string,string> Defaults => new System.Collections.Generic.Dictionary<string,string>
+    {
+        ["skipSeconds"] = "10",
+        ["timelinePreview"] = "true",
+        ["subtitleFont"] = "system",
+        ["subtitleSize"] = "30",
+        ["subtitleColor"] = "white",
+        ["outlineColor"] = "black",
+        ["outlineWidth"] = "2",
+        ["subtitlePosition"] = "bottom",
+        ["subtitleOffset"] = "0",
+        ["subtitlePadding"] = "20",
+        ["brightness"] = "0",
+        ["contrast"] = "0",
+        ["saturation"] = "0",
+        ["hue"] = "0",
+        ["defaultVolume"] = "100",
+        ["rememberVolume"] = "true",
+        ["normalizeAudio"] = "false",
+        ["smoothScaling"] = "true",
+        ["hideIdleCursor"] = "true",
+        ["cursorDelay"] = "2500",
+        ["previewCache"] = "150",
+    };
+    public static PlayerSettingField[] Fields =>
+    [
+        new("skipSeconds", "playback", "choice", "skipInterval", 0, 0, 0, 1, "unitNone", [new("5", "skip5", null), new("10", "skip10", null), new("15", "skip15", null), new("30", "skip30", null), new("60", "skip60", null)]),
+        new("timelinePreview", "playback", "boolean", "timelinePreview", 1, 0, 0, 1, "unitNone", []),
+        new("subtitleFont", "subtitles", "choice", "subtitleFont", 0, 0, 0, 1, "unitNone", [new("system", "fontSystem", null), new("serif", "fontSerif", null), new("monospace", "fontMonospace", null)]),
+        new("subtitleSize", "subtitles", "range", "subtitleSize", 0, 18, 48, 1, "unitPoints", []),
+        new("subtitleColor", "subtitles", "color", "subtitleTextColor", 1, 0, 0, 1, "unitNone", [new("white", "colorWhite", "color.subtitle.white"), new("warm", "colorWarm", "color.subtitle.warm"), new("cyan", "colorCyan", "color.subtitle.cyan")]),
+        new("outlineColor", "subtitles", "color", "subtitleOutlineColor", 1, 0, 0, 1, "unitNone", [new("black", "colorBlack", "color.subtitle.black"), new("charcoal", "colorCharcoal", "color.subtitle.charcoal"), new("gray", "colorGray", "color.subtitle.gray")]),
+        new("outlineWidth", "subtitles", "range", "subtitleOutlineWidth", 2, 0, 4, 0.5, "unitPoints", []),
+        new("subtitlePosition", "subtitles", "choice", "subtitlePosition", 3, 0, 0, 1, "unitNone", [new("top", "positionTop", null), new("bottom", "positionBottom", null)]),
+        new("subtitleOffset", "subtitles", "range", "subtitleVerticalOffset", 3, -120, 120, 5, "unitPoints", []),
+        new("subtitlePadding", "subtitles", "range", "subtitlePadding", 4, 0, 60, 1, "unitPoints", []),
+        new("brightness", "image", "range", "brightness", 0, -1, 1, 0.05, "unitNone", []),
+        new("contrast", "image", "range", "contrast", 1, -1, 1, 0.05, "unitNone", []),
+        new("saturation", "image", "range", "saturation", 2, -1, 1, 0.05, "unitNone", []),
+        new("hue", "image", "range", "hue", 3, -180, 180, 5, "unitDegrees", []),
+        new("defaultVolume", "audio", "range", "defaultVolume", 0, 0, 100, 5, "unitPercent", []),
+        new("rememberVolume", "audio", "boolean", "rememberVolume", 1, 0, 0, 1, "unitNone", []),
+        new("normalizeAudio", "audio", "boolean", "normalizeAudio", 2, 0, 0, 1, "unitNone", []),
+        new("smoothScaling", "advanced", "boolean", "smoothScaling", 0, 0, 0, 1, "unitNone", []),
+        new("hideIdleCursor", "advanced", "boolean", "hideIdleCursor", 1, 0, 0, 1, "unitNone", []),
+        new("cursorDelay", "advanced", "range", "cursorDelay", 2, 500, 10000, 100, "unitMilliseconds", []),
+        new("previewCache", "advanced", "range", "previewCache", 3, 50, 500, 25, "unitMegabytes", []),
+    ];
+    public static System.Windows.Media.Color? Color(string id) => id switch
+    {
+        "white" => SyncWatchTokens.ColorSubtitleWhite,
+        "warm" => SyncWatchTokens.ColorSubtitleWarm,
+        "cyan" => SyncWatchTokens.ColorSubtitleCyan,
+        "black" => SyncWatchTokens.ColorSubtitleBlack,
+        "charcoal" => SyncWatchTokens.ColorSubtitleCharcoal,
+        "gray" => SyncWatchTokens.ColorSubtitleGray,
+        _ => null,
     };
 }

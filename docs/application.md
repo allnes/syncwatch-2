@@ -77,7 +77,7 @@ The player-settings dialog uses the shared 680 by 460 layout, 170-unit sidebar, 
 | Audio | Default/remembered movie volume and normalization |
 | Advanced | Scaling, cursor behavior, and preview cache from 50 to 500 MB |
 
-Settings depend on the selected VLC modules and preview-service capabilities. Unsupported configuration is shown as unavailable.
+The PlayerSettings component is implemented in the native fixture galleries with draft editing, section reset, Save/Cancel and a subtitle text preview. Gallery saves acknowledge only in-memory fixture values. Applying or persisting these preferences in a real playback session depends on the selected VLC modules, media adapters and preview-service capabilities. Unsupported configuration remains unavailable until the caller grants those capabilities.
 
 ## Recovery and visual consistency
 

@@ -6,6 +6,7 @@ import {dirname, join, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {after, test} from 'node:test';
+import {validPlayerSetting} from '../player-settings-formats.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const platform = {'darwin': 'macos-arm64', 'linux': 'linux-x64', 'win32': 'windows-x64'}[process.platform];
@@ -35,6 +36,46 @@ function fixture(change = () => {}) {
     return directory;
 }
 const name = id => id.split('.').map(part => part[0].toUpperCase() + part.slice(1)).join('');
+
+test('player settings numeric validation agrees with the cross-client input corpus', () => {
+    const spec = JSON.parse(readFileSync(join(root, 'packages/design/player-settings.json')));
+    const corpus = JSON.parse(readFileSync(join(root, 'packages/design/tests/fixtures/player-settings.json')));
+    assert.deepEqual(corpus.fields.map(f => f.id).sort(), Object.keys(spec.defaults).sort());
+    for (const fixture of corpus.fields) {
+        const field = spec.fields.find(f => f.id === fixture.id);
+        for (const value of fixture.valid) assert.equal(validPlayerSetting(field, value), true, field.id + ': ' + value);
+        for (const value of fixture.invalid) assert.equal(validPlayerSetting(field, value), false, field.id + ': ' + value);
+    }
+});
+
+test('player settings defaults, units, colors and fractional bounds reach every client', () => {
+    const spec = JSON.parse(readFileSync(join(root, 'packages/design/player-settings.json')));
+    const output = join(temporary, 'player-settings'); success(generate(join(root, 'packages/design'), output));
+    assert.deepEqual(JSON.parse(readFileSync(join(output, files[3]))).playerSettings, spec);
+    for (const file of [files[0], files[1], files[4]]) {
+        const source = readFileSync(join(output, file), 'utf8');
+        assert.ok(source.includes('SyncWatchPlayerSettings'));
+        for (const field of spec.fields) {
+            for (const value of [field.id, field.section, field.kind, field.label, field.unit, spec.defaults[field.id], ...field.options.flatMap(o => [o.id, o.label, ...(o.colorToken ? [o.colorToken] : [])])]) {
+                assert.ok(source.includes(JSON.stringify(value)), file + ': ' + value);
+            }
+        }
+        assert.ok(source.includes('0.05') && !source.includes('0.05.0'));
+    }
+});
+
+test('player settings reject unsafe bounds, steps, defaults, swatches and layout drift', () => {
+    for (const mutate of [s => s.sections.reverse(), s => s.states.pop(), s => s.defaults.brightness = '1e0',
+        s => s.defaults.extra = '0', s => s.fields[3].step = 0, s => s.fields[3].maximum = 18,
+        s => s.fields[3].minimum = null, s => s.fields[3].step = 0.333,
+        s => s.fields[4].options[0].colorToken = 'missing', s => s.fields[4].options[0].label = 'missing',
+        s => s.fields[6].row = 0, s => s.fields[0].options.push(s.fields[0].options[0]),
+        s => s.fields[0].label = 'missing', s => s.fields[0].unit = 'missing', s => s.fields[0].kind = 'text']) {
+        const design = fixture(); const path = join(design, 'player-settings.json'); const spec = JSON.parse(readFileSync(path));
+        mutate(spec); writeFileSync(path, JSON.stringify(spec));
+        assert.notEqual(generate(design, join(temporary, 'bad-player-settings')).status, 0);
+    }
+});
 
 test('player states, supported actions and first-party polygons generate into all clients', () => {
     const output = join(temporary, 'player-metadata');

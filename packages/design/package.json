@@ -14,6 +14,7 @@
     "windows",
     "linux",
     "settings.json",
-    "player.json"
+    "player.json",
+    "player-settings.json"
   ]
 }

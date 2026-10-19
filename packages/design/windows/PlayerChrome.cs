@@ -162,6 +162,7 @@ public sealed class PlayerGallery : UserControl
     private readonly PlayerChrome player = new();
     private readonly TextBlock last = new() { Text = "" };
     private string language = "en";
+    private IReadOnlyDictionary<string, string> savedPlayerSettings = SyncWatchPlayerSettings.Defaults;
     public PlayerGallery()
     {
         var root = new DockPanel(); var bar = new StackPanel { Orientation = Orientation.Horizontal, Margin = SyncWatchTokens.ControlCompactGapThickness };
@@ -177,6 +178,15 @@ public sealed class PlayerGallery : UserControl
         player.VideoSurface = new TextBlock { Text = SyncWatchCopy.Text("playerFixture"), Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         player.ActionRequested += (action, value) =>
         {
+            if (action == "openPlayerSettings")
+            {
+                var editor = new PlayerSettingsEditor(savedPlayerSettings, SyncWatchPlayerSettings.Defaults.Keys, true);
+                var dialog = new PlayerSettingsDialog(editor, language);
+                var window = new Window { Content = dialog, Owner = Window.GetWindow(this), Title = SyncWatchCopy.Text("playerSettings", language), WindowStyle = WindowStyle.None, AllowsTransparency = true, Background = Brushes.Transparent, ResizeMode = ResizeMode.NoResize, SizeToContent = SizeToContent.WidthAndHeight, ShowInTaskbar = false, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+                dialog.CloseRequested += window.Close; dialog.MoveRequested += window.DragMove;
+                dialog.Persist = values => { savedPlayerSettings = new Dictionary<string, string>(values); presentation = presentation with { SkipSeconds = int.Parse(values["skipSeconds"], CultureInfo.InvariantCulture), Volume = double.Parse(values["defaultVolume"], CultureInfo.InvariantCulture) / 100 }; Render(); return true; };
+                window.ShowDialog(); return;
+            }
             last.Text = action + (value is double v ? ": " + v.ToString(CultureInfo.InvariantCulture) : "");
             presentation = action switch
             {

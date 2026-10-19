@@ -293,7 +293,7 @@ public struct SettingsGallery: View {
     }
 }
 
-private struct SettingsChoiceMark: Shape {
+struct SettingsChoiceMark: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: .zero)
@@ -304,7 +304,7 @@ private struct SettingsChoiceMark: Shape {
     }
 }
 
-private struct SettingsToggleStyle: ToggleStyle {
+struct SettingsToggleStyle: ToggleStyle {
     var theme: SyncWatchTheme
     @Environment(\.isEnabled) private var enabled
     func makeBody(configuration: Configuration) -> some View {

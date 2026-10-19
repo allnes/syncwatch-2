@@ -46,6 +46,18 @@
     <SolidColorBrush x:Key="color.shared.success.brush" Color="{StaticResource color.shared.success}" />
     <Color x:Key="color.shared.videoSurface">#FF000000</Color>
     <SolidColorBrush x:Key="color.shared.videoSurface.brush" Color="{StaticResource color.shared.videoSurface}" />
+    <Color x:Key="color.subtitle.black">#FF000000</Color>
+    <SolidColorBrush x:Key="color.subtitle.black.brush" Color="{StaticResource color.subtitle.black}" />
+    <Color x:Key="color.subtitle.charcoal">#FF202020</Color>
+    <SolidColorBrush x:Key="color.subtitle.charcoal.brush" Color="{StaticResource color.subtitle.charcoal}" />
+    <Color x:Key="color.subtitle.cyan">#FF9FE7FF</Color>
+    <SolidColorBrush x:Key="color.subtitle.cyan.brush" Color="{StaticResource color.subtitle.cyan}" />
+    <Color x:Key="color.subtitle.gray">#FF4A4A4A</Color>
+    <SolidColorBrush x:Key="color.subtitle.gray.brush" Color="{StaticResource color.subtitle.gray}" />
+    <Color x:Key="color.subtitle.warm">#FFFFF3A6</Color>
+    <SolidColorBrush x:Key="color.subtitle.warm.brush" Color="{StaticResource color.subtitle.warm}" />
+    <Color x:Key="color.subtitle.white">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="color.subtitle.white.brush" Color="{StaticResource color.subtitle.white}" />
     <sys:Double x:Key="control.borderWidth">1</sys:Double>
     <Thickness x:Key="control.borderWidth.thickness">1</Thickness>
     <CornerRadius x:Key="control.borderWidth.cornerRadius">1</CornerRadius>
@@ -166,9 +178,21 @@
     <sys:Double x:Key="layout.playerFooterHeight">86</sys:Double>
     <Thickness x:Key="layout.playerFooterHeight.thickness">86</Thickness>
     <CornerRadius x:Key="layout.playerFooterHeight.cornerRadius">86</CornerRadius>
+    <sys:Double x:Key="layout.playerSettingsCardPadding">11</sys:Double>
+    <Thickness x:Key="layout.playerSettingsCardPadding.thickness">11</Thickness>
+    <CornerRadius x:Key="layout.playerSettingsCardPadding.cornerRadius">11</CornerRadius>
+    <sys:Double x:Key="layout.playerSettingsCardRadius">10</sys:Double>
+    <Thickness x:Key="layout.playerSettingsCardRadius.thickness">10</Thickness>
+    <CornerRadius x:Key="layout.playerSettingsCardRadius.cornerRadius">10</CornerRadius>
+    <sys:Double x:Key="layout.playerSettingsColorSize">22</sys:Double>
+    <Thickness x:Key="layout.playerSettingsColorSize.thickness">22</Thickness>
+    <CornerRadius x:Key="layout.playerSettingsColorSize.cornerRadius">22</CornerRadius>
     <sys:Double x:Key="layout.playerSettingsHeight">460</sys:Double>
     <Thickness x:Key="layout.playerSettingsHeight.thickness">460</Thickness>
     <CornerRadius x:Key="layout.playerSettingsHeight.cornerRadius">460</CornerRadius>
+    <sys:Double x:Key="layout.playerSettingsPreviewHeight">130</sys:Double>
+    <Thickness x:Key="layout.playerSettingsPreviewHeight.thickness">130</Thickness>
+    <CornerRadius x:Key="layout.playerSettingsPreviewHeight.cornerRadius">130</CornerRadius>
     <sys:Double x:Key="layout.playerSettingsSidebarWidth">170</sys:Double>
     <Thickness x:Key="layout.playerSettingsSidebarWidth.thickness">170</Thickness>
     <CornerRadius x:Key="layout.playerSettingsSidebarWidth.cornerRadius">170</CornerRadius>

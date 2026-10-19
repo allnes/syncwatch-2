@@ -20,7 +20,8 @@
     "showLibrary",
     "endWatching",
     "openCall",
-    "toggleFullscreen"
+    "toggleFullscreen",
+    "openPlayerSettings"
   ],
   "maximumPositionMs": 604800000,
   "icons": {

@@ -143,6 +143,22 @@
     "playerTimeWidth": {
       "type": "number",
       "value": 64
+    },
+    "playerSettingsPreviewHeight": {
+      "type": "number",
+      "value": 130
+    },
+    "playerSettingsCardPadding": {
+      "type": "number",
+      "value": 11
+    },
+    "playerSettingsCardRadius": {
+      "type": "number",
+      "value": 10
+    },
+    "playerSettingsColorSize": {
+      "type": "number",
+      "value": 22
     }
   },
   "control": {

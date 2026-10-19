@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "sections": [
+    "playback",
+    "subtitles",
+    "image",
+    "audio",
+    "advanced"
+  ],
+  "states": [
+    "editing",
+    "savedNotice",
+    "invalidConfiguration",
+    "readOnly"
+  ],
+  "fields": [
+    {
+      "id": "skipSeconds",
+      "section": "playback",
+      "kind": "choice",
+      "label": "skipInterval",
+      "row": 0,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [
+        {
+          "id": "5",
+          "label": "skip5",
+          "colorToken": null
+        },
+        {
+          "id": "10",
+          "label": "skip10",
+          "colorToken": null
+        },
+        {
+          "id": "15",
+          "label": "skip15",
+          "colorToken": null
+        },
+        {
+          "id": "30",
+          "label": "skip30",
+          "colorToken": null
+        },
+        {
+          "id": "60",
+          "label": "skip60",
+          "colorToken": null
+        }
+      ],
+      "unit": "unitNone"
+    },
+    {
+      "id": "timelinePreview",
+      "section": "playback",
+      "kind": "boolean",
+      "label": "timelinePreview",
+      "row": 1,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "subtitleFont",
+      "section": "subtitles",
+      "kind": "choice",
+      "label": "subtitleFont",
+      "row": 0,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [
+        {
+          "id": "system",
+          "label": "fontSystem",
+          "colorToken": null
+        },
+        {
+          "id": "serif",
+          "label": "fontSerif",
+          "colorToken": null
+        },
+        {
+          "id": "monospace",
+          "label": "fontMonospace",
+          "colorToken": null
+        }
+      ],
+      "unit": "unitNone"
+    },
+    {
+      "id": "subtitleSize",
+      "section": "subtitles",
+      "kind": "range",
+      "label": "subtitleSize",
+      "row": 0,
+      "minimum": 18,
+      "maximum": 48,
+      "step": 1,
+      "options": [],
+      "unit": "unitPoints"
+    },
+    {
+      "id": "subtitleColor",
+      "section": "subtitles",
+      "kind": "color",
+      "label": "subtitleTextColor",
+      "row": 1,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [
+        {
+          "id": "white",
+          "label": "colorWhite",
+          "colorToken": "color.subtitle.white"
+        },
+        {
+          "id": "warm",
+          "label": "colorWarm",
+          "colorToken": "color.subtitle.warm"
+        },
+        {
+          "id": "cyan",
+          "label": "colorCyan",
+          "colorToken": "color.subtitle.cyan"
+        }
+      ],
+      "unit": "unitNone"
+    },
+    {
+      "id": "outlineColor",
+      "section": "subtitles",
+      "kind": "color",
+      "label": "subtitleOutlineColor",
+      "row": 1,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [
+        {
+          "id": "black",
+          "label": "colorBlack",
+          "colorToken": "color.subtitle.black"
+        },
+        {
+          "id": "charcoal",
+          "label": "colorCharcoal",
+          "colorToken": "color.subtitle.charcoal"
+        },
+        {
+          "id": "gray",
+          "label": "colorGray",
+          "colorToken": "color.subtitle.gray"
+        }
+      ],
+      "unit": "unitNone"
+    },
+    {
+      "id": "outlineWidth",
+      "section": "subtitles",
+      "kind": "range",
+      "label": "subtitleOutlineWidth",
+      "row": 2,
+      "minimum": 0,
+      "maximum": 4,
+      "step": 0.5,
+      "options": [],
+      "unit": "unitPoints"
+    },
+    {
+      "id": "subtitlePosition",
+      "section": "subtitles",
+      "kind": "choice",
+      "label": "subtitlePosition",
+      "row": 3,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [
+        {
+          "id": "top",
+          "label": "positionTop",
+          "colorToken": null
+        },
+        {
+          "id": "bottom",
+          "label": "positionBottom",
+          "colorToken": null
+        }
+      ],
+      "unit": "unitNone"
+    },
+    {
+      "id": "subtitleOffset",
+      "section": "subtitles",
+      "kind": "range",
+      "label": "subtitleVerticalOffset",
+      "row": 3,
+      "minimum": -120,
+      "maximum": 120,
+      "step": 5,
+      "options": [],
+      "unit": "unitPoints"
+    },
+    {
+      "id": "subtitlePadding",
+      "section": "subtitles",
+      "kind": "range",
+      "label": "subtitlePadding",
+      "row": 4,
+      "minimum": 0,
+      "maximum": 60,
+      "step": 1,
+      "options": [],
+      "unit": "unitPoints"
+    },
+    {
+      "id": "brightness",
+      "section": "image",
+      "kind": "range",
+      "label": "brightness",
+      "row": 0,
+      "minimum": -1,
+      "maximum": 1,
+      "step": 0.05,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "contrast",
+      "section": "image",
+      "kind": "range",
+      "label": "contrast",
+      "row": 1,
+      "minimum": -1,
+      "maximum": 1,
+      "step": 0.05,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "saturation",
+      "section": "image",
+      "kind": "range",
+      "label": "saturation",
+      "row": 2,
+      "minimum": -1,
+      "maximum": 1,
+      "step": 0.05,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "hue",
+      "section": "image",
+      "kind": "range",
+      "label": "hue",
+      "row": 3,
+      "minimum": -180,
+      "maximum": 180,
+      "step": 5,
+      "options": [],
+      "unit": "unitDegrees"
+    },
+    {
+      "id": "defaultVolume",
+      "section": "audio",
+      "kind": "range",
+      "label": "defaultVolume",
+      "row": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "step": 5,
+      "options": [],
+      "unit": "unitPercent"
+    },
+    {
+      "id": "rememberVolume",
+      "section": "audio",
+      "kind": "boolean",
+      "label": "rememberVolume",
+      "row": 1,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "normalizeAudio",
+      "section": "audio",
+      "kind": "boolean",
+      "label": "normalizeAudio",
+      "row": 2,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "smoothScaling",
+      "section": "advanced",
+      "kind": "boolean",
+      "label": "smoothScaling",
+      "row": 0,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "hideIdleCursor",
+      "section": "advanced",
+      "kind": "boolean",
+      "label": "hideIdleCursor",
+      "row": 1,
+      "minimum": 0,
+      "maximum": 0,
+      "step": 1,
+      "options": [],
+      "unit": "unitNone"
+    },
+    {
+      "id": "cursorDelay",
+      "section": "advanced",
+      "kind": "range",
+      "label": "cursorDelay",
+      "row": 2,
+      "minimum": 500,
+      "maximum": 10000,
+      "step": 100,
+      "options": [],
+      "unit": "unitMilliseconds"
+    },
+    {
+      "id": "previewCache",
+      "section": "advanced",
+      "kind": "range",
+      "label": "previewCache",
+      "row": 3,
+      "minimum": 50,
+      "maximum": 500,
+      "step": 25,
+      "options": [],
+      "unit": "unitMegabytes"
+    }
+  ],
+  "defaults": {
+    "skipSeconds": "10",
+    "timelinePreview": "true",
+    "subtitleFont": "system",
+    "subtitleSize": "30",
+    "subtitleColor": "white",
+    "outlineColor": "black",
+    "outlineWidth": "2",
+    "subtitlePosition": "bottom",
+    "subtitleOffset": "0",
+    "subtitlePadding": "20",
+    "brightness": "0",
+    "contrast": "0",
+    "saturation": "0",
+    "hue": "0",
+    "defaultVolume": "100",
+    "rememberVolume": "true",
+    "normalizeAudio": "false",
+    "smoothScaling": "true",
+    "hideIdleCursor": "true",
+    "cursorDelay": "2500",
+    "previewCache": "150"
+  }
+}

@@ -151,10 +151,10 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | Component | Current limitation |
 |---|---|
 | Google Meet | Browser hosts, account access, media, native call controls, and capture shutdown are not implemented |
-| VLC | Native rendering, Windows overlays, previews, tracks, and player settings are not implemented |
+| VLC | Native video rendering, Windows overlays, timeline previews, track adapters and applying player preferences to VLC are not implemented |
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
 | Syncplay bridge | Headless runtime, native IPC adapters, and reconnect behavior are not implemented |
-| Shared design | Swift/WPF Library/Settings/core Player renderers and galleries are present; native appearance preferences persist locally; Kotlin data and Compose Library/Settings/Player source are present with the Linux build still unavailable; other component renderers remain planned |
+| Shared design | Swift/WPF Library/Settings/core Player/PlayerSettings renderers and galleries are present; native appearance preferences persist locally; Kotlin data and Compose Library/Settings/Player/PlayerSettings source are present with the Linux build still unavailable; call components and remaining player overlays remain planned |
 | Linux client | Kotlin/Compose Desktop is selected; dependency closure, toolchain, shell, domain implementation, application CI, playback, and calling are not implemented |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.
