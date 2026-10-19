@@ -108,7 +108,7 @@ internal static class PlayerAssertions
                         {
                             int y = height - (int)SyncWatchTokens.LayoutPlayerFooterHeight + (int)SyncWatchTokens.ControlPlayerSliderHeight / 2;
                             bitmap.CopyPixels(new Int32Rect(110, y, 1, 1), pixel, 4, 0);
-                            Check(pixel[0] > pixel[2] + 50 && pixel[3] == 255, "rendered timeline uses the shared accent");
+                            Check(pixel[0] > pixel[2] + 50 && pixel[3] == 255, "rendered timeline uses the shared accent at " + width + "x" + height + ": BGRA=" + string.Join(',', pixel) + ", seek origin=" + Element<Slider>(chrome, "player.seek").TransformToAncestor(chrome).Transform(new Point()) + ", seek size=" + Element<Slider>(chrome, "player.seek").RenderSize);
                         }
                         if (output is not null)
                         {
