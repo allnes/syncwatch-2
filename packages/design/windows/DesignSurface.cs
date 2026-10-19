@@ -262,7 +262,7 @@ public class DesignSurface : UserControl
     {
         double Dimension(string key) => node.Props.ContainsKey(key) && node.Text(key) != "fill" ? Math.Max(0, node.Number(key)) : double.NaN;
         element.Width = Dimension("width"); element.Height = Dimension("height"); element.MinWidth = double.IsNaN(Dimension("minWidth")) ? 0 : Dimension("minWidth"); element.MinHeight = double.IsNaN(Dimension("minHeight")) ? 0 : Dimension("minHeight"); element.MaxWidth = double.IsNaN(Dimension("maxWidth")) ? double.PositiveInfinity : Dimension("maxWidth"); element.MaxHeight = double.IsNaN(Dimension("maxHeight")) ? double.PositiveInfinity : Dimension("maxHeight");
-        element.HorizontalAlignment = node.Text("width") == "fill" || node.Kind is "column" or "row" or "overlay" or "scroll" or "slot" ? HorizontalAlignment.Stretch : node.Text("align") == "trailing" ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+        element.HorizontalAlignment = node.Text("width") == "fill" || node.Kind is "column" or "row" or "overlay" or "scroll" or "slot" ? HorizontalAlignment.Stretch : node.Text("align") == "trailing" ? HorizontalAlignment.Right : node.Text("align") == "center" ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         element.VerticalAlignment = node.Text("height") == "fill" || node.Kind is "column" or "row" or "overlay" or "scroll" or "slot" ? VerticalAlignment.Stretch : node.Text("align") == "top" ? VerticalAlignment.Top : VerticalAlignment.Center;
     }
     private static void Visual(Control control, DesignElement node)
