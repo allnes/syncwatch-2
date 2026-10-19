@@ -58,7 +58,8 @@ def resolve():
         if not versions:
             raise ValueError("Windows 10/11 platform SDK is required")
         sdk = max(versions, key=lambda v: tuple(map(int, v.split("."))))
-        identity.update(compiler="MSVC " + toolset, compilerSha256=checksum(compiler), sdk=sdk)
+        identity.update(compiler="MSVC " + toolset, compilerSha256=checksum(compiler), sdk=sdk,
+                        archiverSha256=checksum(compiler.with_name("lib.exe")), linkerSha256=checksum(compiler.with_name("link.exe")))
         configure = ["-G", "Visual Studio 17 2022", "-A", "x64", "-T", "v143,version=" + toolset,
                      "-DCMAKE_GENERATOR_INSTANCE=" + location, "-DCMAKE_SYSTEM_VERSION=" + sdk]
     else:
@@ -66,7 +67,7 @@ def resolve():
         archiver = output(["xcrun", "--find", "ar"]) if system == "Darwin" else executable("ar")
         make = executable("make")
         identity.update(compiler=output([compiler, "--version"]).splitlines()[0], compilerSha256=checksum(compiler),
-                        archiverSha256=checksum(archiver), make=output([make, "--version"]).splitlines()[0])
+                        archiverSha256=checksum(archiver), make=output([make, "--version"]).splitlines()[0], makeSha256=checksum(make))
         configure = ["-G", "Unix Makefiles", "-DCMAKE_C_COMPILER=" + compiler, "-DCMAKE_AR=" + archiver,
                      "-DCMAKE_MAKE_PROGRAM=" + make]
         if system == "Darwin":

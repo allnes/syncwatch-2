@@ -57,18 +57,18 @@ int main(int argc, char **argv) {
     REQUIRE(strcmp(zlibVersion(), argv[1]) == 0);
     for (i = 0; i < sizeof(input); ++i) input[i] = (unsigned char)((i * 37U) % 251U);
 
-    compressed_size = sizeof(compressed);
-    REQUIRE(compress2(compressed, &compressed_size, input, sizeof(input), Z_BEST_COMPRESSION) == Z_OK);
-    decoded_size = sizeof(decoded);
+    compressed_size = (uLongf)sizeof(compressed);
+    REQUIRE(compress2(compressed, &compressed_size, input, (uLong)sizeof(input), Z_BEST_COMPRESSION) == Z_OK);
+    decoded_size = (uLongf)sizeof(decoded);
     REQUIRE(uncompress(decoded, &decoded_size, compressed, compressed_size) == Z_OK);
     REQUIRE(decoded_size == sizeof(input) && memcmp(input, decoded, sizeof(input)) == 0);
     decoded_size = 1;
     REQUIRE(uncompress(decoded, &decoded_size, compressed, compressed_size) == Z_BUF_ERROR);
-    decoded_size = sizeof(decoded);
+    decoded_size = (uLongf)sizeof(decoded);
     result = uncompress(decoded, &decoded_size, compressed, compressed_size / 2);
     REQUIRE(result == Z_DATA_ERROR || result == Z_BUF_ERROR);
     compressed[compressed_size - 1] ^= 1;
-    decoded_size = sizeof(decoded);
+    decoded_size = (uLongf)sizeof(decoded);
     REQUIRE(uncompress(decoded, &decoded_size, compressed, compressed_size) == Z_DATA_ERROR);
     REQUIRE(crc32(0, (const Bytef *)"123456789", 9) == 0xcbf43926UL);
     REQUIRE(adler32(1, (const Bytef *)"123456789", 9) == 0x091e01deUL);

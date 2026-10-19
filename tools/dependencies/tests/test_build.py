@@ -445,6 +445,17 @@ class DependencyBuildTests(unittest.TestCase):
             self.prepare()
         self.assertFalse((self.root / "artifacts/counter").exists())
 
+    def test_failed_sdk_probe_retains_its_context_and_diagnostic(self):
+        self.component["targets"][TARGET]["toolchains"]["fixture"]["command"] = [
+            "{python}", "-c", "print('fixture SDK diagnostic'); raise SystemExit(7)"]
+        self.write_manifest()
+        error = io.StringIO()
+        with contextlib.redirect_stderr(error), self.assertRaises(subprocess.CalledProcessError):
+            self.prepare()
+        self.assertIn("example/" + TARGET + "/fixture", error.getvalue())
+        self.assertIn("fixture SDK diagnostic", error.getvalue())
+        self.assertFalse((self.root / "artifacts/counter").exists())
+
     def test_failing_and_empty_builds_cannot_enter_the_cache(self):
         for recipe in ("raise RuntimeError('controlled failure')\n", "pass\n"):
             with self.subTest(recipe=recipe):
