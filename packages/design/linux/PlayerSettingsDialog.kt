@@ -41,11 +41,12 @@ import kotlin.math.sin
 // First-party source only; compiler/Compose/native/font/license closure remains open.
 enum class PlayerSettingsVisualState { editing, savedNotice, invalidConfiguration, readOnly }
 class PlayerSettingsEditor private constructor(
-    initial: Map<String, String>, capabilities: Set<String>, val canSave: Boolean,
+    initial: Map<String, String>, capabilities: Set<String>, requestedSave: Boolean,
     requestedState: PlayerSettingsVisualState, val message: String, baseline: Map<String, String>?,
 ) {
     val values: Map<String, String> = (SyncWatchPlayerSettings.defaults + initial).toMap()
     val editableFields: Set<String> = capabilities.toSet()
+    val canSave = requestedSave && requestedState != PlayerSettingsVisualState.readOnly
     val state = if (canSave) requestedState else PlayerSettingsVisualState.readOnly
     private val original = (baseline ?: values).toMap()
     constructor(values: Map<String, String> = emptyMap(), editableFields: Set<String> = emptySet(), canSave: Boolean = false,
@@ -93,27 +94,28 @@ class PlayerSettingsEditor private constructor(
 }
 
 @Composable fun PlayerSubtitlePreview(values: Map<String, String>, language: String = "en") {
-    fun number(id: String): Double {
+    fun setting(id: String): String {
         val field = SyncWatchPlayerSettings.fields.single { it.id == id }
-        return (values[id]?.takeIf { PlayerSettingsEditor.valid(it, field) } ?: SyncWatchPlayerSettings.defaults.getValue(id)).toDouble()
+        return values[id]?.takeIf { PlayerSettingsEditor.valid(it, field) } ?: SyncWatchPlayerSettings.defaults.getValue(id)
     }
+    fun number(id: String) = setting(id).toDouble()
     BoxWithConstraints(Modifier.fillMaxWidth().height(SyncWatchTokens.layoutPlayerSettingsPreviewHeight.dp)
         .background(rgba(SyncWatchTokens.colorSharedVideoSurface)).clipToBounds()
         .semantics { contentDescription = SyncWatchCopy.text("subtitlePreview", language) }) {
         val size = number("subtitleSize").toFloat(); val padding = number("subtitlePadding").toFloat()
-        val top = values["subtitlePosition"] == "top"
+        val top = setting("subtitlePosition") == "top"
         val base = if (top) padding + size / 2 else maxHeight.value - padding - size / 2
         val position = (base + number("subtitleOffset").toFloat() / 120 * maxHeight.value * .34f * (if (top) 1 else -1)).coerceIn(size / 2, maxHeight.value - size / 2)
-        val font = when (values["subtitleFont"]) { "serif" -> FontFamily.Serif; "monospace" -> FontFamily.Monospace; else -> FontFamily.Default }
+        val font = when (setting("subtitleFont")) { "serif" -> FontFamily.Serif; "monospace" -> FontFamily.Monospace; else -> FontFamily.Default }
         val style = TextStyle(fontFamily = font, fontSize = size.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         val text = SyncWatchCopy.text("subtitlePreview", language)
         Box(Modifier.align(Alignment.TopCenter).offset(y = (position - size * .75f).dp).width((maxWidth.value - padding * 2).coerceAtLeast(1f).dp).height((size * 1.5f).dp), contentAlignment = Alignment.Center) {
             repeat(8) { i ->
                 val outline = number("outlineWidth").toFloat()
                 BasicText(text, Modifier.offset(x = (cos(i * Math.PI / 4).toFloat() * outline).dp, y = (sin(i * Math.PI / 4).toFloat() * outline).dp),
-                    style.copy(color = rgba(SyncWatchPlayerSettings.color(values["outlineColor"].orEmpty()) ?: SyncWatchTokens.colorSubtitleBlack)), maxLines = 2)
+                    style.copy(color = rgba(SyncWatchPlayerSettings.color(setting("outlineColor")) ?: SyncWatchTokens.colorSubtitleBlack)), maxLines = 2)
             }
-            BasicText(text, style = style.copy(color = rgba(SyncWatchPlayerSettings.color(values["subtitleColor"].orEmpty()) ?: SyncWatchTokens.colorSubtitleWhite)), maxLines = 2)
+            BasicText(text, style = style.copy(color = rgba(SyncWatchPlayerSettings.color(setting("subtitleColor")) ?: SyncWatchTokens.colorSubtitleWhite)), maxLines = 2)
         }
     }
 }

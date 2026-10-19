@@ -25,7 +25,7 @@ public sealed class PlayerSettingsEditor
         bool canSave = false, PlayerSettingsVisualState state = PlayerSettingsVisualState.Editing)
     {
         values = new(SyncWatchPlayerSettings.Defaults); foreach (var pair in initial ?? new Dictionary<string, string>()) values[pair.Key] = pair.Value;
-        original = new(values); EditableFields = new HashSet<string>(editableFields ?? []); CanSave = canSave; State = canSave ? state : PlayerSettingsVisualState.ReadOnly;
+        original = new(values); EditableFields = new HashSet<string>(editableFields ?? []); CanSave = canSave && state != PlayerSettingsVisualState.ReadOnly; State = CanSave ? state : PlayerSettingsVisualState.ReadOnly;
         if (State == PlayerSettingsVisualState.InvalidConfiguration) Message = "invalidConfiguration";
         if (State == PlayerSettingsVisualState.SavedNotice) Message = "changesSaved";
     }
@@ -70,19 +70,20 @@ public sealed class PlayerSubtitlePreview : FrameworkElement
         Editor = editor; UiLanguage = language; Height = SyncWatchTokens.LayoutPlayerSettingsPreviewHeight; ClipToBounds = true;
         AutomationProperties.SetName(this, SyncWatchCopy.Text("subtitlePreview", language));
     }
-    private double Number(string id)
+    private string Setting(string id)
     {
         var descriptor = SyncWatchPlayerSettings.Fields.Single(f => f.Id == id); string value = Editor.Values[id];
-        return double.Parse(PlayerSettingsEditor.Valid(value, descriptor) ? value : SyncWatchPlayerSettings.Defaults[id], CultureInfo.InvariantCulture);
+        return PlayerSettingsEditor.Valid(value, descriptor) ? value : SyncWatchPlayerSettings.Defaults[id];
     }
+    private double Number(string id) => double.Parse(Setting(id), CultureInfo.InvariantCulture);
     protected override void OnRender(DrawingContext drawing)
     {
         base.OnRender(drawing); drawing.DrawRectangle(new SolidColorBrush(SyncWatchTokens.ColorSharedVideoSurface), null, new Rect(RenderSize));
-        double size = Number("subtitleSize"), padding = Number("subtitlePadding"); bool top = Editor.Values["subtitlePosition"] == "top";
-        string family = Editor.Values["subtitleFont"] switch { "serif" => "Global Serif", "monospace" => "Global Monospace", _ => "Global User Interface" };
+        double size = Number("subtitleSize"), padding = Number("subtitlePadding"); bool top = Setting("subtitlePosition") == "top";
+        string family = Setting("subtitleFont") switch { "serif" => "Global Serif", "monospace" => "Global Monospace", _ => "Global User Interface" };
         var typeface = new Typeface(new FontFamily(family), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
-        var fill = new SolidColorBrush(SyncWatchPlayerSettings.Color(Editor.Values["subtitleColor"]) ?? SyncWatchTokens.ColorSubtitleWhite);
-        var outline = new SolidColorBrush(SyncWatchPlayerSettings.Color(Editor.Values["outlineColor"]) ?? SyncWatchTokens.ColorSubtitleBlack);
+        var fill = new SolidColorBrush(SyncWatchPlayerSettings.Color(Setting("subtitleColor")) ?? SyncWatchTokens.ColorSubtitleWhite);
+        var outline = new SolidColorBrush(SyncWatchPlayerSettings.Color(Setting("outlineColor")) ?? SyncWatchTokens.ColorSubtitleBlack);
         var text = new FormattedText(SyncWatchCopy.Text("subtitlePreview", UiLanguage), CultureInfo.GetCultureInfo(UiLanguage), FlowDirection.LeftToRight, typeface, size, fill, VisualTreeHelper.GetDpi(this).PixelsPerDip)
         {
             MaxTextWidth = Math.Max(1, ActualWidth - padding * 2),

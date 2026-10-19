@@ -53,6 +53,7 @@ internal static class PlayerSettingsAssertions
         Check(partial.Values["contrast"] == "0.5" && partial.Values["brightness"] == "0" && !partial.CanReset("audio") && !partial.CanReset("unknown"), "reset respects partial capabilities");
         var readOnly = new PlayerSettingsEditor(editableFields: SyncWatchPlayerSettings.Defaults.Keys); readOnly.Edit("brightness", "0.5"); readOnly.Reset("image");
         Check(readOnly.State == PlayerSettingsVisualState.ReadOnly && readOnly.Values["brightness"] == "0" && !readOnly.Save(_ => { writes++; return true; }) && writes == 1, "read-only rejects all writes");
+        Check(!new PlayerSettingsEditor(editableFields: ["brightness"], canSave: true, state: PlayerSettingsVisualState.ReadOnly).Allows("brightness"), "explicit read-only state overrides supplied capabilities");
         Check(!new PlayerSettingsEditor(new Dictionary<string, string> { ["unknown"] = "value" }).IsValid && !new PlayerSettingsEditor(editableFields: ["unknown"], canSave: true).IsValid, "unknown data/capabilities invalid");
         var culture = CultureInfo.CurrentCulture;
         try { CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE"); Check(PlayerSettingsEditor.Canonical(0.35000000000001) == "0.35" && PlayerSettingsEditor.Canonical(-0.0) == "0" && PlayerSettingsEditor.Canonical(double.NaN) == "", "canonical numbers do not depend on system locale"); }
@@ -108,6 +109,6 @@ internal static class PlayerSettingsAssertions
         }
         var bottom = Pixels([]); var top = Pixels(new() { ["subtitlePosition"] = "top" }); Check(bottom.Y > top.Y + .2, "preview responds to position");
         Check(Pixels(new() { ["subtitleSize"] = "48" }).Count > bottom.Count, "preview responds to font size"); var cyan = Pixels(new() { ["subtitleColor"] = "cyan" }); Check(cyan.Blue > cyan.Red + .1, "preview responds to swatch");
-        Check(Pixels(new() { ["subtitleSize"] = "NaN", ["subtitlePadding"] = "Infinity", ["subtitleOffset"] = "1e9" }).Count == bottom.Count, "invalid values render safe defaults");
+        Check(Pixels(new() { ["subtitleSize"] = "NaN", ["subtitlePadding"] = "Infinity", ["subtitleOffset"] = "1e9", ["subtitleColor"] = "black", ["outlineColor"] = "white", ["subtitleFont"] = "unknown", ["subtitlePosition"] = "unknown" }).Count == bottom.Count, "invalid values render safe defaults");
     }
 }

@@ -20,8 +20,8 @@ public struct PlayerSettingsEditor: Sendable {
         self.values = SyncWatchPlayerSettings.defaults.merging(values) { _, value in value }
         original = self.values
         self.editableFields = editableFields
-        self.canSave = canSave
-        self.state = canSave ? state : .readOnly
+        self.canSave = canSave && state != .readOnly
+        self.state = self.canSave ? state : .readOnly
         if self.state == .invalidConfiguration { message = "invalidConfiguration" }
         if self.state == .savedNotice { message = "changesSaved" }
     }
@@ -101,30 +101,29 @@ public struct PlayerSubtitlePreview: View {
         self.values = values
         self.language = language
     }
-    private func number(_ id: String) -> Double {
+    private func setting(_ id: String) -> String {
         guard let field = SyncWatchPlayerSettings.fields.first(where: { $0.id == id }),
-            let value = values[id], PlayerSettingsEditor.valid(value, for: field), let n = Double(value)
-        else {
-            return Double(SyncWatchPlayerSettings.defaults[id] ?? "0") ?? 0
-        }
-        return n
+            let value = values[id], PlayerSettingsEditor.valid(value, for: field)
+        else { return SyncWatchPlayerSettings.defaults[id] ?? "" }
+        return value
     }
+    private func number(_ id: String) -> Double { Double(setting(id)) ?? 0 }
     public var body: some View {
         GeometryReader { geometry in
             let size = number("subtitleSize")
             let padding = number("subtitlePadding")
-            let top = values["subtitlePosition"] == "top"
+            let top = setting("subtitlePosition") == "top"
             let base = top ? padding + size / 2 : geometry.size.height - padding - size / 2
             let offset = number("subtitleOffset") / 120 * geometry.size.height * 0.34 * (top ? 1 : -1)
             let position = min(geometry.size.height - size / 2, max(size / 2, base + offset))
             let text = Text(SyncWatchCopy.text("subtitlePreview", language: language))
             let design: Font.Design =
-                values["subtitleFont"] == "serif"
-                ? .serif : values["subtitleFont"] == "monospace" ? .monospaced : .default
+                setting("subtitleFont") == "serif"
+                ? .serif : setting("subtitleFont") == "monospace" ? .monospaced : .default
             ZStack {
                 ForEach(0..<8, id: \.self) { index in
                     text.foregroundStyle(
-                        SyncWatchPlayerSettings.color(values["outlineColor"] ?? "black")
+                        SyncWatchPlayerSettings.color(setting("outlineColor"))
                             ?? SyncWatchTokens.colorSubtitleBlack
                     )
                     .offset(
@@ -132,7 +131,7 @@ public struct PlayerSubtitlePreview: View {
                         y: sin(Double(index) * .pi / 4) * number("outlineWidth"))
                 }
                 text.foregroundStyle(
-                    SyncWatchPlayerSettings.color(values["subtitleColor"] ?? "white")
+                    SyncWatchPlayerSettings.color(setting("subtitleColor"))
                         ?? SyncWatchTokens.colorSubtitleWhite)
             }
             .font(.system(size: size, weight: .bold, design: design)).multilineTextAlignment(.center).lineLimit(2)

@@ -71,6 +71,7 @@ private struct PlayerSettingCases: Decodable {
             writes += 1
             return true
         } && writes == 1)
+    #expect(!PlayerSettingsEditor(editableFields: ["brightness"], canSave: true, state: .readOnly).allows("brightness"))
     #expect(!PlayerSettingsEditor(values: ["unknown": "value"]).isValid)
     #expect(!PlayerSettingsEditor(editableFields: ["unknown"], canSave: true).isValid)
     #expect(PlayerSettingsEditor.canonical(0.35000000000001) == "0.35")
@@ -126,7 +127,10 @@ private struct PlayerSettingCases: Decodable {
     #expect(larger.count > bottom.count)
     let cyan = try pixels(["subtitleColor": "cyan"])
     #expect(cyan.blue > cyan.red + 0.1)
-    let invalid = try pixels(["subtitleSize": "NaN", "subtitlePadding": "Infinity", "subtitleOffset": "1e9"])
+    let invalid = try pixels([
+        "subtitleSize": "NaN", "subtitlePadding": "Infinity", "subtitleOffset": "1e9", "subtitleColor": "black",
+        "outlineColor": "white", "subtitleFont": "unknown", "subtitlePosition": "unknown",
+    ])
     #expect(invalid.count == bottom.count)
 }
 
