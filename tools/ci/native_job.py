@@ -144,7 +144,7 @@ def design_image_names(root: Path) -> set[str]:
 def retain_design_images(root: Path, payload: Path, target: str) -> None:
     source = root / "artifacts/design" / target
     if not source.exists():
-        return
+        raise ValueError("Required design render matrix is missing")
     files = list(source.iterdir())
     expected = design_image_names(root)
     if source.is_symlink() or len(files) != len(expected) or {p.name.casefold() for p in files} != expected:

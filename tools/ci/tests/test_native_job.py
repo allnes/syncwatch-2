@@ -36,6 +36,18 @@ class NativeJobChecks(unittest.TestCase):
         report.execute("Native checks", lambda: None)
         return report
 
+    def design_matrix(self):
+        source = self.root / "artifacts/design/apple"
+        source.mkdir(parents=True)
+        repository = Path(__file__).resolve().parents[3]
+        for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((repository / relative).read_bytes())
+        for name in native_job.design_image_names(self.root):
+            (source / name).write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        return source
+
     def test_failed_stage_has_a_real_failing_xml_result(self):
         report = native_job.Report()
         with self.assertRaises(RuntimeError):
@@ -100,6 +112,7 @@ class NativeJobChecks(unittest.TestCase):
         bundle.mkdir(parents=True)
         (bundle / "SyncWatch").write_bytes(b"executable fixture")
         (bundle / "SyncWatch").chmod(0o755)
+        self.design_matrix()
         directory = self.root / "artifacts/native/apple"
         output = native_job.prepare_archive(self.root, directory, "apple", "arm64", {"swift": "6.4"}, self.report(), True)
         with zipfile.ZipFile(output) as archive:
@@ -117,16 +130,7 @@ class NativeJobChecks(unittest.TestCase):
                 self.assertEqual(executable.uname, "")
 
     def test_design_images_retain_digests_and_reject_external_links(self):
-        source = self.root / "artifacts/design/apple"
-        source.mkdir(parents=True)
-        repository = Path(__file__).resolve().parents[3]
-        for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
-            target = self.root / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes((repository / relative).read_bytes())
-        names = native_job.design_image_names(self.root)
-        for name in names:
-            (source / name).write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        source = self.design_matrix()
         payload = self.root / "payload"
         payload.mkdir()
         native_job.retain_design_images(self.root, payload, "apple")
@@ -140,15 +144,7 @@ class NativeJobChecks(unittest.TestCase):
             native_job.retain_design_images(self.root, self.root / "rejected", "apple")
 
     def test_render_matrix_rejects_missing_and_stale_names(self):
-        repository = Path(__file__).resolve().parents[3]
-        source = self.root / "artifacts/design/apple"
-        source.mkdir(parents=True)
-        for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
-            target = self.root / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes((repository / relative).read_bytes())
-        for name in native_job.design_image_names(self.root):
-            (source / name).write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        source = self.design_matrix()
         image = next(source.iterdir())
         wrong = source / "stale-dark-en-680x420.png"
         image.rename(wrong)
@@ -157,6 +153,10 @@ class NativeJobChecks(unittest.TestCase):
         wrong.unlink()
         with self.assertRaisesRegex(ValueError, "differs"):
             native_job.retain_design_images(self.root, self.root / "out", "apple")
+
+    def test_missing_entire_matrix_cannot_publish_success(self):
+        with self.assertRaisesRegex(ValueError, "Required.*missing"):
+            native_job.retain_design_images(self.root, self.root / "payload", "apple")
 
     def test_failure_archive_contains_reports_without_an_application(self):
         self.initialize_repository()
