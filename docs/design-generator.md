@@ -68,3 +68,10 @@ Swift exposes typed constants and ID-indexed `colors`/`dimensions` dictionaries.
 
 
 The same generated Swift/C#/Kotlin files expose typed Settings field metadata, choices/defaults and section/state IDs from `packages/design/settings.json`. The generator rejects mismatches with the component contract, missing option translations, duplicate fields, invalid defaults and invalid length bounds before writing output. The manifest includes the resolved Settings specification and its source digest.
+
+
+## Declarative composition
+
+`layouts.json` is compiled alongside tokens, copy and field/action metadata. The compiler validates the neutral component graph and emits `SyncWatchLayouts` typed data for Swift/C#/Kotlin, including a common source digest, primitive profiles and first-party normalized assets. `design-manifest.json` records the complete source document and compiler inputs. No native screen template is an authoring source.
+
+The generic `DesignSurface` adapters consume the generated tree; presentation bindings supply observations, collections, capabilities and event callbacks. The isolation check rejects native widget construction and visual assignments in those binding files. See the [design contract](architecture/design-system.md#declarative-document-and-binding-boundary).

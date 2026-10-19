@@ -18,5 +18,10 @@
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
         <None Include="../fixtures/player-settings.json" Link="player-settings.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="../fixtures/player-actions.json" Link="player-actions.json" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Include="../../windows/DesignData.cs" Link="DesignData.cs" />
+        <Compile Include="../../windows/DesignSurface.cs" Link="DesignSurface.cs" />
+        <Compile Include="../../windows/DesignBindings.cs" Link="DesignBindings.cs" />
+        <Compile Include="../../windows/DesignGalleries.cs" Link="DesignGalleries.cs" />
+        <None Include="../fixtures/layout-probes.json" Link="layout-probes.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

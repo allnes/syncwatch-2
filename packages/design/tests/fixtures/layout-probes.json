@@ -1,0 +1,169 @@
+{
+  "cases": [
+    {
+      "name": "row-gap",
+      "root": {
+        "id": "probeRoot",
+        "kind": "row",
+        "props": {
+          "width": "100",
+          "height": "60",
+          "gap": "10",
+          "align": "leading",
+          "background": "@color.shared.videoSurface"
+        },
+        "children": [
+          {
+            "id": "a",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.cyan"
+            },
+            "children": []
+          },
+          {
+            "id": "b",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.warm"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 100,
+      "height": 60,
+      "probes": [
+        {
+          "x": 5,
+          "y": 30,
+          "color": "cyan"
+        },
+        {
+          "x": 35,
+          "y": 30,
+          "color": "yellow"
+        },
+        {
+          "x": 25,
+          "y": 30,
+          "color": "black"
+        }
+      ]
+    },
+    {
+      "name": "row-reordered-and-spaced",
+      "root": {
+        "id": "probeRoot",
+        "kind": "row",
+        "props": {
+          "width": "100",
+          "height": "60",
+          "gap": "30",
+          "align": "leading",
+          "background": "@color.shared.videoSurface"
+        },
+        "children": [
+          {
+            "id": "b",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.warm"
+            },
+            "children": []
+          },
+          {
+            "id": "a",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.cyan"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 100,
+      "height": 60,
+      "probes": [
+        {
+          "x": 5,
+          "y": 30,
+          "color": "yellow"
+        },
+        {
+          "x": 35,
+          "y": 30,
+          "color": "black"
+        },
+        {
+          "x": 55,
+          "y": 30,
+          "color": "cyan"
+        }
+      ]
+    },
+    {
+      "name": "axis-from-document",
+      "root": {
+        "id": "probeRoot",
+        "kind": "column",
+        "props": {
+          "width": "60",
+          "height": "100",
+          "gap": "10",
+          "align": "top",
+          "background": "@color.shared.videoSurface"
+        },
+        "children": [
+          {
+            "id": "a",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.cyan"
+            },
+            "children": []
+          },
+          {
+            "id": "b",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.warm"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 60,
+      "height": 100,
+      "probes": [
+        {
+          "x": 10,
+          "y": 5,
+          "color": "cyan"
+        },
+        {
+          "x": 10,
+          "y": 35,
+          "color": "yellow"
+        },
+        {
+          "x": 35,
+          "y": 5,
+          "color": "black"
+        }
+      ]
+    }
+  ]
+}

@@ -68,7 +68,7 @@ internal static class PlayerSettingsAssertions
         Element<Button>(view, "playerSettings.resetSection").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Layout(view);
         Check(editor.Values["brightness"] == "0" && editor.Values["skipSeconds"] == "15", "native reset leaves other sections");
         view.SelectSection("subtitles"); Layout(view); Element<Button>(view, "playerSettings.color.cyan").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Check(editor.Values["subtitleColor"] == "cyan" && Find<PlayerSubtitlePreview>(view).Count() == 1, "native swatch and preview");
+        Check(editor.Values["subtitleColor"] == "cyan" && Find<DesignSubtitle>(view).Count() == 1, "native swatch and preview");
         view.Persist = _ => false; Element<Button>(view, "playerSettings.save").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Check(editor.Message == "saveFailed", "native save failure");
         view.Persist = _ => true; Element<Button>(view, "playerSettings.save").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Check(editor.State == PlayerSettingsVisualState.SavedNotice, "native acknowledged save");
         Check(KeyboardNavigation.GetTabNavigation(view) == KeyboardNavigationMode.Cycle && Element<Button>(view, "playerSettings.save").IsDefault && Element<Button>(view, "playerSettings.cancel").IsCancel, "native dialog keyboard contract");

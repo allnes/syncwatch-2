@@ -1,0 +1,3005 @@
+{
+  "schemaVersion": 1,
+  "coordinateSize": 20,
+  "styles": {
+    "workspace": {
+      "minWidth": "@layout.minimumWidth",
+      "minHeight": "@layout.minimumHeight",
+      "padding": "@layout.workspacePadding",
+      "fontSize": "@type.bodySize",
+      "foreground": "theme.text",
+      "gradient": "theme.gradientStart|theme.background|theme.backgroundDeep",
+      "gradientStart": "0,0",
+      "gradientEnd": "1,1",
+      "gradientOffsets": "0|0.5|1"
+    },
+    "panel": {
+      "background": "theme.surface",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "radius": "@layout.panelRadius",
+      "clip": "true"
+    },
+    "button": {
+      "paddingX": "@layout.panelPadding",
+      "minHeight": "@control.outlinedButtonMinHeight",
+      "radius": "@control.buttonRadius",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "background": "theme.surfaceRaised",
+      "foreground": "theme.text",
+      "fontSize": "@type.bodySize",
+      "weight": "semibold",
+      "contentAlign": "center"
+    },
+    "primary": {
+      "background": "theme.accent",
+      "foreground": "@color.dark.text",
+      "minHeight": "@control.filledButtonMinHeight"
+    },
+    "compact": {
+      "height": "@layout.settingsControlHeight",
+      "minHeight": "0",
+      "paddingX": "@layout.settingsCardPadding",
+      "fontSize": "@type.settingsBodySize",
+      "weight": "normal"
+    },
+    "tab": {
+      "width": "fill",
+      "height": "@layout.settingsSidebarRowHeight",
+      "paddingX": "@layout.settingsCardPadding",
+      "radius": "@control.fieldRadius",
+      "background": "= $selected theme.selection transparent if",
+      "contentAlign": "leading"
+    },
+    "muted": {
+      "foreground": "theme.textSecondary"
+    },
+    "section": {
+      "fontSize": "@type.sectionSize",
+      "weight": "bold"
+    },
+    "title": {
+      "fontSize": "@type.titleSize",
+      "weight": "heavy",
+      "lines": "2",
+      "minScale": "0.65"
+    },
+    "brand": {
+      "fontSize": "@type.brandSize",
+      "weight": "heavy"
+    },
+    "caption": {
+      "fontSize": "@type.captionSize"
+    },
+    "input": {
+      "height": "@control.fieldHeight",
+      "paddingX": "@layout.panelPadding",
+      "radius": "@control.fieldRadius",
+      "background": "theme.inputFill",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "focusBorder": "theme.accent"
+    },
+    "compactInput": {
+      "height": "@layout.settingsControlHeight",
+      "paddingX": "@layout.settingsCardPadding",
+      "fontSize": "@type.settingsBodySize",
+      "align": "leading"
+    },
+    "dialog": {
+      "width": "@layout.settingsWidth",
+      "height": "@layout.settingsHeight",
+      "fontSize": "@type.settingsBodySize",
+      "foreground": "theme.text",
+      "background": "theme.surface",
+      "radius": "@control.compactDialogRadius",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "clip": "true",
+      "cycleFocus": "true"
+    },
+    "dialogTitle": {
+      "fontSize": "@type.settingsTitleSize",
+      "weight": "bold"
+    },
+    "dialogSection": {
+      "fontSize": "@type.settingsSectionSize",
+      "weight": "bold"
+    },
+    "icon": {
+      "width": "@control.playerIconSize",
+      "height": "@control.playerIconSize"
+    },
+    "playerButton": {
+      "width": "@control.playerButtonSize",
+      "height": "@control.playerButtonSize",
+      "radius": "circle",
+      "background": "theme.surfaceRaised",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "foreground": "theme.text"
+    },
+    "prominent": {
+      "width": "@control.playerProminentSize",
+      "height": "@control.playerProminentSize",
+      "background": "theme.accent",
+      "foreground": "@color.dark.text"
+    },
+    "player": {
+      "minWidth": "@layout.minimumWidth",
+      "minHeight": "@layout.minimumHeight",
+      "fontSize": "@type.playerLabelSize",
+      "foreground": "theme.text"
+    },
+    "line": {
+      "background": "theme.border",
+      "thickness": "@control.borderWidth"
+    },
+    "movieRow": {
+      "width": "fill",
+      "minHeight": "@control.rowMinHeight",
+      "padding": "@layout.panelPadding",
+      "radius": "@control.rowRadius",
+      "background": "= $selected theme.selection theme.surfaceRaised if",
+      "selected": "$selected",
+      "contentAlign": "leading"
+    },
+    "swatch": {
+      "width": "@layout.playerSettingsColorSize",
+      "height": "@layout.playerSettingsColorSize",
+      "radius": "circle",
+      "background": "$swatchColor",
+      "border": "= $selected theme.accent theme.border if",
+      "borderWidth": "= @control.borderWidth 2 *",
+      "padding": "= @control.borderWidth 2 *"
+    }
+  },
+  "controls": {
+    "common": {
+      "disabledOpacity": "0.4",
+      "pressedOpacity": "0.75",
+      "focusBorder": "theme.accentSoft",
+      "hoverBorder": "theme.accent",
+      "focusWidth": "@control.borderWidth"
+    },
+    "toggle": {
+      "height": "@layout.settingsControlHeight",
+      "trackWidth": "@control.settingsToggleWidth",
+      "trackHeight": "@control.settingsToggleHeight",
+      "thumbSize": "@control.settingsToggleThumb",
+      "thumbInset": "@control.settingsToggleInset",
+      "onFill": "theme.accent",
+      "offFill": "theme.border",
+      "thumbFill": "@color.dark.text"
+    },
+    "choice": {
+      "markWidth": "8",
+      "markHeight": "4",
+      "markInset": "@layout.settingsCardPadding",
+      "markName": "symbols.chevronDown",
+      "markFill": "theme.textSecondary",
+      "rowPaddingX": "@layout.settingsCardPadding",
+      "rowPaddingY": "4",
+      "rowFill": "theme.surfaceRaised",
+      "rowHighlight": "theme.selection",
+      "rowForeground": "theme.text",
+      "labelAutomation": "settings.choiceLabel"
+    },
+    "range": {
+      "height": "@control.playerSliderHeight",
+      "trackHeight": "@control.sliderTrackHeight",
+      "thumbSize": "@control.playerSliderThumbSize",
+      "trackFill": "theme.border",
+      "progressFill": "theme.accent",
+      "thumbFill": "theme.accent",
+      "focusRadius": "@control.fieldRadius",
+      "borderWidth": "@control.borderWidth"
+    },
+    "scroll": {
+      "barWidth": "@control.compactGap",
+      "thumbMinimum": "@control.iconSize",
+      "thumbRadius": "@control.buttonRadius",
+      "thumbFill": "theme.border"
+    },
+    "subtitle": {
+      "height": "@layout.playerSettingsPreviewHeight",
+      "background": "@color.shared.videoSurface",
+      "foreground": "$subtitleFill",
+      "outline": "$outlineFill",
+      "outlineWidth": "$outlineWidth",
+      "fontSize": "$subtitleSize",
+      "fontFamily": "$subtitleFont",
+      "weight": "bold",
+      "lines": "2",
+      "outlineSamples": "8",
+      "text": "~subtitlePreview",
+      "centerY": "= $subtitleTop $subtitlePadding $subtitleSize 2 / + $local.height $subtitlePadding - $subtitleSize 2 / - if $subtitleOffset 120 / $local.height * 0.34 * $subtitleTop 1 -1 if * + $subtitleSize 2 / max $local.height $subtitleSize 2 / - min",
+      "textPaddingX": "$subtitlePadding"
+    },
+    "input": {
+      "placeholderFill": "theme.textSecondary"
+    },
+    "column": {
+      "align": "leading"
+    },
+    "text": {
+      "align": "leading"
+    }
+  },
+  "assets": {
+    "symbols.playMark": [
+      [
+        5,
+        3,
+        17,
+        10,
+        5,
+        17
+      ]
+    ],
+    "symbols.chevronDown": [
+      [
+        0,
+        0,
+        20,
+        0,
+        10,
+        20
+      ]
+    ]
+  },
+  "components": {
+    "Library": {
+      "id": "node102",
+      "kind": "column",
+      "styles": [
+        "workspace"
+      ],
+      "props": {
+        "gap": "@layout.panelGap"
+      },
+      "children": [
+        {
+          "id": "node70",
+          "kind": "row",
+          "styles": [
+            "panel"
+          ],
+          "props": {
+            "gap": "@layout.panelGap",
+            "height": "@layout.headerHeight",
+            "paddingX": "@layout.workspacePadding"
+          },
+          "children": [
+            {
+              "id": "node62",
+              "kind": "icon",
+              "styles": [
+                "icon"
+              ],
+              "props": {
+                "name": "symbols.playMark",
+                "width": "@control.brandSize",
+                "height": "@control.brandSize",
+                "padding": "9",
+                "background": "theme.accent",
+                "foreground": "@color.dark.text",
+                "radius": "@control.buttonRadius"
+              },
+              "children": []
+            },
+            {
+              "id": "node63",
+              "kind": "text",
+              "styles": [
+                "brand"
+              ],
+              "props": {
+                "text": "~brand"
+              },
+              "children": []
+            },
+            {
+              "id": "node64",
+              "kind": "line",
+              "styles": [
+                "line"
+              ],
+              "props": {
+                "axis": "vertical",
+                "length": "= @layout.headerHeight @layout.panelPadding 2 * -"
+              },
+              "children": []
+            },
+            {
+              "id": "node65",
+              "kind": "text",
+              "styles": [],
+              "props": {
+                "text": "~room",
+                "lines": "1"
+              },
+              "children": []
+            },
+            {
+              "id": "node66",
+              "kind": "spacer",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": []
+            },
+            {
+              "id": "libraryFriendStatus",
+              "kind": "text",
+              "styles": [
+                "muted"
+              ],
+              "props": {
+                "text": "~friendOffline",
+                "lines": "1",
+                "when": "= $viewport.width 1000 >="
+              },
+              "children": []
+            },
+            {
+              "id": "node67",
+              "kind": "text",
+              "styles": [
+                "muted"
+              ],
+              "props": {
+                "text": "~callInactive",
+                "lines": "1"
+              },
+              "children": []
+            },
+            {
+              "id": "node69",
+              "kind": "button",
+              "styles": [
+                "button"
+              ],
+              "props": {
+                "action": "openSettings",
+                "enabled": "$can.openSettings",
+                "automation": "{namespace}.openSettings",
+                "label": "~openSettings"
+              },
+              "children": [
+                {
+                  "id": "node68",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~openSettings"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node101",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@layout.panelGap",
+            "height": "fill",
+            "align": "top"
+          },
+          "children": [
+            {
+              "id": "node88",
+              "kind": "column",
+              "styles": [
+                "panel"
+              ],
+              "props": {
+                "width": "@layout.libraryPanelWidth",
+                "height": "fill",
+                "gap": "@layout.panelGap",
+                "padding": "@layout.panelPadding"
+              },
+              "children": [
+                {
+                  "id": "node74",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap"
+                  },
+                  "children": [
+                    {
+                      "id": "node71",
+                      "kind": "text",
+                      "styles": [
+                        "section"
+                      ],
+                      "props": {
+                        "text": "~library"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "node72",
+                      "kind": "spacer",
+                      "styles": [],
+                      "props": {
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "node73",
+                      "kind": "text",
+                      "styles": [
+                        "muted"
+                      ],
+                      "props": {
+                        "text": "{entryCount} {filesLabel}"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "node79",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap"
+                  },
+                  "children": [
+                    {
+                      "id": "node76",
+                      "kind": "button",
+                      "styles": [
+                        "button"
+                      ],
+                      "props": {
+                        "action": "chooseFolder",
+                        "enabled": "$can.chooseFolder",
+                        "automation": "{namespace}.chooseFolder",
+                        "label": "~chooseFolder"
+                      },
+                      "children": [
+                        {
+                          "id": "node75",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~chooseFolder"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node78",
+                      "kind": "button",
+                      "styles": [
+                        "button"
+                      ],
+                      "props": {
+                        "action": "rescan",
+                        "enabled": "$can.rescan",
+                        "automation": "{namespace}.rescan",
+                        "label": "~rescan"
+                      },
+                      "children": [
+                        {
+                          "id": "node77",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~rescan"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node80",
+                  "kind": "input",
+                  "styles": [
+                    "input"
+                  ],
+                  "props": {
+                    "value": "$query",
+                    "label": "~search",
+                    "enabled": "$can.search",
+                    "action": "search",
+                    "automation": "library.search",
+                    "width": "fill"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node87",
+                  "kind": "if",
+                  "styles": [],
+                  "props": {
+                    "condition": "$hasEntries"
+                  },
+                  "children": [
+                    {
+                      "id": "node85",
+                      "kind": "scroll",
+                      "styles": [],
+                      "props": {
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": [
+                        {
+                          "id": "node84",
+                          "kind": "column",
+                          "styles": [],
+                          "props": {
+                            "gap": "@control.compactGap",
+                            "width": "fill"
+                          },
+                          "children": [
+                            {
+                              "id": "node83",
+                              "kind": "repeat",
+                              "styles": [],
+                              "props": {
+                                "items": "entries"
+                              },
+                              "children": [
+                                {
+                                  "id": "node82",
+                                  "kind": "button",
+                                  "styles": [
+                                    "movieRow"
+                                  ],
+                                  "props": {
+                                    "action": "selectMovie",
+                                    "value": "{id}",
+                                    "enabled": "$can.selectMovie",
+                                    "automation": "library.movie.{id}",
+                                    "label": "{title}"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "node81",
+                                      "kind": "text",
+                                      "styles": [],
+                                      "props": {
+                                        "text": "{title}",
+                                        "lines": "2",
+                                        "align": "leading",
+                                        "width": "fill"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node86",
+                      "kind": "text",
+                      "styles": [
+                        "muted"
+                      ],
+                      "props": {
+                        "text": "~{emptyMessage}",
+                        "width": "fill",
+                        "height": "fill",
+                        "align": "center"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "node100",
+              "kind": "column",
+              "styles": [],
+              "props": {
+                "gap": "@layout.panelGap",
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": [
+                {
+                  "id": "node61",
+                  "kind": "column",
+                  "styles": [
+                    "panel"
+                  ],
+                  "props": {
+                    "height": "= $viewport.height @layout.workspacePadding 2 * - @layout.headerHeight - @layout.panelGap 2 * - @layout.lowerPanelMinHeight - @layout.selectedPanelMinHeight max @layout.selectedPanelMaxHeight min",
+                    "width": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "node60",
+                      "kind": "if",
+                      "styles": [],
+                      "props": {
+                        "condition": "$hasSelection"
+                      },
+                      "children": [
+                        {
+                          "id": "node58",
+                          "kind": "scroll",
+                          "styles": [],
+                          "props": {
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": [
+                            {
+                              "id": "node57",
+                              "kind": "column",
+                              "styles": [],
+                              "props": {
+                                "gap": "@layout.panelGap",
+                                "padding": "@layout.detailPadding",
+                                "width": "fill"
+                              },
+                              "children": [
+                                {
+                                  "id": "node51",
+                                  "kind": "text",
+                                  "styles": [
+                                    "muted"
+                                  ],
+                                  "props": {
+                                    "text": "~selectedMovie"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "node52",
+                                  "kind": "text",
+                                  "styles": [
+                                    "title"
+                                  ],
+                                  "props": {
+                                    "text": "{selectedTitle}"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "node43",
+                                  "kind": "switch",
+                                  "styles": [],
+                                  "props": {
+                                    "value": "= $viewport.width 1000 >="
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "node27",
+                                      "kind": "row",
+                                      "styles": [],
+                                      "props": {
+                                        "case": "1",
+                                        "gap": "@control.compactGap"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "node17",
+                                          "kind": "column",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap",
+                                            "width": "fill"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node15",
+                                              "kind": "text",
+                                              "styles": [
+                                                "muted"
+                                              ],
+                                              "props": {
+                                                "text": "~duration"
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "id": "node16",
+                                              "kind": "text",
+                                              "styles": [],
+                                              "props": {
+                                                "text": "~unknown",
+                                                "weight": "semibold"
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "node20",
+                                          "kind": "column",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap",
+                                            "width": "fill"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node18",
+                                              "kind": "text",
+                                              "styles": [
+                                                "muted"
+                                              ],
+                                              "props": {
+                                                "text": "~resolution"
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "id": "node19",
+                                              "kind": "text",
+                                              "styles": [],
+                                              "props": {
+                                                "text": "~unknown",
+                                                "weight": "semibold"
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "node23",
+                                          "kind": "column",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap",
+                                            "width": "fill"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node21",
+                                              "kind": "text",
+                                              "styles": [
+                                                "muted"
+                                              ],
+                                              "props": {
+                                                "text": "~audio"
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "id": "node22",
+                                              "kind": "text",
+                                              "styles": [],
+                                              "props": {
+                                                "text": "~unknown",
+                                                "weight": "semibold"
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "node26",
+                                          "kind": "column",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap",
+                                            "width": "fill"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node24",
+                                              "kind": "text",
+                                              "styles": [
+                                                "muted"
+                                              ],
+                                              "props": {
+                                                "text": "~subtitles"
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "id": "node25",
+                                              "kind": "text",
+                                              "styles": [],
+                                              "props": {
+                                                "text": "~unknown",
+                                                "weight": "semibold"
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "node42",
+                                      "kind": "column",
+                                      "styles": [],
+                                      "props": {
+                                        "case": "default",
+                                        "gap": "@control.compactGap"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "node34",
+                                          "kind": "row",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node30",
+                                              "kind": "column",
+                                              "styles": [],
+                                              "props": {
+                                                "gap": "@control.compactGap",
+                                                "width": "fill"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node28",
+                                                  "kind": "text",
+                                                  "styles": [
+                                                    "muted"
+                                                  ],
+                                                  "props": {
+                                                    "text": "~duration"
+                                                  },
+                                                  "children": []
+                                                },
+                                                {
+                                                  "id": "node29",
+                                                  "kind": "text",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "text": "~unknown",
+                                                    "weight": "semibold"
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "node33",
+                                              "kind": "column",
+                                              "styles": [],
+                                              "props": {
+                                                "gap": "@control.compactGap",
+                                                "width": "fill"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node31",
+                                                  "kind": "text",
+                                                  "styles": [
+                                                    "muted"
+                                                  ],
+                                                  "props": {
+                                                    "text": "~resolution"
+                                                  },
+                                                  "children": []
+                                                },
+                                                {
+                                                  "id": "node32",
+                                                  "kind": "text",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "text": "~unknown",
+                                                    "weight": "semibold"
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "node41",
+                                          "kind": "row",
+                                          "styles": [],
+                                          "props": {
+                                            "gap": "@control.compactGap"
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "node37",
+                                              "kind": "column",
+                                              "styles": [],
+                                              "props": {
+                                                "gap": "@control.compactGap",
+                                                "width": "fill"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node35",
+                                                  "kind": "text",
+                                                  "styles": [
+                                                    "muted"
+                                                  ],
+                                                  "props": {
+                                                    "text": "~audio"
+                                                  },
+                                                  "children": []
+                                                },
+                                                {
+                                                  "id": "node36",
+                                                  "kind": "text",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "text": "~unknown",
+                                                    "weight": "semibold"
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "node40",
+                                              "kind": "column",
+                                              "styles": [],
+                                              "props": {
+                                                "gap": "@control.compactGap",
+                                                "width": "fill"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node38",
+                                                  "kind": "text",
+                                                  "styles": [
+                                                    "muted"
+                                                  ],
+                                                  "props": {
+                                                    "text": "~subtitles"
+                                                  },
+                                                  "children": []
+                                                },
+                                                {
+                                                  "id": "node39",
+                                                  "kind": "text",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "text": "~unknown",
+                                                    "weight": "semibold"
+                                                  },
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "node53",
+                                  "kind": "text",
+                                  "styles": [],
+                                  "props": {
+                                    "text": "~missingMedia",
+                                    "foreground": "theme.accentSoft",
+                                    "when": "$missingMedia"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "node50",
+                                  "kind": "row",
+                                  "styles": [],
+                                  "props": {
+                                    "gap": "@control.compactGap",
+                                    "wrapAt": "1000"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "node45",
+                                      "kind": "button",
+                                      "styles": [
+                                        "button",
+                                        "primary"
+                                      ],
+                                      "props": {
+                                        "action": "startWatching",
+                                        "enabled": "$can.startWatching",
+                                        "automation": "{namespace}.startWatching",
+                                        "label": "~startWatching"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "node44",
+                                          "kind": "text",
+                                          "styles": [],
+                                          "props": {
+                                            "text": "~startWatching"
+                                          },
+                                          "children": []
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "node47",
+                                      "kind": "button",
+                                      "styles": [
+                                        "button"
+                                      ],
+                                      "props": {
+                                        "action": "continueWatching",
+                                        "enabled": "$can.continueWatching",
+                                        "automation": "{namespace}.continueWatching",
+                                        "label": "~continueWatching"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "node46",
+                                          "kind": "text",
+                                          "styles": [],
+                                          "props": {
+                                            "text": "~continueWatching"
+                                          },
+                                          "children": []
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "node49",
+                                      "kind": "button",
+                                      "styles": [
+                                        "button"
+                                      ],
+                                      "props": {
+                                        "action": "endWatching",
+                                        "enabled": "$can.endWatching",
+                                        "automation": "{namespace}.endWatching",
+                                        "label": "~endWatching"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "node48",
+                                          "kind": "text",
+                                          "styles": [],
+                                          "props": {
+                                            "text": "~endWatching"
+                                          },
+                                          "children": []
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "node56",
+                                  "kind": "column",
+                                  "styles": [],
+                                  "props": {
+                                    "gap": "@control.compactGap",
+                                    "padding": "@layout.panelPadding",
+                                    "background": "theme.backgroundDeep",
+                                    "radius": "@control.buttonRadius",
+                                    "width": "fill"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "node54",
+                                      "kind": "text",
+                                      "styles": [],
+                                      "props": {
+                                        "text": "~fileLocation"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "id": "node55",
+                                      "kind": "text",
+                                      "styles": [
+                                        "muted"
+                                      ],
+                                      "props": {
+                                        "text": "{selectedLocation}",
+                                        "lines": "2"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "node59",
+                          "kind": "text",
+                          "styles": [
+                            "muted"
+                          ],
+                          "props": {
+                            "text": "~selectMovie",
+                            "width": "fill",
+                            "height": "fill",
+                            "align": "center"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node99",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@layout.panelGap",
+                    "height": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "node94",
+                      "kind": "column",
+                      "styles": [
+                        "panel"
+                      ],
+                      "props": {
+                        "gap": "@layout.panelGap",
+                        "padding": "@layout.panelPadding",
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": [
+                        {
+                          "id": "node89",
+                          "kind": "text",
+                          "styles": [
+                            "section"
+                          ],
+                          "props": {
+                            "text": "~roomStatus"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node90",
+                          "kind": "text",
+                          "styles": [
+                            "muted"
+                          ],
+                          "props": {
+                            "text": "~{roomMessage}"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node91",
+                          "kind": "spacer",
+                          "styles": [],
+                          "props": {
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node93",
+                          "kind": "button",
+                          "styles": [
+                            "button"
+                          ],
+                          "props": {
+                            "action": "openCall",
+                            "enabled": "$can.openCall",
+                            "automation": "{namespace}.openCall",
+                            "label": "~openCall"
+                          },
+                          "children": [
+                            {
+                              "id": "node92",
+                              "kind": "text",
+                              "styles": [],
+                              "props": {
+                                "text": "~openCall"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node98",
+                      "kind": "column",
+                      "styles": [
+                        "panel"
+                      ],
+                      "props": {
+                        "gap": "@layout.panelGap",
+                        "padding": "@layout.panelPadding",
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": [
+                        {
+                          "id": "node95",
+                          "kind": "text",
+                          "styles": [
+                            "section"
+                          ],
+                          "props": {
+                            "text": "~recentActivity"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node96",
+                          "kind": "text",
+                          "styles": [
+                            "muted"
+                          ],
+                          "props": {
+                            "text": "~noActivity"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node97",
+                          "kind": "spacer",
+                          "styles": [],
+                          "props": {
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Settings": {
+      "id": "node184",
+      "kind": "column",
+      "styles": [
+        "dialog"
+      ],
+      "props": {
+        "gap": "0",
+        "height": "@layout.settingsHeight"
+      },
+      "children": [
+        {
+          "id": "node165",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@control.compactGap",
+            "height": "@layout.settingsHeaderHeight",
+            "paddingX": "@layout.settingsCardPadding",
+            "background": "theme.backgroundDeep"
+          },
+          "children": [
+            {
+              "id": "node162",
+              "kind": "text",
+              "styles": [
+                "dialogTitle"
+              ],
+              "props": {
+                "text": "{~brand} · {~openSettings}",
+                "width": "fill",
+                "moveAction": "moveDialog"
+              },
+              "children": []
+            },
+            {
+              "id": "node164",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "close",
+                "enabled": "$can.close",
+                "automation": "{namespace}.close",
+                "shortcut": "cancel",
+                "label": "~close"
+              },
+              "children": [
+                {
+                  "id": "node163",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~close"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node166",
+          "kind": "line",
+          "styles": [
+            "line"
+          ],
+          "props": {
+            "axis": "horizontal"
+          },
+          "children": []
+        },
+        {
+          "id": "node175",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "height": "fill",
+            "gap": "0"
+          },
+          "children": [
+            {
+              "id": "node171",
+              "kind": "column",
+              "styles": [],
+              "props": {
+                "gap": "@control.borderWidth",
+                "padding": "@layout.settingsCardPadding",
+                "width": "@layout.settingsSidebarWidth",
+                "height": "fill",
+                "background": "theme.backgroundDeep"
+              },
+              "children": [
+                {
+                  "id": "node169",
+                  "kind": "repeat",
+                  "styles": [],
+                  "props": {
+                    "items": "sections"
+                  },
+                  "children": [
+                    {
+                      "id": "node168",
+                      "kind": "button",
+                      "styles": [
+                        "tab"
+                      ],
+                      "props": {
+                        "action": "selectSection",
+                        "value": "{id}",
+                        "automation": "{namespace}.section.{id}",
+                        "selected": "$selected",
+                        "label": "~{id}"
+                      },
+                      "children": [
+                        {
+                          "id": "node167",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~{id}",
+                            "width": "fill",
+                            "align": "leading"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node170",
+                  "kind": "spacer",
+                  "styles": [],
+                  "props": {
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node172",
+              "kind": "line",
+              "styles": [
+                "line"
+              ],
+              "props": {
+                "axis": "vertical"
+              },
+              "children": []
+            },
+            {
+              "id": "node174",
+              "kind": "scroll",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": [
+                {
+                  "id": "node173",
+                  "kind": "column",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap",
+                    "padding": "@layout.settingsContentPadding",
+                    "width": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "node157",
+                      "kind": "row",
+                      "styles": [],
+                      "props": {
+                        "gap": "@control.compactGap"
+                      },
+                      "children": [
+                        {
+                          "id": "node155",
+                          "kind": "text",
+                          "styles": [
+                            "dialogSection"
+                          ],
+                          "props": {
+                            "text": "~{section}"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node156",
+                          "kind": "spacer",
+                          "styles": [],
+                          "props": {
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node158",
+                      "kind": "text",
+                      "styles": [
+                        "muted"
+                      ],
+                      "props": {
+                        "text": "~{section}Hint"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "node160",
+                      "kind": "repeat",
+                      "styles": [],
+                      "props": {
+                        "items": "fields"
+                      },
+                      "children": [
+                        {
+                          "id": "node159",
+                          "kind": "include",
+                          "styles": [],
+                          "props": {
+                            "component": "field",
+                            "width": "= $interfaceSection @layout.settingsInterfaceFieldWidth @layout.settingsFieldWidth if"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node161",
+                      "kind": "text",
+                      "styles": [
+                        "muted"
+                      ],
+                      "props": {
+                        "text": "~settingsUnavailable",
+                        "when": "$unavailable"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node176",
+          "kind": "line",
+          "styles": [
+            "line"
+          ],
+          "props": {
+            "axis": "horizontal"
+          },
+          "children": []
+        },
+        {
+          "id": "node183",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@control.compactGap",
+            "paddingX": "@layout.settingsCardPadding",
+            "height": "@layout.settingsFooterHeight"
+          },
+          "children": [
+            {
+              "id": "node177",
+              "kind": "text",
+              "styles": [
+                "caption"
+              ],
+              "props": {
+                "text": "~{status}",
+                "foreground": "= $saved theme.success theme.textSecondary if",
+                "automation": "{namespace}.status"
+              },
+              "children": []
+            },
+            {
+              "id": "node178",
+              "kind": "spacer",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": []
+            },
+            {
+              "id": "node180",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "cancel",
+                "enabled": "$can.cancel",
+                "automation": "{namespace}.cancel",
+                "shortcut": "cancel",
+                "tabIndex": "1000",
+                "label": "~cancel"
+              },
+              "children": [
+                {
+                  "id": "node179",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~cancel"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node182",
+              "kind": "button",
+              "styles": [
+                "button",
+                "primary",
+                "compact"
+              ],
+              "props": {
+                "action": "save",
+                "enabled": "$can.save",
+                "automation": "{namespace}.save",
+                "shortcut": "default",
+                "tabIndex": "1001",
+                "label": "~save"
+              },
+              "children": [
+                {
+                  "id": "node181",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~save"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "PlayerSettings": {
+      "id": "node220",
+      "kind": "column",
+      "styles": [
+        "dialog"
+      ],
+      "props": {
+        "gap": "0",
+        "height": "@layout.playerSettingsHeight"
+      },
+      "children": [
+        {
+          "id": "node201",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@control.compactGap",
+            "height": "@layout.settingsHeaderHeight",
+            "paddingX": "@layout.settingsCardPadding",
+            "background": "theme.backgroundDeep"
+          },
+          "children": [
+            {
+              "id": "node198",
+              "kind": "text",
+              "styles": [
+                "dialogTitle"
+              ],
+              "props": {
+                "text": "~{dialogTitle}",
+                "width": "fill",
+                "moveAction": "moveDialog"
+              },
+              "children": []
+            },
+            {
+              "id": "node200",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "close",
+                "enabled": "$can.close",
+                "automation": "{namespace}.close",
+                "shortcut": "cancel",
+                "label": "~close"
+              },
+              "children": [
+                {
+                  "id": "node199",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~close"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node202",
+          "kind": "line",
+          "styles": [
+            "line"
+          ],
+          "props": {
+            "axis": "horizontal"
+          },
+          "children": []
+        },
+        {
+          "id": "node211",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "height": "fill",
+            "gap": "0"
+          },
+          "children": [
+            {
+              "id": "node207",
+              "kind": "column",
+              "styles": [],
+              "props": {
+                "gap": "@control.borderWidth",
+                "padding": "@layout.settingsCardPadding",
+                "width": "@layout.playerSettingsSidebarWidth",
+                "height": "fill",
+                "background": "theme.backgroundDeep"
+              },
+              "children": [
+                {
+                  "id": "node205",
+                  "kind": "repeat",
+                  "styles": [],
+                  "props": {
+                    "items": "sections"
+                  },
+                  "children": [
+                    {
+                      "id": "node204",
+                      "kind": "button",
+                      "styles": [
+                        "tab"
+                      ],
+                      "props": {
+                        "action": "selectSection",
+                        "value": "{id}",
+                        "automation": "{namespace}.section.{id}",
+                        "selected": "$selected",
+                        "label": "~{id}"
+                      },
+                      "children": [
+                        {
+                          "id": "node203",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~{id}",
+                            "width": "fill",
+                            "align": "leading"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node206",
+                  "kind": "spacer",
+                  "styles": [],
+                  "props": {
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node208",
+              "kind": "line",
+              "styles": [
+                "line"
+              ],
+              "props": {
+                "axis": "vertical"
+              },
+              "children": []
+            },
+            {
+              "id": "node210",
+              "kind": "scroll",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": [
+                {
+                  "id": "node209",
+                  "kind": "column",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap",
+                    "padding": "@layout.settingsContentPadding",
+                    "width": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "node189",
+                      "kind": "row",
+                      "styles": [],
+                      "props": {
+                        "gap": "@control.compactGap"
+                      },
+                      "children": [
+                        {
+                          "id": "node185",
+                          "kind": "text",
+                          "styles": [
+                            "dialogSection"
+                          ],
+                          "props": {
+                            "text": "~{section}"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node186",
+                          "kind": "spacer",
+                          "styles": [],
+                          "props": {
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node188",
+                          "kind": "button",
+                          "styles": [
+                            "button",
+                            "compact"
+                          ],
+                          "props": {
+                            "action": "resetSection",
+                            "enabled": "$can.resetSection",
+                            "automation": "{namespace}.resetSection",
+                            "label": "~resetSection"
+                          },
+                          "children": [
+                            {
+                              "id": "node187",
+                              "kind": "text",
+                              "styles": [],
+                              "props": {
+                                "text": "~resetSection"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node190",
+                      "kind": "text",
+                      "styles": [
+                        "muted"
+                      ],
+                      "props": {
+                        "text": "~{section}Hint"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "node197",
+                      "kind": "column",
+                      "styles": [],
+                      "props": {
+                        "gap": "@control.compactGap",
+                        "padding": "@layout.playerSettingsCardPadding",
+                        "background": "theme.backgroundDeep",
+                        "backgroundOpacity": "0.34",
+                        "radius": "@layout.playerSettingsCardRadius",
+                        "border": "theme.border",
+                        "borderWidth": "@control.borderWidth"
+                      },
+                      "children": [
+                        {
+                          "id": "node194",
+                          "kind": "repeat",
+                          "styles": [],
+                          "props": {
+                            "items": "rows"
+                          },
+                          "children": [
+                            {
+                              "id": "node193",
+                              "kind": "row",
+                              "styles": [],
+                              "props": {
+                                "gap": "@control.compactGap",
+                                "align": "top"
+                              },
+                              "children": [
+                                {
+                                  "id": "node192",
+                                  "kind": "repeat",
+                                  "styles": [],
+                                  "props": {
+                                    "items": "fields"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "node191",
+                                      "kind": "include",
+                                      "styles": [],
+                                      "props": {
+                                        "component": "field",
+                                        "width": "fill"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "node196",
+                          "kind": "if",
+                          "styles": [],
+                          "props": {
+                            "condition": "$showSubtitle"
+                          },
+                          "children": [
+                            {
+                              "id": "node195",
+                              "kind": "include",
+                              "styles": [],
+                              "props": {
+                                "component": "subtitlePreview"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node212",
+          "kind": "line",
+          "styles": [
+            "line"
+          ],
+          "props": {
+            "axis": "horizontal"
+          },
+          "children": []
+        },
+        {
+          "id": "node219",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@control.compactGap",
+            "paddingX": "@layout.settingsCardPadding",
+            "height": "@layout.settingsFooterHeight"
+          },
+          "children": [
+            {
+              "id": "node213",
+              "kind": "text",
+              "styles": [
+                "caption"
+              ],
+              "props": {
+                "text": "~{status}",
+                "foreground": "= $saved theme.success theme.textSecondary if",
+                "automation": "{namespace}.status"
+              },
+              "children": []
+            },
+            {
+              "id": "node214",
+              "kind": "spacer",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": []
+            },
+            {
+              "id": "node216",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "cancel",
+                "enabled": "$can.cancel",
+                "automation": "{namespace}.cancel",
+                "shortcut": "cancel",
+                "tabIndex": "1000",
+                "label": "~cancel"
+              },
+              "children": [
+                {
+                  "id": "node215",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~cancel"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node218",
+              "kind": "button",
+              "styles": [
+                "button",
+                "primary",
+                "compact"
+              ],
+              "props": {
+                "action": "save",
+                "enabled": "$can.save",
+                "automation": "{namespace}.save",
+                "shortcut": "default",
+                "tabIndex": "1001",
+                "label": "~save"
+              },
+              "children": [
+                {
+                  "id": "node217",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~save"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Player": {
+      "id": "node145",
+      "kind": "column",
+      "styles": [
+        "player"
+      ],
+      "props": {
+        "gap": "0"
+      },
+      "children": [
+        {
+          "id": "node113",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "gap": "@control.compactGap",
+            "height": "@layout.playerToolbarHeight",
+            "paddingX": "@layout.panelPadding",
+            "background": "theme.backgroundDeep"
+          },
+          "children": [
+            {
+              "id": "node104",
+              "kind": "button",
+              "styles": [
+                "playerButton"
+              ],
+              "props": {
+                "action": "showLibrary",
+                "enabled": "$can.showLibrary",
+                "automation": "player.showLibrary",
+                "label": "~showLibrary"
+              },
+              "children": [
+                {
+                  "id": "node103",
+                  "kind": "icon",
+                  "styles": [
+                    "icon"
+                  ],
+                  "props": {
+                    "name": "player.library"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node105",
+              "kind": "text",
+              "styles": [],
+              "props": {
+                "text": "{title}",
+                "width": "fill",
+                "lines": "1",
+                "truncate": "middle"
+              },
+              "children": []
+            },
+            {
+              "id": "node106",
+              "kind": "text",
+              "styles": [
+                "muted"
+              ],
+              "props": {
+                "text": "~{state}",
+                "lines": "1"
+              },
+              "children": []
+            },
+            {
+              "id": "node108",
+              "kind": "button",
+              "styles": [
+                "playerButton"
+              ],
+              "props": {
+                "action": "openCall",
+                "enabled": "$can.openCall",
+                "automation": "player.openCall",
+                "label": "~openCall"
+              },
+              "children": [
+                {
+                  "id": "node107",
+                  "kind": "icon",
+                  "styles": [
+                    "icon"
+                  ],
+                  "props": {
+                    "name": "player.call"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node110",
+              "kind": "button",
+              "styles": [
+                "playerButton"
+              ],
+              "props": {
+                "action": "toggleFullscreen",
+                "enabled": "$can.toggleFullscreen",
+                "automation": "player.toggleFullscreen",
+                "label": "~toggleFullscreen"
+              },
+              "children": [
+                {
+                  "id": "node109",
+                  "kind": "icon",
+                  "styles": [
+                    "icon"
+                  ],
+                  "props": {
+                    "name": "player.fullscreen"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node112",
+              "kind": "button",
+              "styles": [
+                "playerButton"
+              ],
+              "props": {
+                "action": "endWatching",
+                "enabled": "$can.endWatching",
+                "automation": "player.endWatching",
+                "label": "~endWatching"
+              },
+              "children": [
+                {
+                  "id": "node111",
+                  "kind": "icon",
+                  "styles": [
+                    "icon"
+                  ],
+                  "props": {
+                    "name": "player.end"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node114",
+          "kind": "slot",
+          "styles": [],
+          "props": {
+            "name": "video",
+            "width": "fill",
+            "height": "fill",
+            "background": "@color.shared.videoSurface",
+            "label": "~videoSurface",
+            "clip": "true"
+          },
+          "children": []
+        },
+        {
+          "id": "node144",
+          "kind": "column",
+          "styles": [],
+          "props": {
+            "height": "@layout.playerFooterHeight",
+            "paddingX": "@layout.panelPadding",
+            "background": "theme.backgroundDeep",
+            "gap": "0"
+          },
+          "children": [
+            {
+              "id": "node118",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "gap": "@control.compactGap",
+                "height": "@control.playerSliderHeight"
+              },
+              "children": [
+                {
+                  "id": "node115",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "{positionText}",
+                    "width": "@layout.playerTimeWidth",
+                    "align": "center"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node116",
+                  "kind": "range",
+                  "styles": [],
+                  "props": {
+                    "value": "$position",
+                    "maximum": "$duration",
+                    "minimum": "0",
+                    "step": "1000",
+                    "round": "true",
+                    "enabled": "$can.seek",
+                    "action": "seek",
+                    "automation": "player.seek",
+                    "label": "~seek",
+                    "width": "fill"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node117",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "{durationText}",
+                    "width": "@layout.playerTimeWidth",
+                    "align": "center"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node143",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "height": "fill",
+                "gap": "0"
+              },
+              "children": [
+                {
+                  "id": "node123",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap",
+                    "width": "fill",
+                    "align": "leading"
+                  },
+                  "children": [
+                    {
+                      "id": "node120",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "openPlayerSettings",
+                        "enabled": "$can.openPlayerSettings",
+                        "automation": "player.playerSettings",
+                        "label": "~playerSettings"
+                      },
+                      "children": [
+                        {
+                          "id": "node119",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.settings"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node122",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "openPlaylist",
+                        "enabled": "$can.openPlaylist",
+                        "automation": "player.playlist",
+                        "label": "~playlist"
+                      },
+                      "children": [
+                        {
+                          "id": "node121",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.playlist"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node134",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap"
+                  },
+                  "children": [
+                    {
+                      "id": "node125",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "previousFile",
+                        "enabled": "$can.previousFile",
+                        "automation": "player.previousFile",
+                        "label": "~previousFile"
+                      },
+                      "children": [
+                        {
+                          "id": "node124",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.previous"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node127",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "skip",
+                        "enabled": "$can.skip",
+                        "automation": "player.skipBackward",
+                        "label": "~skipBackward",
+                        "value": "-1"
+                      },
+                      "children": [
+                        {
+                          "id": "node126",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.backward"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node129",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton",
+                        "prominent"
+                      ],
+                      "props": {
+                        "action": "playPause",
+                        "enabled": "$can.playPause",
+                        "automation": "player.{playLabel}",
+                        "label": "~{playLabel}"
+                      },
+                      "children": [
+                        {
+                          "id": "node128",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "$playIcon"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node131",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "skip",
+                        "enabled": "$can.skip",
+                        "automation": "player.skipForward",
+                        "label": "~skipForward",
+                        "value": "1"
+                      },
+                      "children": [
+                        {
+                          "id": "node130",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.forward"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node133",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "nextFile",
+                        "enabled": "$can.nextFile",
+                        "automation": "player.nextFile",
+                        "label": "~nextFile"
+                      },
+                      "children": [
+                        {
+                          "id": "node132",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.next"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node142",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap",
+                    "width": "fill",
+                    "align": "trailing"
+                  },
+                  "children": [
+                    {
+                      "id": "node136",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "selectSubtitles",
+                        "enabled": "$can.selectSubtitles",
+                        "automation": "player.subtitles",
+                        "label": "~subtitles"
+                      },
+                      "children": [
+                        {
+                          "id": "node135",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.subtitles"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node138",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "selectAudio",
+                        "enabled": "$can.selectAudio",
+                        "automation": "player.audioTracks",
+                        "label": "~audioTracks"
+                      },
+                      "children": [
+                        {
+                          "id": "node137",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "player.audio"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node140",
+                      "kind": "button",
+                      "styles": [
+                        "playerButton"
+                      ],
+                      "props": {
+                        "action": "muteMovie",
+                        "enabled": "$can.muteMovie",
+                        "automation": "player.{volumeLabel}",
+                        "label": "~{volumeLabel}"
+                      },
+                      "children": [
+                        {
+                          "id": "node139",
+                          "kind": "icon",
+                          "styles": [
+                            "icon"
+                          ],
+                          "props": {
+                            "name": "$volumeIcon"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "node141",
+                      "kind": "range",
+                      "styles": [],
+                      "props": {
+                        "value": "$volume",
+                        "minimum": "0",
+                        "maximum": "1",
+                        "step": "0.05",
+                        "enabled": "$can.setMovieVolume",
+                        "action": "setMovieVolume",
+                        "automation": "player.setMovieVolume",
+                        "label": "~setMovieVolume",
+                        "width": "@layout.playerVolumeWidth"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "field": {
+      "id": "node14",
+      "kind": "switch",
+      "styles": [],
+      "props": {
+        "value": "$kind",
+        "width": "fill"
+      },
+      "children": [
+        {
+          "id": "node1",
+          "kind": "toggle",
+          "styles": [],
+          "props": {
+            "case": "boolean",
+            "text": "~{label}",
+            "value": "$value",
+            "enabled": "$editable",
+            "action": "editField",
+            "payload": "{id}",
+            "automation": "{namespace}.field.{id}",
+            "width": "fill"
+          },
+          "children": []
+        },
+        {
+          "id": "node13",
+          "kind": "column",
+          "styles": [],
+          "props": {
+            "case": "default",
+            "gap": "@control.borderWidth",
+            "width": "fill"
+          },
+          "children": [
+            {
+              "id": "node5",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "gap": "@control.compactGap"
+              },
+              "children": [
+                {
+                  "id": "node2",
+                  "kind": "text",
+                  "styles": [
+                    "muted"
+                  ],
+                  "props": {
+                    "text": "~{label}"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node3",
+                  "kind": "spacer",
+                  "styles": [],
+                  "props": {
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node4",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "{value}{unitText}",
+                    "when": "$isRange"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node12",
+              "kind": "switch",
+              "styles": [],
+              "props": {
+                "value": "$kind"
+              },
+              "children": [
+                {
+                  "id": "node6",
+                  "kind": "range",
+                  "styles": [],
+                  "props": {
+                    "case": "range",
+                    "value": "$number",
+                    "minimum": "$minimum",
+                    "maximum": "$maximum",
+                    "step": "$step",
+                    "enabled": "$editable",
+                    "action": "editField",
+                    "payload": "{id}",
+                    "automation": "{namespace}.field.{id}",
+                    "width": "fill"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node9",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "case": "color",
+                    "gap": "@control.compactGap"
+                  },
+                  "children": [
+                    {
+                      "id": "node8",
+                      "kind": "repeat",
+                      "styles": [],
+                      "props": {
+                        "items": "options"
+                      },
+                      "children": [
+                        {
+                          "id": "node7",
+                          "kind": "button",
+                          "styles": [
+                            "swatch"
+                          ],
+                          "props": {
+                            "action": "editField",
+                            "payload": "{fieldID}",
+                            "value": "{id}",
+                            "enabled": "$editable",
+                            "automation": "playerSettings.color.{id}",
+                            "label": "~{label}",
+                            "text": ""
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node10",
+                  "kind": "choice",
+                  "styles": [
+                    "input",
+                    "compactInput"
+                  ],
+                  "props": {
+                    "case": "choice",
+                    "options": "options",
+                    "value": "$value",
+                    "enabled": "$editable",
+                    "action": "editField",
+                    "payload": "{id}",
+                    "automation": "{namespace}.field.{id}",
+                    "label": "~{label}",
+                    "width": "fill"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "node11",
+                  "kind": "input",
+                  "styles": [
+                    "input",
+                    "compactInput"
+                  ],
+                  "props": {
+                    "case": "text",
+                    "value": "$value",
+                    "enabled": "$editable",
+                    "action": "editField",
+                    "payload": "{id}",
+                    "automation": "{namespace}.field.{id}",
+                    "label": "~{label}",
+                    "width": "fill"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "subtitlePreview": {
+      "id": "node221",
+      "kind": "subtitle",
+      "styles": [],
+      "props": {
+        "width": "fill"
+      },
+      "children": []
+    },
+    "Gallery": {
+      "id": "galleryRoot",
+      "kind": "overlay",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill"
+      },
+      "children": [
+        {
+          "id": "node154",
+          "kind": "column",
+          "styles": [],
+          "props": {
+            "gap": "0",
+            "background": "theme.background",
+            "foreground": "theme.text",
+            "fontSize": "@type.bodySize"
+          },
+          "children": [
+            {
+              "id": "node151",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "gap": "@control.compactGap",
+                "padding": "@layout.panelPadding"
+              },
+              "children": [
+                {
+                  "id": "node149",
+                  "kind": "repeat",
+                  "styles": [],
+                  "props": {
+                    "items": "galleryControls"
+                  },
+                  "children": [
+                    {
+                      "id": "node148",
+                      "kind": "switch",
+                      "styles": [],
+                      "props": {
+                        "value": "$kind"
+                      },
+                      "children": [
+                        {
+                          "id": "node146",
+                          "kind": "choice",
+                          "styles": [
+                            "input",
+                            "compactInput"
+                          ],
+                          "props": {
+                            "case": "choice",
+                            "value": "$value",
+                            "options": "options",
+                            "action": "gallery",
+                            "payload": "{id}",
+                            "automation": "gallery.{id}",
+                            "width": "= $id language == 100 160 if",
+                            "label": "~{label}",
+                            "enabled": "$editable"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "node147",
+                          "kind": "toggle",
+                          "styles": [],
+                          "props": {
+                            "case": "boolean",
+                            "value": "$value",
+                            "action": "gallery",
+                            "payload": "{id}",
+                            "automation": "gallery.{id}",
+                            "text": "~{label}",
+                            "enabled": "$editable"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "node150",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "{lastAction}",
+                    "lines": "1"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "node153",
+              "kind": "overlay",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": [
+                {
+                  "id": "node152",
+                  "kind": "slot",
+                  "styles": [],
+                  "props": {
+                    "name": "galleryContent",
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "galleryModalCondition",
+          "kind": "if",
+          "styles": [],
+          "props": {
+            "condition": "$modalOpen"
+          },
+          "children": [
+            {
+              "id": "galleryModal",
+              "kind": "overlay",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill",
+                "background": "theme.backgroundDeep",
+                "backgroundOpacity": "0.6",
+                "blockInput": "true"
+              },
+              "children": [
+                {
+                  "id": "galleryModalPosition",
+                  "kind": "overlay",
+                  "styles": [],
+                  "props": {
+                    "offsetX": "= $modalOffsetX 0 $viewport.width @layout.settingsWidth - 2 / 0 max - max $viewport.width @layout.settingsWidth - 2 / 0 max min",
+                    "offsetY": "= $modalOffsetY 0 $viewport.height @layout.playerSettingsHeight - 2 / 0 max - max $viewport.height @layout.playerSettingsHeight - 2 / 0 max min"
+                  },
+                  "children": [
+                    {
+                      "id": "galleryModalSlot",
+                      "kind": "slot",
+                      "styles": [],
+                      "props": {
+                        "name": "modalContent"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "fixtureVideo": {
+      "id": "fixtureVideoRoot",
+      "kind": "overlay",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill",
+        "background": "@color.shared.videoSurface",
+        "foreground": "@color.dark.text",
+        "fontSize": "@type.bodySize"
+      },
+      "children": [
+        {
+          "id": "fixtureVideoText",
+          "kind": "text",
+          "styles": [],
+          "props": {
+            "text": "~{fixtureLabel}",
+            "align": "center"
+          },
+          "children": []
+        }
+      ]
+    }
+  },
+  "defaults": {
+    "fontSize": "@type.bodySize",
+    "foreground": "theme.text",
+    "weight": "normal"
+  }
+}
