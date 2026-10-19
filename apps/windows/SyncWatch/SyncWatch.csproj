@@ -16,6 +16,10 @@
         <Compile Include="../../../packages/design/windows/SettingsDialog.cs" Link="Design/SettingsDialog.cs" />
         <Compile Include="../../../packages/design/windows/PlayerSettingsDialog.cs" Link="Design/PlayerSettingsDialog.cs" />
         <Compile Include="../../../packages/design/windows/PlayerChrome.cs" Link="Design/PlayerChrome.cs" />
+        <Compile Include="../../../packages/design/windows/DesignData.cs" Link="DesignData.cs" />
+        <Compile Include="../../../packages/design/windows/DesignSurface.cs" Link="DesignSurface.cs" />
+        <Compile Include="../../../packages/design/windows/DesignBindings.cs" Link="DesignBindings.cs" />
+        <Compile Include="../../../packages/design/windows/DesignGalleries.cs" Link="DesignGalleries.cs" />
         <Compile Include="../../../packages/design/windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
     </ItemGroup>
 </Project>

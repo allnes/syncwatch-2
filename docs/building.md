@@ -113,7 +113,7 @@ The gallery uses synthetic media entries and emits presentation actions only. It
 
 In a normal native launch, use **Settings** in the Library header. Change the language or theme and choose **Save** to persist the change and apply it immediately. **Cancel** discards unsaved edits. Settings use the application-owned `SyncWatch/local-state.json` under Application Support on macOS and Local Application Data on Windows. Existing media/resume preferences are retained. Files from a newer format are left unchanged and the dialog becomes read-only. Library, call and connection settings remain unavailable until their adapters exist.
 
-For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains 304 images per platform: 40 Library, 48 Settings, 56 Player, 80 PlayerSettings and 80 Call renders.
+For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains 224 images per platform: 40 Library, 48 Settings, 56 Player and 80 PlayerSettings renders.
 
 
 ## Player component gallery
@@ -130,6 +130,13 @@ Native tests exercise shared boundary fixtures, WPF control input, observation u
 Launch the native executable with `--player-settings-gallery` to inspect playback, subtitles, image, audio and advanced sections in the compact dialog. Select editing, saved, invalid or read-only state and enable **Fail save** to exercise a failed acknowledgement. Save succeeds only when the caller accepts the complete valid draft. Reset changes editable fields in the selected section; Cancel discards changes since the last successful save.
 
 The gear in `--player-gallery` opens the same component and retains acknowledged values for that gallery instance. Only fixture skip/default-volume observations are updated. The subtitle preview draws native text from the current draft. These galleries do not read/write normal preferences, initialize VLC, apply real image/audio/subtitle filters, synchronize playback or start calls. Normal application playback awaits its adapters. Linux has matching first-party source, with no executable gallery until dependency/compiler/native/font/license prerequisites pass.
+
+
+## Declarative component library
+
+Screen composition, responsive rules, styles and primitive appearance are declared in `packages/design/layouts.json`; tokens and form/action metadata remain in the same Apache-2.0 package. Regenerate committed native data with the [design generator](design-generator.md#native-resource-generation) after changing the document. Application/presentation bindings consume the component by name and do not specify another native layout.
+
+Resource generation and repository validation run the design-isolation check. Native validation also renders the same axis/order/spacing probe document through the actual SwiftUI/WPF adapters and verifies stable WPF inputs when observations or list contents change. Existing model, persistence, capability and image-matrix checks still run. Linux checks cover shared data/tooling and matching first-party source until its complete application build is available.
 
 
 ## Call component gallery

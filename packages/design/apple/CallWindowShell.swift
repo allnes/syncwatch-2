@@ -99,53 +99,13 @@ public struct CallPresentation: Sendable {
     }
 }
 
-public struct CallIcon: Shape {
-    public var name: String
-    public init(_ name: String) { self.name = name }
-    public func path(in rect: CGRect) -> Path {
-        var path = Path()
-        for polygon in SyncWatchCall.icons[name] ?? [] {
-            for i in stride(from: 0, to: polygon.count, by: 2) {
-                let point = CGPoint(
-                    x: rect.minX + polygon[i] / 20 * rect.width, y: rect.minY + polygon[i + 1] / 20 * rect.height)
-                if i == 0 { path.move(to: point) } else { path.addLine(to: point) }
-            }
-            path.closeSubpath()
-        }
-        return path
-    }
-}
-private struct CallButtonStyle: ButtonStyle {
-    var theme: SyncWatchTheme
-    var size: Double
-    var active = false
-    var destructive = false
-    @Environment(\.isEnabled) private var enabled
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label.frame(width: size, height: size)
-            .foregroundStyle(destructive || active ? SyncWatchTokens.colorDarkText : theme.text)
-            .background(
-                destructive ? SyncWatchTokens.colorSharedCallHangup : active ? theme.accent : theme.surfaceRaised,
-                in: Circle()
-            )
-            .overlay(Circle().stroke(theme.border, lineWidth: SyncWatchTokens.controlBorderWidth))
-            .opacity(enabled ? (configuration.isPressed ? 0.75 : 1) : 0.4).contentShape(Circle())
-    }
-}
-
-/// Owned view slots; requests never start a provider, capture devices or acknowledge teardown.
+/// Owned content and requests only. Composition is compiled from the shared Call document.
 public struct CallWindowShell: View {
     public var presentation: CallPresentation
     public var language: String
     public var remoteSurface: AnyView?
     public var localPreview: AnyView?
     public var onAction: (CallRequest) -> Void
-    @Environment(\.colorScheme) private var scheme
-    private var theme: SyncWatchTheme { .resolve(scheme) }
-    private func t(_ key: String) -> String { SyncWatchCopy.text(key, language: language) }
-    private func emit(_ action: String, _ values: [Double] = []) {
-        presentation.dispatch(CallRequest(action, values), to: onAction)
-    }
     public init(
         presentation: CallPresentation = CallPresentation(), language: String = "en", remoteSurface: AnyView? = nil,
         localPreview: AnyView? = nil, onAction: @escaping (CallRequest) -> Void = { _ in }
@@ -156,189 +116,21 @@ public struct CallWindowShell: View {
         self.localPreview = localPreview
         self.onAction = onAction
     }
-    private func button(
-        _ action: String, _ icon: String, _ label: String, values: [Double] = [], small: Bool = false,
-        active: Bool = false, slash: Bool = false
-    ) -> some View {
-        Button {
-            emit(action, values)
-        } label: {
-            ZStack {
-                CallIcon(icon)
-                if slash { CallIcon("slash") }
-            }
-            .frame(width: SyncWatchTokens.layoutCallIconSize, height: SyncWatchTokens.layoutCallIconSize)
-        }
-        .buttonStyle(
-            CallButtonStyle(
-                theme: theme,
-                size: small ? SyncWatchTokens.layoutCallWindowButtonSize : SyncWatchTokens.layoutCallButtonSize,
-                active: active, destructive: action == "hangUp")
-        )
-        .disabled(!presentation.allows(action)).help(t(label)).accessibilityLabel(t(label)).accessibilityIdentifier(
-            "call." + action)
-    }
     public var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                HStack(spacing: SyncWatchTokens.layoutCallGap / 2) {
-                    Text(t("callWindow")).lineLimit(1).truncationMode(.tail).frame(
-                        maxWidth: .infinity, alignment: .leading
-                    )
-                    .contentShape(Rectangle()).gesture(
-                        DragGesture().onEnded { emit("move", [$0.translation.width, $0.translation.height]) }
-                    )
-                    .accessibilityLabel(t("moveCall"))
-                    .accessibilityAction(named: Text(t("moveCall"))) { emit("move", [10, 0]) }
-                    button(
-                        "pin", "pin", presentation.pinned ? "unpinCall" : "pinCall", small: true,
-                        active: presentation.pinned)
-                    button(
-                        presentation.minimized ? "restore" : "minimize",
-                        presentation.minimized ? "restore" : "minimize",
-                        presentation.minimized ? "restoreCall" : "minimizeCall", small: true)
-                    button(
-                        "fullscreen", presentation.fullscreen ? "restore" : "fullscreen",
-                        presentation.fullscreen ? "exitFullscreenCall" : "fullscreenCall", small: true)
-                    button("close", "close", "closeCall", small: true)
-                }
-                .frame(height: SyncWatchTokens.layoutCallHeaderHeight).padding(
-                    .horizontal, SyncWatchTokens.layoutCallInset)
-                ZStack(alignment: .topLeading) {
-                    SyncWatchTokens.colorSharedVideoSurface
-                    if presentation.showsRemoteSurface, let remoteSurface {
-                        remoteSurface
-                    } else {
-                        Text(
-                            t(
-                                "callState" + presentation.state.rawValue.prefix(1).uppercased()
-                                    + presentation.state.rawValue.dropFirst())
-                        )
-                        .foregroundStyle(SyncWatchTokens.colorDarkText).multilineTextAlignment(.center)
-                        .padding(SyncWatchTokens.layoutCallInset).frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    ZStack {
-                        theme.surfaceRaised
-                        if presentation.showsLocalPreview, let localPreview {
-                            localPreview
-                        } else {
-                            Text(t(presentation.previewLabel(hasSurface: localPreview != nil)))
-                                .font(.system(size: SyncWatchTokens.typeCaptionSize)).foregroundStyle(
-                                    theme.textSecondary
-                                )
-                                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true).padding(2)
-                        }
-                    }
-                    .frame(
-                        width: SyncWatchTokens.layoutCallPreviewWidth, height: SyncWatchTokens.layoutCallPreviewHeight
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius))
-                    .overlay(RoundedRectangle(cornerRadius: SyncWatchTokens.controlFieldRadius).stroke(theme.border))
-                    .padding(SyncWatchTokens.layoutCallInset).accessibilityLabel(
-                        t(presentation.previewLabel(hasSurface: localPreview != nil)))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity).clipped().accessibilityLabel(t("callSurface"))
-                HStack(spacing: SyncWatchTokens.layoutCallGap) {
-                    button(
-                        "setMicrophoneEnabled", "microphone",
-                        presentation.microphoneEnabled == true ? "microphoneOff" : "microphoneOn",
-                        values: [presentation.microphoneEnabled == true ? 0 : 1],
-                        active: presentation.microphoneEnabled == true, slash: presentation.microphoneEnabled == false)
-                    button(
-                        "setCameraEnabled", "camera", presentation.cameraEnabled == true ? "cameraOff" : "cameraOn",
-                        values: [presentation.cameraEnabled == true ? 0 : 1],
-                        active: presentation.cameraEnabled == true, slash: presentation.cameraEnabled == false)
-                    button("hangUp", "end", "hangUp")
-                    CallIcon(presentation.displayedVolume > 0 ? "volume" : "muted").fill(theme.textSecondary)
-                        .frame(width: SyncWatchTokens.layoutCallIconSize, height: SyncWatchTokens.layoutCallIconSize)
-                        .accessibilityHidden(true)
-                    PlayerRange(
-                        value: presentation.displayedVolume, maximum: 1, label: t("callVolume"),
-                        enabled: presentation.allows("setCallVolume"),
-                        step: 0.05, accessibilityText: "\(Int(presentation.displayedVolume * 100))%", theme: theme
-                    ) { emit("setCallVolume", [$0]) }
-                    .frame(width: SyncWatchTokens.layoutCallVolumeWidth).accessibilityIdentifier("call.setCallVolume")
-                }
-                .frame(maxWidth: .infinity).frame(height: SyncWatchTokens.layoutCallFooterHeight)
-            }
-            .background(theme.backgroundDeep)
-            .overlay(alignment: .bottomTrailing) {
-                CallIcon("resize").fill(theme.textSecondary).frame(
-                    width: SyncWatchTokens.layoutCallResizeSize, height: SyncWatchTokens.layoutCallResizeSize
-                )
-                .padding(2).contentShape(Rectangle()).gesture(
-                    DragGesture().onEnded {
-                        emit(
-                            "resize",
-                            [
-                                min(
-                                    SyncWatchCall.maximumExtent,
-                                    max(
-                                        SyncWatchTokens.layoutCallMinimumWidth,
-                                        geometry.size.width + $0.translation.width)),
-                                min(
-                                    SyncWatchCall.maximumExtent,
-                                    max(
-                                        SyncWatchTokens.layoutCallMinimumHeight,
-                                        geometry.size.height + $0.translation.height)),
-                            ])
-                    }
-                ).accessibilityLabel(t("resizeCall"))
-                .accessibilityAction(named: Text(t("resizeCall"))) {
-                    emit("resize", [geometry.size.width + 10, geometry.size.height + 10])
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: presentation.fullscreen ? 0 : SyncWatchTokens.layoutCallRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: presentation.fullscreen ? 0 : SyncWatchTokens.layoutCallRadius).stroke(
-                    theme.border))
+        DesignSurface(
+            "Call",
+            context: DesignBindings.call(presentation, hasRemote: remoteSurface != nil, hasLocal: localPreview != nil),
+            language: language,
+            slots: ownedSlots
+        ) { event in
+            let values = event.value?.split(separator: ",").compactMap { Double($0) } ?? []
+            presentation.dispatch(CallRequest(event.action, values), to: onAction)
         }
-        .frame(minWidth: SyncWatchTokens.layoutCallMinimumWidth, minHeight: SyncWatchTokens.layoutCallMinimumHeight)
-        .font(.system(size: SyncWatchTokens.typePlayerLabelSize)).foregroundStyle(theme.text)
     }
-}
-
-/// Isolated, opt-in observations. No application preferences, browser or devices are used.
-public struct CallGallery: View {
-    @State private var selected = "ready"
-    @State private var language = "en"
-    @State private var dark = true
-    @State private var presentation = CallPresentation.gallery(SyncWatchCall.galleryCases[2])
-    @State private var last = ""
-    public init() {}
-    public var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Picker("State", selection: $selected) {
-                    ForEach(SyncWatchCall.galleryCases, id: \.id) { Text($0.id).tag($0.id) }
-                }.frame(width: 180)
-                Picker("Language", selection: $language) {
-                    Text("English").tag("en")
-                    Text("Русский").tag("ru")
-                }.frame(width: 140)
-                Toggle("Dark", isOn: $dark)
-            }
-            CallWindowShell(
-                presentation: presentation, language: language,
-                remoteSurface: AnyView(
-                    Text(SyncWatchCopy.text("remoteFixture", language: language)).foregroundStyle(.white).frame(
-                        maxWidth: .infinity, maxHeight: .infinity)),
-                localPreview: AnyView(
-                    Text(SyncWatchCopy.text("localFixture", language: language)).font(.caption).foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity).background(
-                            dark ? SyncWatchTheme.dark.accent : SyncWatchTheme.light.accent))
-            ) {
-                last = $0.action
-                presentation = presentation.applyingFixture($0)
-            }.frame(width: SyncWatchTokens.layoutCallInitialWidth, height: SyncWatchTokens.layoutCallInitialHeight)
-            Text(SyncWatchCopy.text("callFixture", language: language)).font(.caption)
-            Text(last).font(.caption)
-        }.padding().frame(maxWidth: .infinity, maxHeight: .infinity)
-            .environment(\.colorScheme, dark ? .dark : .light)
-            .onChange(of: selected) { value in
-                if let item = SyncWatchCall.galleryCases.first(where: { $0.id == value }) {
-                    presentation = .gallery(item)
-                }
-            }
+    private var ownedSlots: [String: AnyView] {
+        var slots: [String: AnyView] = [:]
+        if presentation.showsRemoteSurface { slots["remoteCallSurface"] = remoteSurface }
+        if presentation.showsLocalPreview { slots["localCameraPreview"] = localPreview }
+        return slots
     }
 }

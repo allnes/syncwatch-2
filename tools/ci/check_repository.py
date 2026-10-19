@@ -359,6 +359,7 @@ def check_repository(root: Path) -> None:
         if path.suffix == ".md":
             check_document(path, root)
     check_design(root)
+    subprocess.run([sys.executable, "tools/design/check_isolation.py"], cwd=root, check=True)
     check_submodules(root)
     check_workflows(root)
     check_native_manifests(root)

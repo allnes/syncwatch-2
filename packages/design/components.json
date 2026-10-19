@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows and Compose",
-  "status": "Library, Settings, PlayerChrome, PlayerSettings and CallWindowShell renderers/gallery: SwiftUI/WPF; matching Compose source pending its dependency build. Media/provider integrations and remaining overlays are not available.",
+  "status": "Library, Settings, Player, PlayerSettings and Call render from one declarative document through SwiftUI/WPF primitive adapters and matching source-only Compose. Provider integration remains unavailable.",
   "components": {
     "LibraryLayout": {
       "structure": [
@@ -119,7 +119,8 @@
         "chooseFolder",
         "save",
         "cancel",
-        "close"
+        "close",
+        "moveDialog"
       ]
     },
     "PlayerSettingsDialog": {

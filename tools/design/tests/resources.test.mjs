@@ -290,6 +290,37 @@ test('settings fields and defaults agree in all native metadata and the hashed m
     }
 });
 
+test('one declarative composition and its source digest reach every client', () => {
+    const design = fixture(); const path = join(design, 'layouts.json'); const spec = JSON.parse(readFileSync(path));
+    spec.components.Library.kind = 'overlay'; spec.components.Library.props.gap = '23';
+    spec.components.Library.children.reverse(); writeFileSync(path, JSON.stringify(spec));
+    const output = join(temporary, 'layouts'); success(generate(design, output));
+    const manifest = JSON.parse(readFileSync(join(output, files[3])));
+    assert.deepEqual(manifest.layouts, spec);
+    const digest = createHash('sha256').update(JSON.stringify(spec)).digest('hex');
+    for (const file of [files[0], files[1], files[4]]) {
+        const source = readFileSync(join(output, file), 'utf8');
+        assert.ok(source.includes('SyncWatchLayouts') && source.includes('DesignNode') && source.includes(digest));
+        const first = spec.components.Library.children[0].id, last = spec.components.Library.children.at(-1).id;
+        assert.ok(source.includes(first + ', ' + last), file + ': shared child ordering');
+        assert.ok(source.includes('"overlay"') && source.includes('"23"'));
+    }
+});
+
+test('declarative document rejects malformed structure, references and visual rules', () => {
+    const mutations = [s => s.components.Library.kind = 'nativeLibrary', s => s.components.Library.props.gap = 'NaN',
+        s => s.components.Library.props.gap = '@missing.token', s => s.components.Library.props.background = '@layout.panelGap',
+        s => s.components.Library.props.background = 'theme.missing', s => s.components.Library.props.unknownStyle = '1',
+        s => s.components.Library.props.height = '= 1 +', s => s.components.Library.children[0].id = s.components.Library.id,
+        s => s.components.Library.styles.push('missing'), s => s.assets['symbols.playMark'][0][0] = -1,
+        s => s.components.Library = {id:'recursive',kind:'include',styles:[],props:{component:'Library'},children:[]}];
+    for (const change of mutations) {
+        const design = fixture(), path = join(design, 'layouts.json'), spec = JSON.parse(readFileSync(path));
+        change(spec); writeFileSync(path, JSON.stringify(spec));
+        assert.notEqual(generate(design, join(temporary, 'invalid-layout')).status, 0);
+    }
+});
+
 test('call states, preview cases, action arities and first-party icons reach every client', () => {
     const spec = JSON.parse(readFileSync(join(root, 'packages/design/call.json')));
     const output = join(temporary, 'call'); success(generate(join(root, 'packages/design'), output));

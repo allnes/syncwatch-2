@@ -23,6 +23,6 @@ struct SyncWatchApp: App {
                 ApplicationWorkspace()
             }
         }
-        .defaultSize(width: 1120, height: 760)
+        .defaultSize(width: SyncWatchTokens.layoutGalleryWidth, height: SyncWatchTokens.layoutGalleryHeight)
     }
 }
