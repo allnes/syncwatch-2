@@ -226,7 +226,6 @@ public class DesignSurface : UserControl
     internal static FontWeight Weight(string name) => name switch { "heavy" => FontWeights.Heavy, "bold" => FontWeights.Bold, "semibold" => FontWeights.SemiBold, _ => FontWeights.Normal };
     private static void ResourceValues(Control control, DesignElement n)
     {
-        control.Resources["design.radius"] = Radius(n);
         control.Resources["design.focusThickness"] = new Thickness(n.Number("focusWidth"));
         control.Resources["design.scrollRadius"] = new CornerRadius(n.Number("thumbRadius"));
         if (control is ScrollViewer) control.Resources[typeof(System.Windows.Controls.Primitives.ScrollBar)] = control.FindResource("Design.ScrollBar");
@@ -235,6 +234,8 @@ public class DesignSurface : UserControl
             if (double.TryParse(pair.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var scalar) && double.IsFinite(scalar)) control.Resources["design." + pair.Key] = scalar;
             else if (pair.Value.StartsWith("theme.", StringComparison.Ordinal) || pair.Value.StartsWith('#') || pair.Value.StartsWith('@')) control.Resources["design." + pair.Key] = Brush(pair.Value, control);
         }
+        // CornerRadius is a native value type, not the document scalar stored by the generic loop.
+        control.Resources["design.radius"] = Radius(n);
         control.Resources["design.choiceGeometry"] = Geometry(n.Text("markName"), n.Number("markWidth"), n.Number("markHeight"));
         control.Resources["design.labelAutomation"] = n.Text("labelAutomation");
         control.Resources["design.choiceLabelMargin"] = new Thickness(n.Number("paddingX"), 0, n.Number("markWidth") + n.Number("markInset") * 2, 0);
