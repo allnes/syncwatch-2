@@ -183,6 +183,10 @@
           "run": "python tools/ci/native_job.py windows"
         },
         {
+          "name": "Dependency infrastructure regression tests on Windows",
+          "run": "python -m unittest discover -s tools/dependencies/tests -v\npython -m unittest discover -s tools/compression/tests -v"
+        },
+        {
           "name": "Retain candidate and validation reports",
           "if": "${{ always() }}",
           "timeout-minutes": 5,

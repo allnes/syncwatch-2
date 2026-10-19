@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -87,6 +88,16 @@ class DependencyBuildTests(unittest.TestCase):
     def prepare(self):
         with contextlib.redirect_stdout(io.StringIO()):
             return build.prepare(self.root, "example", TARGET)
+
+    def remove_source_fixture(self, source):
+        """Remove an owned Git fixture, including read-only Windows objects."""
+        self.assertTrue(source.resolve().is_relative_to(self.root.resolve()))
+        def retry_readonly(operation, path, error):
+            if os.name != "nt" or not isinstance(error, PermissionError):
+                raise error
+            os.chmod(path, stat.S_IREAD | stat.S_IWRITE)
+            operation(path)
+        shutil.rmtree(source, onexc=retry_readonly)
 
     def run_build(self, cold=False):
         with contextlib.redirect_stdout(io.StringIO()):
@@ -345,7 +356,7 @@ class DependencyBuildTests(unittest.TestCase):
         subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-qm", "Newer default branch"], cwd=source, check=True)
         remote = self.root / "remote.git"
         subprocess.run(["git", "clone", "--bare", str(source), str(remote)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        shutil.rmtree(source)
+        self.remove_source_fixture(source)
         self.set_exports(["LICENSE", "library.txt"])
         subprocess.run(["git", "submodule", "init", "--", "3rdparty/example"], cwd=self.root, check=True)
         build.initialize_export_source(self.root, "3rdparty/example", self.component["sources"]["3rdparty/example"], remote.as_uri())
@@ -360,7 +371,7 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_uninitialized_export_source_does_not_replace_unrelated_files(self):
         source = self.root / "3rdparty/example"
-        shutil.rmtree(source)
+        self.remove_source_fixture(source)
         source.mkdir()
         (source / "owner.txt").write_text("preserve\n")
         self.set_exports(["LICENSE", "library.txt"])

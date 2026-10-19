@@ -338,6 +338,10 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "real native checks"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(1))
 
+    def test_windows_dependency_regressions_cannot_be_removed(self):
+        with self.assertRaisesRegex(ValidationError, "Windows dependency regression tests"):
+            self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(2))
+
     def test_remote_actions_cannot_replace_local_artifact_action(self):
         with self.assertRaisesRegex(ValidationError, "repository-owned action"):
             self.validate(lambda data: data["jobs"]["apple"]["steps"][-1].update({"uses": "external/action@main"}))
