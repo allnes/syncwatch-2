@@ -120,6 +120,7 @@ private struct PlayerRange: View {
     var label: String
     var enabled: Bool
     var step: Double
+    var accessibilityText: String
     var theme: SyncWatchTheme
     var onChange: (Double) -> Void
     @FocusState private var focused: Bool
@@ -170,7 +171,7 @@ private struct PlayerRange: View {
             }
         }
         .accessibilityElement(children: .ignore).accessibilityLabel(label)
-        .accessibilityValue(maximum <= 1 ? String(format: "%.0f%%", value * 100) : PlayerPresentation.time(value))
+        .accessibilityValue(accessibilityText)
         .accessibilityAdjustableAction { direction in
             switch direction {
             case .increment: adjust(step)
@@ -243,7 +244,8 @@ public struct PlayerChrome: View {
                         width: SyncWatchTokens.layoutPlayerTimeWidth)
                     PlayerRange(
                         value: presentation.displayedPosition, maximum: presentation.displayedDuration,
-                        label: t("seek"), enabled: presentation.allows("seek"), step: 1000, theme: theme
+                        label: t("seek"), enabled: presentation.allows("seek"), step: 1000,
+                        accessibilityText: PlayerPresentation.time(presentation.displayedPosition), theme: theme
                     ) {
                         emit("seek", $0.rounded())
                     }.accessibilityIdentifier("player.seek")
@@ -273,7 +275,8 @@ public struct PlayerChrome: View {
                         PlayerRange(
                             value: presentation.isValid ? presentation.volume : 0, maximum: 1,
                             label: t("setMovieVolume"), enabled: presentation.allows("setMovieVolume"), step: 0.05,
-                            theme: theme
+                            accessibilityText: String(
+                                format: "%.0f%%", (presentation.isValid ? presentation.volume : 0) * 100), theme: theme
                         ) {
                             emit("setMovieVolume", $0)
                         }.frame(width: SyncWatchTokens.layoutPlayerVolumeWidth)

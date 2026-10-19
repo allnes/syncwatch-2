@@ -134,7 +134,7 @@ public sealed class PlayerChrome : UserControl
     }
     private Button Button(string action, string icon, string? label = null, double? value = null, bool prominent = false)
     {
-        var geometry = new GeometryGroup();
+        var geometry = new GeometryGroup { FillRule = FillRule.Nonzero };
         foreach (var polygon in SyncWatchPlayer.Icons[icon])
         {
             var figure = new PathFigure { StartPoint = new Point(polygon[0], polygon[1]), IsClosed = true, IsFilled = true };

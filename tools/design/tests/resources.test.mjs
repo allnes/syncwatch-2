@@ -63,6 +63,19 @@ test('invalid player contracts and polygon bounds fail before native generation'
         assert.notEqual(generate(design, join(temporary, 'bad-player')).status, 0);
     }
 });
+
+test('fractional player geometry keeps valid native number syntax', () => {
+    const design = fixture();
+    const file = join(design, 'player.json');
+    const spec = JSON.parse(readFileSync(file)); spec.icons.play[0][0] = 6.5;
+    writeFileSync(file, JSON.stringify(spec));
+    const output = join(temporary, 'fractional-player'); success(generate(design, output));
+    assert.ok(readFileSync(join(output, files[0]), 'utf8').includes('6.5,'));
+    assert.ok(readFileSync(join(output, files[1]), 'utf8').includes('[[6.5,'));
+    const kotlin = readFileSync(join(output, files[4]), 'utf8');
+    assert.ok(kotlin.includes('listOf(6.5f,'));
+    assert.ok(!kotlin.includes('6.5.0f'));
+});
 function verifyAllOutputs(directory) {
     const manifest = JSON.parse(readFileSync(join(directory, files[3])));
     const swift = readFileSync(join(directory, files[0]), 'utf8');

@@ -35,9 +35,12 @@ internal static class PlayerAssertions
             var p = new PlayerPresentation
             {
                 State = Enum.Parse<PlayerVisualState>(fixture.GetProperty("state").GetString()!, true),
-                PositionMs = fixture.GetProperty("positionMs").GetInt64(), DurationMs = fixture.GetProperty("durationMs").GetInt64(),
-                Volume = fixture.GetProperty("volume").GetDouble(), SkipSeconds = fixture.GetProperty("skipSeconds").GetInt32(),
-                HasPrevious = fixture.GetProperty("hasPrevious").GetBoolean(), HasNext = fixture.GetProperty("hasNext").GetBoolean(),
+                PositionMs = fixture.GetProperty("positionMs").GetInt64(),
+                DurationMs = fixture.GetProperty("durationMs").GetInt64(),
+                Volume = fixture.GetProperty("volume").GetDouble(),
+                SkipSeconds = fixture.GetProperty("skipSeconds").GetInt32(),
+                HasPrevious = fixture.GetProperty("hasPrevious").GetBoolean(),
+                HasNext = fixture.GetProperty("hasNext").GetBoolean(),
                 EnabledActions = fixture.GetProperty("enabledActions").EnumerateArray().Select(a => a.GetString()!).ToHashSet(),
             };
             var events = new List<Event>();
@@ -97,6 +100,12 @@ internal static class PlayerAssertions
                         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(chrome);
                         byte[] pixel = new byte[4]; bitmap.CopyPixels(new Int32Rect(width / 2, height / 2, 1, 1), pixel, 4, 0);
                         Check(pixel.SequenceEqual(new byte[] { 0, 0, 0, 255 }), "video slot is opaque and isolated from chrome theme");
+                        if (state == PlayerVisualState.Paused)
+                        {
+                            int y = height - (int)SyncWatchTokens.LayoutPlayerFooterHeight + (int)SyncWatchTokens.ControlPlayerSliderHeight / 2;
+                            bitmap.CopyPixels(new Int32Rect(110, y, 1, 1), pixel, 4, 0);
+                            Check(pixel[0] > pixel[2] + 50 && pixel[3] == 255, "rendered timeline uses the shared accent");
+                        }
                         if (output is not null)
                         {
                             var png = new PngBitmapEncoder(); png.Frames.Add(BitmapFrame.Create(bitmap));

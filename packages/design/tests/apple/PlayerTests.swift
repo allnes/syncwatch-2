@@ -94,6 +94,14 @@ private struct PlayerCases: Decodable { let cases: [PlayerCase] }
                             && center.blueComponent < 0.01)
                     let footer = try #require(bitmap.colorAt(x: Int(5 * scale), y: Int(CGFloat(height - 5) * scale)))
                     #expect(footer.alphaComponent > 0.99 && footer != center)
+                    if state == .paused {
+                        let y =
+                            CGFloat(height) - SyncWatchTokens.layoutPlayerFooterHeight + SyncWatchTokens
+                            .controlPlayerSliderHeight / 2
+                        let progress = try #require(
+                            bitmap.colorAt(x: Int(110 * scale), y: Int(y * scale))?.usingColorSpace(.sRGB))
+                        #expect(progress.blueComponent > progress.redComponent + 0.2)
+                    }
                     if let output {
                         let data = try #require(bitmap.representation(using: .png, properties: [:]))
                         try data.write(
