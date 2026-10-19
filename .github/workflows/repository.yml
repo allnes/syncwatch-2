@@ -96,6 +96,10 @@
         {
           "name": "Syncplay source-profile regression tests",
           "run": "python3 -m unittest discover -s tools/syncplay/tests -v"
+        },
+        {
+          "name": "Native compression build-profile regression tests",
+          "run": "python3 -m unittest discover -s tools/compression/tests -v"
         }
       ]
     },

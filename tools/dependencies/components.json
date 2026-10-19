@@ -985,6 +985,186 @@
           "timeoutSeconds": 120
         }
       }
+    },
+    "zlib": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/zlib"
+      ],
+      "sources": {
+        "3rdparty/zlib": {
+          "revision": "da607da739fa6047df13e66a2af6b8bec7c2a498",
+          "license": "Zlib",
+          "notices": [
+            "LICENSE",
+            "README",
+            "zlib.h"
+          ],
+          "exports": [
+            "CMakeLists.txt",
+            "LICENSE",
+            "README",
+            "adler32.c",
+            "compress.c",
+            "contrib/CMakeLists.txt",
+            "crc32.c",
+            "crc32.h",
+            "deflate.c",
+            "deflate.h",
+            "gzclose.c",
+            "gzguts.h",
+            "gzlib.c",
+            "gzread.c",
+            "gzwrite.c",
+            "infback.c",
+            "inffast.c",
+            "inffast.h",
+            "inffixed.h",
+            "inflate.c",
+            "inflate.h",
+            "inftrees.c",
+            "inftrees.h",
+            "trees.c",
+            "trees.h",
+            "uncompr.c",
+            "zconf.h",
+            "zlib.h",
+            "zlib.pc.cmakein",
+            "zutil.c",
+            "zutil.h"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/compression",
+        "LICENSE"
+      ],
+      "watch": [
+        "tools/compression",
+        "3rdparty/zlib"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1",
+            "SOURCE_DATE_EPOCH": "0"
+          },
+          "flags": {
+            "profile": "static-native-v1",
+            "version": "1.3.2"
+          },
+          "command": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 600
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1",
+            "SOURCE_DATE_EPOCH": "0"
+          },
+          "flags": {
+            "profile": "static-native-v1",
+            "version": "1.3.2"
+          },
+          "command": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 600
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1",
+            "SOURCE_DATE_EPOCH": "0"
+          },
+          "flags": {
+            "profile": "static-native-v1",
+            "version": "1.3.2"
+          },
+          "command": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/compression/zlib_build.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 600
+        }
+      }
     }
   }
 }
