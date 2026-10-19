@@ -1,0 +1,1399 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "name": "playlist-routing",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "audio-routing",
+      "presentation": {
+        "kind": "audio",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "audio|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "audio|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "audio|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "audio|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "audio",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectAudioTrack",
+          "scope": "local"
+        }
+      ]
+    },
+    {
+      "name": "subtitles-routing",
+      "presentation": {
+        "kind": "subtitles",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "subtitles|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "subtitles|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "subtitles|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "subtitles|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "subtitles",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectSubtitleTrack",
+          "scope": "local"
+        }
+      ]
+    },
+    {
+      "name": "capability-absent",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": false
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "stale-context",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|6"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:18|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "audio|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": ""
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "empty",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [],
+        "selectedID": null,
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "no-observed-selection",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": null,
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "one",
+          "action": "selectMovie",
+          "scope": "shared"
+        },
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "unknown-kind",
+      "presentation": {
+        "kind": "video",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "video|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "video|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "video|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "video|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "duplicate-identity",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          },
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "missing-selection",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "absent",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "empty-source",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist||7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist||7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist||7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist||7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "source-delimiter",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie|17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie|17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie|17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie|17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie|17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "source-newline",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie\n",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie\n|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie\n|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie\n|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie\n|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "source-nonascii",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "фильм",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|фильм|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|фильм|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|фильм|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|фильм|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "source-too-long",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "id-too-long",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "id-newline",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two\n",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "id-empty",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "empty-label",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "label-control",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "two",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "label-utf8-boundary",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "яяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяя",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "label-utf8-overflow",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "яяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяя",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "label-emoji-boundary",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "negative-revision",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": -1,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|-1"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|-1"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|-1"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|-1"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "maximum-revision",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 9007199254740991,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|9007199254740991"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|9007199254740991"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|9007199254740991"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|9007199254740991"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 9007199254740991,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "revision-overflow",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 9007199254740992,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": false,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|9007199254740992"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|9007199254740992"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|9007199254740992"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|9007199254740992"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "maximum-id",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "English 5.1 — Русский",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "literal-label-with-design-syntax",
+      "presentation": {
+        "kind": "playlist",
+        "sourceID": "movie:17",
+        "revision": 7,
+        "entries": [
+          {
+            "id": "one",
+            "label": "First item",
+            "enabled": true
+          },
+          {
+            "id": "two",
+            "label": "Literal {id} $kind ~play @type.bodySize",
+            "enabled": true
+          },
+          {
+            "id": "off",
+            "label": "Unavailable",
+            "enabled": false
+          }
+        ],
+        "selectedID": "one",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "one",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "two",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "off",
+          "contextToken": "playlist|movie:17|7"
+        },
+        {
+          "entryID": "unknown",
+          "contextToken": "playlist|movie:17|7"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "playlist",
+          "sourceID": "movie:17",
+          "revision": 7,
+          "entryID": "two",
+          "action": "selectMovie",
+          "scope": "shared"
+        }
+      ]
+    }
+  ]
+}

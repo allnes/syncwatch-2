@@ -84,6 +84,7 @@ internal static class Program
         PlayerSettingsAssertions.Run(application, dictionary);
         LayoutAssertions.Run();
         CallAssertions.Run(application, dictionary);
+        SelectionMenuAssertions.Run(application, dictionary);
         application.Shutdown();
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Verified {count} compiled C#/WPF resources and theme assertions"));
     }

@@ -71,7 +71,7 @@ public enum SyncWatchTokens {
     public static let controlFieldRadius: CGFloat = 11
     public static let controlFilledButtonMinHeight: CGFloat = 46
     public static let controlIconSize: CGFloat = 20
-    public static let controlMenuRowHeight: CGFloat = 30
+    public static let controlMenuRowHeight: CGFloat = 34
     public static let controlOutlinedButtonMinHeight: CGFloat = 44
     public static let controlPlayerButtonSize: CGFloat = 38
     public static let controlPlayerIconSize: CGFloat = 20
@@ -130,6 +130,22 @@ public enum SyncWatchTokens {
     public static let layoutSectionGap: CGFloat = 10
     public static let layoutSelectedPanelMaxHeight: CGFloat = 375
     public static let layoutSelectedPanelMinHeight: CGFloat = 260
+    public static let layoutSelectionAudioMaxHeight: CGFloat = 260
+    public static let layoutSelectionAudioWidth: CGFloat = 300
+    public static let layoutSelectionEdgeInset: CGFloat = 8
+    public static let layoutSelectionGalleryHeight: CGFloat = 360
+    public static let layoutSelectionGalleryWidth: CGFloat = 420
+    public static let layoutSelectionLabelGap: CGFloat = 4
+    public static let layoutSelectionMarkerArea: CGFloat = 14
+    public static let layoutSelectionMarkerSize: CGFloat = 7
+    public static let layoutSelectionMinHeight: CGFloat = 48
+    public static let layoutSelectionPaddingX: CGFloat = 8
+    public static let layoutSelectionPaddingY: CGFloat = 4
+    public static let layoutSelectionPlaylistMaxHeight: CGFloat = 300
+    public static let layoutSelectionPlaylistWidth: CGFloat = 340
+    public static let layoutSelectionRadius: CGFloat = 12
+    public static let layoutSelectionSubtitleMaxHeight: CGFloat = 220
+    public static let layoutSelectionSubtitleWidth: CGFloat = 240
     public static let layoutSettingsCardPadding: CGFloat = 8
     public static let layoutSettingsContentPadding: CGFloat = 16
     public static let layoutSettingsControlHeight: CGFloat = 30
@@ -147,6 +163,7 @@ public enum SyncWatchTokens {
     public static let typeCaptionSize: CGFloat = 12
     public static let typePlayerLabelSize: CGFloat = 12
     public static let typeSectionSize: CGFloat = 19
+    public static let typeSelectionLabelSize: CGFloat = 12.5
     public static let typeSettingsBodySize: CGFloat = 13
     public static let typeSettingsSectionSize: CGFloat = 18
     public static let typeSettingsTitleSize: CGFloat = 15
@@ -254,6 +271,22 @@ public enum SyncWatchTokens {
         "layout.sectionGap": layoutSectionGap,
         "layout.selectedPanelMaxHeight": layoutSelectedPanelMaxHeight,
         "layout.selectedPanelMinHeight": layoutSelectedPanelMinHeight,
+        "layout.selectionAudioMaxHeight": layoutSelectionAudioMaxHeight,
+        "layout.selectionAudioWidth": layoutSelectionAudioWidth,
+        "layout.selectionEdgeInset": layoutSelectionEdgeInset,
+        "layout.selectionGalleryHeight": layoutSelectionGalleryHeight,
+        "layout.selectionGalleryWidth": layoutSelectionGalleryWidth,
+        "layout.selectionLabelGap": layoutSelectionLabelGap,
+        "layout.selectionMarkerArea": layoutSelectionMarkerArea,
+        "layout.selectionMarkerSize": layoutSelectionMarkerSize,
+        "layout.selectionMinHeight": layoutSelectionMinHeight,
+        "layout.selectionPaddingX": layoutSelectionPaddingX,
+        "layout.selectionPaddingY": layoutSelectionPaddingY,
+        "layout.selectionPlaylistMaxHeight": layoutSelectionPlaylistMaxHeight,
+        "layout.selectionPlaylistWidth": layoutSelectionPlaylistWidth,
+        "layout.selectionRadius": layoutSelectionRadius,
+        "layout.selectionSubtitleMaxHeight": layoutSelectionSubtitleMaxHeight,
+        "layout.selectionSubtitleWidth": layoutSelectionSubtitleWidth,
         "layout.settingsCardPadding": layoutSettingsCardPadding,
         "layout.settingsContentPadding": layoutSettingsContentPadding,
         "layout.settingsControlHeight": layoutSettingsControlHeight,
@@ -271,6 +304,7 @@ public enum SyncWatchTokens {
         "type.captionSize": typeCaptionSize,
         "type.playerLabelSize": typePlayerLabelSize,
         "type.sectionSize": typeSectionSize,
+        "type.selectionLabelSize": typeSelectionLabelSize,
         "type.settingsBodySize": typeSettingsBodySize,
         "type.settingsSectionSize": typeSettingsSectionSize,
         "type.settingsTitleSize": typeSettingsTitleSize,
@@ -521,6 +555,12 @@ public enum SyncWatchCopy {
             "closeCall": "Close call window",
             "moveCall": "Move call window",
             "resizeCall": "Resize call window",
+            "selectionEmpty": "No items available",
+            "selectionUnavailable": "Selection unavailable",
+            "selectionFixtureLabel": "Selection menu fixture",
+            "selectionFixtureLong":
+                "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
+            "galleryKind": "Menu",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -711,6 +751,11 @@ public enum SyncWatchCopy {
             "closeCall": "Закрыть окно звонка",
             "moveCall": "Переместить окно звонка",
             "resizeCall": "Изменить размер окна звонка",
+            "selectionEmpty": "Нет доступных элементов",
+            "selectionUnavailable": "Выбор недоступен",
+            "selectionFixtureLabel": "Пример меню выбора",
+            "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
+            "galleryKind": "Меню",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -1886,8 +1931,31 @@ public enum SyncWatchCall {
     ]
 }
 
+public struct SelectionMenuKind: Sendable {
+    public let id: String
+    public let label: String
+    public let action: String
+    public let scope: String
+}
+public enum SyncWatchSelectionMenu {
+    public static let maximumEntries = 500
+    public static let maximumIDBytes = 128
+    public static let maximumLabelBytes = 4096
+    public static let maximumRevision = 9_007_199_254_740_991
+    public static let galleryEntryCount = 24
+    public static let states = ["empty", "available", "readOnly", "longList"]
+    public static let kinds: [SelectionMenuKind] = [
+        SelectionMenuKind(
+            id: "playlist", label: "playlist", action: "selectMovie", scope: "shared"),
+        SelectionMenuKind(
+            id: "audio", label: "audioTracks", action: "selectAudioTrack", scope: "local"),
+        SelectionMenuKind(
+            id: "subtitles", label: "subtitles", action: "selectSubtitleTrack", scope: "local"),
+    ]
+}
+
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e"
+    public static let sourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -1952,7 +2020,7 @@ public enum SyncWatchLayouts {
         "control.fieldRadius": "11",
         "control.filledButtonMinHeight": "46",
         "control.iconSize": "20",
-        "control.menuRowHeight": "30",
+        "control.menuRowHeight": "34",
         "control.outlinedButtonMinHeight": "44",
         "control.playerButtonSize": "38",
         "control.playerIconSize": "20",
@@ -2011,6 +2079,22 @@ public enum SyncWatchLayouts {
         "layout.sectionGap": "10",
         "layout.selectedPanelMaxHeight": "375",
         "layout.selectedPanelMinHeight": "260",
+        "layout.selectionAudioMaxHeight": "260",
+        "layout.selectionAudioWidth": "300",
+        "layout.selectionEdgeInset": "8",
+        "layout.selectionGalleryHeight": "360",
+        "layout.selectionGalleryWidth": "420",
+        "layout.selectionLabelGap": "4",
+        "layout.selectionMarkerArea": "14",
+        "layout.selectionMarkerSize": "7",
+        "layout.selectionMinHeight": "48",
+        "layout.selectionPaddingX": "8",
+        "layout.selectionPaddingY": "4",
+        "layout.selectionPlaylistMaxHeight": "300",
+        "layout.selectionPlaylistWidth": "340",
+        "layout.selectionRadius": "12",
+        "layout.selectionSubtitleMaxHeight": "220",
+        "layout.selectionSubtitleWidth": "240",
         "layout.settingsCardPadding": "8",
         "layout.settingsContentPadding": "16",
         "layout.settingsControlHeight": "30",
@@ -2028,6 +2112,7 @@ public enum SyncWatchLayouts {
         "type.captionSize": "12",
         "type.playerLabelSize": "12",
         "type.sectionSize": "19",
+        "type.selectionLabelSize": "12.5",
         "type.settingsBodySize": "13",
         "type.settingsSectionSize": "18",
         "type.settingsTitleSize": "15",
@@ -2884,6 +2969,8 @@ public enum SyncWatchLayouts {
         "callFixture": makecallFixture(),
         "callRemoteFixture": makecallRemoteFixture(),
         "callLocalFixture": makecallLocalFixture(),
+        "SelectionMenu": makeSelectionMenu(),
+        "selectionFixture": makeselectionFixture(),
     ]
     private static func makeLibrary() -> DesignNode {
         let node62 = DesignNode(
@@ -7310,5 +7397,230 @@ public enum SyncWatchLayouts {
             ],
             children: [])
         return callLocalFixtureRoot
+    }
+    private static func makeSelectionMenu() -> DesignNode {
+        let selectionMarker = DesignNode(
+            id: "selectionMarker", kind: "overlay",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "@layout.selectionMarkerSize",
+                "height": "@layout.selectionMarkerSize",
+                "radius": "circle",
+                "background": "@color.shared.accentSoft",
+            ],
+            children: [])
+        let selectionMarkerIf = DesignNode(
+            id: "selectionMarkerIf", kind: "if",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "condition": "$selected",
+            ],
+            children: [selectionMarker])
+        let selectionMarkerArea = DesignNode(
+            id: "selectionMarkerArea", kind: "overlay",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "@layout.selectionMarkerArea",
+                "height": "fill",
+            ],
+            children: [selectionMarkerIf])
+        let selectionLabel = DesignNode(
+            id: "selectionLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "$label",
+                "width": "fill",
+                "lines": "1",
+                "truncate": "end",
+            ],
+            children: [])
+        let selectionEntryContent = DesignNode(
+            id: "selectionEntryContent", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "gap": "@layout.selectionLabelGap",
+            ],
+            children: [selectionMarkerArea, selectionLabel])
+        let selectionEntry = DesignNode(
+            id: "selectionEntry", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "@control.menuRowHeight",
+                "paddingX": "@layout.selectionPaddingX",
+                "radius": "0",
+                "background": "= $selected theme.selection transparent if",
+                "selected": "$selected",
+                "contentAlign": "leading",
+                "enabled": "$enabled",
+                "label": "$label",
+                "automation": "selection.{id}",
+                "action": "selectEntry",
+                "value": "$id",
+                "payload": "$contextToken",
+            ],
+            children: [selectionEntryContent])
+        let selectionRepeat = DesignNode(
+            id: "selectionRepeat", kind: "repeat",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "items": "entries",
+            ],
+            children: [selectionEntry])
+        let selectionRows = DesignNode(
+            id: "selectionRows", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "width": "fill",
+                "gap": "0",
+            ],
+            children: [selectionRepeat])
+        let selectionScroll = DesignNode(
+            id: "selectionScroll", kind: "scroll",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "barWidth": "@control.compactGap",
+                "thumbMinimum": "@control.iconSize",
+                "thumbRadius": "@control.buttonRadius",
+                "thumbFill": "theme.border",
+                "width": "fill",
+                "height": "fill",
+            ],
+            children: [selectionRows])
+        let selectionEmpty = DesignNode(
+            id: "selectionEmpty", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "center",
+                "foreground": "theme.textSecondary",
+                "text": "~{emptyLabel}",
+                "width": "fill",
+                "height": "fill",
+                "lines": "1",
+                "paddingX": "@layout.selectionPaddingX",
+            ],
+            children: [])
+        let selectionBody = DesignNode(
+            id: "selectionBody", kind: "if",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "condition": "$hasEntries",
+            ],
+            children: [selectionScroll, selectionEmpty])
+        let selectionPanel = DesignNode(
+            id: "selectionPanel", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "width":
+                    "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if $viewport.width @layout.selectionEdgeInset 2 * - 0 max min",
+                "height":
+                    "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min $viewport.height @layout.selectionEdgeInset 2 * - 0 max min",
+                "paddingY": "@layout.selectionPaddingY",
+                "radius": "@layout.selectionRadius",
+                "clip": "true",
+                "background": "theme.surface",
+                "foreground": "theme.text",
+                "fontSize": "@type.selectionLabelSize",
+                "gap": "0",
+                "automation": "selection.menu",
+                "label": "~{menuLabel}",
+            ],
+            children: [selectionBody])
+        let selectionRoot = DesignNode(
+            id: "selectionRoot", kind: "overlay",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "cycleFocus": "true",
+            ],
+            children: [selectionPanel])
+        return selectionRoot
+    }
+    private static func makeselectionFixture() -> DesignNode {
+        let selectionFixtureSlot = DesignNode(
+            id: "selectionFixtureSlot", kind: "slot",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "selectionFixtureContent",
+                "width": "fill",
+                "height": "fill",
+            ],
+            children: [])
+        let selectionFixtureRoot = DesignNode(
+            id: "selectionFixtureRoot", kind: "overlay",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "background": "theme.backgroundDeep",
+            ],
+            children: [selectionFixtureSlot])
+        return selectionFixtureRoot
     }
 }

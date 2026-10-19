@@ -6,6 +6,7 @@ import {dirname, join, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {after, test} from 'node:test';
+import {validSelection, selectionRequest} from '../selection-menu-formats.mjs';
 import {validPlayerSetting} from '../player-settings-formats.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -341,5 +342,37 @@ test('call metadata rejects protocol drift, unsupported arities and malformed ic
         const design = fixture(); const path = join(design, 'call.json'); const spec = JSON.parse(readFileSync(path));
         change(spec); writeFileSync(path, JSON.stringify(spec));
         assert.notEqual(generate(design, join(temporary, 'bad-call')).status, 0);
+    }
+});
+
+
+test('selection menu scope, identity, stale-input and UTF-8 bounds agree with shared cases', () => {
+    const spec = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
+    const corpus = JSON.parse(readFileSync(join(root, 'packages/design/tests/fixtures/selection-menu.json')));
+    assert.equal(corpus.cases.length, 28);
+    for (const item of corpus.cases) {
+        assert.equal(validSelection(spec, item.presentation), item.valid, item.name);
+        const before = JSON.stringify(item.presentation);
+        const received = item.requests.map(r => selectionRequest(spec, item.presentation, r.entryID, r.contextToken)).filter(Boolean);
+        assert.deepEqual(received, item.expected, item.name);
+        assert.equal(JSON.stringify(item.presentation), before);
+    }
+});
+
+test('selection metadata reaches all clients and rejects scope or bounds drift', () => {
+    const spec = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
+    const output = join(temporary, 'selection-menu'); success(generate(join(root, 'packages/design'), output));
+    assert.deepEqual(JSON.parse(readFileSync(join(output, files[3]))).selectionMenu, spec);
+    for (const file of [files[0], files[1], files[4]]) {
+        const source = readFileSync(join(output, file), 'utf8');
+        assert.ok(source.includes('SyncWatchSelectionMenu') && source.includes('SelectionMenuKind'));
+        for (const kind of spec.kinds) for (const value of Object.values(kind)) assert.ok(source.includes(JSON.stringify(value)), file + ': ' + value);
+    }
+    for (const change of [s => s.kinds[1].scope = 'shared', s => s.kinds[0].action = 'seek', s => s.kinds.pop(),
+        s => s.maximumEntries = 0, s => s.maximumRevision = Number.MAX_SAFE_INTEGER + 1, s => s.maximumLabelBytes = 1,
+        s => s.galleryEntryCount = s.maximumEntries + 1, s => s.states.reverse()]) {
+        const design = fixture(), path = join(design, 'selection-menu.json'), changed = structuredClone(spec);
+        change(changed); writeFileSync(path, JSON.stringify(changed));
+        assert.notEqual(generate(design, join(temporary, 'invalid-selection')).status, 0);
     }
 });

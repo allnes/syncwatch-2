@@ -112,7 +112,7 @@ SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolba
 
 The isolated `--player-settings-gallery` selects each section, editing/saved/error/read-only state, theme and language, and can simulate failure. The gear in `--player-gallery` opens an owned dialog; successful save updates only in-memory fixture values and skip/default-volume observations. Neither gallery reads application preferences or starts a provider. Applying and persisting player preferences in a real session requires the application/media adapters.
 
-Native validation retains 80 PlayerSettings images per platform (five sections, four states, two themes and two languages), giving 224 images per native artifact. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
+Native validation covers every declared PlayerSettings section, state, theme and language in the required artifact matrix. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
 
 
 ## Declarative document and binding boundary
@@ -129,3 +129,12 @@ All fixture galleries also use the shared tree. They keep model state in memory 
 ## Call shell
 
 The Call component also consumes the neutral document. Its header, owned remote/self-view slots, observation-gated controls, volume, preview placement and window variants share the same compiled tree. The generic two-axis gesture primitive declares delta or bounded extent coordinates, keyboard step and limits as data. Platform adapters implement pointer/keyboard input; Call bindings only validate and forward requests. In WPF, removing a declared slot detaches its supplied child, and a single object cannot occupy both Call slots. Hiding a surface does not claim provider/audio shutdown.
+
+
+## Selection menu
+
+`SelectionMenu` is a reusable playlist, audio-track and subtitle component. Its compact rows, selected marker, bounded scroll area, long-label truncation and per-kind responsive dimensions come from the common document. `selection-menu.json` owns supported kinds, action scopes and input limits. Focused model, binding and gallery files keep these responsibilities separate from other screens and native primitive adapters.
+
+The caller supplies an observed source ID, revision, entries, selection and capability. Requests preserve that identity and revision. Duplicate/unknown IDs, invalid observations, disabled choices, stale context tokens and the already observed selection cannot produce a request. Rendering does not change selection. Playlist requests describe shared movie selection; audio and subtitle choices are local. The application coordinator must validate and route requests and supply authoritative observations; the design component does not replicate actions or invoke a provider.
+
+The isolated gallery covers empty, available, read-only and long-list cases in both themes and languages. Real video-overlay placement, outside-click dismissal, focus return, display-scale/window transitions and VLC-backed track selection belong to native playback integration. Matching Compose models, bindings and gallery remain source-only until their declared build prerequisites pass.

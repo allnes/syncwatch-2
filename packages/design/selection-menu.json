@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kinds": [
+    {"id": "playlist", "label": "playlist", "action": "selectMovie", "scope": "shared"},
+    {"id": "audio", "label": "audioTracks", "action": "selectAudioTrack", "scope": "local"},
+    {"id": "subtitles", "label": "subtitles", "action": "selectSubtitleTrack", "scope": "local"}
+  ],
+  "states": ["empty", "available", "readOnly", "longList"],
+  "maximumEntries": 500,
+  "maximumIDBytes": 128,
+  "maximumLabelBytes": 4096,
+  "maximumRevision": 9007199254740991,
+  "galleryEntryCount": 24
+}

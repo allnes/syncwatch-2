@@ -113,7 +113,7 @@ The gallery uses synthetic media entries and emits presentation actions only. It
 
 In a normal native launch, use **Settings** in the Library header. Change the language or theme and choose **Save** to persist the change and apply it immediately. **Cancel** discards unsaved edits. Settings use the application-owned `SyncWatch/local-state.json` under Application Support on macOS and Local Application Data on Windows. Existing media/resume preferences are retained. Files from a newer format are left unchanged and the dialog becomes read-only. Library, call and connection settings remain unavailable until their adapters exist.
 
-For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains 224 images per platform: 40 Library, 48 Settings, 56 Player and 80 PlayerSettings renders.
+For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains the complete state/theme/language/viewport matrices declared by the shared component contracts in each native artifact.
 
 
 ## Player component gallery
@@ -144,3 +144,10 @@ Resource generation and repository validation run the design-isolation check. Na
 Launch the native executable with `--call-gallery` to inspect the compact call shell, remote/self-view slots and call/window controls. Choose a host/preview case, English or Russian, and a dark or light theme. The gallery simulates microphone, camera, volume, pin/fullscreen/minimized and closed observations in memory. Move/resize requests are recorded; the gallery does not operate an OS call window.
 
 The shell enables media controls only after explicit joined observations and capabilities are supplied. Missing camera content stays a placeholder. These fixtures do not access normal preferences, open Google Meet, initialize a browser, request device permission or start/stop capture/audio. The Linux renderer/gallery remains source-only until its complete dependency/compiler/native/font/license build is available.
+
+
+## Selection-menu component gallery
+
+Launch the native executable with `--selection-menu-gallery` to review playlist, audio-track and subtitle menus. Choose a menu kind, empty/available/read-only/long-list case, theme and language. Selection updates only the gallery's in-memory fixture and records the correlated request. It does not read preferences, select real media/tracks or contact a provider. Normal player track/playlist actions remain unavailable until their integration supplies capabilities.
+
+Native checks include every menu kind, state, theme and language declared by the shared contracts in the required artifact matrix. The common input corpus verifies identity/revision, action scopes, invalid observations and UTF-8 bounds through the generator, Swift and C#. Actual WPF controls verify input-free observation refresh, selection requests and long-list scrolling. Linux carries matching data/model/renderer/gallery source; it has no runnable gallery until compiler/Compose/native/font/license closure passes.

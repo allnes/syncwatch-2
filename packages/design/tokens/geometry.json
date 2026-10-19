@@ -223,6 +223,70 @@
     "callGap": {
       "type": "number",
       "value": 8
+    },
+    "selectionPlaylistWidth": {
+      "value": 340,
+      "type": "number"
+    },
+    "selectionAudioWidth": {
+      "value": 300,
+      "type": "number"
+    },
+    "selectionSubtitleWidth": {
+      "value": 240,
+      "type": "number"
+    },
+    "selectionPlaylistMaxHeight": {
+      "value": 300,
+      "type": "number"
+    },
+    "selectionAudioMaxHeight": {
+      "value": 260,
+      "type": "number"
+    },
+    "selectionSubtitleMaxHeight": {
+      "value": 220,
+      "type": "number"
+    },
+    "selectionMinHeight": {
+      "value": 48,
+      "type": "number"
+    },
+    "selectionGalleryWidth": {
+      "value": 420,
+      "type": "number"
+    },
+    "selectionGalleryHeight": {
+      "value": 360,
+      "type": "number"
+    },
+    "selectionEdgeInset": {
+      "value": 8,
+      "type": "number"
+    },
+    "selectionPaddingY": {
+      "value": 4,
+      "type": "number"
+    },
+    "selectionPaddingX": {
+      "value": 8,
+      "type": "number"
+    },
+    "selectionRadius": {
+      "value": 12,
+      "type": "number"
+    },
+    "selectionMarkerArea": {
+      "value": 14,
+      "type": "number"
+    },
+    "selectionMarkerSize": {
+      "value": 7,
+      "type": "number"
+    },
+    "selectionLabelGap": {
+      "value": 4,
+      "type": "number"
     }
   },
   "control": {
@@ -247,7 +311,7 @@
       "type": "number"
     },
     "menuRowHeight": {
-      "value": 30,
+      "value": 34,
       "type": "number"
     },
     "sliderTrackHeight": {
@@ -363,6 +427,10 @@
     "playerLabelSize": {
       "type": "number",
       "value": 12
+    },
+    "selectionLabelSize": {
+      "value": 12.5,
+      "type": "number"
     }
   }
 }

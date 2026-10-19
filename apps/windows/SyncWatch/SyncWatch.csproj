@@ -21,5 +21,8 @@
         <Compile Include="../../../packages/design/windows/DesignBindings.cs" Link="DesignBindings.cs" />
         <Compile Include="../../../packages/design/windows/DesignGalleries.cs" Link="DesignGalleries.cs" />
         <Compile Include="../../../packages/design/windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
+        <Compile Include="../../../packages/design/windows/SelectionMenuModel.cs" Link="Design/SelectionMenuModel.cs" />
+        <Compile Include="../../../packages/design/windows/SelectionMenu.cs" Link="Design/SelectionMenu.cs" />
+        <Compile Include="../../../packages/design/windows/SelectionMenuGallery.cs" Link="Design/SelectionMenuGallery.cs" />
     </ItemGroup>
 </Project>

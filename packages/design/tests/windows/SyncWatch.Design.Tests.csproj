@@ -25,5 +25,9 @@
         <None Include="../fixtures/layout-probes.json" Link="layout-probes.json" CopyToOutputDirectory="PreserveNewest" />
         <Compile Include="../../windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
         <None Include="../fixtures/call-actions.json" Link="call-actions.json" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Include="../../windows/SelectionMenuModel.cs" Link="Design/SelectionMenuModel.cs" />
+        <Compile Include="../../windows/SelectionMenu.cs" Link="Design/SelectionMenu.cs" />
+        <Compile Include="../../windows/SelectionMenuGallery.cs" Link="Design/SelectionMenuGallery.cs" />
+        <None Include="../fixtures/selection-menu.json" Link="selection-menu.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>
