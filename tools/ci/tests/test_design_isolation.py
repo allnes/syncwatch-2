@@ -36,6 +36,14 @@ class DesignIsolationTests(unittest.TestCase):
         root = self.fixture("apple", "Bindings.swift", 'let positionMs = 1000; let view = DesignSurface("Player", context: model)')
         self.assertEqual(isolation.check(root), [])
 
+    def test_trailing_closure_layout_without_modifiers_is_rejected(self):
+        for platform, name, source in [
+            ("apple", "Bindings.swift", 'HStack { DesignSurface("Player") }'),
+            ("linux", "Bindings.kt", 'Row { DesignSurface("Player") }'),
+        ]:
+            with self.subTest(platform=platform):
+                self.assertTrue(isolation.check(self.fixture(platform, name, source)))
+
     def test_component_subdirectories_cannot_bypass_isolation_or_impersonate_the_adapter(self):
         for platform, name, source in [
             ("apple", "selection/Bindings.swift", "HStack { Text(value) }.padding(2)"),

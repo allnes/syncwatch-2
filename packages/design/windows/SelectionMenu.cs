@@ -42,7 +42,16 @@ internal static class SelectionMenuBindings
             },
             Collections = new()
             {
-                ["entries"] = entries.Select(e => new DesignContext { Values = new() { ["id"] = e.Id, ["label"] = e.Label, ["selected"] = p.SelectedID == e.Id ? "true" : "false", ["enabled"] = p.Enabled && e.Enabled ? "true" : "false" } }).ToArray(),
+                ["entries"] = entries.Select(entry => new DesignContext
+                {
+                    Values = new()
+                    {
+                        ["id"] = entry.Id,
+                        ["label"] = entry.Label,
+                        ["selected"] = p.SelectedID == entry.Id ? "true" : "false",
+                        ["enabled"] = p.Enabled && entry.Enabled ? "true" : "false",
+                    },
+                }).ToArray(),
             },
         };
     }

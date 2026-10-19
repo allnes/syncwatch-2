@@ -195,7 +195,6 @@
       "foreground": "theme.text",
       "fontSize": "@type.selectionLabelSize",
       "gap": "0",
-      "cycleFocus": "true",
       "automation": "selection.menu",
       "label": "~{menuLabel}"
     },
@@ -3801,7 +3800,8 @@
       "styles": [],
       "props": {
         "width": "fill",
-        "height": "fill"
+        "height": "fill",
+        "cycleFocus": "true"
       },
       "children": [
         {

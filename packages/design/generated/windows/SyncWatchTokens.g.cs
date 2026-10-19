@@ -930,7 +930,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "41f7dfe5f4f468ee2dbf9870a8258bc17d3536a58c1b374b41844e134c729e7c";
+    public const string SourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -5131,7 +5131,6 @@ public static class SyncWatchLayouts
             ["foreground"] = "theme.text",
             ["fontSize"] = "@type.selectionLabelSize",
             ["gap"] = "0",
-            ["cycleFocus"] = "true",
             ["automation"] = "selection.menu",
             ["label"] = "~{menuLabel}",
         }, [selectionBody]);
@@ -5144,6 +5143,7 @@ public static class SyncWatchLayouts
             ["focusWidth"] = "@control.borderWidth",
             ["width"] = "fill",
             ["height"] = "fill",
+            ["cycleFocus"] = "true",
         }, [selectionPanel]);
         return selectionRoot;
     }

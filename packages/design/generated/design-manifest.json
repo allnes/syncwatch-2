@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "dfa7197ca13803920454bbe28f504c829b9676253b9aa31784355ad2e42dba87",
+  "sourceDigest": "bdad4bfedd3b6c22ef808ca5d8dff047157967ce67fbff371079d183de977f68",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -13,7 +13,7 @@
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "998acccfa058d8dd516e3e76ece8eb686ec27a46aa72b3482dd7664e1e990b76",
+    "layouts.json": "750a5928f269af2d436f5254acbf0e274800b6789c40bc8798639c83c9e6ee97",
     "package.json": "50a4f888922c6eeb0bc6d5b5845465cb329006b73935a5dc94ef8c1b8998b41b"
   },
   "generatorRevision": "525499ee1e99c89a998a095dcc977fbd5b37ee9b3d0e77478761086dfd323e0d",
@@ -2183,7 +2183,6 @@
         "foreground": "theme.text",
         "fontSize": "@type.selectionLabelSize",
         "gap": "0",
-        "cycleFocus": "true",
         "automation": "selection.menu",
         "label": "~{menuLabel}"
       },
@@ -5789,7 +5788,8 @@
         "styles": [],
         "props": {
           "width": "fill",
-          "height": "fill"
+          "height": "fill",
+          "cycleFocus": "true"
         },
         "children": [
           {

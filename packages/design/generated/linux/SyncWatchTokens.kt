@@ -745,7 +745,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "41f7dfe5f4f468ee2dbf9870a8258bc17d3536a58c1b374b41844e134c729e7c"
+    const val sourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -4646,7 +4646,6 @@ object SyncWatchLayouts {
             "foreground" to "theme.text",
             "fontSize" to "@type.selectionLabelSize",
             "gap" to "0",
-            "cycleFocus" to "true",
             "automation" to "selection.menu",
             "label" to "~{menuLabel}",
         ), listOf(selectionBody))
@@ -4658,6 +4657,7 @@ object SyncWatchLayouts {
             "focusWidth" to "@control.borderWidth",
             "width" to "fill",
             "height" to "fill",
+            "cycleFocus" to "true",
         ), listOf(selectionPanel))
         return selectionRoot
     }

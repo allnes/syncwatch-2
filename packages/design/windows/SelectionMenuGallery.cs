@@ -9,7 +9,11 @@ internal static class SelectionMenuFixtures
     {
         var definition = SyncWatchSelectionMenu.Kinds.Single(k => k.Id == kind);
         int count = state == "empty" ? 0 : state == "longList" ? SyncWatchSelectionMenu.GalleryEntryCount : 3;
-        var entries = Enumerable.Range(0, count).Select(i => new SelectionMenuEntry($"item{i}", SyncWatchCopy.Text(state == "longList" ? "selectionFixtureLong" : definition.Label, language) + " " + (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), i != 2)).ToArray();
+        var entries = Enumerable.Range(0, count).Select(i =>
+        {
+            string label = SyncWatchCopy.Text(state == "longList" ? "selectionFixtureLong" : definition.Label, language);
+            return new SelectionMenuEntry($"item{i}", label + " " + (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), i != 2);
+        }).ToArray();
         return new() { Kind = kind, SourceID = "fixture-" + kind, Revision = 1, Entries = entries, SelectedID = entries.FirstOrDefault()?.Id, Enabled = state != "readOnly" };
     }
 }
@@ -29,7 +33,13 @@ public sealed class SelectionMenuGallery : UserControl
         Content = gallery;
         gallery.Slots["galleryContent"] = fixture;
         fixture.Slots["selectionFixtureContent"] = menu;
-        menu.SelectionRequested += request => { selectedID = request.EntryID; revision++; lastAction = request.Scope + ":" + request.Action; Refresh(); };
+        menu.SelectionRequested += request =>
+        {
+            selectedID = request.EntryID;
+            revision++;
+            lastAction = request.Scope + ":" + request.Action;
+            Refresh();
+        };
         gallery.EventRequested += e =>
         {
             if (e.Action != "gallery" || e.Value is null) return;
@@ -41,13 +51,22 @@ public sealed class SelectionMenuGallery : UserControl
                 case "dark": dark = e.Value == "true"; break;
                 default: return;
             }
-            selectedID = null; revision++; Refresh();
+            selectedID = null;
+            revision++;
+            Refresh();
         };
         Refresh();
     }
     private static DesignContext Choice(string id, string value, IEnumerable<string> options) => new()
     {
-        Values = new() { ["id"] = id, ["label"] = "gallery" + char.ToUpperInvariant(id[0]) + id[1..], ["kind"] = "choice", ["value"] = value, ["editable"] = "true" },
+        Values = new()
+        {
+            ["id"] = id,
+            ["label"] = "gallery" + char.ToUpperInvariant(id[0]) + id[1..],
+            ["kind"] = "choice",
+            ["value"] = value,
+            ["editable"] = "true",
+        },
         Collections = new() { ["options"] = options.Select(o => new DesignContext { Values = new() { ["id"] = o, ["label"] = o } }).ToArray() },
     };
     private void Refresh()
@@ -61,7 +80,23 @@ public sealed class SelectionMenuGallery : UserControl
         gallery.Render(new()
         {
             Values = new() { ["lastAction"] = lastAction },
-            Collections = new() { ["galleryControls"] = [Choice("kind", kind, SyncWatchSelectionMenu.Kinds.Select(k => k.Id)), Choice("state", state, SyncWatchSelectionMenu.States), Choice("language", language, ["en", "ru"]), new() { Values = new() { ["id"] = "dark", ["label"] = "galleryDark", ["kind"] = "boolean", ["value"] = dark ? "true" : "false", ["editable"] = "true" } }] },
+            Collections = new()
+            {
+                ["galleryControls"] =
+                [
+                    Choice("kind", kind, SyncWatchSelectionMenu.Kinds.Select(k => k.Id)),
+                    Choice("state", state, SyncWatchSelectionMenu.States),
+                    Choice("language", language, ["en", "ru"]),
+                    new()
+                    {
+                        Values = new()
+                        {
+                            ["id"] = "dark", ["label"] = "galleryDark", ["kind"] = "boolean",
+                            ["value"] = dark ? "true" : "false", ["editable"] = "true",
+                        },
+                    },
+                ],
+            },
         }, language);
     }
 }

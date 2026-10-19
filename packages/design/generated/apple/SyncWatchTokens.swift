@@ -1955,7 +1955,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "41f7dfe5f4f468ee2dbf9870a8258bc17d3536a58c1b374b41844e134c729e7c"
+    public static let sourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -7575,7 +7575,6 @@ public enum SyncWatchLayouts {
                 "foreground": "theme.text",
                 "fontSize": "@type.selectionLabelSize",
                 "gap": "0",
-                "cycleFocus": "true",
                 "automation": "selection.menu",
                 "label": "~{menuLabel}",
             ],
@@ -7590,6 +7589,7 @@ public enum SyncWatchLayouts {
                 "focusWidth": "@control.borderWidth",
                 "width": "fill",
                 "height": "fill",
+                "cycleFocus": "true",
             ],
             children: [selectionPanel])
         return selectionRoot

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SyncWatch.Design;
@@ -36,7 +37,9 @@ internal static class SelectionMenuAssertions
         Check(limit.IsValid && !(limit with { Entries = [.. limit.Entries, new("extra", "Overflow")] }).IsValid, "bounded entries");
         int width = (int)SyncWatchTokens.LayoutSelectionGalleryWidth, height = (int)SyncWatchTokens.LayoutSelectionGalleryHeight;
         var view = new SelectionMenu(); var requests = new List<SelectionMenuRequest>(); view.SelectionRequested += requests.Add;
-        view.Render(ready); Layout(view, width, height); Entry(view, "item1").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        view.Render(ready); Layout(view, width, height);
+        Check(KeyboardNavigation.GetTabNavigation(Find<DesignSurface>(view).Single()) == KeyboardNavigationMode.Cycle, "declared component focus scope");
+        Entry(view, "item1").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Check(requests.Count == 1 && requests[0].Action == "selectMovie" && requests[0].Scope == "shared" && view.Presentation.SelectedID == "item0", "real control emits correlated request without acknowledgement");
         view.Render(ready with { SourceID = "next-source", Revision = 2 }, "ru"); Layout(view, width, height);
         Check(requests.Count == 1, "input-free observation update");

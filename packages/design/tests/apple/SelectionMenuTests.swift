@@ -71,6 +71,7 @@ private func elements(_ node: DesignElement) -> [DesignElement] { [node] + node.
                         DesignTree.resolve(
                             "SelectionMenu", context: SelectionMenuBindings.context(p), language: language,
                             viewport: CGSize(width: width, height: height)))
+                    #expect(tree.flag("cycleFocus"))
                     let rows = elements(tree).filter { $0.kind == "button" }
                     #expect(rows.count == p.entries.count)
                     #expect(rows.allSatisfy { $0.number("height") == SyncWatchTokens.controlMenuRowHeight })
