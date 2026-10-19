@@ -63,7 +63,7 @@ dotnet run --project packages/design/tests/windows --no-build --no-restore --con
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
-Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API; these domain operations are not yet connected to the shell UI.
+Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
 
 The shells consume the committed resources in `packages/design/generated/`. Native builds need no Node runtime. After changing design inputs, use the [native resource generation commands](design-generator.md#native-resource-generation) and include the resulting resources in the change.
 
@@ -107,3 +107,10 @@ apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe --design-gallery
 ```
 
 The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/apple/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
+
+
+## Application settings
+
+In a normal native launch, use **Settings** in the Library header. Change the language or theme and choose **Save** to persist the change and apply it immediately. **Cancel** discards unsaved edits. Settings use the application-owned `SyncWatch/local-state.json` under Application Support on macOS and Local Application Data on Windows. Existing media/resume preferences are retained. Files from a newer format are left unchanged and the dialog becomes read-only. Library, call and connection settings remain unavailable until their adapters exist.
+
+For fixture-only review, launch the same native executable with `--settings-gallery` instead of `--design-gallery`. The Settings gallery switches section, theme, language and visual state and can simulate a failed save. It does not read or write application preferences. Linux has matching first-party metadata/renderer source, with no runnable Settings gallery until its build prerequisites are complete. Native validation retains 88 images per platform: 40 Library and 48 Settings renders.

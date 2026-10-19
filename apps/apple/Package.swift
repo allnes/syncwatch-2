@@ -16,6 +16,7 @@ let package = Package(
                 .product(name: "SyncWatchDomain", package: "apple-domain"),
                 .product(name: "SyncWatchDesign", package: "design"),
             ]
-        )
+        ),
+        .testTarget(name: "SyncWatchTests", dependencies: ["SyncWatch"]),
     ]
 )

@@ -11,5 +11,8 @@
         <Compile Include="../../windows/LibraryWorkspace.cs" Link="LibraryWorkspace.cs" />
         <Page Include="../../windows/SyncWatchComponents.xaml" Link="SyncWatchComponents.xaml" />
         <None Include="../../generated/design-manifest.json" Link="design-manifest.json" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Include="../../windows/SettingsDialog.cs" Link="SettingsDialog.cs" />
+        <ProjectReference Include="../../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+        <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
     </ItemGroup>
 </Project>

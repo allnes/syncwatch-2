@@ -54,7 +54,7 @@ data class LibraryPresentation(
 }
 
 // Generated data is RRGGBBAA, while Compose's packed integer constructor is ARGB.
-private fun rgba(value: Long) = Color(
+internal fun rgba(value: Long) = Color(
     ((value shr 24) and 255).toFloat() / 255,
     ((value shr 16) and 255).toFloat() / 255,
     ((value shr 8) and 255).toFloat() / 255,
@@ -62,7 +62,7 @@ private fun rgba(value: Long) = Color(
 )
 private val gap get() = SyncWatchTokens.layoutPanelGap.dp
 
-@Composable private fun Label(text: String, theme: SyncWatchTheme, muted: Boolean = false,
+@Composable internal fun Label(text: String, theme: SyncWatchTheme, muted: Boolean = false,
     size: Float = SyncWatchTokens.typeBodySize, bold: Boolean = false, modifier: Modifier = Modifier) {
     BasicText(text, modifier, style = TextStyle(color = rgba(if (muted) theme.textSecondary else theme.text),
         fontSize = size.sp, fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal))
@@ -72,7 +72,7 @@ private val gap get() = SyncWatchTokens.layoutPanelGap.dp
     Column(modifier.background(rgba(theme.surface), shape).border(SyncWatchTokens.controlBorderWidth.dp, rgba(theme.border), shape)
         .padding(SyncWatchTokens.layoutPanelPadding.dp), content = content)
 }
-@Composable private fun Action(text: String, enabled: Boolean, theme: SyncWatchTheme, filled: Boolean = false,
+@Composable internal fun Action(text: String, enabled: Boolean, theme: SyncWatchTheme, filled: Boolean = false,
     onClick: () -> Unit) {
     val shape = RoundedCornerShape(SyncWatchTokens.controlButtonRadius.dp)
     Box(Modifier.alpha(if (enabled) 1f else 0.4f)

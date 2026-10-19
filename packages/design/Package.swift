@@ -10,7 +10,7 @@ let package = Package(
             name: "SyncWatchDesign", path: ".",
             exclude: [
                 "tests", "generated/windows", "generated/linux", "tokens", "themes.json", "components.json",
-                "copy.json", "package.json", "windows", "linux", "generated/design-manifest.json",
+                "copy.json", "settings.json", "package.json", "windows", "linux", "generated/design-manifest.json",
             ],
             sources: ["generated/apple", "apple"]),
         .testTarget(name: "SyncWatchDesignTests", dependencies: ["SyncWatchDesign"], path: "tests/apple"),

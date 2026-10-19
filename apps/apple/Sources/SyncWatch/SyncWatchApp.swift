@@ -9,10 +9,12 @@ struct SyncWatchApp: App {
 
     var body: some Scene {
         Window("SyncWatch", id: "main") {
-            if CommandLine.arguments.contains("--design-gallery") {
+            if CommandLine.arguments.contains("--settings-gallery") {
+                SettingsGallery()
+            } else if CommandLine.arguments.contains("--design-gallery") {
                 DesignGallery()
             } else {
-                LibraryWorkspace()
+                ApplicationWorkspace()
             }
         }
         .defaultSize(width: 1120, height: 760)

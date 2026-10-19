@@ -39,6 +39,10 @@ object SyncWatchTokens {
     const val controlOutlinedButtonMinHeight: Float = 44.0f
     const val controlRowMinHeight: Float = 62.0f
     const val controlRowRadius: Float = 11.0f
+    const val controlSettingsToggleHeight: Float = 16.0f
+    const val controlSettingsToggleInset: Float = 3.0f
+    const val controlSettingsToggleThumb: Float = 10.0f
+    const val controlSettingsToggleWidth: Float = 32.0f
     const val controlSliderThumbRadius: Float = 6.0f
     const val controlSliderTrackHeight: Float = 3.0f
     const val layoutCallInitialHeight: Float = 210.0f
@@ -61,7 +65,15 @@ object SyncWatchTokens {
     const val layoutSectionGap: Float = 10.0f
     const val layoutSelectedPanelMaxHeight: Float = 375.0f
     const val layoutSelectedPanelMinHeight: Float = 260.0f
+    const val layoutSettingsCardPadding: Float = 8.0f
+    const val layoutSettingsContentPadding: Float = 16.0f
+    const val layoutSettingsControlHeight: Float = 30.0f
+    const val layoutSettingsFieldWidth: Float = 360.0f
+    const val layoutSettingsFooterHeight: Float = 48.0f
+    const val layoutSettingsHeaderHeight: Float = 40.0f
     const val layoutSettingsHeight: Float = 420.0f
+    const val layoutSettingsInterfaceFieldWidth: Float = 300.0f
+    const val layoutSettingsSidebarRowHeight: Float = 32.0f
     const val layoutSettingsSidebarWidth: Float = 150.0f
     const val layoutSettingsWidth: Float = 680.0f
     const val layoutWorkspacePadding: Float = 18.0f
@@ -69,6 +81,9 @@ object SyncWatchTokens {
     const val typeBrandSize: Float = 23.0f
     const val typeCaptionSize: Float = 12.0f
     const val typeSectionSize: Float = 19.0f
+    const val typeSettingsBodySize: Float = 13.0f
+    const val typeSettingsSectionSize: Float = 18.0f
+    const val typeSettingsTitleSize: Float = 15.0f
     const val typeTitleSize: Float = 31.0f
 }
 
@@ -157,6 +172,41 @@ object SyncWatchCopy {
         "en" to "state" -> "State"
         "en" to "theme" -> "Theme"
         "en" to "language" -> "Language"
+        "en" to "interface" -> "Interface"
+        "en" to "call" -> "Call"
+        "en" to "connection" -> "Connection"
+        "en" to "interfaceHint" -> "Choose your language and appearance."
+        "en" to "libraryHint" -> "Manage your movie folder and refresh preferences."
+        "en" to "callHint" -> "Choose available call devices and video quality."
+        "en" to "connectionHint" -> "Configure your viewing room and synchronization."
+        "en" to "folder" -> "Movie folder"
+        "en" to "scanSubfolders" -> "Include subfolders"
+        "en" to "automaticRefresh" -> "Refresh automatically"
+        "en" to "inputDevice" -> "Microphone"
+        "en" to "outputDevice" -> "Audio output"
+        "en" to "cameraQuality" -> "Camera quality"
+        "en" to "ducking" -> "Lower movie volume during speech"
+        "en" to "syncServer" -> "Syncplay server"
+        "en" to "roomName" -> "Room name"
+        "en" to "username" -> "Display name"
+        "en" to "optionEn" -> "English"
+        "en" to "optionRu" -> "Русский"
+        "en" to "optionSystem" -> "System default"
+        "en" to "optionDark" -> "Dark"
+        "en" to "optionLight" -> "Light"
+        "en" to "option480p" -> "480p"
+        "en" to "save" -> "Save"
+        "en" to "cancel" -> "Cancel"
+        "en" to "close" -> "Close"
+        "en" to "changesSaved" -> "Changes saved"
+        "en" to "invalidConfiguration" -> "Check the settings and try again."
+        "en" to "saveFailed" -> "Could not save changes. Try again."
+        "en" to "settingsUnavailable" -> "These settings are not available yet."
+        "en" to "settingsReadOnly" -> "Settings cannot be changed right now."
+        "en" to "galleryLibrary" -> "Library"
+        "en" to "gallerySettings" -> "Settings"
+        "en" to "optionOn" -> "On"
+        "en" to "optionOff" -> "Off"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -191,9 +241,79 @@ object SyncWatchCopy {
         "ru" to "state" -> "Состояние"
         "ru" to "theme" -> "Тема"
         "ru" to "language" -> "Язык"
+        "ru" to "interface" -> "Интерфейс"
+        "ru" to "call" -> "Звонок"
+        "ru" to "connection" -> "Подключение"
+        "ru" to "interfaceHint" -> "Выберите язык и оформление."
+        "ru" to "libraryHint" -> "Папка с фильмами и обновление библиотеки."
+        "ru" to "callHint" -> "Устройства звонка и качество видео."
+        "ru" to "connectionHint" -> "Комната просмотра и синхронизация."
+        "ru" to "folder" -> "Папка с фильмами"
+        "ru" to "scanSubfolders" -> "Включать вложенные папки"
+        "ru" to "automaticRefresh" -> "Обновлять автоматически"
+        "ru" to "inputDevice" -> "Микрофон"
+        "ru" to "outputDevice" -> "Вывод звука"
+        "ru" to "cameraQuality" -> "Качество камеры"
+        "ru" to "ducking" -> "Приглушать фильм во время речи"
+        "ru" to "syncServer" -> "Сервер Syncplay"
+        "ru" to "roomName" -> "Название комнаты"
+        "ru" to "username" -> "Имя пользователя"
+        "ru" to "optionEn" -> "English"
+        "ru" to "optionRu" -> "Русский"
+        "ru" to "optionSystem" -> "Как в системе"
+        "ru" to "optionDark" -> "Тёмная"
+        "ru" to "optionLight" -> "Светлая"
+        "ru" to "option480p" -> "480p"
+        "ru" to "save" -> "Сохранить"
+        "ru" to "cancel" -> "Отмена"
+        "ru" to "close" -> "Закрыть"
+        "ru" to "changesSaved" -> "Изменения сохранены"
+        "ru" to "invalidConfiguration" -> "Проверьте настройки и попробуйте ещё раз."
+        "ru" to "saveFailed" -> "Не удалось сохранить изменения. Попробуйте ещё раз."
+        "ru" to "settingsUnavailable" -> "Эти настройки пока недоступны."
+        "ru" to "settingsReadOnly" -> "Сейчас настройки изменить нельзя."
+        "ru" to "galleryLibrary" -> "Библиотека"
+        "ru" to "gallerySettings" -> "Настройки"
+        "ru" to "optionOn" -> "Вкл."
+        "ru" to "optionOff" -> "Выкл."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
     val libraryActions = setOf("chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall")
     val galleryMovies = listOf("Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4")
+}
+
+data class SyncWatchSettingsField(val id: String, val section: String, val kind: String, val label: String, val options: List<String>, val maxLength: Int)
+
+object SyncWatchSettings {
+    val sections = listOf("interface", "library", "call", "connection")
+    val states = listOf("editing", "savedNotice", "invalidConfiguration")
+    val defaults = mapOf(
+        "language" to "en",
+        "theme" to "system",
+        "folder" to "",
+        "scanSubfolders" to "true",
+        "automaticRefresh" to "true",
+        "inputDevice" to "system",
+        "outputDevice" to "system",
+        "cameraQuality" to "480p",
+        "ducking" to "false",
+        "syncServer" to "",
+        "roomName" to "",
+        "username" to "",
+    )
+    val fields = listOf(
+        SyncWatchSettingsField("language", "interface", "choice", "language", listOf("en", "ru"), 512),
+        SyncWatchSettingsField("theme", "interface", "choice", "theme", listOf("system", "dark", "light"), 512),
+        SyncWatchSettingsField("folder", "library", "text", "folder", listOf(), 512),
+        SyncWatchSettingsField("scanSubfolders", "library", "boolean", "scanSubfolders", listOf(), 512),
+        SyncWatchSettingsField("automaticRefresh", "library", "boolean", "automaticRefresh", listOf(), 512),
+        SyncWatchSettingsField("inputDevice", "call", "choice", "inputDevice", listOf("system"), 512),
+        SyncWatchSettingsField("outputDevice", "call", "choice", "outputDevice", listOf("system"), 512),
+        SyncWatchSettingsField("cameraQuality", "call", "choice", "cameraQuality", listOf("480p"), 512),
+        SyncWatchSettingsField("ducking", "call", "boolean", "ducking", listOf(), 512),
+        SyncWatchSettingsField("syncServer", "connection", "text", "syncServer", listOf(), 256),
+        SyncWatchSettingsField("roomName", "connection", "text", "roomName", listOf(), 128),
+        SyncWatchSettingsField("username", "connection", "text", "username", listOf(), 128),
+    )
 }
