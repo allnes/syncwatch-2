@@ -821,6 +821,170 @@
           "timeoutSeconds": 300
         }
       }
+    },
+    "syncplay-engine-sources": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/syncplay"
+      ],
+      "sources": {
+        "3rdparty/syncplay": {
+          "revision": "993232ab095bb810593459bc705b3e6fc64ad161",
+          "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
+          "notices": [
+            "LICENSE",
+            "README.md",
+            "syncplay/resources/third-party-notices.txt"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "requirements.txt",
+            "requirements_gui.txt",
+            "setup.py",
+            "syncplay/__init__.py",
+            "syncplay/client.py",
+            "syncplay/constants.py",
+            "syncplay/messages.py",
+            "syncplay/messages_de.py",
+            "syncplay/messages_en.py",
+            "syncplay/messages_eo.py",
+            "syncplay/messages_es.py",
+            "syncplay/messages_fi.py",
+            "syncplay/messages_fr.py",
+            "syncplay/messages_it.py",
+            "syncplay/messages_ko.py",
+            "syncplay/messages_pt_BR.py",
+            "syncplay/messages_pt_PT.py",
+            "syncplay/messages_ru.py",
+            "syncplay/messages_tr.py",
+            "syncplay/messages_zh_CN.py",
+            "syncplay/players/__init__.py",
+            "syncplay/players/basePlayer.py",
+            "syncplay/protocols.py",
+            "syncplay/resources/third-party-notices.txt",
+            "syncplay/utils.py"
+          ],
+          "requires": [
+            "3rdparty/retry-decorator"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/retry-decorator": {
+          "revision": "a26fe27039f45f3e83cfcad7046e1761ae056498",
+          "license": "BSD-3-Clause",
+          "notices": [
+            "LICENSE",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "retry_decorator.py"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/syncplay",
+        "LICENSE"
+      ],
+      "watch": [
+        "3rdparty/syncplay",
+        "tools/syncplay",
+        "3rdparty/retry-decorator"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-engine-sources-v1",
+            "version": "1.7.6"
+          },
+          "command": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 120
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-engine-sources-v1",
+            "version": "1.7.6"
+          },
+          "command": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 120
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "reviewed-engine-sources-v1",
+            "version": "1.7.6"
+          },
+          "command": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/syncplay/engine_sources.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 120
+        }
+      }
     }
   }
 }

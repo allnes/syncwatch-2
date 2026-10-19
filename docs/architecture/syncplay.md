@@ -18,6 +18,8 @@ The helper does not launch the standard Syncplay UI or a separate VLC applicatio
 
 The headless helper needs complete upstream configuration, adapter callbacks, and a Python runtime without a GUI dependency. Python and its transitive sources are part of the helper's dependency graph.
 
+The [engine source package](../syncplay-sources.md) preserves a reviewed subset of original engine and integration-reference files, reports imports/API/configuration candidates and probes pure upstream modules offline. Its `runtimeReady` flag is false. CPython/TLS closure, headless import/configuration and fail-closed transport behavior are prerequisites to initializing the client; source packaging does not enable the helper.
+
 ## Playback flow
 
 ```mermaid

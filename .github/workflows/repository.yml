@@ -92,6 +92,10 @@
         {
           "name": "Offline JVM metadata audit tests",
           "run": "python3 -m unittest discover -s tools/jvm/tests -v"
+        },
+        {
+          "name": "Syncplay source-profile regression tests",
+          "run": "python3 -m unittest discover -s tools/syncplay/tests -v"
         }
       ]
     },
