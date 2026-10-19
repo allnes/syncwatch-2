@@ -77,7 +77,11 @@ private struct PlayerSettingCases: Decodable {
     #expect(PlayerSettingsEditor.canonical(0.35000000000001) == "0.35")
     #expect(PlayerSettingsEditor.canonical(-0.0) == "0" && PlayerSettingsEditor.canonical(.nan) == "")
     #expect(PlayerSettingsVisualState.allCases.map(\.rawValue) == SyncWatchPlayerSettings.states)
-    #expect(PlayerPresentation.gallery(.paused).allows("openPlayerSettings"))
+    for state in PlayerVisualState.allCases { #expect(PlayerPresentation.gallery(state).allows("openPlayerSettings")) }
+    var unavailable = PlayerPresentation.gallery(.paused)
+    unavailable.enabledActions = []
+    unavailable.dispatch("openPlayerSettings") { _, _ in writes += 1 }
+    #expect(writes == 1)
 }
 
 @MainActor private func playerSettingsBitmap<V: View>(_ view: V, width: Int = 680, height: Int = 460) throws

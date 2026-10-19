@@ -75,7 +75,10 @@ internal static class PlayerAssertions
         Check(received[^2] == new Event("seek", 0) && received[^1] == new Event("setMovieVolume", 0.25), "native skip/volume mapping");
         view.Render(PlayerPresentation.Gallery(PlayerVisualState.Loading)); Layout(view); int previous = received.Count;
         Element<Button>(view, "player.play").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Check(!Element<Slider>(view, "player.seek").IsEnabled && !Element<Button>(view, "player.playerSettings").IsEnabled && !Element<Button>(view, "player.audioTracks").IsEnabled && received.Count == previous, "unavailable controls cannot dispatch");
+        Check(!Element<Slider>(view, "player.seek").IsEnabled && Element<Button>(view, "player.playerSettings").IsEnabled && !Element<Button>(view, "player.audioTracks").IsEnabled && received.Count == previous, "loading rejects transport while local settings remain available");
+        view.Render(ready with { EnabledActions = new HashSet<string>() }); Layout(view);
+        Element<Button>(view, "player.playerSettings").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Check(!Element<Button>(view, "player.playerSettings").IsEnabled && received.Count == previous, "settings without a capability cannot dispatch");
         view.Render(ready with { State = PlayerVisualState.Playing }, "ru"); Layout(view);
         Check(AutomationProperties.GetName(Element<Button>(view, "player.pause")) == SyncWatchCopy.Text("pause", "ru"), "localized accessible control name");
         var video = new Border(); view.VideoSurface = video; view.Render(ready); Layout(view); view.Render(ready with { PositionMs = 9000 }); Layout(view);
