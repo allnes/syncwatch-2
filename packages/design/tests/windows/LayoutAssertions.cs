@@ -27,7 +27,7 @@ internal static class LayoutAssertions
             foreach (var probe in item.GetProperty("probes").EnumerateArray())
             {
                 bitmap.CopyPixels(new Int32Rect(probe.GetProperty("x").GetInt32(), probe.GetProperty("y").GetInt32(), 1, 1), pixel, 4, 0);
-                Check(probe.GetProperty("color").GetString() switch { "cyan" => pixel[0] > pixel[2] + 51, "yellow" => pixel[2] > pixel[0] + 51, _ => pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0 }, item.GetProperty("name").GetString()!);
+                Check(probe.GetProperty("color").GetString() switch { "cyan" => pixel[0] > pixel[2] + 51, "yellow" => pixel[2] > pixel[0] + 51, _ => pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0 }, item.GetProperty("name").GetString() + " at " + probe.GetProperty("x") + "," + probe.GetProperty("y") + ": expected " + probe.GetProperty("color") + ", BGRA=" + string.Join(',', pixel));
             }
             count++;
         }
