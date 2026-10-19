@@ -139,6 +139,8 @@ def design_image_names(root: Path) -> set[str]:
     names |= {"settings" + section + state + "-" + suffix + "-" + size("settingsWidth", "settingsHeight") + ".png" for section in contract['SettingsDialog']['sections'] for state in contract['SettingsDialog']['states'] for suffix in suffixes}
     names |= {"player" + state + "-" + suffix + "-" + viewport + ".png" for state in contract['PlayerChrome']['states'] for suffix in suffixes for viewport in sizes}
     names |= {"playersettings" + section + state + "-" + suffix + "-" + size("settingsWidth", "playerSettingsHeight") + ".png" for section in contract['PlayerSettingsDialog']['sections'] for state in contract['PlayerSettingsDialog']['states'] for suffix in suffixes}
+    call_sizes = [size("callInitialWidth", "callInitialHeight"), size("callGalleryWidth", "callGalleryHeight")]
+    names |= {"call" + case + "-" + suffix + "-" + viewport + ".png" for case in contract["CallWindowShell"]["galleryCases"] for suffix in suffixes for viewport in call_sizes}
     return {name.casefold() for name in names}
 
 

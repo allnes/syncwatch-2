@@ -308,7 +308,7 @@ test('one declarative composition and its source digest reach every client', () 
 });
 
 test('declarative document rejects malformed structure, references and visual rules', () => {
-    const mutations = [s => s.components.Library.kind = 'nativeLibrary', s => s.components.Library.props.gap = 'NaN',
+    const mutations = [s => s.components.Call.children[1].props.gestureMode = 'unknown', s => s.components.Library.kind = 'nativeLibrary', s => s.components.Library.props.gap = 'NaN',
         s => s.components.Library.props.gap = '@missing.token', s => s.components.Library.props.background = '@layout.panelGap',
         s => s.components.Library.props.background = 'theme.missing', s => s.components.Library.props.unknownStyle = '1',
         s => s.components.Library.props.height = '= 1 +', s => s.components.Library.children[0].id = s.components.Library.id,
@@ -318,5 +318,28 @@ test('declarative document rejects malformed structure, references and visual ru
         const design = fixture(), path = join(design, 'layouts.json'), spec = JSON.parse(readFileSync(path));
         change(spec); writeFileSync(path, JSON.stringify(spec));
         assert.notEqual(generate(design, join(temporary, 'invalid-layout')).status, 0);
+    }
+});
+
+test('call states, preview cases, action arities and first-party icons reach every client', () => {
+    const spec = JSON.parse(readFileSync(join(root, 'packages/design/call.json')));
+    const output = join(temporary, 'call'); success(generate(join(root, 'packages/design'), output));
+    assert.deepEqual(JSON.parse(readFileSync(join(output, files[3]))).call, spec);
+    assert.equal(spec.galleryCases.length, 10);
+    for (const file of [files[0], files[1], files[4]]) {
+        const source = readFileSync(join(output, file), 'utf8');
+        assert.ok(source.includes('SyncWatchCall') && source.includes('CallGalleryCase'));
+        for (const value of [...spec.states, ...spec.previewStates, ...Object.keys(spec.actions), ...Object.values(spec.actions), ...Object.keys(spec.icons), ...spec.galleryCases.map(c => c.id)]) assert.ok(source.includes(JSON.stringify(value)), file + ': ' + value);
+    }
+});
+
+test('call metadata rejects protocol drift, unsupported arities and malformed icon geometry', () => {
+    for (const change of [s => s.states.reverse(), s => s.previewStates.pop(), s => s.actions.pin = 'boolean',
+        s => s.actions.extra = 'none', s => s.maximumExtent = 0, s => s.galleryCases[0].id = 'unknown',
+        s => s.galleryCases[0].state = 'joined', s => s.galleryCases[0].preview = 'unknown',
+        s => s.icons.volume[0][0] = 21, s => s.icons.camera[0].pop(), s => s.icons.close = [], s => s.icons.extra = [[0,0,1,1,2,2]]]) {
+        const design = fixture(); const path = join(design, 'call.json'); const spec = JSON.parse(readFileSync(path));
+        change(spec); writeFileSync(path, JSON.stringify(spec));
+        assert.notEqual(generate(design, join(temporary, 'bad-call')).status, 0);
     }
 });

@@ -23,6 +23,7 @@ object SyncWatchTokens {
     const val colorLightTextSecondary: Long = 0x617386FFL
     const val colorSharedAccent: Long = 0x2F8CFFFFL
     const val colorSharedAccentSoft: Long = 0x6AAFFFFFL
+    const val colorSharedCallHangup: Long = 0xB3261EFFL
     const val colorSharedSelection: Long = 0x2F8CFF26L
     const val colorSharedSuccess: Long = 0x30D98BFFL
     const val colorSharedVideoSurface: Long = 0x000000FFL
@@ -57,8 +58,24 @@ object SyncWatchTokens {
     const val controlSettingsToggleWidth: Float = 32.0f
     const val controlSliderThumbRadius: Float = 6.0f
     const val controlSliderTrackHeight: Float = 3.0f
+    const val layoutCallButtonSize: Float = 34.0f
+    const val layoutCallFooterHeight: Float = 62.0f
+    const val layoutCallGalleryHeight: Float = 300.0f
+    const val layoutCallGalleryWidth: Float = 420.0f
+    const val layoutCallGap: Float = 8.0f
+    const val layoutCallHeaderHeight: Float = 36.0f
+    const val layoutCallIconSize: Float = 18.0f
     const val layoutCallInitialHeight: Float = 210.0f
     const val layoutCallInitialWidth: Float = 300.0f
+    const val layoutCallInset: Float = 8.0f
+    const val layoutCallMinimumHeight: Float = 210.0f
+    const val layoutCallMinimumWidth: Float = 260.0f
+    const val layoutCallPreviewHeight: Float = 56.0f
+    const val layoutCallPreviewWidth: Float = 88.0f
+    const val layoutCallRadius: Float = 22.0f
+    const val layoutCallResizeSize: Float = 12.0f
+    const val layoutCallVolumeWidth: Float = 64.0f
+    const val layoutCallWindowButtonSize: Float = 26.0f
     const val layoutDetailPadding: Float = 24.0f
     const val layoutGalleryHeight: Float = 760.0f
     const val layoutGalleryWidth: Float = 1120.0f
@@ -316,6 +333,37 @@ object SyncWatchCopy {
         "en" to "galleryLanguage" -> "Language"
         "en" to "galleryDark" -> "Dark theme"
         "en" to "galleryFailSave" -> "Fail save"
+        "en" to "callWindow" -> "Google Meet call"
+        "en" to "callFixture" -> "Call presentation fixture"
+        "en" to "remoteFixture" -> "Remote video fixture"
+        "en" to "localFixture" -> "Camera fixture"
+        "en" to "callStateIdle" -> "Call inactive"
+        "en" to "callStateOpening" -> "Opening call…"
+        "en" to "callStateWebSurfaceReady" -> "Call surface ready"
+        "en" to "callStateUserActionRequired" -> "Continue in Google Meet"
+        "en" to "callStateFailed" -> "Call unavailable"
+        "en" to "callStateClosed" -> "Call closed"
+        "en" to "cameraStarting" -> "Camera starting"
+        "en" to "cameraActive" -> "Local camera preview"
+        "en" to "cameraDisabled" -> "Camera off"
+        "en" to "permissionDenied" -> "Camera permission denied"
+        "en" to "deviceUnavailable" -> "Camera unavailable"
+        "en" to "callSurface" -> "Google Meet surface"
+        "en" to "callVolume" -> "Call volume"
+        "en" to "microphoneOn" -> "Mute microphone"
+        "en" to "microphoneOff" -> "Enable microphone"
+        "en" to "cameraOn" -> "Disable camera"
+        "en" to "cameraOff" -> "Enable camera"
+        "en" to "hangUp" -> "End call"
+        "en" to "pinCall" -> "Keep call on top"
+        "en" to "unpinCall" -> "Unpin call"
+        "en" to "minimizeCall" -> "Minimize call"
+        "en" to "restoreCall" -> "Restore call"
+        "en" to "fullscreenCall" -> "Expand call"
+        "en" to "exitFullscreenCall" -> "Restore call size"
+        "en" to "closeCall" -> "Close call window"
+        "en" to "moveCall" -> "Move call window"
+        "en" to "resizeCall" -> "Resize call window"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -473,6 +521,37 @@ object SyncWatchCopy {
         "ru" to "galleryLanguage" -> "Язык"
         "ru" to "galleryDark" -> "Тёмная тема"
         "ru" to "galleryFailSave" -> "Ошибка сохранения"
+        "ru" to "callWindow" -> "Звонок Google Meet"
+        "ru" to "callFixture" -> "Тестовый интерфейс звонка"
+        "ru" to "remoteFixture" -> "Тестовое видео собеседника"
+        "ru" to "localFixture" -> "Тестовая камера"
+        "ru" to "callStateIdle" -> "Звонок не активен"
+        "ru" to "callStateOpening" -> "Открытие звонка…"
+        "ru" to "callStateWebSurfaceReady" -> "Окно звонка готово"
+        "ru" to "callStateUserActionRequired" -> "Продолжите в Google Meet"
+        "ru" to "callStateFailed" -> "Звонок недоступен"
+        "ru" to "callStateClosed" -> "Звонок закрыт"
+        "ru" to "cameraStarting" -> "Камера запускается"
+        "ru" to "cameraActive" -> "Превью своей камеры"
+        "ru" to "cameraDisabled" -> "Камера выключена"
+        "ru" to "permissionDenied" -> "Нет доступа к камере"
+        "ru" to "deviceUnavailable" -> "Камера недоступна"
+        "ru" to "callSurface" -> "Окно Google Meet"
+        "ru" to "callVolume" -> "Громкость звонка"
+        "ru" to "microphoneOn" -> "Выключить микрофон"
+        "ru" to "microphoneOff" -> "Включить микрофон"
+        "ru" to "cameraOn" -> "Выключить камеру"
+        "ru" to "cameraOff" -> "Включить камеру"
+        "ru" to "hangUp" -> "Завершить звонок"
+        "ru" to "pinCall" -> "Закрепить поверх окон"
+        "ru" to "unpinCall" -> "Открепить окно"
+        "ru" to "minimizeCall" -> "Свернуть звонок"
+        "ru" to "restoreCall" -> "Восстановить окно"
+        "ru" to "fullscreenCall" -> "Развернуть звонок"
+        "ru" to "exitFullscreenCall" -> "Вернуть размер окна"
+        "ru" to "closeCall" -> "Закрыть окно звонка"
+        "ru" to "moveCall" -> "Переместить окно звонка"
+        "ru" to "resizeCall" -> "Изменить размер окна звонка"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -602,8 +681,33 @@ object SyncWatchPlayerSettings {
     }
 }
 
+data class CallGalleryCase(val id: String, val state: String, val preview: String)
+
+object SyncWatchCall {
+    val states = listOf("idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed")
+    val actions = setOf("move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp")
+    const val maximumExtent: Double = 8192.0
+    val previewStates = listOf("cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable")
+    val actionKinds = mapOf("move" to "delta", "resize" to "size", "minimize" to "none", "restore" to "none", "fullscreen" to "none", "pin" to "none", "close" to "none", "setCallVolume" to "volume", "setMicrophoneEnabled" to "boolean", "setCameraEnabled" to "boolean", "hangUp" to "none")
+    val galleryCases = listOf(CallGalleryCase("idle", "idle", "cameraDisabled"), CallGalleryCase("opening", "opening", "cameraStarting"), CallGalleryCase("ready", "webSurfaceReady", "cameraActive"), CallGalleryCase("actionRequired", "userActionRequired", "permissionDenied"), CallGalleryCase("failed", "failed", "deviceUnavailable"), CallGalleryCase("closed", "closed", "cameraDisabled"), CallGalleryCase("previewStarting", "webSurfaceReady", "cameraStarting"), CallGalleryCase("previewDisabled", "webSurfaceReady", "cameraDisabled"), CallGalleryCase("previewDenied", "webSurfaceReady", "permissionDenied"), CallGalleryCase("previewUnavailable", "webSurfaceReady", "deviceUnavailable"))
+    val icons = mapOf(
+        "volume" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(14.0f, 5.0f, 16.0f, 5.0f, 18.0f, 10.0f, 16.0f, 15.0f, 14.0f, 15.0f, 16.0f, 10.0f)),
+        "muted" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(13.0f, 6.0f, 14.0f, 5.0f, 18.0f, 14.0f, 17.0f, 15.0f), listOf(17.0f, 5.0f, 18.0f, 6.0f, 14.0f, 15.0f, 13.0f, 14.0f)),
+        "fullscreen" to listOf(listOf(2.0f, 2.0f, 8.0f, 2.0f, 8.0f, 4.0f, 4.0f, 4.0f, 4.0f, 8.0f, 2.0f, 8.0f), listOf(12.0f, 2.0f, 18.0f, 2.0f, 18.0f, 8.0f, 16.0f, 8.0f, 16.0f, 4.0f, 12.0f, 4.0f), listOf(2.0f, 12.0f, 4.0f, 12.0f, 4.0f, 16.0f, 8.0f, 16.0f, 8.0f, 18.0f, 2.0f, 18.0f), listOf(16.0f, 12.0f, 18.0f, 12.0f, 18.0f, 18.0f, 12.0f, 18.0f, 12.0f, 16.0f, 16.0f, 16.0f)),
+        "end" to listOf(listOf(2.0f, 8.0f, 5.0f, 5.0f, 8.0f, 4.0f, 12.0f, 4.0f, 15.0f, 5.0f, 18.0f, 8.0f, 18.0f, 12.0f, 14.0f, 12.0f, 14.0f, 9.0f, 12.0f, 8.0f, 8.0f, 8.0f, 6.0f, 9.0f, 6.0f, 12.0f, 2.0f, 12.0f)),
+        "microphone" to listOf(listOf(7.0f, 2.0f, 13.0f, 2.0f, 13.0f, 11.0f, 7.0f, 11.0f), listOf(4.0f, 8.0f, 6.0f, 8.0f, 6.0f, 13.0f, 14.0f, 13.0f, 14.0f, 8.0f, 16.0f, 8.0f, 16.0f, 15.0f, 11.0f, 15.0f, 11.0f, 18.0f, 9.0f, 18.0f, 9.0f, 15.0f, 4.0f, 15.0f)),
+        "camera" to listOf(listOf(2.0f, 5.0f, 13.0f, 5.0f, 13.0f, 15.0f, 2.0f, 15.0f), listOf(14.0f, 8.0f, 19.0f, 5.0f, 19.0f, 15.0f, 14.0f, 12.0f)),
+        "pin" to listOf(listOf(6.0f, 2.0f, 14.0f, 2.0f, 13.0f, 8.0f, 16.0f, 12.0f, 11.0f, 12.0f, 11.0f, 19.0f, 9.0f, 19.0f, 9.0f, 12.0f, 4.0f, 12.0f, 7.0f, 8.0f)),
+        "minimize" to listOf(listOf(3.0f, 13.0f, 17.0f, 13.0f, 17.0f, 15.0f, 3.0f, 15.0f)),
+        "restore" to listOf(listOf(3.0f, 4.0f, 17.0f, 4.0f, 17.0f, 6.0f, 3.0f, 6.0f), listOf(3.0f, 6.0f, 5.0f, 6.0f, 5.0f, 17.0f, 3.0f, 17.0f), listOf(5.0f, 15.0f, 17.0f, 15.0f, 17.0f, 17.0f, 5.0f, 17.0f), listOf(15.0f, 6.0f, 17.0f, 6.0f, 17.0f, 15.0f, 15.0f, 15.0f)),
+        "close" to listOf(listOf(3.0f, 4.0f, 4.0f, 3.0f, 17.0f, 16.0f, 16.0f, 17.0f), listOf(16.0f, 3.0f, 17.0f, 4.0f, 4.0f, 17.0f, 3.0f, 16.0f)),
+        "resize" to listOf(listOf(10.0f, 17.0f, 17.0f, 10.0f, 17.0f, 13.0f, 13.0f, 17.0f), listOf(4.0f, 17.0f, 17.0f, 4.0f, 17.0f, 7.0f, 7.0f, 17.0f)),
+        "slash" to listOf(listOf(2.0f, 3.0f, 3.0f, 2.0f, 18.0f, 17.0f, 17.0f, 18.0f)),
+    )
+}
+
 object SyncWatchLayouts {
-    const val sourceDigest = "91beeac8e9e6359960e9a0c4a264c9adcab38e3fc73b56d51e26b966497ca926"
+    const val sourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -646,6 +750,7 @@ object SyncWatchLayouts {
         "color.light.textSecondary" to "#617386FF",
         "color.shared.accent" to "#2F8CFFFF",
         "color.shared.accentSoft" to "#6AAFFFFF",
+        "color.shared.callHangup" to "#B3261EFF",
         "color.shared.selection" to "#2F8CFF26",
         "color.shared.success" to "#30D98BFF",
         "color.shared.videoSurface" to "#000000FF",
@@ -680,8 +785,24 @@ object SyncWatchLayouts {
         "control.settingsToggleWidth" to "32",
         "control.sliderThumbRadius" to "6",
         "control.sliderTrackHeight" to "3",
+        "layout.callButtonSize" to "34",
+        "layout.callFooterHeight" to "62",
+        "layout.callGalleryHeight" to "300",
+        "layout.callGalleryWidth" to "420",
+        "layout.callGap" to "8",
+        "layout.callHeaderHeight" to "36",
+        "layout.callIconSize" to "18",
         "layout.callInitialHeight" to "210",
         "layout.callInitialWidth" to "300",
+        "layout.callInset" to "8",
+        "layout.callMinimumHeight" to "210",
+        "layout.callMinimumWidth" to "260",
+        "layout.callPreviewHeight" to "56",
+        "layout.callPreviewWidth" to "88",
+        "layout.callRadius" to "22",
+        "layout.callResizeSize" to "12",
+        "layout.callVolumeWidth" to "64",
+        "layout.callWindowButtonSize" to "26",
         "layout.detailPadding" to "24",
         "layout.galleryHeight" to "760",
         "layout.galleryWidth" to "1120",
@@ -733,6 +854,18 @@ object SyncWatchLayouts {
     val assets = mapOf(
         "symbols.playMark" to listOf(listOf(5.0f, 3.0f, 17.0f, 10.0f, 5.0f, 17.0f)),
         "symbols.chevronDown" to listOf(listOf(0.0f, 0.0f, 20.0f, 0.0f, 10.0f, 20.0f)),
+        "call.volume" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(14.0f, 5.0f, 16.0f, 5.0f, 18.0f, 10.0f, 16.0f, 15.0f, 14.0f, 15.0f, 16.0f, 10.0f)),
+        "call.muted" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(13.0f, 6.0f, 14.0f, 5.0f, 18.0f, 14.0f, 17.0f, 15.0f), listOf(17.0f, 5.0f, 18.0f, 6.0f, 14.0f, 15.0f, 13.0f, 14.0f)),
+        "call.fullscreen" to listOf(listOf(2.0f, 2.0f, 8.0f, 2.0f, 8.0f, 4.0f, 4.0f, 4.0f, 4.0f, 8.0f, 2.0f, 8.0f), listOf(12.0f, 2.0f, 18.0f, 2.0f, 18.0f, 8.0f, 16.0f, 8.0f, 16.0f, 4.0f, 12.0f, 4.0f), listOf(2.0f, 12.0f, 4.0f, 12.0f, 4.0f, 16.0f, 8.0f, 16.0f, 8.0f, 18.0f, 2.0f, 18.0f), listOf(16.0f, 12.0f, 18.0f, 12.0f, 18.0f, 18.0f, 12.0f, 18.0f, 12.0f, 16.0f, 16.0f, 16.0f)),
+        "call.end" to listOf(listOf(2.0f, 8.0f, 5.0f, 5.0f, 8.0f, 4.0f, 12.0f, 4.0f, 15.0f, 5.0f, 18.0f, 8.0f, 18.0f, 12.0f, 14.0f, 12.0f, 14.0f, 9.0f, 12.0f, 8.0f, 8.0f, 8.0f, 6.0f, 9.0f, 6.0f, 12.0f, 2.0f, 12.0f)),
+        "call.microphone" to listOf(listOf(7.0f, 2.0f, 13.0f, 2.0f, 13.0f, 11.0f, 7.0f, 11.0f), listOf(4.0f, 8.0f, 6.0f, 8.0f, 6.0f, 13.0f, 14.0f, 13.0f, 14.0f, 8.0f, 16.0f, 8.0f, 16.0f, 15.0f, 11.0f, 15.0f, 11.0f, 18.0f, 9.0f, 18.0f, 9.0f, 15.0f, 4.0f, 15.0f)),
+        "call.camera" to listOf(listOf(2.0f, 5.0f, 13.0f, 5.0f, 13.0f, 15.0f, 2.0f, 15.0f), listOf(14.0f, 8.0f, 19.0f, 5.0f, 19.0f, 15.0f, 14.0f, 12.0f)),
+        "call.pin" to listOf(listOf(6.0f, 2.0f, 14.0f, 2.0f, 13.0f, 8.0f, 16.0f, 12.0f, 11.0f, 12.0f, 11.0f, 19.0f, 9.0f, 19.0f, 9.0f, 12.0f, 4.0f, 12.0f, 7.0f, 8.0f)),
+        "call.minimize" to listOf(listOf(3.0f, 13.0f, 17.0f, 13.0f, 17.0f, 15.0f, 3.0f, 15.0f)),
+        "call.restore" to listOf(listOf(3.0f, 4.0f, 17.0f, 4.0f, 17.0f, 6.0f, 3.0f, 6.0f), listOf(3.0f, 6.0f, 5.0f, 6.0f, 5.0f, 17.0f, 3.0f, 17.0f), listOf(5.0f, 15.0f, 17.0f, 15.0f, 17.0f, 17.0f, 5.0f, 17.0f), listOf(15.0f, 6.0f, 17.0f, 6.0f, 17.0f, 15.0f, 15.0f, 15.0f)),
+        "call.close" to listOf(listOf(3.0f, 4.0f, 4.0f, 3.0f, 17.0f, 16.0f, 16.0f, 17.0f), listOf(16.0f, 3.0f, 17.0f, 4.0f, 4.0f, 17.0f, 3.0f, 16.0f)),
+        "call.resize" to listOf(listOf(10.0f, 17.0f, 17.0f, 10.0f, 17.0f, 13.0f, 13.0f, 17.0f), listOf(4.0f, 17.0f, 17.0f, 4.0f, 17.0f, 7.0f, 7.0f, 17.0f)),
+        "call.slash" to listOf(listOf(2.0f, 3.0f, 3.0f, 2.0f, 18.0f, 17.0f, 17.0f, 18.0f)),
         "player.play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
         "player.pause" to listOf(listOf(4.0f, 3.0f, 8.0f, 3.0f, 8.0f, 17.0f, 4.0f, 17.0f), listOf(12.0f, 3.0f, 16.0f, 3.0f, 16.0f, 17.0f, 12.0f, 17.0f)),
         "player.backward" to listOf(listOf(10.0f, 3.0f, 2.0f, 10.0f, 10.0f, 17.0f), listOf(18.0f, 3.0f, 10.0f, 10.0f, 18.0f, 17.0f)),
@@ -759,6 +892,10 @@ object SyncWatchLayouts {
         "subtitlePreview" to makesubtitlePreview(),
         "Gallery" to makeGallery(),
         "fixtureVideo" to makefixtureVideo(),
+        "Call" to makeCall(),
+        "callFixture" to makecallFixture(),
+        "callRemoteFixture" to makecallRemoteFixture(),
+        "callLocalFixture" to makecallLocalFixture(),
     )
     private fun makeLibrary(): DesignNode {
         val node62 = DesignNode("node62", "icon", mapOf(
@@ -3598,5 +3735,718 @@ object SyncWatchLayouts {
             "fontSize" to "@type.bodySize",
         ), listOf(fixtureVideoText))
         return fixtureVideoRoot
+    }
+    private fun makeCall(): DesignNode {
+        val callTitle = DesignNode("callTitle", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~callWindow",
+            "lines" to "1",
+            "width" to "fill",
+        ), listOf())
+        val callMove = DesignNode("callMove", "gesture", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "action" to "move",
+            "gestureMode" to "delta",
+            "enabled" to "\$can.move",
+            "automation" to "call.move",
+            "label" to "~moveCall",
+            "width" to "fill",
+            "height" to "fill",
+            "gestureStep" to "10",
+        ), listOf(callTitle))
+        val callPinMark = DesignNode("callPinMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.pin",
+        ), listOf())
+        val callPinSlash = DesignNode("callPinSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callPinIcon = DesignNode("callPinIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callPinMark, callPinSlash))
+        val callPin = DesignNode("callPin", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callWindowButtonSize",
+            "height" to "@layout.callWindowButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "pin",
+            "label" to "~{pinLabel}",
+            "enabled" to "\$can.pin",
+            "automation" to "call.pin",
+            "background" to "= \$pinned theme.accent theme.surfaceRaised if",
+            "foreground" to "= \$pinned @color.dark.text theme.text if",
+        ), listOf(callPinIcon))
+        val callRestoreMark = DesignNode("callRestoreMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.restore",
+        ), listOf())
+        val callRestoreSlash = DesignNode("callRestoreSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callRestoreIcon = DesignNode("callRestoreIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callRestoreMark, callRestoreSlash))
+        val callRestore = DesignNode("callRestore", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callWindowButtonSize",
+            "height" to "@layout.callWindowButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "restore",
+            "label" to "~restoreCall",
+            "enabled" to "\$can.restore",
+            "automation" to "call.restore",
+            "background" to "= false theme.accent theme.surfaceRaised if",
+            "foreground" to "= false @color.dark.text theme.text if",
+        ), listOf(callRestoreIcon))
+        val callMinimizeMark = DesignNode("callMinimizeMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.minimize",
+        ), listOf())
+        val callMinimizeSlash = DesignNode("callMinimizeSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callMinimizeIcon = DesignNode("callMinimizeIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callMinimizeMark, callMinimizeSlash))
+        val callMinimize = DesignNode("callMinimize", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callWindowButtonSize",
+            "height" to "@layout.callWindowButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "minimize",
+            "label" to "~minimizeCall",
+            "enabled" to "\$can.minimize",
+            "automation" to "call.minimize",
+            "background" to "= false theme.accent theme.surfaceRaised if",
+            "foreground" to "= false @color.dark.text theme.text if",
+        ), listOf(callMinimizeIcon))
+        val callMinimizeSwitch = DesignNode("callMinimizeSwitch", "if", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "condition" to "\$minimized",
+        ), listOf(callRestore, callMinimize))
+        val callFullscreenMark = DesignNode("callFullscreenMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "{fullscreenIcon}",
+        ), listOf())
+        val callFullscreenSlash = DesignNode("callFullscreenSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callFullscreenIcon = DesignNode("callFullscreenIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callFullscreenMark, callFullscreenSlash))
+        val callFullscreen = DesignNode("callFullscreen", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callWindowButtonSize",
+            "height" to "@layout.callWindowButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "fullscreen",
+            "label" to "~{fullscreenLabel}",
+            "enabled" to "\$can.fullscreen",
+            "automation" to "call.fullscreen",
+            "background" to "= false theme.accent theme.surfaceRaised if",
+            "foreground" to "= false @color.dark.text theme.text if",
+        ), listOf(callFullscreenIcon))
+        val callCloseMark = DesignNode("callCloseMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.close",
+        ), listOf())
+        val callCloseSlash = DesignNode("callCloseSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callCloseIcon = DesignNode("callCloseIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callCloseMark, callCloseSlash))
+        val callClose = DesignNode("callClose", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callWindowButtonSize",
+            "height" to "@layout.callWindowButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "close",
+            "label" to "~closeCall",
+            "enabled" to "\$can.close",
+            "automation" to "call.close",
+            "background" to "= false theme.accent theme.surfaceRaised if",
+            "foreground" to "= false @color.dark.text theme.text if",
+        ), listOf(callCloseIcon))
+        val callHeader = DesignNode("callHeader", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "height" to "@layout.callHeaderHeight",
+            "paddingX" to "@layout.callInset",
+            "gap" to "= @layout.callGap 2 /",
+        ), listOf(callMove, callPin, callMinimizeSwitch, callFullscreen, callClose))
+        val callRemote = DesignNode("callRemote", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "remoteCallSurface",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val callStatus = DesignNode("callStatus", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "text" to "~{callStateLabel}",
+            "foreground" to "@color.dark.text",
+            "padding" to "@layout.callInset",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val callRemoteSwitch = DesignNode("callRemoteSwitch", "if", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "condition" to "\$showRemote",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf(callRemote, callStatus))
+        val callLocal = DesignNode("callLocal", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "localCameraPreview",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val callPreviewStatus = DesignNode("callPreviewStatus", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "text" to "~{previewLabel}",
+            "fontSize" to "@type.captionSize",
+            "foreground" to "theme.textSecondary",
+            "padding" to "2",
+        ), listOf())
+        val callPreviewSwitch = DesignNode("callPreviewSwitch", "if", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "condition" to "\$showLocal",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf(callLocal, callPreviewStatus))
+        val callPreview = DesignNode("callPreview", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callPreviewWidth",
+            "height" to "@layout.callPreviewHeight",
+            "background" to "theme.surfaceRaised",
+            "radius" to "@control.fieldRadius",
+            "clip" to "true",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "label" to "~{previewLabel}",
+            "offsetX" to "= @layout.callPreviewWidth \$viewport.width - 2 / @layout.callInset +",
+            "offsetY" to "= @layout.callPreviewHeight \$viewport.height @layout.callHeaderHeight - @layout.callFooterHeight - - 2 / @layout.callInset +",
+        ), listOf(callPreviewSwitch))
+        val callMedia = DesignNode("callMedia", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "background" to "@color.shared.videoSurface",
+            "clip" to "true",
+            "label" to "~callSurface",
+        ), listOf(callRemoteSwitch, callPreview))
+        val callFooterLeading = DesignNode("callFooterLeading", "spacer", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+        ), listOf())
+        val callMicrophoneMark = DesignNode("callMicrophoneMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.microphone",
+        ), listOf())
+        val callMicrophoneSlash = DesignNode("callMicrophoneSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "\$microphoneOff",
+        ), listOf())
+        val callMicrophoneIcon = DesignNode("callMicrophoneIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callMicrophoneMark, callMicrophoneSlash))
+        val callMicrophone = DesignNode("callMicrophone", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callButtonSize",
+            "height" to "@layout.callButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "foreground" to "= \$microphoneEnabled @color.dark.text theme.text if",
+            "background" to "= \$microphoneEnabled theme.accent theme.surfaceRaised if",
+            "action" to "setMicrophoneEnabled",
+            "label" to "~{microphoneLabel}",
+            "enabled" to "\$can.setMicrophoneEnabled",
+            "automation" to "call.setMicrophoneEnabled",
+            "value" to "\$nextMicrophone",
+        ), listOf(callMicrophoneIcon))
+        val callCameraMark = DesignNode("callCameraMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.camera",
+        ), listOf())
+        val callCameraSlash = DesignNode("callCameraSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "\$cameraOff",
+        ), listOf())
+        val callCameraIcon = DesignNode("callCameraIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callCameraMark, callCameraSlash))
+        val callCamera = DesignNode("callCamera", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callButtonSize",
+            "height" to "@layout.callButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "foreground" to "= \$cameraEnabled @color.dark.text theme.text if",
+            "background" to "= \$cameraEnabled theme.accent theme.surfaceRaised if",
+            "action" to "setCameraEnabled",
+            "label" to "~{cameraLabel}",
+            "enabled" to "\$can.setCameraEnabled",
+            "automation" to "call.setCameraEnabled",
+            "value" to "\$nextCamera",
+        ), listOf(callCameraIcon))
+        val callHangUpMark = DesignNode("callHangUpMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.end",
+        ), listOf())
+        val callHangUpSlash = DesignNode("callHangUpSlash", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "call.slash",
+            "when" to "false",
+        ), listOf())
+        val callHangUpIcon = DesignNode("callHangUpIcon", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+        ), listOf(callHangUpMark, callHangUpSlash))
+        val callHangUp = DesignNode("callHangUp", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callButtonSize",
+            "height" to "@layout.callButtonSize",
+            "radius" to "circle",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "foreground" to "@color.dark.text",
+            "background" to "= @color.shared.callHangup",
+            "action" to "hangUp",
+            "label" to "~hangUp",
+            "enabled" to "\$can.hangUp",
+            "automation" to "call.hangUp",
+        ), listOf(callHangUpIcon))
+        val callVolumeIcon = DesignNode("callVolumeIcon", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callIconSize",
+            "height" to "@layout.callIconSize",
+            "name" to "{volumeIcon}",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val callVolume = DesignNode("callVolume", "range", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "height" to "@control.playerSliderHeight",
+            "trackHeight" to "@control.sliderTrackHeight",
+            "thumbSize" to "@control.playerSliderThumbSize",
+            "trackFill" to "theme.border",
+            "progressFill" to "theme.accent",
+            "thumbFill" to "theme.accent",
+            "focusRadius" to "@control.fieldRadius",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "setCallVolume",
+            "value" to "\$volume",
+            "minimum" to "0",
+            "maximum" to "1",
+            "step" to "0.05",
+            "width" to "@layout.callVolumeWidth",
+            "enabled" to "\$can.setCallVolume",
+            "label" to "~callVolume",
+            "automation" to "call.setCallVolume",
+        ), listOf())
+        val callFooterTrailing = DesignNode("callFooterTrailing", "spacer", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+        ), listOf())
+        val callFooter = DesignNode("callFooter", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "@layout.callFooterHeight",
+            "gap" to "@layout.callGap",
+        ), listOf(callFooterLeading, callMicrophone, callCamera, callHangUp, callVolumeIcon, callVolume, callFooterTrailing))
+        val callColumn = DesignNode("callColumn", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf(callHeader, callMedia, callFooter))
+        val callResizeMark = DesignNode("callResizeMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "@layout.callResizeSize",
+            "height" to "@layout.callResizeSize",
+            "name" to "call.resize",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val callResize = DesignNode("callResize", "gesture", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "action" to "resize",
+            "gestureMode" to "extent",
+            "enabled" to "\$can.resize",
+            "automation" to "call.resize",
+            "label" to "~resizeCall",
+            "gestureStep" to "10",
+            "minimumX" to "@layout.callMinimumWidth",
+            "minimumY" to "@layout.callMinimumHeight",
+            "maximumX" to "\$maximumExtent",
+            "maximumY" to "\$maximumExtent",
+            "originWidth" to "\$viewport.width",
+            "originHeight" to "\$viewport.height",
+            "padding" to "2",
+            "offsetX" to "= \$viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            "offsetY" to "= \$viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            "align" to "center",
+        ), listOf(callResizeMark))
+        val callRoot = DesignNode("callRoot", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "minWidth" to "@layout.callMinimumWidth",
+            "minHeight" to "@layout.callMinimumHeight",
+            "fontSize" to "@type.playerLabelSize",
+            "foreground" to "theme.text",
+            "background" to "theme.backgroundDeep",
+            "radius" to "= \$fullscreen 0 @layout.callRadius if",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "clip" to "true",
+        ), listOf(callColumn, callResize))
+        return callRoot
+    }
+    private fun makecallFixture(): DesignNode {
+        val callFixtureContent = DesignNode("callFixtureContent", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "callFixtureContent",
+            "width" to "@layout.callInitialWidth",
+            "height" to "@layout.callInitialHeight",
+        ), listOf())
+        val callFixtureCaption = DesignNode("callFixtureCaption", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "fontSize" to "@type.captionSize",
+            "foreground" to "theme.textSecondary",
+            "text" to "~callFixture",
+        ), listOf())
+        val callFixtureRoot = DesignNode("callFixtureRoot", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "width" to "fill",
+            "height" to "fill",
+            "gap" to "@layout.panelGap",
+        ), listOf(callFixtureContent, callFixtureCaption))
+        return callFixtureRoot
+    }
+    private fun makecallRemoteFixture(): DesignNode {
+        val callRemoteFixtureRoot = DesignNode("callRemoteFixtureRoot", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "text" to "~remoteFixture",
+            "foreground" to "@color.dark.text",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        return callRemoteFixtureRoot
+    }
+    private fun makecallLocalFixture(): DesignNode {
+        val callLocalFixtureRoot = DesignNode("callLocalFixtureRoot", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "center",
+            "text" to "~localFixture",
+            "foreground" to "@color.dark.text",
+            "fontSize" to "@type.captionSize",
+            "background" to "theme.accent",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        return callLocalFixtureRoot
     }
 }

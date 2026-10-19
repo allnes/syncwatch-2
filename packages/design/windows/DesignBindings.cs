@@ -53,4 +53,34 @@ internal static class DesignBindings
         foreach (var (binding, id) in new[] { ("subtitleFill", "subtitleColor"), ("outlineFill", "outlineColor") }) v[binding] = "@" + SyncWatchPlayerSettings.Fields.Single(f => f.Id == id).Options.Single(o => o.Id == Setting(id)).ColorToken;
         return new() { Values = v };
     }
+    public static DesignContext Call(CallPresentation p, bool hasRemote, bool hasLocal)
+    {
+        static string Bool(bool value) => value ? "true" : "false";
+        var values = new Dictionary<string, string>
+        {
+            ["showRemote"] = Bool(p.ShowsRemoteSurface && hasRemote),
+            ["showLocal"] = Bool(p.ShowsLocalPreview && hasLocal),
+            ["previewLabel"] = p.PreviewLabel(hasLocal),
+            ["callStateLabel"] = "callState" + p.State,
+            ["maximumExtent"] = SyncWatchCall.MaximumExtent.ToString(CultureInfo.InvariantCulture),
+            ["volume"] = p.DisplayedVolume.ToString(CultureInfo.InvariantCulture),
+            ["pinned"] = Bool(p.Pinned),
+            ["fullscreen"] = Bool(p.Fullscreen),
+            ["minimized"] = Bool(p.Minimized),
+            ["microphoneEnabled"] = Bool(p.MicrophoneEnabled == true),
+            ["cameraEnabled"] = Bool(p.CameraEnabled == true),
+            ["microphoneOff"] = Bool(p.MicrophoneEnabled == false),
+            ["cameraOff"] = Bool(p.CameraEnabled == false),
+            ["nextMicrophone"] = p.MicrophoneEnabled == true ? "0" : "1",
+            ["nextCamera"] = p.CameraEnabled == true ? "0" : "1",
+            ["pinLabel"] = p.Pinned ? "unpinCall" : "pinCall",
+            ["fullscreenLabel"] = p.Fullscreen ? "exitFullscreenCall" : "fullscreenCall",
+            ["fullscreenIcon"] = p.Fullscreen ? "call.restore" : "call.fullscreen",
+            ["volumeIcon"] = p.DisplayedVolume > 0 ? "call.volume" : "call.muted",
+            ["microphoneLabel"] = p.MicrophoneEnabled == true ? "microphoneOn" : "microphoneOff",
+            ["cameraLabel"] = p.CameraEnabled == true ? "cameraOn" : "cameraOff"
+        };
+        foreach (string action in SyncWatchCall.Actions) values["can." + action] = Bool(p.Allows(action));
+        return new() { Values = values };
+    }
 }

@@ -451,6 +451,11 @@ public struct DesignSurface: View {
                     node.string("text"),
                     isOn: Binding(get: { node.flag("value") }, set: { emit(node, value: String($0)) })
                 ).toggleStyle(DesignToggleStyle(node: node, paint: paint)).disabled(!enabled), node)
+        case "gesture":
+            result = decorated(
+                DesignGesture(node: node, content: AnyView(ForEach(node.children) { render($0) })) { value in
+                    emit(node, value: value)
+                }, node)
         case "range": result = AnyView(DesignRange(node: node, paint: paint) { emit(node, value: String($0)) })
         case "slot": result = decorated(slots[node.string("name")] ?? AnyView(Color.clear), node)
         case "subtitle":
@@ -557,5 +562,52 @@ struct DesignSubtitle: View {
             .position(x: geometry.size.width / 2, y: y)
         }.frame(height: node.number("height")).background(paint.color(node.string("background"))).clipped()
             .accessibilityLabel(node.string("text"))
+    }
+}
+
+/// Mechanical two-axis pointer/keyboard primitive. Its mode, bounds and step belong to the document.
+private struct DesignGesture: View {
+    var node: DesignElement
+    var content: AnyView
+    var onChange: (String) -> Void
+    @State private var previous = CGSize.zero
+    @State private var origin: CGSize?
+    private var enabled: Bool { node.props["enabled"] == nil || node.flag("enabled") }
+    private func publish(_ x: Double, _ y: Double, origin: CGSize) {
+        guard enabled else { return }
+        let extent = node.string("gestureMode") == "extent"
+        let a = extent ? min(node.number("maximumX"), max(node.number("minimumX"), origin.width + x)) : x
+        let b = extent ? min(node.number("maximumY"), max(node.number("minimumY"), origin.height + y)) : y
+        onChange("\(a),\(b)")
+    }
+    private var currentOrigin: CGSize { CGSize(width: node.number("originWidth"), height: node.number("originHeight")) }
+    var body: some View {
+        content.contentShape(Rectangle()).gesture(
+            DragGesture().onChanged { value in
+                guard enabled else { return }
+                if origin == nil { origin = currentOrigin }
+                let delta =
+                    node.string("gestureMode") == "extent"
+                    ? value.translation
+                    : CGSize(
+                        width: value.translation.width - previous.width,
+                        height: value.translation.height - previous.height)
+                previous = value.translation
+                publish(delta.width, delta.height, origin: origin ?? currentOrigin)
+            }.onEnded { _ in
+                previous = .zero
+                origin = nil
+            }
+        )
+        .focusable(enabled).onMoveCommand { direction in
+            let step = node.number("gestureStep")
+            publish(
+                direction == .left ? -step : direction == .right ? step : 0,
+                direction == .up ? -step : direction == .down ? step : 0, origin: currentOrigin)
+        }
+        .accessibilityLabel(node.string("label")).accessibilityAction(named: Text(node.string("label"))) {
+            let step = node.number("gestureStep")
+            publish(step, node.string("gestureMode") == "extent" ? step : 0, origin: currentOrigin)
+        }
     }
 }

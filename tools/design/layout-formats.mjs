@@ -1,10 +1,10 @@
 // Apache-2.0. Compile the single neutral component tree; formatters contain no screen designs.
 const q = JSON.stringify;
-export const layoutKinds = new Set(['row','column','overlay','text','button','icon','input','choice','toggle','range','line','spacer','scroll','slot','subtitle','repeat','include','if','switch']);
+export const layoutKinds = new Set(['row','column','overlay','text','button','icon','input','choice','toggle','range','line','spacer','scroll','slot','subtitle','repeat','include','if','switch','gesture']);
 export function validateLayouts(spec, tokens, copy, inputs) {
     if (spec.schemaVersion !== 1 || (!Number.isFinite(spec.coordinateSize) || spec.coordinateSize <= 0 || spec.coordinateSize > 65536) || !spec.components || !spec.styles || !spec.controls) throw Error('Invalid design document');
-    const numeric = new Set('width height minWidth minHeight maxWidth maxHeight gap length padding paddingX paddingY radius focusRadius focusWidth lines minScale fontSize borderWidth disabledOpacity pressedOpacity backgroundOpacity trackWidth trackHeight thumbSize thumbInset markWidth markHeight markInset rowPaddingX rowPaddingY thickness outlineWidth outlineSamples textPaddingX centerY minimum maximum step wrapAt offsetX offsetY tabIndex barWidth thumbMinimum thumbRadius'.split(' '));
-    const known = new Set([...numeric, ...'foreground background border focusBorder hoverBorder gradient gradientStart gradientEnd gradientOffsets weight fontFamily align contentAlign axis truncate outline clip cycleFocus selected text label name action payload value automation shortcut options items component condition when case round enabled moveAction trackFill progressFill thumbFill onFill offFill markName markFill rowFill rowHighlight rowForeground placeholderFill labelAutomation blockInput'.split(' ')]);
+    const numeric = new Set('width height minWidth minHeight maxWidth maxHeight gap length padding paddingX paddingY radius focusRadius focusWidth lines minScale fontSize borderWidth disabledOpacity pressedOpacity backgroundOpacity trackWidth trackHeight thumbSize thumbInset markWidth markHeight markInset rowPaddingX rowPaddingY thickness outlineWidth outlineSamples textPaddingX centerY minimum maximum step wrapAt offsetX offsetY tabIndex barWidth thumbMinimum thumbRadius gestureStep minimumX minimumY maximumX maximumY originWidth originHeight'.split(' '));
+    const known = new Set([...numeric, ...'foreground background border focusBorder hoverBorder gradient gradientStart gradientEnd gradientOffsets weight fontFamily align contentAlign axis truncate outline clip cycleFocus selected text label name action payload value automation shortcut options items component condition when case round enabled moveAction trackFill progressFill thumbFill onFill offFill markName markFill rowFill rowHighlight rowForeground placeholderFill labelAutomation blockInput gestureMode'.split(' ')]);
     const roles = new Set(Object.keys(inputs.themes.themes.dark));
     const colorKeys = new Set('foreground background border outline focusBorder hoverBorder trackFill progressFill thumbFill onFill offFill markFill rowFill rowHighlight rowForeground placeholderFill'.split(' '));
     const operators = new Set(['+','-','*','/','min','max','==','>=','>','<','if']);
@@ -36,8 +36,9 @@ export function validateLayouts(spec, tokens, copy, inputs) {
         if (Object.keys(node).some(k=>!['id','kind','styles','props','children'].includes(k)) || !Array.isArray(node.children) || !Array.isArray(node.styles)) throw Error('Unexpected design node fields');
         for (const style of node.styles) if (!Object.hasOwn(spec.styles,style)) throw Error('Unknown design style');
         properties(node.props);
+        if (node.kind === 'gesture' && !['delta','extent'].includes(node.props.gestureMode)) throw Error('Invalid gesture coordinate mode');
         if (node.kind === 'include' && !Object.hasOwn(spec.components,node.props.component)) throw Error('Unknown design component');
-        if (['repeat','scroll'].includes(node.kind) && node.children.length !== 1) throw Error('Expected one content template');
+        if (['repeat','scroll','gesture'].includes(node.kind) && node.children.length !== 1) throw Error('Expected one content template');
         if (node.kind === 'if' && (node.children.length < 1 || node.children.length > 2)) throw Error('Invalid design condition');
         for (const child of node.children) visit(child,depth+1);
     }
@@ -51,9 +52,9 @@ export function validateLayouts(spec, tokens, copy, inputs) {
     Object.keys(spec.components).forEach(n=>includes(n));
     for (const [key,paths] of Object.entries(spec.assets)) if (!/^[A-Za-z][\w.]*$/.test(key) || !Array.isArray(paths) || !paths.length || paths.some(p=>p.length<6||p.length%2||p.some(v=>!Number.isFinite(v)||v<0||v>spec.coordinateSize))) throw Error('Invalid design asset');
 }
-export function compileLayouts(s, values, player, themes) {
+export function compileLayouts(s, values, player, themes, call) {
     function node(n) { return {id:n.id,kind:n.kind,props:{...s.controls.common,...s.controls[n.kind],...Object.fromEntries(n.styles.flatMap(k=>Object.entries(s.styles[k]))),...n.props},children:n.children.map(node)}; }
-    return {themeRoles:Object.keys(themes.themes.dark),schemaVersion:s.schemaVersion,coordinateSize:s.coordinateSize,defaults:s.defaults,tokens:values,controls:s.controls,assets:{...s.assets,...Object.fromEntries(Object.entries(player.icons).map(([k,v])=>['player.'+k,v]))},components:Object.fromEntries(Object.entries(s.components).map(([k,v])=>[k,node(v)]))};
+    return {themeRoles:Object.keys(themes.themes.dark),schemaVersion:s.schemaVersion,coordinateSize:s.coordinateSize,defaults:s.defaults,tokens:values,controls:s.controls,assets:{...s.assets,...Object.fromEntries(Object.entries(call?.icons ?? {}).map(([k,v])=>['call.'+k,v])),...Object.fromEntries(Object.entries(player.icons).map(([k,v])=>['player.'+k,v]))},components:Object.fromEntries(Object.entries(s.components).map(([k,v])=>[k,node(v)]))};
 }
 function bottomUp(node,write) { const children=node.children.map(n=>bottomUp(n,write)); write(node,children); return node.id; }
 export function swiftLayouts(spec, digest) {
@@ -65,7 +66,7 @@ export function swiftLayouts(spec, digest) {
     out+='    public static let components: [String: DesignNode] = [\n'+Object.keys(spec.components).map(k=>'        '+q(k)+': make'+k+'(),\n').join('')+'    ]\n';
     for (const [k,tree] of Object.entries(spec.components)) {
         out+='    private static func make'+k+'() -> DesignNode {\n';
-        bottomUp(tree,(n,children)=>{out+='        let '+n.id+' = DesignNode(\n            id: '+q(n.id)+', kind: '+q(n.kind)+',\n            props: [\n'+Object.entries(n.props).map(([p,v])=>{const line='                '+q(p)+': '+q(v)+',';return line.length>120?'                '+q(p)+':\n                    '+q(v)+',\n':line+'\n';}).join('')+'            ],\n            children: ['+children.join(', ')+'])\n';});
+        bottomUp(tree,(n,children)=>{out+='        let '+n.id+' = DesignNode(\n            id: '+q(n.id)+', kind: '+q(n.kind)+',\n            props: [\n'+Object.entries(n.props).map(([p,v])=>{const line='                '+q(p)+': '+q(v)+',';return line.length>120?'                '+q(p)+':\n                    '+q(v)+',\n':line+'\n';}).join('')+'            ],\n'+(('            children: ['+children.join(', ')+'])').length>120?'            children: [\n'+children.map(id=>'                '+id+',\n').join('')+'            ])\n':'            children: ['+children.join(', ')+'])\n');});
         out+='        return '+tree.id+'\n    }\n';
     }
     return out+'}\n';

@@ -1,0 +1,4500 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "name": "all requested actions preserve observations",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "no capabilities",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "unknown capability",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "unsupported"
+      ],
+      "requests": [
+        {
+          "action": "unsupported",
+          "values": []
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "idle joined None",
+      "state": "idle",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "idle joined False",
+      "state": "idle",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "idle joined True",
+      "state": "idle",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "opening joined None",
+      "state": "opening",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "opening joined False",
+      "state": "opening",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "opening joined True",
+      "state": "opening",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "webSurfaceReady joined None",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "webSurfaceReady joined False",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "webSurfaceReady joined True",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "userActionRequired joined None",
+      "state": "userActionRequired",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "userActionRequired joined False",
+      "state": "userActionRequired",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "userActionRequired joined True",
+      "state": "userActionRequired",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "failed joined None",
+      "state": "failed",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "failed joined False",
+      "state": "failed",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "failed joined True",
+      "state": "failed",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "closed joined None",
+      "state": "closed",
+      "preview": "cameraActive",
+      "joined": null,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "closed joined False",
+      "state": "closed",
+      "preview": "cameraActive",
+      "joined": false,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "closed joined True",
+      "state": "closed",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        }
+      ],
+      "showsRemote": false,
+      "showsLocal": false
+    },
+    {
+      "name": "unknown volume",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": null,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "unknown microphoneEnabled",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": null,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "unknown cameraEnabled",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": null,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "invalid observed volume -0.1",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": -0.1,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "invalid observed volume 1.1",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 1.1,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid move",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": []
+        },
+        {
+          "action": "move",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "move",
+          "values": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "action": "move",
+          "values": [
+            8193,
+            0
+          ]
+        },
+        {
+          "action": "move",
+          "values": [
+            0,
+            -8193
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid resize",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "resize",
+          "values": []
+        },
+        {
+          "action": "resize",
+          "values": [
+            300
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210,
+            0
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            259,
+            210
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            209
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            8193,
+            210
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid minimize",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "minimize",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid restore",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "restore",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "restore",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid fullscreen",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "fullscreen",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "fullscreen",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid pin",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "pin",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "pin",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid close",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "close",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "close",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid setCallVolume",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "setCallVolume",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            -0.01
+          ]
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            1.01
+          ]
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.5,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid setMicrophoneEnabled",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "setMicrophoneEnabled",
+          "values": []
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            -1
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0.5
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            2
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid setCameraEnabled",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "setCameraEnabled",
+          "values": []
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            -1
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            0.5
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            2
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "reject invalid hangUp",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "hangUp",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": [
+            0,
+            1
+          ]
+        }
+      ],
+      "expected": [],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "volume boundary 0",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "setCallVolume",
+          "values": [
+            0
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "action": "setCallVolume",
+          "values": [
+            0
+          ]
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "volume boundary 1",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "setCallVolume",
+          "values": [
+            1
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "action": "setCallVolume",
+          "values": [
+            1
+          ]
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "preview cameraStarting",
+      "state": "webSurfaceReady",
+      "preview": "cameraStarting",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "preview cameraActive",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": true
+    },
+    {
+      "name": "preview cameraDisabled",
+      "state": "webSurfaceReady",
+      "preview": "cameraDisabled",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "preview permissionDenied",
+      "state": "webSurfaceReady",
+      "preview": "permissionDenied",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "preview deviceUnavailable",
+      "state": "webSurfaceReady",
+      "preview": "deviceUnavailable",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": true,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    },
+    {
+      "name": "observed camera off",
+      "state": "webSurfaceReady",
+      "preview": "cameraActive",
+      "joined": true,
+      "microphoneEnabled": true,
+      "cameraEnabled": false,
+      "volume": 0.7,
+      "enabledActions": [
+        "move",
+        "resize",
+        "minimize",
+        "restore",
+        "fullscreen",
+        "pin",
+        "close",
+        "setCallVolume",
+        "setMicrophoneEnabled",
+        "setCameraEnabled",
+        "hangUp"
+      ],
+      "requests": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "expected": [
+        {
+          "action": "move",
+          "values": [
+            10,
+            -5
+          ]
+        },
+        {
+          "action": "resize",
+          "values": [
+            300,
+            210
+          ]
+        },
+        {
+          "action": "minimize",
+          "values": []
+        },
+        {
+          "action": "restore",
+          "values": []
+        },
+        {
+          "action": "fullscreen",
+          "values": []
+        },
+        {
+          "action": "pin",
+          "values": []
+        },
+        {
+          "action": "close",
+          "values": []
+        },
+        {
+          "action": "setCallVolume",
+          "values": [
+            0.25
+          ]
+        },
+        {
+          "action": "setMicrophoneEnabled",
+          "values": [
+            0
+          ]
+        },
+        {
+          "action": "setCameraEnabled",
+          "values": [
+            1
+          ]
+        },
+        {
+          "action": "hangUp",
+          "values": []
+        }
+      ],
+      "showsRemote": true,
+      "showsLocal": false
+    }
+  ]
+}

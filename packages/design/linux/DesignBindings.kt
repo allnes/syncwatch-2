@@ -35,4 +35,15 @@ internal object DesignBindings {
         for((binding,id)in listOf("subtitleFill" to "subtitleColor","outlineFill" to "outlineColor"))v[binding]="@"+SyncWatchPlayerSettings.fields.single{it.id==id}.options.single{it.id==setting(id)}.colorToken
         return DesignContext(v)
     }
+    fun call(p: CallPresentation, hasRemote: Boolean, hasLocal: Boolean): DesignContext {
+        val v = mutableMapOf("showRemote" to (p.showsRemoteSurface && hasRemote).toString(), "showLocal" to (p.showsLocalPreview && hasLocal).toString(),
+            "previewLabel" to p.previewLabel(hasLocal), "callStateLabel" to "callState" + p.state.name.replaceFirstChar { it.uppercase() },
+            "maximumExtent" to SyncWatchCall.maximumExtent.toString(), "volume" to p.displayedVolume.toString(), "pinned" to p.pinned.toString(), "fullscreen" to p.fullscreen.toString(), "minimized" to p.minimized.toString(),
+            "microphoneEnabled" to (p.microphoneEnabled == true).toString(), "cameraEnabled" to (p.cameraEnabled == true).toString(), "microphoneOff" to (p.microphoneEnabled == false).toString(), "cameraOff" to (p.cameraEnabled == false).toString(),
+            "nextMicrophone" to if(p.microphoneEnabled == true) "0" else "1", "nextCamera" to if(p.cameraEnabled == true) "0" else "1",
+            "pinLabel" to if(p.pinned) "unpinCall" else "pinCall", "fullscreenLabel" to if(p.fullscreen) "exitFullscreenCall" else "fullscreenCall", "fullscreenIcon" to if(p.fullscreen) "call.restore" else "call.fullscreen", "volumeIcon" to if(p.displayedVolume > 0) "call.volume" else "call.muted",
+            "microphoneLabel" to if(p.microphoneEnabled == true) "microphoneOn" else "microphoneOff", "cameraLabel" to if(p.cameraEnabled == true) "cameraOn" else "cameraOff")
+        for(action in SyncWatchCall.actions) v["can."+action] = p.allows(action).toString()
+        return DesignContext(v)
+    }
 }

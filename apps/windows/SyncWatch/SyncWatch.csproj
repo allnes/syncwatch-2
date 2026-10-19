@@ -20,5 +20,6 @@
         <Compile Include="../../../packages/design/windows/DesignSurface.cs" Link="DesignSurface.cs" />
         <Compile Include="../../../packages/design/windows/DesignBindings.cs" Link="DesignBindings.cs" />
         <Compile Include="../../../packages/design/windows/DesignGalleries.cs" Link="DesignGalleries.cs" />
+        <Compile Include="../../../packages/design/windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
     </ItemGroup>
 </Project>

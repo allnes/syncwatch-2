@@ -153,6 +153,37 @@
       "border": "= $selected theme.accent theme.border if",
       "borderWidth": "= @control.borderWidth 2 *",
       "padding": "= @control.borderWidth 2 *"
+    },
+    "callIcon": {
+      "width": "@layout.callIconSize",
+      "height": "@layout.callIconSize"
+    },
+    "callButton": {
+      "width": "@layout.callButtonSize",
+      "height": "@layout.callButtonSize",
+      "radius": "circle",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "foreground": "theme.text",
+      "background": "theme.surfaceRaised"
+    },
+    "callWindowButton": {
+      "width": "@layout.callWindowButtonSize",
+      "height": "@layout.callWindowButtonSize",
+      "radius": "circle",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth"
+    },
+    "callShell": {
+      "minWidth": "@layout.callMinimumWidth",
+      "minHeight": "@layout.callMinimumHeight",
+      "fontSize": "@type.playerLabelSize",
+      "foreground": "theme.text",
+      "background": "theme.backgroundDeep",
+      "radius": "= $fullscreen 0 @layout.callRadius if",
+      "border": "theme.border",
+      "borderWidth": "@control.borderWidth",
+      "clip": "true"
     }
   },
   "controls": {
@@ -2995,6 +3026,745 @@
           "children": []
         }
       ]
+    },
+    "Call": {
+      "id": "callRoot",
+      "kind": "overlay",
+      "styles": [
+        "callShell"
+      ],
+      "props": {},
+      "children": [
+        {
+          "id": "callColumn",
+          "kind": "column",
+          "styles": [],
+          "props": {
+            "width": "fill",
+            "height": "fill"
+          },
+          "children": [
+            {
+              "id": "callHeader",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "height": "@layout.callHeaderHeight",
+                "paddingX": "@layout.callInset",
+                "gap": "= @layout.callGap 2 /"
+              },
+              "children": [
+                {
+                  "id": "callMove",
+                  "kind": "gesture",
+                  "styles": [],
+                  "props": {
+                    "action": "move",
+                    "gestureMode": "delta",
+                    "enabled": "$can.move",
+                    "automation": "call.move",
+                    "label": "~moveCall",
+                    "width": "fill",
+                    "height": "fill",
+                    "gestureStep": "10"
+                  },
+                  "children": [
+                    {
+                      "id": "callTitle",
+                      "kind": "text",
+                      "styles": [],
+                      "props": {
+                        "text": "~callWindow",
+                        "lines": "1",
+                        "width": "fill",
+                        "align": "leading"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "callPin",
+                  "kind": "button",
+                  "styles": [
+                    "callWindowButton"
+                  ],
+                  "props": {
+                    "action": "pin",
+                    "label": "~{pinLabel}",
+                    "enabled": "$can.pin",
+                    "automation": "call.pin",
+                    "background": "= $pinned theme.accent theme.surfaceRaised if",
+                    "foreground": "= $pinned @color.dark.text theme.text if"
+                  },
+                  "children": [
+                    {
+                      "id": "callPinIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callPinMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.pin"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callPinSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "false"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callMinimizeSwitch",
+                  "kind": "if",
+                  "styles": [],
+                  "props": {
+                    "condition": "$minimized"
+                  },
+                  "children": [
+                    {
+                      "id": "callRestore",
+                      "kind": "button",
+                      "styles": [
+                        "callWindowButton"
+                      ],
+                      "props": {
+                        "action": "restore",
+                        "label": "~restoreCall",
+                        "enabled": "$can.restore",
+                        "automation": "call.restore",
+                        "background": "= false theme.accent theme.surfaceRaised if",
+                        "foreground": "= false @color.dark.text theme.text if"
+                      },
+                      "children": [
+                        {
+                          "id": "callRestoreIcon",
+                          "kind": "overlay",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {},
+                          "children": [
+                            {
+                              "id": "callRestoreMark",
+                              "kind": "icon",
+                              "styles": [
+                                "callIcon"
+                              ],
+                              "props": {
+                                "name": "call.restore"
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "callRestoreSlash",
+                              "kind": "icon",
+                              "styles": [
+                                "callIcon"
+                              ],
+                              "props": {
+                                "name": "call.slash",
+                                "when": "false"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "callMinimize",
+                      "kind": "button",
+                      "styles": [
+                        "callWindowButton"
+                      ],
+                      "props": {
+                        "action": "minimize",
+                        "label": "~minimizeCall",
+                        "enabled": "$can.minimize",
+                        "automation": "call.minimize",
+                        "background": "= false theme.accent theme.surfaceRaised if",
+                        "foreground": "= false @color.dark.text theme.text if"
+                      },
+                      "children": [
+                        {
+                          "id": "callMinimizeIcon",
+                          "kind": "overlay",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {},
+                          "children": [
+                            {
+                              "id": "callMinimizeMark",
+                              "kind": "icon",
+                              "styles": [
+                                "callIcon"
+                              ],
+                              "props": {
+                                "name": "call.minimize"
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "callMinimizeSlash",
+                              "kind": "icon",
+                              "styles": [
+                                "callIcon"
+                              ],
+                              "props": {
+                                "name": "call.slash",
+                                "when": "false"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callFullscreen",
+                  "kind": "button",
+                  "styles": [
+                    "callWindowButton"
+                  ],
+                  "props": {
+                    "action": "fullscreen",
+                    "label": "~{fullscreenLabel}",
+                    "enabled": "$can.fullscreen",
+                    "automation": "call.fullscreen",
+                    "background": "= false theme.accent theme.surfaceRaised if",
+                    "foreground": "= false @color.dark.text theme.text if"
+                  },
+                  "children": [
+                    {
+                      "id": "callFullscreenIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callFullscreenMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "{fullscreenIcon}"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callFullscreenSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "false"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callClose",
+                  "kind": "button",
+                  "styles": [
+                    "callWindowButton"
+                  ],
+                  "props": {
+                    "action": "close",
+                    "label": "~closeCall",
+                    "enabled": "$can.close",
+                    "automation": "call.close",
+                    "background": "= false theme.accent theme.surfaceRaised if",
+                    "foreground": "= false @color.dark.text theme.text if"
+                  },
+                  "children": [
+                    {
+                      "id": "callCloseIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callCloseMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.close"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callCloseSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "false"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "callMedia",
+              "kind": "overlay",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "fill",
+                "background": "@color.shared.videoSurface",
+                "clip": "true",
+                "label": "~callSurface"
+              },
+              "children": [
+                {
+                  "id": "callRemoteSwitch",
+                  "kind": "if",
+                  "styles": [],
+                  "props": {
+                    "condition": "$showRemote",
+                    "width": "fill",
+                    "height": "fill"
+                  },
+                  "children": [
+                    {
+                      "id": "callRemote",
+                      "kind": "slot",
+                      "styles": [],
+                      "props": {
+                        "name": "remoteCallSurface",
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "callStatus",
+                      "kind": "text",
+                      "styles": [],
+                      "props": {
+                        "text": "~{callStateLabel}",
+                        "foreground": "@color.dark.text",
+                        "align": "center",
+                        "padding": "@layout.callInset",
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "callPreview",
+                  "kind": "overlay",
+                  "styles": [],
+                  "props": {
+                    "width": "@layout.callPreviewWidth",
+                    "height": "@layout.callPreviewHeight",
+                    "background": "theme.surfaceRaised",
+                    "radius": "@control.fieldRadius",
+                    "clip": "true",
+                    "border": "theme.border",
+                    "borderWidth": "@control.borderWidth",
+                    "label": "~{previewLabel}",
+                    "offsetX": "= @layout.callPreviewWidth $viewport.width - 2 / @layout.callInset +",
+                    "offsetY": "= @layout.callPreviewHeight $viewport.height @layout.callHeaderHeight - @layout.callFooterHeight - - 2 / @layout.callInset +"
+                  },
+                  "children": [
+                    {
+                      "id": "callPreviewSwitch",
+                      "kind": "if",
+                      "styles": [],
+                      "props": {
+                        "condition": "$showLocal",
+                        "width": "fill",
+                        "height": "fill"
+                      },
+                      "children": [
+                        {
+                          "id": "callLocal",
+                          "kind": "slot",
+                          "styles": [],
+                          "props": {
+                            "name": "localCameraPreview",
+                            "width": "fill",
+                            "height": "fill"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callPreviewStatus",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~{previewLabel}",
+                            "fontSize": "@type.captionSize",
+                            "foreground": "theme.textSecondary",
+                            "align": "center",
+                            "padding": "2"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "callFooter",
+              "kind": "row",
+              "styles": [],
+              "props": {
+                "width": "fill",
+                "height": "@layout.callFooterHeight",
+                "gap": "@layout.callGap"
+              },
+              "children": [
+                {
+                  "id": "callFooterLeading",
+                  "kind": "spacer",
+                  "styles": [],
+                  "props": {},
+                  "children": []
+                },
+                {
+                  "id": "callMicrophone",
+                  "kind": "button",
+                  "styles": [
+                    "callButton"
+                  ],
+                  "props": {
+                    "action": "setMicrophoneEnabled",
+                    "label": "~{microphoneLabel}",
+                    "enabled": "$can.setMicrophoneEnabled",
+                    "automation": "call.setMicrophoneEnabled",
+                    "background": "= $microphoneEnabled theme.accent theme.surfaceRaised if",
+                    "foreground": "= $microphoneEnabled @color.dark.text theme.text if",
+                    "value": "$nextMicrophone"
+                  },
+                  "children": [
+                    {
+                      "id": "callMicrophoneIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callMicrophoneMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.microphone"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callMicrophoneSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "$microphoneOff"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callCamera",
+                  "kind": "button",
+                  "styles": [
+                    "callButton"
+                  ],
+                  "props": {
+                    "action": "setCameraEnabled",
+                    "label": "~{cameraLabel}",
+                    "enabled": "$can.setCameraEnabled",
+                    "automation": "call.setCameraEnabled",
+                    "background": "= $cameraEnabled theme.accent theme.surfaceRaised if",
+                    "foreground": "= $cameraEnabled @color.dark.text theme.text if",
+                    "value": "$nextCamera"
+                  },
+                  "children": [
+                    {
+                      "id": "callCameraIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callCameraMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.camera"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callCameraSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "$cameraOff"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callHangUp",
+                  "kind": "button",
+                  "styles": [
+                    "callButton"
+                  ],
+                  "props": {
+                    "action": "hangUp",
+                    "label": "~hangUp",
+                    "enabled": "$can.hangUp",
+                    "automation": "call.hangUp",
+                    "background": "= @color.shared.callHangup",
+                    "foreground": "@color.dark.text"
+                  },
+                  "children": [
+                    {
+                      "id": "callHangUpIcon",
+                      "kind": "overlay",
+                      "styles": [
+                        "callIcon"
+                      ],
+                      "props": {},
+                      "children": [
+                        {
+                          "id": "callHangUpMark",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.end"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "callHangUpSlash",
+                          "kind": "icon",
+                          "styles": [
+                            "callIcon"
+                          ],
+                          "props": {
+                            "name": "call.slash",
+                            "when": "false"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "callVolumeIcon",
+                  "kind": "icon",
+                  "styles": [
+                    "callIcon"
+                  ],
+                  "props": {
+                    "name": "{volumeIcon}",
+                    "foreground": "theme.textSecondary"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "callVolume",
+                  "kind": "range",
+                  "styles": [],
+                  "props": {
+                    "action": "setCallVolume",
+                    "value": "$volume",
+                    "minimum": "0",
+                    "maximum": "1",
+                    "step": "0.05",
+                    "width": "@layout.callVolumeWidth",
+                    "height": "@control.playerSliderHeight",
+                    "enabled": "$can.setCallVolume",
+                    "label": "~callVolume",
+                    "automation": "call.setCallVolume"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "callFooterTrailing",
+                  "kind": "spacer",
+                  "styles": [],
+                  "props": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "callResize",
+          "kind": "gesture",
+          "styles": [],
+          "props": {
+            "action": "resize",
+            "gestureMode": "extent",
+            "enabled": "$can.resize",
+            "automation": "call.resize",
+            "label": "~resizeCall",
+            "gestureStep": "10",
+            "minimumX": "@layout.callMinimumWidth",
+            "minimumY": "@layout.callMinimumHeight",
+            "maximumX": "$maximumExtent",
+            "maximumY": "$maximumExtent",
+            "originWidth": "$viewport.width",
+            "originHeight": "$viewport.height",
+            "padding": "2",
+            "offsetX": "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            "offsetY": "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            "align": "center"
+          },
+          "children": [
+            {
+              "id": "callResizeMark",
+              "kind": "icon",
+              "styles": [
+                "callIcon"
+              ],
+              "props": {
+                "name": "call.resize",
+                "width": "@layout.callResizeSize",
+                "height": "@layout.callResizeSize",
+                "foreground": "theme.textSecondary"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "callFixture": {
+      "id": "callFixtureRoot",
+      "kind": "column",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill",
+        "align": "center",
+        "gap": "@layout.panelGap"
+      },
+      "children": [
+        {
+          "id": "callFixtureContent",
+          "kind": "slot",
+          "styles": [],
+          "props": {
+            "name": "callFixtureContent",
+            "width": "@layout.callInitialWidth",
+            "height": "@layout.callInitialHeight"
+          },
+          "children": []
+        },
+        {
+          "id": "callFixtureCaption",
+          "kind": "text",
+          "styles": [
+            "caption",
+            "muted"
+          ],
+          "props": {
+            "text": "~callFixture"
+          },
+          "children": []
+        }
+      ]
+    },
+    "callRemoteFixture": {
+      "id": "callRemoteFixtureRoot",
+      "kind": "text",
+      "styles": [],
+      "props": {
+        "text": "~remoteFixture",
+        "foreground": "@color.dark.text",
+        "width": "fill",
+        "height": "fill",
+        "align": "center"
+      },
+      "children": []
+    },
+    "callLocalFixture": {
+      "id": "callLocalFixtureRoot",
+      "kind": "text",
+      "styles": [],
+      "props": {
+        "text": "~localFixture",
+        "foreground": "@color.dark.text",
+        "fontSize": "@type.captionSize",
+        "background": "theme.accent",
+        "width": "fill",
+        "height": "fill",
+        "align": "center"
+      },
+      "children": []
     }
   },
   "defaults": {

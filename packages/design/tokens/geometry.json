@@ -159,6 +159,70 @@
     "playerSettingsColorSize": {
       "type": "number",
       "value": 22
+    },
+    "callMinimumWidth": {
+      "type": "number",
+      "value": 260
+    },
+    "callMinimumHeight": {
+      "type": "number",
+      "value": 210
+    },
+    "callGalleryWidth": {
+      "type": "number",
+      "value": 420
+    },
+    "callGalleryHeight": {
+      "type": "number",
+      "value": 300
+    },
+    "callHeaderHeight": {
+      "type": "number",
+      "value": 36
+    },
+    "callFooterHeight": {
+      "type": "number",
+      "value": 62
+    },
+    "callInset": {
+      "type": "number",
+      "value": 8
+    },
+    "callRadius": {
+      "type": "number",
+      "value": 22
+    },
+    "callPreviewWidth": {
+      "type": "number",
+      "value": 88
+    },
+    "callPreviewHeight": {
+      "type": "number",
+      "value": 56
+    },
+    "callButtonSize": {
+      "type": "number",
+      "value": 34
+    },
+    "callWindowButtonSize": {
+      "type": "number",
+      "value": 26
+    },
+    "callIconSize": {
+      "type": "number",
+      "value": 18
+    },
+    "callVolumeWidth": {
+      "type": "number",
+      "value": 64
+    },
+    "callResizeSize": {
+      "type": "number",
+      "value": 12
+    },
+    "callGap": {
+      "type": "number",
+      "value": 8
     }
   },
   "control": {

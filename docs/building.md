@@ -137,3 +137,10 @@ The gear in `--player-gallery` opens the same component and retains acknowledged
 Screen composition, responsive rules, styles and primitive appearance are declared in `packages/design/layouts.json`; tokens and form/action metadata remain in the same Apache-2.0 package. Regenerate committed native data with the [design generator](design-generator.md#native-resource-generation) after changing the document. Application/presentation bindings consume the component by name and do not specify another native layout.
 
 Resource generation and repository validation run the design-isolation check. Native validation also renders the same axis/order/spacing probe document through the actual SwiftUI/WPF adapters and verifies stable WPF inputs when observations or list contents change. Existing model, persistence, capability and image-matrix checks still run. Linux checks cover shared data/tooling and matching first-party source until its complete application build is available.
+
+
+## Call component gallery
+
+Launch the native executable with `--call-gallery` to inspect the compact call shell, remote/self-view slots and call/window controls. Choose a host/preview case, English or Russian, and a dark or light theme. The gallery simulates microphone, camera, volume, pin/fullscreen/minimized and closed observations in memory. Move/resize requests are recorded; the gallery does not operate an OS call window.
+
+The shell enables media controls only after explicit joined observations and capabilities are supplied. Missing camera content stays a placeholder. These fixtures do not access normal preferences, open Google Meet, initialize a browser, request device permission or start/stop capture/audio. The Linux renderer/gallery remains source-only until its complete dependency/compiler/native/font/license build is available.

@@ -20,6 +20,10 @@
       "videoSurface": {
         "type": "color",
         "value": "#000000"
+      },
+      "callHangup": {
+        "type": "color",
+        "value": "#B3261E"
       }
     },
     "dark": {

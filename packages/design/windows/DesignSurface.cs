@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -75,6 +76,8 @@ public class DesignSurface : UserControl
             {
                 bindings.Clear(); shape = nextShape; buildingViews = new();
                 var content = Build(tree.Id); if (!ReferenceEquals(Content, content)) Content = content;
+                foreach (var pair in views)
+                    if (!buildingViews.ContainsKey(pair.Key) && pair.Value.Kind == "slot" && pair.Value.Core is Grid removed) removed.Children.Clear();
                 views = buildingViews;
             }
             foreach (var refresh in bindings) refresh();
@@ -151,6 +154,37 @@ public class DesignSurface : UserControl
             case "toggle":
                 var toggle = Existing(() => new CheckBox()); toggle.SetResourceReference(StyleProperty, "Design.Toggle"); Bind(id, n => { toggle.Content = n.Text("text"); toggle.IsChecked = n.Flag("value"); toggle.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); }); if (fresh) { toggle.Checked += (_, _) => Emit(id, "true"); toggle.Unchecked += (_, _) => Emit(id, "false"); }
                 core = toggle; break;
+            case "gesture":
+                var gesture = Existing(() => new Thumb { Focusable = true });
+                var gestureChild = node.Children.Length == 1 ? Build(node.Children[0].Id) : null;
+                if (!ReferenceEquals(gesture.Tag, gestureChild))
+                {
+                    gesture.Template = null; gesture.ApplyTemplate(); Detach(gestureChild);
+                    var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); presenter.SetBinding(ContentPresenter.ContentProperty, new System.Windows.Data.Binding("Tag") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
+                    gesture.Template = new ControlTemplate(typeof(Thumb)) { VisualTree = presenter }; gesture.Tag = gestureChild;
+                }
+                Bind(id, n => gesture.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"));
+                if (fresh)
+                {
+                    Point? origin = null; Vector total = new();
+                    Point CurrentOrigin() => new(elements[id].Number("originWidth"), elements[id].Number("originHeight"));
+                    void Publish(double dx, double dy, Point basis)
+                    {
+                        var n = elements[id]; bool extent = n.Text("gestureMode") == "extent";
+                        double x = extent ? Math.Clamp(basis.X + dx, n.Number("minimumX"), n.Number("maximumX")) : dx;
+                        double y = extent ? Math.Clamp(basis.Y + dy, n.Number("minimumY"), n.Number("maximumY")) : dy;
+                        Emit(id, x.ToString(CultureInfo.InvariantCulture) + "," + y.ToString(CultureInfo.InvariantCulture));
+                    }
+                    gesture.DragStarted += (_, _) => { origin = CurrentOrigin(); total = new(); };
+                    gesture.DragCompleted += (_, _) => { origin = null; total = new(); };
+                    gesture.DragDelta += (_, e) => { origin ??= CurrentOrigin(); total += new Vector(e.HorizontalChange, e.VerticalChange); var extent = elements[id].Text("gestureMode") == "extent"; Publish(extent ? total.X : e.HorizontalChange, extent ? total.Y : e.VerticalChange, origin.Value); };
+                    gesture.KeyDown += (_, e) =>
+                    {
+                        double step = elements[id].Number("gestureStep");
+                        if (e.Key is Key.Left or Key.Right or Key.Up or Key.Down) { Publish(e.Key == Key.Left ? -step : e.Key == Key.Right ? step : 0, e.Key == Key.Up ? -step : e.Key == Key.Down ? step : 0, CurrentOrigin()); e.Handled = true; }
+                    };
+                }
+                core = gesture; break;
             case "range":
                 var range = Existing(() => new Slider()); range.SetResourceReference(StyleProperty, "Design.Range"); Bind(id, n => { range.Minimum = n.Number("minimum"); range.Maximum = Math.Max(range.Minimum, n.Number("maximum")); range.Value = Math.Clamp(n.Number("value"), range.Minimum, range.Maximum); range.SmallChange = n.Number("step"); range.LargeChange = n.Number("step"); range.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); }); if (fresh) range.ValueChanged += (_, e) => Emit(id, (elements[id].Flag("round") ? Math.Round(e.NewValue) : e.NewValue).ToString(CultureInfo.InvariantCulture)); core = range; break;
             case "slot":
@@ -168,6 +202,7 @@ public class DesignSurface : UserControl
         var border = previous?.Frame as Border ?? new Border { Child = core };
         if (fresh)
         {
+            border.SizeChanged += (_, _) => { if (elements.TryGetValue(id, out var n)) ClipFrame(border, n); };
             Point? origin = null;
             IInputElement? coordinateSpace = null;
             border.MouseLeftButtonDown += (_, e) =>
@@ -196,11 +231,15 @@ public class DesignSurface : UserControl
             Frame(border, n); border.RenderTransform = new TranslateTransform(n.Number("offsetX"), n.Number("offsetY")); border.Padding = Insets(n); border.CornerRadius = Radius(n); border.BorderThickness = new Thickness(n.Number("borderWidth")); Paint(border, Border.BackgroundProperty, n.Text("background")); Paint(border, Border.BorderBrushProperty, n.Text("border"));
             if (!n.Text("gradient").Equals("", StringComparison.Ordinal)) { var brush = new LinearGradientBrush { StartPoint = PointValue(n.Text("gradientStart")), EndPoint = PointValue(n.Text("gradientEnd")) }; var colors = n.Text("gradient").Split('|'); var offsets = n.Text("gradientOffsets").Split('|'); for (int i = 0; i < Math.Min(colors.Length, offsets.Length); i++) brush.GradientStops.Add(new GradientStop(((SolidColorBrush)Brush(colors[i], border)).Color, DesignContext.Number(offsets[i]))); border.Background = brush; }
             if (core is TextBlock t) { t.VerticalAlignment = n.Text("height") == "fill" && n.Text("align") != "top" ? VerticalAlignment.Center : VerticalAlignment.Stretch; t.FontSize = Math.Max(1, n.Number("fontSize")); t.FontWeight = Weight(n.Text("weight")); t.LineHeight = t.FontFamily.LineSpacing * t.FontSize; t.LineStackingStrategy = LineStackingStrategy.BlockLineHeight; t.MaxHeight = n.Props.ContainsKey("lines") ? t.LineHeight * Math.Max(1, n.Number("lines")) : double.PositiveInfinity; Paint(t, TextBlock.ForegroundProperty, n.Text("foreground")); AutomationProperties.SetAutomationId(t, n.Text("automation")); }
-            AutomationProperties.SetName(border, n.Text("label")); border.ClipToBounds = n.Flag("clip");
+            AutomationProperties.SetName(border, n.Text("label")); ClipFrame(border, n);
             if (n.Props.ContainsKey("backgroundOpacity") && border.Background is Brush fill) { var clone = fill.CloneCurrentValue(); clone.Opacity *= Math.Clamp(n.Number("backgroundOpacity"), 0, 1); border.Background = clone; }
         });
         buildingViews[id] = new(node.Kind, core, border);
         return border;
+    }
+    private static void ClipFrame(Border border, DesignElement node)
+    {
+        border.Clip = node.Flag("clip") ? new RectangleGeometry(new Rect(border.RenderSize), border.CornerRadius.TopLeft, border.CornerRadius.TopLeft) : null;
     }
     private static void Detach(FrameworkElement? view)
     {

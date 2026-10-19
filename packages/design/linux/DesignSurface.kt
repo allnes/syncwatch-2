@@ -159,6 +159,7 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
 @Composable private fun RenderDesignNode(n:DesignElement,theme:SyncWatchTheme,slots:Map<String,@Composable BoxScope.()->Unit>,onEvent:(DesignEvent)->Unit,modifier:Modifier=Modifier) {
     val enabled=!n.props.containsKey("enabled")||n.flag("enabled")
     val currentEvent by rememberUpdatedState(onEvent)
+    val currentNode by rememberUpdatedState(n)
     fun emit(value:String?=null) { if(enabled) currentEvent(DesignEvent(n.text("action"),value?:n.props["value"],n.props["payload"])) }
     val frame=modifier.designFrame(n,theme).semantics { if(n.text("label").isNotEmpty()) contentDescription=n.text("label"); if(n.flag("selected")) selected=true }
     when(n.kind){
@@ -196,6 +197,25 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
         }
         "toggle"->Row(frame.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Switch){emit((!n.flag("value")).toString())}.semantics{toggleableState=if(n.flag("value"))androidx.compose.ui.state.ToggleableState.On else androidx.compose.ui.state.ToggleableState.Off},verticalAlignment=Alignment.CenterVertically){
             BasicText(n.text("text"),Modifier.weight(1f),style=textStyle(n,theme));Box(Modifier.size(n.number("trackWidth").dp,n.number("trackHeight").dp).background(designColor(n.text(if(n.flag("value"))"onFill" else "offFill"),theme),RoundedCornerShape((n.number("trackHeight")/2).dp)),contentAlignment=if(n.flag("value"))Alignment.CenterEnd else Alignment.CenterStart){Box(Modifier.padding(horizontal=n.number("thumbInset").dp).size(n.number("thumbSize").dp).background(designColor(n.text("thumbFill"),theme),RoundedCornerShape((n.number("thumbSize")/2).dp)))}
+        }
+        "gesture"->{
+            val density=LocalDensity.current.density
+            fun publish(dx:Double,dy:Double,ox:Double=n.number("originWidth"),oy:Double=n.number("originHeight")) {
+                if(!enabled)return
+                val extent=n.text("gestureMode")=="extent"
+                val x=if(extent)(ox+dx).coerceIn(n.number("minimumX"),n.number("maximumX"))else dx
+                val y=if(extent)(oy+dy).coerceIn(n.number("minimumY"),n.number("maximumY"))else dy
+                emit("$x,$y")
+            }
+            Box(frame.onKeyEvent { e->
+                val step=n.number("gestureStep")
+                if(!enabled||e.type!=KeyEventType.KeyDown)false else when(e.key){Key.DirectionLeft->{publish(-step,0.0);true};Key.DirectionRight->{publish(step,0.0);true};Key.DirectionUp->{publish(0.0,-step);true};Key.DirectionDown->{publish(0.0,step);true};else->false}
+            }.focusable(enabled).semantics{if(enabled)customActions=listOf(CustomAccessibilityAction(n.text("label")){publish(n.number("gestureStep"),if(n.text("gestureMode")=="extent")n.number("gestureStep")else 0.0);true})}
+            .pointerInput(enabled,density){if(enabled)awaitEachGesture{
+                val down=awaitFirstDown();var total=Offset.Zero
+                val ox=currentNode.number("originWidth");val oy=currentNode.number("originHeight")
+                drag(down.id){change->val delta=change.position-change.previousPosition;total+=delta;change.consume();val v=if(n.text("gestureMode")=="extent")total else delta;publish((v.x/density).toDouble(),(v.y/density).toDouble(),ox,oy)}
+            }},contentAlignment=Alignment.Center){n.children.forEach{RenderDesignNode(it,theme,slots,onEvent)}}
         }
         "range"->DesignRange(n,theme,modifier){emit(it.toString())}
         "slot"->Box(frame,contentAlignment=Alignment.Center){slots[n.text("name")]?.invoke(this)}

@@ -7,6 +7,7 @@ namespace SyncWatch.Design;
 public sealed class DesignGallery : DesignFixtureGallery { public DesignGallery() : base("library") { } }
 public sealed class SettingsGallery : DesignFixtureGallery { public SettingsGallery() : base("settings") { } }
 public sealed class PlayerGallery : DesignFixtureGallery { public PlayerGallery() : base("player") { } }
+public sealed class CallGallery : DesignFixtureGallery { public CallGallery() : base("call") { } }
 public sealed class PlayerSettingsGallery : DesignFixtureGallery { public PlayerSettingsGallery() : base("playerSettings") { } }
 
 // Fixture observations, model transitions and event wiring only. The shared Gallery tree owns the UI.
@@ -15,6 +16,9 @@ public class DesignFixtureGallery : UserControl
     private readonly string subject;
     private readonly DesignSurface surface = new("Gallery");
     public LibraryWorkspace Workspace { get; } = new();
+    private readonly CallWindowShell callView = new();
+    private readonly DesignSurface callFixture = new("callFixture"), remoteFixture = new("callRemoteFixture"), localFixture = new("callLocalFixture");
+    private CallPresentation call = CallPresentation.Gallery(SyncWatchCall.GalleryCases[2]);
     private readonly PlayerChrome playerView = new();
     private SettingsDialog? settingsView;
     private PlayerSettingsDialog? editorView;
@@ -31,9 +35,10 @@ public class DesignFixtureGallery : UserControl
     private ResourceDictionary? selectedTheme;
     public DesignFixtureGallery(string subject)
     {
-        this.subject = subject; state = subject == "library" ? "selected" : subject == "player" ? "paused" : "editing"; section = Sections.FirstOrDefault() ?? "";
+        this.subject = subject; state = subject == "library" ? "selected" : subject == "player" ? "paused" : subject == "call" ? "ready" : "editing"; section = Sections.FirstOrDefault() ?? "";
         Content = surface;
         Workspace.ActionRequested += (action, value) => { lastAction = action; if (action == "selectMovie") library = library with { SelectedId = value }; Refresh(); };
+        callView.ActionRequested += request => { lastAction = request.Action; call = call.ApplyingFixture(request); Refresh(); };
         playerView.ActionRequested += (action, value) =>
         {
             lastAction = action;
@@ -60,6 +65,7 @@ public class DesignFixtureGallery : UserControl
                     switch (subject)
                     {
                         case "library": library = LibraryPresentation.Gallery(Enum.Parse<LibraryVisualState>(state, true)); break;
+                        case "call": call = CallPresentation.Gallery(SyncWatchCall.GalleryCases.Single(c => c.Id == state)); break;
                         case "player": player = PlayerPresentation.Gallery(Enum.Parse<PlayerVisualState>(state, true)); break;
                         case "settings": settings = new(editableFields: SyncWatchSettings.Defaults.Keys, canSave: true, state: Enum.Parse<SettingsVisualState>(state, true)); settingsView = null; break;
                         case "playerSettings": editor = new(editableFields: SyncWatchPlayerSettings.Defaults.Keys, canSave: state != "readOnly", state: Enum.Parse<PlayerSettingsVisualState>(state, true)); editorView = null; break;
@@ -71,7 +77,7 @@ public class DesignFixtureGallery : UserControl
         ApplyTheme(); Refresh();
     }
     private string[] Sections => subject == "settings" ? SyncWatchSettings.Sections : subject == "playerSettings" ? SyncWatchPlayerSettings.Sections : [];
-    private string[] States => subject switch { "library" => SyncWatchCopy.GalleryStates, "settings" => SyncWatchSettings.States, "player" => SyncWatchPlayer.States, _ => SyncWatchPlayerSettings.States };
+    private string[] States => subject switch { "library" => SyncWatchCopy.GalleryStates, "settings" => SyncWatchSettings.States, "player" => SyncWatchPlayer.States, "call" => SyncWatchCall.GalleryCases.Select(c => c.Id).ToArray(), _ => SyncWatchPlayerSettings.States };
     private DesignContext Choice(string id, string value, string[] options) => new() { Values = new() { ["id"] = id, ["label"] = "gallery" + char.ToUpperInvariant(id[0]) + id[1..], ["kind"] = "choice", ["value"] = value, ["editable"] = modalOpen ? "false" : "true" }, Collections = new() { ["options"] = options.Select(o => new DesignContext { Values = new() { ["id"] = o, ["label"] = o } }).ToArray() } };
     private DesignContext Toggle(string id, bool value) => new() { Values = new() { ["id"] = id, ["label"] = "gallery" + char.ToUpperInvariant(id[0]) + id[1..], ["kind"] = "boolean", ["value"] = value ? "true" : "false", ["editable"] = modalOpen ? "false" : "true" } };
     private void ApplyTheme()
@@ -97,6 +103,10 @@ public class DesignFixtureGallery : UserControl
             case "library": Workspace.Render(library, language); content = Workspace; break;
             case "settings": settingsView ??= new(settings, language, section) { Persist = _ => !failSave }; content = settingsView; break;
             case "playerSettings": editorView ??= new(editor, language, section) { Persist = _ => !failSave }; content = editorView; break;
+            case "call":
+                remoteFixture.Render(new(), language); localFixture.Render(new(), language);
+                callView.RemoteSurface = remoteFixture; callView.LocalPreview = localFixture; callView.Render(call, language);
+                callFixture.Slots["callFixtureContent"] = callView; callFixture.Render(new(), language); content = callFixture; break;
             default:
                 video.Render(new() { Values = new() { ["fixtureLabel"] = "playerFixture" } }, language); playerView.VideoSurface = video;
                 playerView.Render(modalOpen ? player with { EnabledActions = new HashSet<string>() } : player, language); content = playerView; break;

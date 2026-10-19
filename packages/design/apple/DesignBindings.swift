@@ -122,4 +122,26 @@ enum DesignBindings {
     private static func sections(_ source: [String], selected: String) -> [DesignContext] {
         source.map { DesignContext(["id": $0, "selected": String($0 == selected)]) }
     }
+    static func call(_ p: CallPresentation, hasRemote: Bool, hasLocal: Bool) -> DesignContext {
+        var values = [
+            "showRemote": String(p.showsRemoteSurface && hasRemote),
+            "showLocal": String(p.showsLocalPreview && hasLocal),
+            "previewLabel": p.previewLabel(hasSurface: hasLocal),
+            "callStateLabel": "callState" + p.state.rawValue.prefix(1).uppercased() + p.state.rawValue.dropFirst(),
+            "maximumExtent": String(SyncWatchCall.maximumExtent), "volume": String(p.displayedVolume),
+            "pinned": String(p.pinned), "fullscreen": String(p.fullscreen), "minimized": String(p.minimized),
+            "microphoneEnabled": String(p.microphoneEnabled == true), "cameraEnabled": String(p.cameraEnabled == true),
+            "microphoneOff": String(p.microphoneEnabled == false), "cameraOff": String(p.cameraEnabled == false),
+            "nextMicrophone": p.microphoneEnabled == true ? "0" : "1",
+            "nextCamera": p.cameraEnabled == true ? "0" : "1",
+            "pinLabel": p.pinned ? "unpinCall" : "pinCall",
+            "fullscreenLabel": p.fullscreen ? "exitFullscreenCall" : "fullscreenCall",
+            "fullscreenIcon": p.fullscreen ? "call.restore" : "call.fullscreen",
+            "volumeIcon": p.displayedVolume > 0 ? "call.volume" : "call.muted",
+            "microphoneLabel": p.microphoneEnabled == true ? "microphoneOn" : "microphoneOff",
+            "cameraLabel": p.cameraEnabled == true ? "cameraOn" : "cameraOff",
+        ]
+        for action in SyncWatchCall.actions { values["can." + action] = String(p.allows(action)) }
+        return DesignContext(values)
+    }
 }

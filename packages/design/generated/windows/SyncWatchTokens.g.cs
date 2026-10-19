@@ -27,6 +27,7 @@ public static class SyncWatchTokens
     public static Color ColorLightTextSecondary => Color.FromArgb(255, 97, 115, 134);
     public static Color ColorSharedAccent => Color.FromArgb(255, 47, 140, 255);
     public static Color ColorSharedAccentSoft => Color.FromArgb(255, 106, 175, 255);
+    public static Color ColorSharedCallHangup => Color.FromArgb(255, 179, 38, 30);
     public static Color ColorSharedSelection => Color.FromArgb(38, 47, 140, 255);
     public static Color ColorSharedSuccess => Color.FromArgb(255, 48, 217, 139);
     public static Color ColorSharedVideoSurface => Color.FromArgb(255, 0, 0, 0);
@@ -111,12 +112,60 @@ public static class SyncWatchTokens
     public const double ControlSliderTrackHeight = 3;
     public static Thickness ControlSliderTrackHeightThickness => new(ControlSliderTrackHeight);
     public static CornerRadius ControlSliderTrackHeightCornerRadius => new(ControlSliderTrackHeight);
+    public const double LayoutCallButtonSize = 34;
+    public static Thickness LayoutCallButtonSizeThickness => new(LayoutCallButtonSize);
+    public static CornerRadius LayoutCallButtonSizeCornerRadius => new(LayoutCallButtonSize);
+    public const double LayoutCallFooterHeight = 62;
+    public static Thickness LayoutCallFooterHeightThickness => new(LayoutCallFooterHeight);
+    public static CornerRadius LayoutCallFooterHeightCornerRadius => new(LayoutCallFooterHeight);
+    public const double LayoutCallGalleryHeight = 300;
+    public static Thickness LayoutCallGalleryHeightThickness => new(LayoutCallGalleryHeight);
+    public static CornerRadius LayoutCallGalleryHeightCornerRadius => new(LayoutCallGalleryHeight);
+    public const double LayoutCallGalleryWidth = 420;
+    public static Thickness LayoutCallGalleryWidthThickness => new(LayoutCallGalleryWidth);
+    public static CornerRadius LayoutCallGalleryWidthCornerRadius => new(LayoutCallGalleryWidth);
+    public const double LayoutCallGap = 8;
+    public static Thickness LayoutCallGapThickness => new(LayoutCallGap);
+    public static CornerRadius LayoutCallGapCornerRadius => new(LayoutCallGap);
+    public const double LayoutCallHeaderHeight = 36;
+    public static Thickness LayoutCallHeaderHeightThickness => new(LayoutCallHeaderHeight);
+    public static CornerRadius LayoutCallHeaderHeightCornerRadius => new(LayoutCallHeaderHeight);
+    public const double LayoutCallIconSize = 18;
+    public static Thickness LayoutCallIconSizeThickness => new(LayoutCallIconSize);
+    public static CornerRadius LayoutCallIconSizeCornerRadius => new(LayoutCallIconSize);
     public const double LayoutCallInitialHeight = 210;
     public static Thickness LayoutCallInitialHeightThickness => new(LayoutCallInitialHeight);
     public static CornerRadius LayoutCallInitialHeightCornerRadius => new(LayoutCallInitialHeight);
     public const double LayoutCallInitialWidth = 300;
     public static Thickness LayoutCallInitialWidthThickness => new(LayoutCallInitialWidth);
     public static CornerRadius LayoutCallInitialWidthCornerRadius => new(LayoutCallInitialWidth);
+    public const double LayoutCallInset = 8;
+    public static Thickness LayoutCallInsetThickness => new(LayoutCallInset);
+    public static CornerRadius LayoutCallInsetCornerRadius => new(LayoutCallInset);
+    public const double LayoutCallMinimumHeight = 210;
+    public static Thickness LayoutCallMinimumHeightThickness => new(LayoutCallMinimumHeight);
+    public static CornerRadius LayoutCallMinimumHeightCornerRadius => new(LayoutCallMinimumHeight);
+    public const double LayoutCallMinimumWidth = 260;
+    public static Thickness LayoutCallMinimumWidthThickness => new(LayoutCallMinimumWidth);
+    public static CornerRadius LayoutCallMinimumWidthCornerRadius => new(LayoutCallMinimumWidth);
+    public const double LayoutCallPreviewHeight = 56;
+    public static Thickness LayoutCallPreviewHeightThickness => new(LayoutCallPreviewHeight);
+    public static CornerRadius LayoutCallPreviewHeightCornerRadius => new(LayoutCallPreviewHeight);
+    public const double LayoutCallPreviewWidth = 88;
+    public static Thickness LayoutCallPreviewWidthThickness => new(LayoutCallPreviewWidth);
+    public static CornerRadius LayoutCallPreviewWidthCornerRadius => new(LayoutCallPreviewWidth);
+    public const double LayoutCallRadius = 22;
+    public static Thickness LayoutCallRadiusThickness => new(LayoutCallRadius);
+    public static CornerRadius LayoutCallRadiusCornerRadius => new(LayoutCallRadius);
+    public const double LayoutCallResizeSize = 12;
+    public static Thickness LayoutCallResizeSizeThickness => new(LayoutCallResizeSize);
+    public static CornerRadius LayoutCallResizeSizeCornerRadius => new(LayoutCallResizeSize);
+    public const double LayoutCallVolumeWidth = 64;
+    public static Thickness LayoutCallVolumeWidthThickness => new(LayoutCallVolumeWidth);
+    public static CornerRadius LayoutCallVolumeWidthCornerRadius => new(LayoutCallVolumeWidth);
+    public const double LayoutCallWindowButtonSize = 26;
+    public static Thickness LayoutCallWindowButtonSizeThickness => new(LayoutCallWindowButtonSize);
+    public static CornerRadius LayoutCallWindowButtonSizeCornerRadius => new(LayoutCallWindowButtonSize);
     public const double LayoutDetailPadding = 24;
     public static Thickness LayoutDetailPaddingThickness => new(LayoutDetailPadding);
     public static CornerRadius LayoutDetailPaddingCornerRadius => new(LayoutDetailPadding);
@@ -421,6 +470,37 @@ public static class SyncWatchCopy
         ("en", "galleryLanguage") => "Language",
         ("en", "galleryDark") => "Dark theme",
         ("en", "galleryFailSave") => "Fail save",
+        ("en", "callWindow") => "Google Meet call",
+        ("en", "callFixture") => "Call presentation fixture",
+        ("en", "remoteFixture") => "Remote video fixture",
+        ("en", "localFixture") => "Camera fixture",
+        ("en", "callStateIdle") => "Call inactive",
+        ("en", "callStateOpening") => "Opening call…",
+        ("en", "callStateWebSurfaceReady") => "Call surface ready",
+        ("en", "callStateUserActionRequired") => "Continue in Google Meet",
+        ("en", "callStateFailed") => "Call unavailable",
+        ("en", "callStateClosed") => "Call closed",
+        ("en", "cameraStarting") => "Camera starting",
+        ("en", "cameraActive") => "Local camera preview",
+        ("en", "cameraDisabled") => "Camera off",
+        ("en", "permissionDenied") => "Camera permission denied",
+        ("en", "deviceUnavailable") => "Camera unavailable",
+        ("en", "callSurface") => "Google Meet surface",
+        ("en", "callVolume") => "Call volume",
+        ("en", "microphoneOn") => "Mute microphone",
+        ("en", "microphoneOff") => "Enable microphone",
+        ("en", "cameraOn") => "Disable camera",
+        ("en", "cameraOff") => "Enable camera",
+        ("en", "hangUp") => "End call",
+        ("en", "pinCall") => "Keep call on top",
+        ("en", "unpinCall") => "Unpin call",
+        ("en", "minimizeCall") => "Minimize call",
+        ("en", "restoreCall") => "Restore call",
+        ("en", "fullscreenCall") => "Expand call",
+        ("en", "exitFullscreenCall") => "Restore call size",
+        ("en", "closeCall") => "Close call window",
+        ("en", "moveCall") => "Move call window",
+        ("en", "resizeCall") => "Resize call window",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -578,6 +658,37 @@ public static class SyncWatchCopy
         ("ru", "galleryLanguage") => "Язык",
         ("ru", "galleryDark") => "Тёмная тема",
         ("ru", "galleryFailSave") => "Ошибка сохранения",
+        ("ru", "callWindow") => "Звонок Google Meet",
+        ("ru", "callFixture") => "Тестовый интерфейс звонка",
+        ("ru", "remoteFixture") => "Тестовое видео собеседника",
+        ("ru", "localFixture") => "Тестовая камера",
+        ("ru", "callStateIdle") => "Звонок не активен",
+        ("ru", "callStateOpening") => "Открытие звонка…",
+        ("ru", "callStateWebSurfaceReady") => "Окно звонка готово",
+        ("ru", "callStateUserActionRequired") => "Продолжите в Google Meet",
+        ("ru", "callStateFailed") => "Звонок недоступен",
+        ("ru", "callStateClosed") => "Звонок закрыт",
+        ("ru", "cameraStarting") => "Камера запускается",
+        ("ru", "cameraActive") => "Превью своей камеры",
+        ("ru", "cameraDisabled") => "Камера выключена",
+        ("ru", "permissionDenied") => "Нет доступа к камере",
+        ("ru", "deviceUnavailable") => "Камера недоступна",
+        ("ru", "callSurface") => "Окно Google Meet",
+        ("ru", "callVolume") => "Громкость звонка",
+        ("ru", "microphoneOn") => "Выключить микрофон",
+        ("ru", "microphoneOff") => "Включить микрофон",
+        ("ru", "cameraOn") => "Выключить камеру",
+        ("ru", "cameraOff") => "Включить камеру",
+        ("ru", "hangUp") => "Завершить звонок",
+        ("ru", "pinCall") => "Закрепить поверх окон",
+        ("ru", "unpinCall") => "Открепить окно",
+        ("ru", "minimizeCall") => "Свернуть звонок",
+        ("ru", "restoreCall") => "Восстановить окно",
+        ("ru", "fullscreenCall") => "Развернуть звонок",
+        ("ru", "exitFullscreenCall") => "Вернуть размер окна",
+        ("ru", "closeCall") => "Закрыть окно звонка",
+        ("ru", "moveCall") => "Переместить окно звонка",
+        ("ru", "resizeCall") => "Изменить размер окна звонка",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -717,9 +828,36 @@ public static class SyncWatchPlayerSettings
     };
 }
 
+public sealed record CallGalleryCase(string Id, string State, string Preview);
+
+public static class SyncWatchCall
+{
+    public static string[] States => ["idle", "opening", "webSurfaceReady", "userActionRequired", "failed", "closed"];
+    public static string[] Actions => ["move", "resize", "minimize", "restore", "fullscreen", "pin", "close", "setCallVolume", "setMicrophoneEnabled", "setCameraEnabled", "hangUp"];
+    public const double MaximumExtent = 8192;
+    public static string[] PreviewStates => ["cameraStarting", "cameraActive", "cameraDisabled", "permissionDenied", "deviceUnavailable"];
+    public static System.Collections.Generic.IReadOnlyDictionary<string,string> ActionKinds => new System.Collections.Generic.Dictionary<string,string> { ["move"] = "delta", ["resize"] = "size", ["minimize"] = "none", ["restore"] = "none", ["fullscreen"] = "none", ["pin"] = "none", ["close"] = "none", ["setCallVolume"] = "volume", ["setMicrophoneEnabled"] = "boolean", ["setCameraEnabled"] = "boolean", ["hangUp"] = "none" };
+    public static CallGalleryCase[] GalleryCases => [new("idle", "idle", "cameraDisabled"), new("opening", "opening", "cameraStarting"), new("ready", "webSurfaceReady", "cameraActive"), new("actionRequired", "userActionRequired", "permissionDenied"), new("failed", "failed", "deviceUnavailable"), new("closed", "closed", "cameraDisabled"), new("previewStarting", "webSurfaceReady", "cameraStarting"), new("previewDisabled", "webSurfaceReady", "cameraDisabled"), new("previewDenied", "webSurfaceReady", "permissionDenied"), new("previewUnavailable", "webSurfaceReady", "deviceUnavailable")];
+    public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
+    {
+        ["volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
+        ["muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
+        ["fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
+        ["end"] = [[2,8,5,5,8,4,12,4,15,5,18,8,18,12,14,12,14,9,12,8,8,8,6,9,6,12,2,12]],
+        ["microphone"] = [[7,2,13,2,13,11,7,11],[4,8,6,8,6,13,14,13,14,8,16,8,16,15,11,15,11,18,9,18,9,15,4,15]],
+        ["camera"] = [[2,5,13,5,13,15,2,15],[14,8,19,5,19,15,14,12]],
+        ["pin"] = [[6,2,14,2,13,8,16,12,11,12,11,19,9,19,9,12,4,12,7,8]],
+        ["minimize"] = [[3,13,17,13,17,15,3,15]],
+        ["restore"] = [[3,4,17,4,17,6,3,6],[3,6,5,6,5,17,3,17],[5,15,17,15,17,17,5,17],[15,6,17,6,17,15,15,15]],
+        ["close"] = [[3,4,4,3,17,16,16,17],[16,3,17,4,4,17,3,16]],
+        ["resize"] = [[10,17,17,10,17,13,13,17],[4,17,17,4,17,7,7,17]],
+        ["slash"] = [[2,3,3,2,18,17,17,18]],
+    };
+}
+
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "91beeac8e9e6359960e9a0c4a264c9adcab38e3fc73b56d51e26b966497ca926";
+    public const string SourceDigest = "91c17df82be573a53dc4eee65d9712adfdecb916ae7a918486e838862ac9f72e";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -748,6 +886,7 @@ public static class SyncWatchLayouts
         ["color.light.textSecondary"] = "#617386FF",
         ["color.shared.accent"] = "#2F8CFFFF",
         ["color.shared.accentSoft"] = "#6AAFFFFF",
+        ["color.shared.callHangup"] = "#B3261EFF",
         ["color.shared.selection"] = "#2F8CFF26",
         ["color.shared.success"] = "#30D98BFF",
         ["color.shared.videoSurface"] = "#000000FF",
@@ -782,8 +921,24 @@ public static class SyncWatchLayouts
         ["control.settingsToggleWidth"] = "32",
         ["control.sliderThumbRadius"] = "6",
         ["control.sliderTrackHeight"] = "3",
+        ["layout.callButtonSize"] = "34",
+        ["layout.callFooterHeight"] = "62",
+        ["layout.callGalleryHeight"] = "300",
+        ["layout.callGalleryWidth"] = "420",
+        ["layout.callGap"] = "8",
+        ["layout.callHeaderHeight"] = "36",
+        ["layout.callIconSize"] = "18",
         ["layout.callInitialHeight"] = "210",
         ["layout.callInitialWidth"] = "300",
+        ["layout.callInset"] = "8",
+        ["layout.callMinimumHeight"] = "210",
+        ["layout.callMinimumWidth"] = "260",
+        ["layout.callPreviewHeight"] = "56",
+        ["layout.callPreviewWidth"] = "88",
+        ["layout.callRadius"] = "22",
+        ["layout.callResizeSize"] = "12",
+        ["layout.callVolumeWidth"] = "64",
+        ["layout.callWindowButtonSize"] = "26",
         ["layout.detailPadding"] = "24",
         ["layout.galleryHeight"] = "760",
         ["layout.galleryWidth"] = "1120",
@@ -836,6 +991,18 @@ public static class SyncWatchLayouts
     {
         ["symbols.playMark"] = [[5,3,17,10,5,17]],
         ["symbols.chevronDown"] = [[0,0,20,0,10,20]],
+        ["call.volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
+        ["call.muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
+        ["call.fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
+        ["call.end"] = [[2,8,5,5,8,4,12,4,15,5,18,8,18,12,14,12,14,9,12,8,8,8,6,9,6,12,2,12]],
+        ["call.microphone"] = [[7,2,13,2,13,11,7,11],[4,8,6,8,6,13,14,13,14,8,16,8,16,15,11,15,11,18,9,18,9,15,4,15]],
+        ["call.camera"] = [[2,5,13,5,13,15,2,15],[14,8,19,5,19,15,14,12]],
+        ["call.pin"] = [[6,2,14,2,13,8,16,12,11,12,11,19,9,19,9,12,4,12,7,8]],
+        ["call.minimize"] = [[3,13,17,13,17,15,3,15]],
+        ["call.restore"] = [[3,4,17,4,17,6,3,6],[3,6,5,6,5,17,3,17],[5,15,17,15,17,17,5,17],[15,6,17,6,17,15,15,15]],
+        ["call.close"] = [[3,4,4,3,17,16,16,17],[16,3,17,4,4,17,3,16]],
+        ["call.resize"] = [[10,17,17,10,17,13,13,17],[4,17,17,4,17,7,7,17]],
+        ["call.slash"] = [[2,3,3,2,18,17,17,18]],
         ["player.play"] = [[6,3,17,10,6,17]],
         ["player.pause"] = [[4,3,8,3,8,17,4,17],[12,3,16,3,16,17,12,17]],
         ["player.backward"] = [[10,3,2,10,10,17],[18,3,10,10,18,17]],
@@ -863,6 +1030,10 @@ public static class SyncWatchLayouts
         ["subtitlePreview"] = MakesubtitlePreview(),
         ["Gallery"] = MakeGallery(),
         ["fixtureVideo"] = MakefixtureVideo(),
+        ["Call"] = MakeCall(),
+        ["callFixture"] = MakecallFixture(),
+        ["callRemoteFixture"] = MakecallRemoteFixture(),
+        ["callLocalFixture"] = MakecallLocalFixture(),
     };
     private static DesignNode MakeLibrary()
     {
@@ -3939,5 +4110,780 @@ public static class SyncWatchLayouts
             ["fontSize"] = "@type.bodySize",
         }, [fixtureVideoText]);
         return fixtureVideoRoot;
+    }
+    private static DesignNode MakeCall()
+    {
+        var callTitle = new DesignNode("callTitle", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~callWindow",
+            ["lines"] = "1",
+            ["width"] = "fill",
+        }, []);
+        var callMove = new DesignNode("callMove", "gesture", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["action"] = "move",
+            ["gestureMode"] = "delta",
+            ["enabled"] = "$can.move",
+            ["automation"] = "call.move",
+            ["label"] = "~moveCall",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["gestureStep"] = "10",
+        }, [callTitle]);
+        var callPinMark = new DesignNode("callPinMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.pin",
+        }, []);
+        var callPinSlash = new DesignNode("callPinSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callPinIcon = new DesignNode("callPinIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callPinMark, callPinSlash]);
+        var callPin = new DesignNode("callPin", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callWindowButtonSize",
+            ["height"] = "@layout.callWindowButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "pin",
+            ["label"] = "~{pinLabel}",
+            ["enabled"] = "$can.pin",
+            ["automation"] = "call.pin",
+            ["background"] = "= $pinned theme.accent theme.surfaceRaised if",
+            ["foreground"] = "= $pinned @color.dark.text theme.text if",
+        }, [callPinIcon]);
+        var callRestoreMark = new DesignNode("callRestoreMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.restore",
+        }, []);
+        var callRestoreSlash = new DesignNode("callRestoreSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callRestoreIcon = new DesignNode("callRestoreIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callRestoreMark, callRestoreSlash]);
+        var callRestore = new DesignNode("callRestore", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callWindowButtonSize",
+            ["height"] = "@layout.callWindowButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "restore",
+            ["label"] = "~restoreCall",
+            ["enabled"] = "$can.restore",
+            ["automation"] = "call.restore",
+            ["background"] = "= false theme.accent theme.surfaceRaised if",
+            ["foreground"] = "= false @color.dark.text theme.text if",
+        }, [callRestoreIcon]);
+        var callMinimizeMark = new DesignNode("callMinimizeMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.minimize",
+        }, []);
+        var callMinimizeSlash = new DesignNode("callMinimizeSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callMinimizeIcon = new DesignNode("callMinimizeIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callMinimizeMark, callMinimizeSlash]);
+        var callMinimize = new DesignNode("callMinimize", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callWindowButtonSize",
+            ["height"] = "@layout.callWindowButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "minimize",
+            ["label"] = "~minimizeCall",
+            ["enabled"] = "$can.minimize",
+            ["automation"] = "call.minimize",
+            ["background"] = "= false theme.accent theme.surfaceRaised if",
+            ["foreground"] = "= false @color.dark.text theme.text if",
+        }, [callMinimizeIcon]);
+        var callMinimizeSwitch = new DesignNode("callMinimizeSwitch", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$minimized",
+        }, [callRestore, callMinimize]);
+        var callFullscreenMark = new DesignNode("callFullscreenMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "{fullscreenIcon}",
+        }, []);
+        var callFullscreenSlash = new DesignNode("callFullscreenSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callFullscreenIcon = new DesignNode("callFullscreenIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callFullscreenMark, callFullscreenSlash]);
+        var callFullscreen = new DesignNode("callFullscreen", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callWindowButtonSize",
+            ["height"] = "@layout.callWindowButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "fullscreen",
+            ["label"] = "~{fullscreenLabel}",
+            ["enabled"] = "$can.fullscreen",
+            ["automation"] = "call.fullscreen",
+            ["background"] = "= false theme.accent theme.surfaceRaised if",
+            ["foreground"] = "= false @color.dark.text theme.text if",
+        }, [callFullscreenIcon]);
+        var callCloseMark = new DesignNode("callCloseMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.close",
+        }, []);
+        var callCloseSlash = new DesignNode("callCloseSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callCloseIcon = new DesignNode("callCloseIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callCloseMark, callCloseSlash]);
+        var callClose = new DesignNode("callClose", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callWindowButtonSize",
+            ["height"] = "@layout.callWindowButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "close",
+            ["label"] = "~closeCall",
+            ["enabled"] = "$can.close",
+            ["automation"] = "call.close",
+            ["background"] = "= false theme.accent theme.surfaceRaised if",
+            ["foreground"] = "= false @color.dark.text theme.text if",
+        }, [callCloseIcon]);
+        var callHeader = new DesignNode("callHeader", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@layout.callHeaderHeight",
+            ["paddingX"] = "@layout.callInset",
+            ["gap"] = "= @layout.callGap 2 /",
+        }, [callMove, callPin, callMinimizeSwitch, callFullscreen, callClose]);
+        var callRemote = new DesignNode("callRemote", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "remoteCallSurface",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var callStatus = new DesignNode("callStatus", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "~{callStateLabel}",
+            ["foreground"] = "@color.dark.text",
+            ["padding"] = "@layout.callInset",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var callRemoteSwitch = new DesignNode("callRemoteSwitch", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$showRemote",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [callRemote, callStatus]);
+        var callLocal = new DesignNode("callLocal", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "localCameraPreview",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var callPreviewStatus = new DesignNode("callPreviewStatus", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "~{previewLabel}",
+            ["fontSize"] = "@type.captionSize",
+            ["foreground"] = "theme.textSecondary",
+            ["padding"] = "2",
+        }, []);
+        var callPreviewSwitch = new DesignNode("callPreviewSwitch", "if", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["condition"] = "$showLocal",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [callLocal, callPreviewStatus]);
+        var callPreview = new DesignNode("callPreview", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callPreviewWidth",
+            ["height"] = "@layout.callPreviewHeight",
+            ["background"] = "theme.surfaceRaised",
+            ["radius"] = "@control.fieldRadius",
+            ["clip"] = "true",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["label"] = "~{previewLabel}",
+            ["offsetX"] = "= @layout.callPreviewWidth $viewport.width - 2 / @layout.callInset +",
+            ["offsetY"] = "= @layout.callPreviewHeight $viewport.height @layout.callHeaderHeight - @layout.callFooterHeight - - 2 / @layout.callInset +",
+        }, [callPreviewSwitch]);
+        var callMedia = new DesignNode("callMedia", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["background"] = "@color.shared.videoSurface",
+            ["clip"] = "true",
+            ["label"] = "~callSurface",
+        }, [callRemoteSwitch, callPreview]);
+        var callFooterLeading = new DesignNode("callFooterLeading", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+        }, []);
+        var callMicrophoneMark = new DesignNode("callMicrophoneMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.microphone",
+        }, []);
+        var callMicrophoneSlash = new DesignNode("callMicrophoneSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "$microphoneOff",
+        }, []);
+        var callMicrophoneIcon = new DesignNode("callMicrophoneIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callMicrophoneMark, callMicrophoneSlash]);
+        var callMicrophone = new DesignNode("callMicrophone", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callButtonSize",
+            ["height"] = "@layout.callButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "= $microphoneEnabled @color.dark.text theme.text if",
+            ["background"] = "= $microphoneEnabled theme.accent theme.surfaceRaised if",
+            ["action"] = "setMicrophoneEnabled",
+            ["label"] = "~{microphoneLabel}",
+            ["enabled"] = "$can.setMicrophoneEnabled",
+            ["automation"] = "call.setMicrophoneEnabled",
+            ["value"] = "$nextMicrophone",
+        }, [callMicrophoneIcon]);
+        var callCameraMark = new DesignNode("callCameraMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.camera",
+        }, []);
+        var callCameraSlash = new DesignNode("callCameraSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "$cameraOff",
+        }, []);
+        var callCameraIcon = new DesignNode("callCameraIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callCameraMark, callCameraSlash]);
+        var callCamera = new DesignNode("callCamera", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callButtonSize",
+            ["height"] = "@layout.callButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "= $cameraEnabled @color.dark.text theme.text if",
+            ["background"] = "= $cameraEnabled theme.accent theme.surfaceRaised if",
+            ["action"] = "setCameraEnabled",
+            ["label"] = "~{cameraLabel}",
+            ["enabled"] = "$can.setCameraEnabled",
+            ["automation"] = "call.setCameraEnabled",
+            ["value"] = "$nextCamera",
+        }, [callCameraIcon]);
+        var callHangUpMark = new DesignNode("callHangUpMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.end",
+        }, []);
+        var callHangUpSlash = new DesignNode("callHangUpSlash", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "call.slash",
+            ["when"] = "false",
+        }, []);
+        var callHangUpIcon = new DesignNode("callHangUpIcon", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+        }, [callHangUpMark, callHangUpSlash]);
+        var callHangUp = new DesignNode("callHangUp", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callButtonSize",
+            ["height"] = "@layout.callButtonSize",
+            ["radius"] = "circle",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["foreground"] = "@color.dark.text",
+            ["background"] = "= @color.shared.callHangup",
+            ["action"] = "hangUp",
+            ["label"] = "~hangUp",
+            ["enabled"] = "$can.hangUp",
+            ["automation"] = "call.hangUp",
+        }, [callHangUpIcon]);
+        var callVolumeIcon = new DesignNode("callVolumeIcon", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callIconSize",
+            ["height"] = "@layout.callIconSize",
+            ["name"] = "{volumeIcon}",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var callVolume = new DesignNode("callVolume", "range", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["height"] = "@control.playerSliderHeight",
+            ["trackHeight"] = "@control.sliderTrackHeight",
+            ["thumbSize"] = "@control.playerSliderThumbSize",
+            ["trackFill"] = "theme.border",
+            ["progressFill"] = "theme.accent",
+            ["thumbFill"] = "theme.accent",
+            ["focusRadius"] = "@control.fieldRadius",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "setCallVolume",
+            ["value"] = "$volume",
+            ["minimum"] = "0",
+            ["maximum"] = "1",
+            ["step"] = "0.05",
+            ["width"] = "@layout.callVolumeWidth",
+            ["enabled"] = "$can.setCallVolume",
+            ["label"] = "~callVolume",
+            ["automation"] = "call.setCallVolume",
+        }, []);
+        var callFooterTrailing = new DesignNode("callFooterTrailing", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+        }, []);
+        var callFooter = new DesignNode("callFooter", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "@layout.callFooterHeight",
+            ["gap"] = "@layout.callGap",
+        }, [callFooterLeading, callMicrophone, callCamera, callHangUp, callVolumeIcon, callVolume, callFooterTrailing]);
+        var callColumn = new DesignNode("callColumn", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, [callHeader, callMedia, callFooter]);
+        var callResizeMark = new DesignNode("callResizeMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "@layout.callResizeSize",
+            ["height"] = "@layout.callResizeSize",
+            ["name"] = "call.resize",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var callResize = new DesignNode("callResize", "gesture", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["action"] = "resize",
+            ["gestureMode"] = "extent",
+            ["enabled"] = "$can.resize",
+            ["automation"] = "call.resize",
+            ["label"] = "~resizeCall",
+            ["gestureStep"] = "10",
+            ["minimumX"] = "@layout.callMinimumWidth",
+            ["minimumY"] = "@layout.callMinimumHeight",
+            ["maximumX"] = "$maximumExtent",
+            ["maximumY"] = "$maximumExtent",
+            ["originWidth"] = "$viewport.width",
+            ["originHeight"] = "$viewport.height",
+            ["padding"] = "2",
+            ["offsetX"] = "= $viewport.width @layout.callResizeSize - 2 / @layout.callInset -",
+            ["offsetY"] = "= $viewport.height @layout.callResizeSize - 2 / @layout.callInset -",
+            ["align"] = "center",
+        }, [callResizeMark]);
+        var callRoot = new DesignNode("callRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["minWidth"] = "@layout.callMinimumWidth",
+            ["minHeight"] = "@layout.callMinimumHeight",
+            ["fontSize"] = "@type.playerLabelSize",
+            ["foreground"] = "theme.text",
+            ["background"] = "theme.backgroundDeep",
+            ["radius"] = "= $fullscreen 0 @layout.callRadius if",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["clip"] = "true",
+        }, [callColumn, callResize]);
+        return callRoot;
+    }
+    private static DesignNode MakecallFixture()
+    {
+        var callFixtureContent = new DesignNode("callFixtureContent", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "callFixtureContent",
+            ["width"] = "@layout.callInitialWidth",
+            ["height"] = "@layout.callInitialHeight",
+        }, []);
+        var callFixtureCaption = new DesignNode("callFixtureCaption", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.captionSize",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~callFixture",
+        }, []);
+        var callFixtureRoot = new DesignNode("callFixtureRoot", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["gap"] = "@layout.panelGap",
+        }, [callFixtureContent, callFixtureCaption]);
+        return callFixtureRoot;
+    }
+    private static DesignNode MakecallRemoteFixture()
+    {
+        var callRemoteFixtureRoot = new DesignNode("callRemoteFixtureRoot", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "~remoteFixture",
+            ["foreground"] = "@color.dark.text",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        return callRemoteFixtureRoot;
+    }
+    private static DesignNode MakecallLocalFixture()
+    {
+        var callLocalFixtureRoot = new DesignNode("callLocalFixtureRoot", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "center",
+            ["text"] = "~localFixture",
+            ["foreground"] = "@color.dark.text",
+            ["fontSize"] = "@type.captionSize",
+            ["background"] = "theme.accent",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        return callLocalFixtureRoot;
     }
 }

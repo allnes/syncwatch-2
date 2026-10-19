@@ -18,6 +18,7 @@
     "player-settings.json",
     "layouts.json",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "call.json"
   ]
 }

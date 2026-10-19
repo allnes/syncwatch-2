@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows and Compose",
-  "status": "Library, Settings, PlayerChrome and PlayerSettings render through the shared declarative tree in SwiftUI/WPF; matching generic Compose source is pending its dependency build. Media/provider integration, call components and remaining overlays are not available.",
+  "status": "Library, Settings, Player, PlayerSettings and Call render from one declarative document through SwiftUI/WPF primitive adapters and matching source-only Compose. Provider integration remains unavailable.",
   "components": {
     "LibraryLayout": {
       "structure": [
@@ -192,7 +192,19 @@
         "permissionDenied",
         "deviceUnavailable"
       ],
-      "providerSurface": "Google Meet top-level web page. Authentication, actual self-view, initial camera state, isolated call volume, inactive-audio silence, and the minimum usable viewport must pass call acceptance."
+      "providerSurface": "Google Meet top-level web page. Authentication, actual self-view, initial camera state, isolated call volume, inactive-audio silence, and the minimum usable viewport must pass call acceptance.",
+      "galleryCases": [
+        "idle",
+        "opening",
+        "ready",
+        "actionRequired",
+        "failed",
+        "closed",
+        "previewStarting",
+        "previewDisabled",
+        "previewDenied",
+        "previewUnavailable"
+      ]
     }
   }
 }

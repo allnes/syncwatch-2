@@ -16,7 +16,11 @@ public struct PlayerSettingsGallery: View {
     public init() {}
     public var body: some View { DesignFixtureGallery(subject: .playerSettings) }
 }
-private enum DesignFixtureSubject { case library, settings, player, playerSettings }
+public struct CallGallery: View {
+    public init() {}
+    public var body: some View { DesignFixtureGallery(subject: .call) }
+}
+private enum DesignFixtureSubject { case library, settings, player, playerSettings, call }
 
 /// Fixture state only. Gallery composition and modal placement are part of the shared document.
 private struct DesignFixtureGallery: View {
@@ -28,6 +32,7 @@ private struct DesignFixtureGallery: View {
     @State private var state = ""
     @State private var lastAction = ""
     @State private var library = LibraryPresentation.gallery(.selected)
+    @State private var call = CallPresentation.gallery(SyncWatchCall.galleryCases[2])
     @State private var player = PlayerPresentation.gallery(.paused)
     @State private var settings = SettingsEditor(editableFields: Set(SyncWatchSettings.defaults.keys), canSave: true)
     @State private var playerSettings = PlayerSettingsEditor(
@@ -45,9 +50,12 @@ private struct DesignFixtureGallery: View {
         case .settings: SyncWatchSettings.states
         case .player: SyncWatchPlayer.states
         case .playerSettings: SyncWatchPlayerSettings.states
+        case .call: SyncWatchCall.galleryCases.map(\.id)
         }
     }
-    private var initialState: String { subject == .library ? "selected" : subject == .player ? "paused" : "editing" }
+    private var initialState: String {
+        subject == .library ? "selected" : subject == .player ? "paused" : subject == .call ? "ready" : "editing"
+    }
     private var selectedSection: String { section.isEmpty ? sections.first ?? "" : section }
     private func choice(_ id: String, value: String, options: [String]) -> DesignContext {
         let label = "gallery" + id.prefix(1).uppercased() + id.dropFirst()
@@ -93,6 +101,8 @@ private struct DesignFixtureGallery: View {
                         settings = SettingsEditor(
                             editableFields: Set(SyncWatchSettings.defaults.keys), canSave: true, state: s)
                     }
+                case .call:
+                    if let item = SyncWatchCall.galleryCases.first(where: { $0.id == value }) { call = .gallery(item) }
                 case .playerSettings:
                     if let s = PlayerSettingsVisualState(rawValue: value) {
                         playerSettings = PlayerSettingsEditor(
@@ -122,6 +132,21 @@ private struct DesignFixtureGallery: View {
                 PlayerSettingsDialog(
                     editor: $playerSettings, language: language, section: selectedSection, onSave: { _ in !failSave }
                 ).id(selectedSection))
+        case .call:
+            AnyView(
+                DesignSurface(
+                    "callFixture", language: language,
+                    slots: [
+                        "callFixtureContent": AnyView(
+                            CallWindowShell(
+                                presentation: call, language: language,
+                                remoteSurface: AnyView(DesignSurface("callRemoteFixture", language: language)),
+                                localPreview: AnyView(DesignSurface("callLocalFixture", language: language))
+                            ) { request in
+                                lastAction = request.action
+                                call = call.applyingFixture(request)
+                            })
+                    ]))
         case .player:
             AnyView(
                 PlayerChrome(

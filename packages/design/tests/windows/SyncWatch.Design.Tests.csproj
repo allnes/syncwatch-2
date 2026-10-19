@@ -23,5 +23,7 @@
         <Compile Include="../../windows/DesignBindings.cs" Link="DesignBindings.cs" />
         <Compile Include="../../windows/DesignGalleries.cs" Link="DesignGalleries.cs" />
         <None Include="../fixtures/layout-probes.json" Link="layout-probes.json" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Include="../../windows/CallWindowShell.cs" Link="CallWindowShell.cs" />
+        <None Include="../fixtures/call-actions.json" Link="call-actions.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

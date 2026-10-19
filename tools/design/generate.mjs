@@ -7,6 +7,7 @@ import {compileLayouts, csharpLayouts, kotlinLayouts, swiftLayouts, validateLayo
 import {csharp, normalized, swift, validateThemes, validateTokens, xaml} from './native-formats.mjs';
 import {csharpSettings, kotlinSettings, swiftSettings, validateSettings} from './settings-formats.mjs';
 import {csharpPlayerSettings, kotlinPlayerSettings, swiftPlayerSettings, validatePlayerSettings} from './player-settings-formats.mjs';
+import {csharpCall, kotlinCall, swiftCall, validateCall} from './call-formats.mjs';
 import {csharpPlayer, kotlinPlayer, swiftPlayer, validatePlayer} from './player-formats.mjs';
 import {csharpCopy, kotlin, swiftCopy, validateCopy} from './presentation-formats.mjs';
 
@@ -52,6 +53,8 @@ const settings = readSource('settings.json');
 validateSettings(settings, components, copy);
 const player = readSource('player.json');
 validatePlayer(player, components, copy);
+const call = readSource('call.json');
+validateCall(call, components, copy);
 const playerSettings = readSource('player-settings.json');
 validatePlayerSettings(playerSettings, components, copy, ids);
 const layouts = readSource('layouts.json');
@@ -63,7 +66,7 @@ for (const component of Object.values(components.components ?? {})) for (const i
 if (readSource('package.json').license !== 'Apache-2.0') throw Error('Design package license changed');
 const generatorFiles = [
     'tools/design/generate.mjs', 'tools/design/native-formats.mjs', 'tools/design/build.mjs',
-    'tools/design/runtime.mjs', 'tools/design/sd-utils.mjs', 'tools/design/sources.json', 'tools/design/presentation-formats.mjs', 'tools/design/settings-formats.mjs', 'tools/design/player-formats.mjs', 'tools/design/player-settings-formats.mjs', 'tools/design/layout-formats.mjs',
+    'tools/design/runtime.mjs', 'tools/design/sd-utils.mjs', 'tools/design/sources.json', 'tools/design/presentation-formats.mjs', 'tools/design/settings-formats.mjs', 'tools/design/player-formats.mjs', 'tools/design/player-settings-formats.mjs', 'tools/design/layout-formats.mjs', 'tools/design/call-formats.mjs',
 ];
 const files = Object.fromEntries(generatorFiles.map(path => [path, hash(readFileSync(join(root, path)))]));
 const registry = JSON.parse(readFileSync(join(root, 'tools/dependencies/components.json'))).components['design-generator'];
@@ -72,15 +75,15 @@ const generatorRevision = hash(JSON.stringify({files, sourceRevisions}));
 // Load all first-party code and Node builtins above before the guard is installed.
 const {createDictionary, version} = await import(pathToFileURL(join(resolve(runtime), 'runtime.mjs')).href);
 const formats = {
-    'syncwatch/swift': ({dictionary}) => swift(normalized(dictionary), themes) + swiftCopy(copy) + swiftSettings(settings) + swiftPlayer(player) + swiftPlayerSettings(playerSettings) + swiftLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes), hash(JSON.stringify(layouts))),
-    'syncwatch/csharp': ({dictionary}) => csharp(normalized(dictionary)) + csharpCopy(copy) + csharpSettings(settings) + csharpPlayer(player) + csharpPlayerSettings(playerSettings) + csharpLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes), hash(JSON.stringify(layouts))),
+    'syncwatch/swift': ({dictionary}) => swift(normalized(dictionary), themes) + swiftCopy(copy) + swiftSettings(settings) + swiftPlayer(player) + swiftPlayerSettings(playerSettings) + swiftCall(call) + swiftLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
+    'syncwatch/csharp': ({dictionary}) => csharp(normalized(dictionary)) + csharpCopy(copy) + csharpSettings(settings) + csharpPlayer(player) + csharpPlayerSettings(playerSettings) + csharpCall(call) + csharpLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
     'syncwatch/xaml': ({dictionary}) => xaml(normalized(dictionary), themes),
     'syncwatch/manifest': ({dictionary}) => JSON.stringify({
         schemaVersion: 1, units: 'logical', sourceDigest: hash(JSON.stringify(sources)), sources,
         generatorRevision, generator: {styleDictionary: version, files, sourceRevisions},
-        themes: themes.themes, copy, settings, player, playerSettings, layouts, tokens: normalized(dictionary),
+        themes: themes.themes, copy, settings, player, playerSettings, call, layouts, tokens: normalized(dictionary),
     }, null, 2) + '\n',
-    'syncwatch/kotlin': ({dictionary}) => kotlin(normalized(dictionary), themes, copy) + kotlinSettings(settings) + kotlinPlayer(player) + kotlinPlayerSettings(playerSettings) + kotlinLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes), hash(JSON.stringify(layouts))),
+    'syncwatch/kotlin': ({dictionary}) => kotlin(normalized(dictionary), themes, copy) + kotlinSettings(settings) + kotlinPlayer(player) + kotlinPlayerSettings(playerSettings) + kotlinCall(call) + kotlinLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
 };
 const destinations = ['apple/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 const dictionary = await createDictionary({tokens, usesDtcg: false, log: {verbosity: 'silent', warnings: 'error'}, hooks: {formats}, platforms: {
