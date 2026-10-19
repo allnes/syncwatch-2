@@ -121,7 +121,7 @@ public class DesignSurface : UserControl
                         if (!row && child.Props.ContainsKey("width") && child.Text("width") != "fill") view.HorizontalAlignment = n.Text("align") == "center" ? HorizontalAlignment.Center : HorizontalAlignment.Left;
                     }
                 });
-                Bind(id, n => { for (int i = 0; i < n.Children.Length; i++) { var child = n.Children[i]; var size = child.Text(row ? "width" : "height") == "fill" || child.Kind == "spacer" ? new GridLength(1, GridUnitType.Star) : GridLength.Auto; if (row) { grid.ColumnDefinitions[i * 2].Width = size; if (i > 0) grid.ColumnDefinitions[i * 2 - 1].Width = new GridLength(n.Number("gap")); } else { grid.RowDefinitions[i * 2].Height = size; if (i > 0) grid.RowDefinitions[i * 2 - 1].Height = new GridLength(n.Number("gap")); } } }); core = grid; break;
+                Bind(id, n => { grid.HorizontalAlignment = row && n.Text("align") == "trailing" ? HorizontalAlignment.Right : HorizontalAlignment.Stretch; for (int i = 0; i < n.Children.Length; i++) { var child = n.Children[i]; var size = child.Text(row ? "width" : "height") == "fill" || child.Kind == "spacer" ? new GridLength(1, GridUnitType.Star) : GridLength.Auto; if (row) { grid.ColumnDefinitions[i * 2].Width = size; if (i > 0) grid.ColumnDefinitions[i * 2 - 1].Width = new GridLength(n.Number("gap")); } else { grid.RowDefinitions[i * 2].Height = size; if (i > 0) grid.RowDefinitions[i * 2 - 1].Height = new GridLength(n.Number("gap")); } } }); core = grid; break;
             case "overlay": var overlay = Existing(() => new Grid()); Reconcile(overlay, node.Children.Select(child => (UIElement)Build(child.Id)).ToArray()); core = overlay; break;
             case "scroll":
                 var scroll = Existing(() => new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
@@ -160,7 +160,7 @@ public class DesignSurface : UserControl
                 if (!ReferenceEquals(gesture.Tag, gestureChild))
                 {
                     gesture.Template = null; gesture.ApplyTemplate(); Detach(gestureChild);
-                    var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); presenter.SetBinding(ContentPresenter.ContentProperty, new System.Windows.Data.Binding("Tag") { RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent) });
+                    var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); presenter.SetBinding(ContentPresenter.ContentProperty, new System.Windows.Data.Binding("Tag") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
                     gesture.Template = new ControlTemplate(typeof(Thumb)) { VisualTree = presenter }; gesture.Tag = gestureChild;
                 }
                 Bind(id, n => gesture.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"));
@@ -230,7 +230,7 @@ public class DesignSurface : UserControl
         {
             Frame(border, n); border.RenderTransform = new TranslateTransform(n.Number("offsetX"), n.Number("offsetY")); border.Padding = Insets(n); border.CornerRadius = Radius(n); border.BorderThickness = new Thickness(n.Number("borderWidth")); Paint(border, Border.BackgroundProperty, n.Text("background")); Paint(border, Border.BorderBrushProperty, n.Text("border"));
             if (!n.Text("gradient").Equals("", StringComparison.Ordinal)) { var brush = new LinearGradientBrush { StartPoint = PointValue(n.Text("gradientStart")), EndPoint = PointValue(n.Text("gradientEnd")) }; var colors = n.Text("gradient").Split('|'); var offsets = n.Text("gradientOffsets").Split('|'); for (int i = 0; i < Math.Min(colors.Length, offsets.Length); i++) brush.GradientStops.Add(new GradientStop(((SolidColorBrush)Brush(colors[i], border)).Color, DesignContext.Number(offsets[i]))); border.Background = brush; }
-            if (core is TextBlock t) { t.FontSize = Math.Max(1, n.Number("fontSize")); t.FontWeight = Weight(n.Text("weight")); Paint(t, TextBlock.ForegroundProperty, n.Text("foreground")); AutomationProperties.SetAutomationId(t, n.Text("automation")); }
+            if (core is TextBlock t) { t.VerticalAlignment = n.Text("height") == "fill" && n.Text("align") != "top" ? VerticalAlignment.Center : VerticalAlignment.Stretch; t.FontSize = Math.Max(1, n.Number("fontSize")); t.FontWeight = Weight(n.Text("weight")); t.LineHeight = t.FontFamily.LineSpacing * t.FontSize; t.LineStackingStrategy = LineStackingStrategy.BlockLineHeight; t.MaxHeight = n.Props.ContainsKey("lines") ? t.LineHeight * Math.Max(1, n.Number("lines")) : double.PositiveInfinity; Paint(t, TextBlock.ForegroundProperty, n.Text("foreground")); AutomationProperties.SetAutomationId(t, n.Text("automation")); }
             AutomationProperties.SetName(border, n.Text("label")); ClipFrame(border, n);
             if (n.Props.ContainsKey("backgroundOpacity") && border.Background is Brush fill) { var clone = fill.CloneCurrentValue(); clone.Opacity *= Math.Clamp(n.Number("backgroundOpacity"), 0, 1); border.Background = clone; }
         });

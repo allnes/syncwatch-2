@@ -163,7 +163,7 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
     fun emit(value:String?=null) { if(enabled) currentEvent(DesignEvent(n.text("action"),value?:n.props["value"],n.props["payload"])) }
     val frame=modifier.designFrame(n,theme).semantics { if(n.text("label").isNotEmpty()) contentDescription=n.text("label"); if(n.flag("selected")) selected=true }
     when(n.kind){
-        "row"->Row(frame,verticalAlignment=if(n.text("align")=="top") Alignment.Top else Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(n.number("gap").dp)) {
+        "row"->Row(frame,verticalAlignment=if(n.text("align")=="top") Alignment.Top else Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(n.number("gap").dp,if(n.text("align")=="trailing") Alignment.End else if(n.text("align")=="center") Alignment.CenterHorizontally else Alignment.Start)) {
             n.children.forEach { c->key(c.id){RenderDesignNode(c,theme,slots,onEvent,if(c.text("width")=="fill"||c.kind=="spacer") Modifier.weight(1f) else Modifier)} }
         }
         "column"->Column(frame,verticalArrangement=Arrangement.spacedBy(n.number("gap").dp),horizontalAlignment=if(n.text("align")=="center") Alignment.CenterHorizontally else Alignment.Start) {
