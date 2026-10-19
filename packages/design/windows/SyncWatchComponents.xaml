@@ -142,4 +142,38 @@
             </ControlTemplate.Triggers>
         </ControlTemplate></Setter.Value></Setter>
     </Style>
+    <Style x:Key="SyncWatch.PlayerButton" TargetType="Button">
+        <Setter Property="Width" Value="{StaticResource control.playerButtonSize}" />
+        <Setter Property="Height" Value="{StaticResource control.playerButtonSize}" />
+        <Setter Property="Background" Value="{DynamicResource theme.surfaceRaised.brush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource theme.border.brush}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Grid><Ellipse x:Name="Chrome" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{StaticResource control.borderWidth}" /><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" /></Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="Stroke" Value="{DynamicResource theme.accentSoft.brush}" /></Trigger>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Stroke" Value="{DynamicResource theme.accent.brush}" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter Property="Opacity" Value="0.75" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="SyncWatch.PlayerProminentButton" TargetType="Button" BasedOn="{StaticResource SyncWatch.PlayerButton}">
+        <Setter Property="Width" Value="{StaticResource control.playerProminentSize}" />
+        <Setter Property="Height" Value="{StaticResource control.playerProminentSize}" />
+        <Setter Property="Background" Value="{DynamicResource theme.accent.brush}" />
+    </Style>
+    <Style x:Key="SyncWatch.PlayerSlider" TargetType="Slider">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Height" Value="{StaticResource control.playerSliderHeight}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Slider">
+            <Grid Background="Transparent">
+                <Track x:Name="PART_Track" Orientation="Horizontal" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}">
+                    <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static Slider.DecreaseLarge}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Height="{StaticResource control.sliderTrackHeight}" Background="{DynamicResource theme.accent.brush}" VerticalAlignment="Center" /></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
+                    <Track.Thumb><Thumb Width="{StaticResource control.playerSliderThumbSize}" Height="{StaticResource control.playerSliderThumbSize}"><Thumb.Template><ControlTemplate TargetType="Thumb"><Ellipse Fill="{DynamicResource theme.accent.brush}" /></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                    <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Height="{StaticResource control.sliderTrackHeight}" Background="{DynamicResource theme.border.brush}" VerticalAlignment="Center" /></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+            <ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger></ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
 </ResourceDictionary>

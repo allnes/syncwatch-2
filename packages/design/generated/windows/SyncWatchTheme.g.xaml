@@ -44,6 +44,8 @@
     <SolidColorBrush x:Key="color.shared.selection.brush" Color="{StaticResource color.shared.selection}" />
     <Color x:Key="color.shared.success">#FF30D98B</Color>
     <SolidColorBrush x:Key="color.shared.success.brush" Color="{StaticResource color.shared.success}" />
+    <Color x:Key="color.shared.videoSurface">#FF000000</Color>
+    <SolidColorBrush x:Key="color.shared.videoSurface.brush" Color="{StaticResource color.shared.videoSurface}" />
     <sys:Double x:Key="control.borderWidth">1</sys:Double>
     <Thickness x:Key="control.borderWidth.thickness">1</Thickness>
     <CornerRadius x:Key="control.borderWidth.cornerRadius">1</CornerRadius>
@@ -80,6 +82,21 @@
     <sys:Double x:Key="control.outlinedButtonMinHeight">44</sys:Double>
     <Thickness x:Key="control.outlinedButtonMinHeight.thickness">44</Thickness>
     <CornerRadius x:Key="control.outlinedButtonMinHeight.cornerRadius">44</CornerRadius>
+    <sys:Double x:Key="control.playerButtonSize">38</sys:Double>
+    <Thickness x:Key="control.playerButtonSize.thickness">38</Thickness>
+    <CornerRadius x:Key="control.playerButtonSize.cornerRadius">38</CornerRadius>
+    <sys:Double x:Key="control.playerIconSize">20</sys:Double>
+    <Thickness x:Key="control.playerIconSize.thickness">20</Thickness>
+    <CornerRadius x:Key="control.playerIconSize.cornerRadius">20</CornerRadius>
+    <sys:Double x:Key="control.playerProminentSize">46</sys:Double>
+    <Thickness x:Key="control.playerProminentSize.thickness">46</Thickness>
+    <CornerRadius x:Key="control.playerProminentSize.cornerRadius">46</CornerRadius>
+    <sys:Double x:Key="control.playerSliderHeight">20</sys:Double>
+    <Thickness x:Key="control.playerSliderHeight.thickness">20</Thickness>
+    <CornerRadius x:Key="control.playerSliderHeight.cornerRadius">20</CornerRadius>
+    <sys:Double x:Key="control.playerSliderThumbSize">12</sys:Double>
+    <Thickness x:Key="control.playerSliderThumbSize.thickness">12</Thickness>
+    <CornerRadius x:Key="control.playerSliderThumbSize.cornerRadius">12</CornerRadius>
     <sys:Double x:Key="control.rowMinHeight">62</sys:Double>
     <Thickness x:Key="control.rowMinHeight.thickness">62</Thickness>
     <CornerRadius x:Key="control.rowMinHeight.cornerRadius">62</CornerRadius>
@@ -146,15 +163,27 @@
     <sys:Double x:Key="layout.playerBottomInset">78</sys:Double>
     <Thickness x:Key="layout.playerBottomInset.thickness">78</Thickness>
     <CornerRadius x:Key="layout.playerBottomInset.cornerRadius">78</CornerRadius>
+    <sys:Double x:Key="layout.playerFooterHeight">86</sys:Double>
+    <Thickness x:Key="layout.playerFooterHeight.thickness">86</Thickness>
+    <CornerRadius x:Key="layout.playerFooterHeight.cornerRadius">86</CornerRadius>
     <sys:Double x:Key="layout.playerSettingsHeight">460</sys:Double>
     <Thickness x:Key="layout.playerSettingsHeight.thickness">460</Thickness>
     <CornerRadius x:Key="layout.playerSettingsHeight.cornerRadius">460</CornerRadius>
     <sys:Double x:Key="layout.playerSettingsSidebarWidth">170</sys:Double>
     <Thickness x:Key="layout.playerSettingsSidebarWidth.thickness">170</Thickness>
     <CornerRadius x:Key="layout.playerSettingsSidebarWidth.cornerRadius">170</CornerRadius>
+    <sys:Double x:Key="layout.playerTimeWidth">64</sys:Double>
+    <Thickness x:Key="layout.playerTimeWidth.thickness">64</Thickness>
+    <CornerRadius x:Key="layout.playerTimeWidth.cornerRadius">64</CornerRadius>
+    <sys:Double x:Key="layout.playerToolbarHeight">40</sys:Double>
+    <Thickness x:Key="layout.playerToolbarHeight.thickness">40</Thickness>
+    <CornerRadius x:Key="layout.playerToolbarHeight.cornerRadius">40</CornerRadius>
     <sys:Double x:Key="layout.playerTopInset">32</sys:Double>
     <Thickness x:Key="layout.playerTopInset.thickness">32</Thickness>
     <CornerRadius x:Key="layout.playerTopInset.cornerRadius">32</CornerRadius>
+    <sys:Double x:Key="layout.playerVolumeWidth">96</sys:Double>
+    <Thickness x:Key="layout.playerVolumeWidth.thickness">96</Thickness>
+    <CornerRadius x:Key="layout.playerVolumeWidth.cornerRadius">96</CornerRadius>
     <sys:Double x:Key="layout.sectionGap">10</sys:Double>
     <Thickness x:Key="layout.sectionGap.thickness">10</Thickness>
     <CornerRadius x:Key="layout.sectionGap.cornerRadius">10</CornerRadius>
@@ -209,6 +238,9 @@
     <sys:Double x:Key="type.captionSize">12</sys:Double>
     <Thickness x:Key="type.captionSize.thickness">12</Thickness>
     <CornerRadius x:Key="type.captionSize.cornerRadius">12</CornerRadius>
+    <sys:Double x:Key="type.playerLabelSize">12</sys:Double>
+    <Thickness x:Key="type.playerLabelSize.thickness">12</Thickness>
+    <CornerRadius x:Key="type.playerLabelSize.cornerRadius">12</CornerRadius>
     <sys:Double x:Key="type.sectionSize">19</sys:Double>
     <Thickness x:Key="type.sectionSize.thickness">19</Thickness>
     <CornerRadius x:Key="type.sectionSize.cornerRadius">19</CornerRadius>

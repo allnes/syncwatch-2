@@ -35,6 +35,47 @@ function fixture(change = () => {}) {
     return directory;
 }
 const name = id => id.split('.').map(part => part[0].toUpperCase() + part.slice(1)).join('');
+
+test('player states, supported actions and first-party polygons generate into all clients', () => {
+    const output = join(temporary, 'player-metadata');
+    success(generate(join(root, 'packages/design'), output));
+    const manifest = JSON.parse(readFileSync(join(output, files[3])));
+    assert.deepEqual(manifest.player, JSON.parse(readFileSync(join(root, 'packages/design/player.json'))));
+    for (const file of [files[0], files[1], files[4]]) {
+        const text = readFileSync(join(output, file), 'utf8');
+        assert.ok(text.includes('SyncWatchPlayer'));
+        for (const state of manifest.player.states) assert.ok(text.includes('"' + state + '"'));
+        for (const [icon, polygons] of Object.entries(manifest.player.icons)) {
+            assert.ok(text.includes('"' + icon + '"'));
+            assert.ok(polygons.every(p => p.length >= 6 && p.length % 2 === 0));
+        }
+        assert.ok(text.replaceAll('_', '').includes('604800000'));
+    }
+});
+
+test('invalid player contracts and polygon bounds fail before native generation', () => {
+    for (const change of [s => s.schemaVersion = 2, s => s.states.reverse(), s => s.actions.push('unknown'),
+        s => s.maximumPositionMs++, s => s.icons.play = [[0, 1, 2]], s => s.icons.play[0][0] = 21,
+        s => s.icons.play[0][0] = null, s => delete s.icons.pause]) {
+        const design = fixture();
+        const file = join(design, 'player.json');
+        const spec = JSON.parse(readFileSync(file)); change(spec); writeFileSync(file, JSON.stringify(spec));
+        assert.notEqual(generate(design, join(temporary, 'bad-player')).status, 0);
+    }
+});
+
+test('fractional player geometry keeps valid native number syntax', () => {
+    const design = fixture();
+    const file = join(design, 'player.json');
+    const spec = JSON.parse(readFileSync(file)); spec.icons.play[0][0] = 6.5;
+    writeFileSync(file, JSON.stringify(spec));
+    const output = join(temporary, 'fractional-player'); success(generate(design, output));
+    assert.ok(readFileSync(join(output, files[0]), 'utf8').includes('6.5,'));
+    assert.ok(readFileSync(join(output, files[1]), 'utf8').includes('[[6.5,'));
+    const kotlin = readFileSync(join(output, files[4]), 'utf8');
+    assert.ok(kotlin.includes('listOf(6.5f,'));
+    assert.ok(!kotlin.includes('6.5.0f'));
+});
 function verifyAllOutputs(directory) {
     const manifest = JSON.parse(readFileSync(join(directory, files[3])));
     const swift = readFileSync(join(directory, files[0]), 'utf8');

@@ -1,6 +1,6 @@
 # Application behavior
 
-This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: the existing native shells do not yet provide the workflows below.
+This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: Library, appearance settings and isolated component galleries are present; the complete playback/call workflows below still require their adapters.
 
 ## Library and watch session
 
@@ -19,6 +19,8 @@ Only four user actions change a peer's playback: **play, pause, seek, and select
 Volume, mute, audio/subtitle selection, subtitle styling, image settings, normalization, scaling, previews, cache budget, window state, fullscreen, cursor visibility, theme, language, and camera/microphone preferences remain local. The call provider transports meeting media independently. Membership, readiness, media identity, authorization, ordering, and timing messages support the protocol; they do not authorize additional synchronized application settings. Internal drift correction is not a shared user playback-speed preference.
 
 ## Player and input
+
+The core shared PlayerChrome is implemented in the native component gallery, with matching Compose source. Normal media playback, track/playlist/settings menus, native fullscreen/input policies and video overlays await their integrations.
 
 Preserve the compact top controls, centered skip-back/play-pause/skip-forward controls, timeline, previous/next media, playlist, audio/subtitle menus, settings, library navigation, and call-window focus. Timeline previews use a separately owned decoder and bounded cache; they must not seek the movie, publish playback actions, or display canceled generations.
 

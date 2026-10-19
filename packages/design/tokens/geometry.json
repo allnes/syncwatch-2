@@ -127,6 +127,22 @@
     "settingsInterfaceFieldWidth": {
       "type": "number",
       "value": 300
+    },
+    "playerFooterHeight": {
+      "type": "number",
+      "value": 86
+    },
+    "playerToolbarHeight": {
+      "type": "number",
+      "value": 40
+    },
+    "playerVolumeWidth": {
+      "type": "number",
+      "value": 96
+    },
+    "playerTimeWidth": {
+      "type": "number",
+      "value": 64
     }
   },
   "control": {
@@ -209,6 +225,26 @@
     "settingsToggleInset": {
       "type": "number",
       "value": 3
+    },
+    "playerButtonSize": {
+      "type": "number",
+      "value": 38
+    },
+    "playerProminentSize": {
+      "type": "number",
+      "value": 46
+    },
+    "playerIconSize": {
+      "type": "number",
+      "value": 20
+    },
+    "playerSliderHeight": {
+      "type": "number",
+      "value": 20
+    },
+    "playerSliderThumbSize": {
+      "type": "number",
+      "value": 12
     }
   },
   "type": {
@@ -243,6 +279,10 @@
     "settingsSectionSize": {
       "type": "number",
       "value": 18
+    },
+    "playerLabelSize": {
+      "type": "number",
+      "value": 12
     }
   }
 }

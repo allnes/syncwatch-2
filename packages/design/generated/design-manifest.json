@@ -1,28 +1,30 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "47ec6e6d0498c350ef7930bfdc0b7a6f72dc09785b74b05099e06f0b9b94d7e6",
+  "sourceDigest": "ede3d9b9626bccebc429ac9ce7efaf781534ae0075a04419e0942f20791e9467",
   "sources": {
-    "tokens/geometry.json": "6e516c63181c2a582bbdc14a8f2b8befdf862f606231f36e34c14322d50b4042",
-    "tokens/palette.json": "437fff3952a17ff90f7dacdbf2bd5403039f7928c69f4cc40dd152965131b4ec",
+    "tokens/geometry.json": "0f7ed6e895ef0d4e821116c5837536c64beda46b6f7675220933647ee864e7e8",
+    "tokens/palette.json": "8d7d87e9dd2beeb9dd4820e9b9023911c65d96ea61149fd0a0050cf9bee2d7e2",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "96e318c782dbd336b764f455efedf84a6d0e84a092cc5a3e2e30c25016776198",
-    "copy.json": "67117d773c70f377f4734d5a07eb62afcf882ab0e45cfbb95b072f604428783e",
+    "components.json": "ac13addc25491cf9f377d4dcecea10567db06d0f60da5f69f9752e5ae5f0055c",
+    "copy.json": "e6141f9e216960d81f08c3943cd47a9ab53c73aa2117ded93e01649589a1bd6a",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
-    "package.json": "843e7804e7b5d922cc0c86af6d3395d2902416ad0ce66adbab38213c578144d6"
+    "player.json": "2e1cd0880ffb3298ba4c60b7daf35bcc8b125f19dc4f1d2b158e463166812595",
+    "package.json": "da5192e9b2cec3c4956e8fba79e240d423906a0cb16492ba1c7116f31bcd0170"
   },
-  "generatorRevision": "f5499d9527df765a69497e3e82a06f3bf677af8d301a67e5b542d65cc20a8fba",
+  "generatorRevision": "e9c685f3296c89b08a627528130b3d85cb9c52c7b7bac178d29294f9e0cf30d3",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "4caa93cc7e6f0710fdf093fdffbc2a592401202b362351e285a20e7c844ed748",
+      "tools/design/generate.mjs": "52a4eec82f6e94fde55b13d084f9427efe0d1cea7aa63acb5d388cadab0bf6c5",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
       "tools/design/sd-utils.mjs": "c8ce6096a0428d0e76c5980b6ceb542344a679de03e3f38229d0e5274300c8a8",
       "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
       "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
-      "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8"
+      "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
+      "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -146,7 +148,35 @@
         "galleryLibrary": "Library",
         "gallerySettings": "Settings",
         "optionOn": "On",
-        "optionOff": "Off"
+        "optionOff": "Off",
+        "player": "Player",
+        "play": "Play",
+        "pause": "Pause",
+        "seek": "Seek",
+        "skipBackward": "Skip backward",
+        "skipForward": "Skip forward",
+        "previousFile": "Previous file",
+        "nextFile": "Next file",
+        "setMovieVolume": "Movie volume",
+        "muteMovie": "Mute movie",
+        "unmuteMovie": "Unmute movie",
+        "showLibrary": "Return to library",
+        "toggleFullscreen": "Toggle fullscreen",
+        "playerSettings": "Player settings",
+        "playlist": "Playlist",
+        "audioTracks": "Audio tracks",
+        "loading": "Loading movie",
+        "paused": "Paused",
+        "playing": "Playing",
+        "buffering": "Buffering",
+        "fullscreen": "Fullscreen",
+        "connectionInterrupted": "Synchronization interrupted",
+        "ended": "Playback ended",
+        "playerFixture": "Player component fixture",
+        "videoSurface": "Video surface",
+        "noVideoProvider": "Playback provider is not connected",
+        "noPlayerAction": "No user action",
+        "unsupportedPlayerControl": "Available after media integration"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -217,7 +247,35 @@
         "galleryLibrary": "Библиотека",
         "gallerySettings": "Настройки",
         "optionOn": "Вкл.",
-        "optionOff": "Выкл."
+        "optionOff": "Выкл.",
+        "player": "Плеер",
+        "play": "Воспроизвести",
+        "pause": "Пауза",
+        "seek": "Перемотать",
+        "skipBackward": "Назад на интервал",
+        "skipForward": "Вперёд на интервал",
+        "previousFile": "Предыдущий файл",
+        "nextFile": "Следующий файл",
+        "setMovieVolume": "Громкость фильма",
+        "muteMovie": "Выключить звук фильма",
+        "unmuteMovie": "Включить звук фильма",
+        "showLibrary": "Вернуться в библиотеку",
+        "toggleFullscreen": "Полноэкранный режим",
+        "playerSettings": "Настройки плеера",
+        "playlist": "Плейлист",
+        "audioTracks": "Аудиодорожки",
+        "loading": "Загрузка фильма",
+        "paused": "Пауза",
+        "playing": "Воспроизведение",
+        "buffering": "Буферизация",
+        "fullscreen": "Полный экран",
+        "connectionInterrupted": "Синхронизация прервана",
+        "ended": "Воспроизведение завершено",
+        "playerFixture": "Образец компонента плеера",
+        "videoSurface": "Область видео",
+        "noVideoProvider": "Медиаплеер не подключён",
+        "noPlayerAction": "Нет действий пользователя",
+        "unsupportedPlayerControl": "Доступно после подключения медиаплеера"
       }
     },
     "gallery": {
@@ -385,6 +443,500 @@
       "username": ""
     }
   },
+  "player": {
+    "schemaVersion": 1,
+    "states": [
+      "loading",
+      "paused",
+      "playing",
+      "buffering",
+      "fullscreen",
+      "connectionInterrupted",
+      "ended"
+    ],
+    "actions": [
+      "playPause",
+      "seek",
+      "skip",
+      "previousFile",
+      "nextFile",
+      "setMovieVolume",
+      "muteMovie",
+      "showLibrary",
+      "endWatching",
+      "openCall",
+      "toggleFullscreen"
+    ],
+    "maximumPositionMs": 604800000,
+    "icons": {
+      "play": [
+        [
+          6,
+          3,
+          17,
+          10,
+          6,
+          17
+        ]
+      ],
+      "pause": [
+        [
+          4,
+          3,
+          8,
+          3,
+          8,
+          17,
+          4,
+          17
+        ],
+        [
+          12,
+          3,
+          16,
+          3,
+          16,
+          17,
+          12,
+          17
+        ]
+      ],
+      "backward": [
+        [
+          10,
+          3,
+          2,
+          10,
+          10,
+          17
+        ],
+        [
+          18,
+          3,
+          10,
+          10,
+          18,
+          17
+        ]
+      ],
+      "forward": [
+        [
+          2,
+          3,
+          10,
+          10,
+          2,
+          17
+        ],
+        [
+          10,
+          3,
+          18,
+          10,
+          10,
+          17
+        ]
+      ],
+      "previous": [
+        [
+          3,
+          3,
+          5,
+          3,
+          5,
+          17,
+          3,
+          17
+        ],
+        [
+          17,
+          3,
+          6,
+          10,
+          17,
+          17
+        ]
+      ],
+      "next": [
+        [
+          15,
+          3,
+          17,
+          3,
+          17,
+          17,
+          15,
+          17
+        ],
+        [
+          3,
+          3,
+          14,
+          10,
+          3,
+          17
+        ]
+      ],
+      "volume": [
+        [
+          2,
+          7,
+          6,
+          7,
+          11,
+          3,
+          11,
+          17,
+          6,
+          13,
+          2,
+          13
+        ],
+        [
+          14,
+          5,
+          16,
+          5,
+          18,
+          10,
+          16,
+          15,
+          14,
+          15,
+          16,
+          10
+        ]
+      ],
+      "muted": [
+        [
+          2,
+          7,
+          6,
+          7,
+          11,
+          3,
+          11,
+          17,
+          6,
+          13,
+          2,
+          13
+        ],
+        [
+          13,
+          6,
+          14,
+          5,
+          18,
+          14,
+          17,
+          15
+        ],
+        [
+          17,
+          5,
+          18,
+          6,
+          14,
+          15,
+          13,
+          14
+        ]
+      ],
+      "library": [
+        [
+          10,
+          3,
+          11,
+          5,
+          6,
+          9,
+          18,
+          9,
+          18,
+          11,
+          6,
+          11,
+          11,
+          15,
+          10,
+          17,
+          2,
+          10
+        ]
+      ],
+      "call": [
+        [
+          2,
+          5,
+          12,
+          5,
+          12,
+          15,
+          2,
+          15
+        ],
+        [
+          14,
+          8,
+          19,
+          5,
+          19,
+          15,
+          14,
+          12
+        ]
+      ],
+      "fullscreen": [
+        [
+          2,
+          2,
+          8,
+          2,
+          8,
+          4,
+          4,
+          4,
+          4,
+          8,
+          2,
+          8
+        ],
+        [
+          12,
+          2,
+          18,
+          2,
+          18,
+          8,
+          16,
+          8,
+          16,
+          4,
+          12,
+          4
+        ],
+        [
+          2,
+          12,
+          4,
+          12,
+          4,
+          16,
+          8,
+          16,
+          8,
+          18,
+          2,
+          18
+        ],
+        [
+          16,
+          12,
+          18,
+          12,
+          18,
+          18,
+          12,
+          18,
+          12,
+          16,
+          16,
+          16
+        ]
+      ],
+      "end": [
+        [
+          4,
+          4,
+          16,
+          4,
+          16,
+          16,
+          4,
+          16
+        ]
+      ],
+      "settings": [
+        [
+          3,
+          4,
+          17,
+          4,
+          17,
+          6,
+          3,
+          6
+        ],
+        [
+          3,
+          9,
+          17,
+          9,
+          17,
+          11,
+          3,
+          11
+        ],
+        [
+          3,
+          14,
+          17,
+          14,
+          17,
+          16,
+          3,
+          16
+        ],
+        [
+          6,
+          2,
+          8,
+          2,
+          8,
+          8,
+          6,
+          8
+        ],
+        [
+          12,
+          7,
+          14,
+          7,
+          14,
+          13,
+          12,
+          13
+        ],
+        [
+          6,
+          12,
+          8,
+          12,
+          8,
+          18,
+          6,
+          18
+        ]
+      ],
+      "playlist": [
+        [
+          2,
+          4,
+          14,
+          4,
+          14,
+          6,
+          2,
+          6
+        ],
+        [
+          2,
+          9,
+          14,
+          9,
+          14,
+          11,
+          2,
+          11
+        ],
+        [
+          2,
+          14,
+          9,
+          14,
+          9,
+          16,
+          2,
+          16
+        ],
+        [
+          12,
+          13,
+          18,
+          16,
+          12,
+          19
+        ]
+      ],
+      "subtitles": [
+        [
+          2,
+          4,
+          18,
+          4,
+          18,
+          16,
+          2,
+          16,
+          2,
+          14,
+          16,
+          14,
+          16,
+          6,
+          4,
+          6,
+          4,
+          16,
+          2,
+          16
+        ],
+        [
+          5,
+          9,
+          9,
+          9,
+          9,
+          11,
+          5,
+          11
+        ],
+        [
+          11,
+          9,
+          15,
+          9,
+          15,
+          11,
+          11,
+          11
+        ]
+      ],
+      "audio": [
+        [
+          4,
+          4,
+          6,
+          4,
+          6,
+          16,
+          4,
+          16
+        ],
+        [
+          9,
+          1,
+          11,
+          1,
+          11,
+          19,
+          9,
+          19
+        ],
+        [
+          14,
+          6,
+          16,
+          6,
+          16,
+          14,
+          14,
+          14
+        ]
+      ]
+    }
+  },
   "tokens": [
     {
       "id": "color.dark.background",
@@ -492,6 +1044,11 @@
       "value": "#30D98BFF"
     },
     {
+      "id": "color.shared.videoSurface",
+      "type": "color",
+      "value": "#000000FF"
+    },
+    {
       "id": "control.borderWidth",
       "type": "number",
       "value": 1
@@ -550,6 +1107,31 @@
       "id": "control.outlinedButtonMinHeight",
       "type": "number",
       "value": 44
+    },
+    {
+      "id": "control.playerButtonSize",
+      "type": "number",
+      "value": 38
+    },
+    {
+      "id": "control.playerIconSize",
+      "type": "number",
+      "value": 20
+    },
+    {
+      "id": "control.playerProminentSize",
+      "type": "number",
+      "value": 46
+    },
+    {
+      "id": "control.playerSliderHeight",
+      "type": "number",
+      "value": 20
+    },
+    {
+      "id": "control.playerSliderThumbSize",
+      "type": "number",
+      "value": 12
     },
     {
       "id": "control.rowMinHeight",
@@ -662,6 +1244,11 @@
       "value": 78
     },
     {
+      "id": "layout.playerFooterHeight",
+      "type": "number",
+      "value": 86
+    },
+    {
       "id": "layout.playerSettingsHeight",
       "type": "number",
       "value": 460
@@ -672,9 +1259,24 @@
       "value": 170
     },
     {
+      "id": "layout.playerTimeWidth",
+      "type": "number",
+      "value": 64
+    },
+    {
+      "id": "layout.playerToolbarHeight",
+      "type": "number",
+      "value": 40
+    },
+    {
       "id": "layout.playerTopInset",
       "type": "number",
       "value": 32
+    },
+    {
+      "id": "layout.playerVolumeWidth",
+      "type": "number",
+      "value": 96
     },
     {
       "id": "layout.sectionGap",
@@ -763,6 +1365,11 @@
     },
     {
       "id": "type.captionSize",
+      "type": "number",
+      "value": 12
+    },
+    {
+      "id": "type.playerLabelSize",
       "type": "number",
       "value": 12
     },

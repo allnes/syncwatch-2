@@ -29,6 +29,7 @@ public static class SyncWatchTokens
     public static Color ColorSharedAccentSoft => Color.FromArgb(255, 106, 175, 255);
     public static Color ColorSharedSelection => Color.FromArgb(38, 47, 140, 255);
     public static Color ColorSharedSuccess => Color.FromArgb(255, 48, 217, 139);
+    public static Color ColorSharedVideoSurface => Color.FromArgb(255, 0, 0, 0);
     public const double ControlBorderWidth = 1;
     public static Thickness ControlBorderWidthThickness => new(ControlBorderWidth);
     public static CornerRadius ControlBorderWidthCornerRadius => new(ControlBorderWidth);
@@ -65,6 +66,21 @@ public static class SyncWatchTokens
     public const double ControlOutlinedButtonMinHeight = 44;
     public static Thickness ControlOutlinedButtonMinHeightThickness => new(ControlOutlinedButtonMinHeight);
     public static CornerRadius ControlOutlinedButtonMinHeightCornerRadius => new(ControlOutlinedButtonMinHeight);
+    public const double ControlPlayerButtonSize = 38;
+    public static Thickness ControlPlayerButtonSizeThickness => new(ControlPlayerButtonSize);
+    public static CornerRadius ControlPlayerButtonSizeCornerRadius => new(ControlPlayerButtonSize);
+    public const double ControlPlayerIconSize = 20;
+    public static Thickness ControlPlayerIconSizeThickness => new(ControlPlayerIconSize);
+    public static CornerRadius ControlPlayerIconSizeCornerRadius => new(ControlPlayerIconSize);
+    public const double ControlPlayerProminentSize = 46;
+    public static Thickness ControlPlayerProminentSizeThickness => new(ControlPlayerProminentSize);
+    public static CornerRadius ControlPlayerProminentSizeCornerRadius => new(ControlPlayerProminentSize);
+    public const double ControlPlayerSliderHeight = 20;
+    public static Thickness ControlPlayerSliderHeightThickness => new(ControlPlayerSliderHeight);
+    public static CornerRadius ControlPlayerSliderHeightCornerRadius => new(ControlPlayerSliderHeight);
+    public const double ControlPlayerSliderThumbSize = 12;
+    public static Thickness ControlPlayerSliderThumbSizeThickness => new(ControlPlayerSliderThumbSize);
+    public static CornerRadius ControlPlayerSliderThumbSizeCornerRadius => new(ControlPlayerSliderThumbSize);
     public const double ControlRowMinHeight = 62;
     public static Thickness ControlRowMinHeightThickness => new(ControlRowMinHeight);
     public static CornerRadius ControlRowMinHeightCornerRadius => new(ControlRowMinHeight);
@@ -131,15 +147,27 @@ public static class SyncWatchTokens
     public const double LayoutPlayerBottomInset = 78;
     public static Thickness LayoutPlayerBottomInsetThickness => new(LayoutPlayerBottomInset);
     public static CornerRadius LayoutPlayerBottomInsetCornerRadius => new(LayoutPlayerBottomInset);
+    public const double LayoutPlayerFooterHeight = 86;
+    public static Thickness LayoutPlayerFooterHeightThickness => new(LayoutPlayerFooterHeight);
+    public static CornerRadius LayoutPlayerFooterHeightCornerRadius => new(LayoutPlayerFooterHeight);
     public const double LayoutPlayerSettingsHeight = 460;
     public static Thickness LayoutPlayerSettingsHeightThickness => new(LayoutPlayerSettingsHeight);
     public static CornerRadius LayoutPlayerSettingsHeightCornerRadius => new(LayoutPlayerSettingsHeight);
     public const double LayoutPlayerSettingsSidebarWidth = 170;
     public static Thickness LayoutPlayerSettingsSidebarWidthThickness => new(LayoutPlayerSettingsSidebarWidth);
     public static CornerRadius LayoutPlayerSettingsSidebarWidthCornerRadius => new(LayoutPlayerSettingsSidebarWidth);
+    public const double LayoutPlayerTimeWidth = 64;
+    public static Thickness LayoutPlayerTimeWidthThickness => new(LayoutPlayerTimeWidth);
+    public static CornerRadius LayoutPlayerTimeWidthCornerRadius => new(LayoutPlayerTimeWidth);
+    public const double LayoutPlayerToolbarHeight = 40;
+    public static Thickness LayoutPlayerToolbarHeightThickness => new(LayoutPlayerToolbarHeight);
+    public static CornerRadius LayoutPlayerToolbarHeightCornerRadius => new(LayoutPlayerToolbarHeight);
     public const double LayoutPlayerTopInset = 32;
     public static Thickness LayoutPlayerTopInsetThickness => new(LayoutPlayerTopInset);
     public static CornerRadius LayoutPlayerTopInsetCornerRadius => new(LayoutPlayerTopInset);
+    public const double LayoutPlayerVolumeWidth = 96;
+    public static Thickness LayoutPlayerVolumeWidthThickness => new(LayoutPlayerVolumeWidth);
+    public static CornerRadius LayoutPlayerVolumeWidthCornerRadius => new(LayoutPlayerVolumeWidth);
     public const double LayoutSectionGap = 10;
     public static Thickness LayoutSectionGapThickness => new(LayoutSectionGap);
     public static CornerRadius LayoutSectionGapCornerRadius => new(LayoutSectionGap);
@@ -194,6 +222,9 @@ public static class SyncWatchTokens
     public const double TypeCaptionSize = 12;
     public static Thickness TypeCaptionSizeThickness => new(TypeCaptionSize);
     public static CornerRadius TypeCaptionSizeCornerRadius => new(TypeCaptionSize);
+    public const double TypePlayerLabelSize = 12;
+    public static Thickness TypePlayerLabelSizeThickness => new(TypePlayerLabelSize);
+    public static CornerRadius TypePlayerLabelSizeCornerRadius => new(TypePlayerLabelSize);
     public const double TypeSectionSize = 19;
     public static Thickness TypeSectionSizeThickness => new(TypeSectionSize);
     public static CornerRadius TypeSectionSizeCornerRadius => new(TypeSectionSize);
@@ -284,6 +315,34 @@ public static class SyncWatchCopy
         ("en", "gallerySettings") => "Settings",
         ("en", "optionOn") => "On",
         ("en", "optionOff") => "Off",
+        ("en", "player") => "Player",
+        ("en", "play") => "Play",
+        ("en", "pause") => "Pause",
+        ("en", "seek") => "Seek",
+        ("en", "skipBackward") => "Skip backward",
+        ("en", "skipForward") => "Skip forward",
+        ("en", "previousFile") => "Previous file",
+        ("en", "nextFile") => "Next file",
+        ("en", "setMovieVolume") => "Movie volume",
+        ("en", "muteMovie") => "Mute movie",
+        ("en", "unmuteMovie") => "Unmute movie",
+        ("en", "showLibrary") => "Return to library",
+        ("en", "toggleFullscreen") => "Toggle fullscreen",
+        ("en", "playerSettings") => "Player settings",
+        ("en", "playlist") => "Playlist",
+        ("en", "audioTracks") => "Audio tracks",
+        ("en", "loading") => "Loading movie",
+        ("en", "paused") => "Paused",
+        ("en", "playing") => "Playing",
+        ("en", "buffering") => "Buffering",
+        ("en", "fullscreen") => "Fullscreen",
+        ("en", "connectionInterrupted") => "Synchronization interrupted",
+        ("en", "ended") => "Playback ended",
+        ("en", "playerFixture") => "Player component fixture",
+        ("en", "videoSurface") => "Video surface",
+        ("en", "noVideoProvider") => "Playback provider is not connected",
+        ("en", "noPlayerAction") => "No user action",
+        ("en", "unsupportedPlayerControl") => "Available after media integration",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -353,6 +412,34 @@ public static class SyncWatchCopy
         ("ru", "gallerySettings") => "Настройки",
         ("ru", "optionOn") => "Вкл.",
         ("ru", "optionOff") => "Выкл.",
+        ("ru", "player") => "Плеер",
+        ("ru", "play") => "Воспроизвести",
+        ("ru", "pause") => "Пауза",
+        ("ru", "seek") => "Перемотать",
+        ("ru", "skipBackward") => "Назад на интервал",
+        ("ru", "skipForward") => "Вперёд на интервал",
+        ("ru", "previousFile") => "Предыдущий файл",
+        ("ru", "nextFile") => "Следующий файл",
+        ("ru", "setMovieVolume") => "Громкость фильма",
+        ("ru", "muteMovie") => "Выключить звук фильма",
+        ("ru", "unmuteMovie") => "Включить звук фильма",
+        ("ru", "showLibrary") => "Вернуться в библиотеку",
+        ("ru", "toggleFullscreen") => "Полноэкранный режим",
+        ("ru", "playerSettings") => "Настройки плеера",
+        ("ru", "playlist") => "Плейлист",
+        ("ru", "audioTracks") => "Аудиодорожки",
+        ("ru", "loading") => "Загрузка фильма",
+        ("ru", "paused") => "Пауза",
+        ("ru", "playing") => "Воспроизведение",
+        ("ru", "buffering") => "Буферизация",
+        ("ru", "fullscreen") => "Полный экран",
+        ("ru", "connectionInterrupted") => "Синхронизация прервана",
+        ("ru", "ended") => "Воспроизведение завершено",
+        ("ru", "playerFixture") => "Образец компонента плеера",
+        ("ru", "videoSurface") => "Область видео",
+        ("ru", "noVideoProvider") => "Медиаплеер не подключён",
+        ("ru", "noPlayerAction") => "Нет действий пользователя",
+        ("ru", "unsupportedPlayerControl") => "Доступно после подключения медиаплеера",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -397,4 +484,30 @@ public static class SyncWatchSettings
         new("roomName", "connection", "text", "roomName", [], 128),
         new("username", "connection", "text", "username", [], 128),
     ];
+}
+
+public static class SyncWatchPlayer
+{
+    public static string[] States => ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"];
+    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen"];
+    public const long MaximumPositionMs = 604800000;
+    public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
+    {
+        ["play"] = [[6,3,17,10,6,17]],
+        ["pause"] = [[4,3,8,3,8,17,4,17],[12,3,16,3,16,17,12,17]],
+        ["backward"] = [[10,3,2,10,10,17],[18,3,10,10,18,17]],
+        ["forward"] = [[2,3,10,10,2,17],[10,3,18,10,10,17]],
+        ["previous"] = [[3,3,5,3,5,17,3,17],[17,3,6,10,17,17]],
+        ["next"] = [[15,3,17,3,17,17,15,17],[3,3,14,10,3,17]],
+        ["volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
+        ["muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
+        ["library"] = [[10,3,11,5,6,9,18,9,18,11,6,11,11,15,10,17,2,10]],
+        ["call"] = [[2,5,12,5,12,15,2,15],[14,8,19,5,19,15,14,12]],
+        ["fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
+        ["end"] = [[4,4,16,4,16,16,4,16]],
+        ["settings"] = [[3,4,17,4,17,6,3,6],[3,9,17,9,17,11,3,11],[3,14,17,14,17,16,3,16],[6,2,8,2,8,8,6,8],[12,7,14,7,14,13,12,13],[6,12,8,12,8,18,6,18]],
+        ["playlist"] = [[2,4,14,4,14,6,2,6],[2,9,14,9,14,11,2,11],[2,14,9,14,9,16,2,16],[12,13,18,16,12,19]],
+        ["subtitles"] = [[2,4,18,4,18,16,2,16,2,14,16,14,16,6,4,6,4,16,2,16],[5,9,9,9,9,11,5,11],[11,9,15,9,15,11,11,11]],
+        ["audio"] = [[4,4,6,4,6,16,4,16],[9,1,11,1,11,19,9,19],[14,6,16,6,16,14,14,14]],
+    };
 }

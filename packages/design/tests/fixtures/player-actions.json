@@ -1,0 +1,692 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "name": "requests do not mutate observations",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "skip",
+          "value": -1
+        },
+        {
+          "action": "playPause"
+        }
+      ],
+      "expected": [
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "seek",
+          "value": 11000
+        },
+        {
+          "action": "seek",
+          "value": 0
+        },
+        {
+          "action": "playPause"
+        }
+      ]
+    },
+    {
+      "name": "loading blocks playback",
+      "state": "loading",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ],
+      "expected": [
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ]
+    },
+    {
+      "name": "buffering blocks playback",
+      "state": "buffering",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ],
+      "expected": [
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ]
+    },
+    {
+      "name": "connectionInterrupted blocks playback",
+      "state": "connectionInterrupted",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ],
+      "expected": [
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ]
+    },
+    {
+      "name": "ended blocks playback",
+      "state": "ended",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        },
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ],
+      "expected": [
+        {
+          "action": "setMovieVolume",
+          "value": 0.25
+        },
+        {
+          "action": "showLibrary"
+        }
+      ]
+    },
+    {
+      "name": "invalid input cannot reach provider",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "seek",
+          "value": -1
+        },
+        {
+          "action": "seek",
+          "value": 20001
+        },
+        {
+          "action": "seek",
+          "value": 1.5
+        },
+        {
+          "action": "seek"
+        },
+        {
+          "action": "skip",
+          "value": 0
+        },
+        {
+          "action": "skip",
+          "value": 2
+        },
+        {
+          "action": "setMovieVolume",
+          "value": -0.1
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 1.1
+        },
+        {
+          "action": "playPause",
+          "value": 1
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "invalid observations retain navigation",
+      "state": "paused",
+      "positionMs": -1,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 0
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.2
+        },
+        {
+          "action": "showLibrary"
+        }
+      ],
+      "expected": [
+        {
+          "action": "showLibrary"
+        }
+      ]
+    },
+    {
+      "name": "out of contract duration",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 604800001,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "seek",
+          "value": 0
+        },
+        {
+          "action": "setMovieVolume",
+          "value": 0.2
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "unknown actions",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "unknown",
+        "selectAudio"
+      ],
+      "requests": [
+        {
+          "action": "unknown"
+        },
+        {
+          "action": "selectAudio"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "neighbors absent",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": false,
+      "hasNext": false,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "nextFile"
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "skip needs seek capability",
+      "state": "paused",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "skip"
+      ],
+      "requests": [
+        {
+          "action": "skip",
+          "value": 1
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "clamp at start",
+      "state": "paused",
+      "positionMs": 0,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "skip",
+          "value": -1
+        },
+        {
+          "action": "seek",
+          "value": 0
+        }
+      ],
+      "expected": [
+        {
+          "action": "seek",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "clamp at end",
+      "state": "paused",
+      "positionMs": 19999,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "skip",
+          "value": 1
+        }
+      ],
+      "expected": [
+        {
+          "action": "seek",
+          "value": 20000
+        }
+      ]
+    },
+    {
+      "name": "maximum contract boundary",
+      "state": "paused",
+      "positionMs": 604799999,
+      "durationMs": 604800000,
+      "volume": 0.7,
+      "skipSeconds": 600,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "skip",
+          "value": 1
+        },
+        {
+          "action": "seek",
+          "value": 604800000
+        }
+      ],
+      "expected": [
+        {
+          "action": "seek",
+          "value": 604800000
+        },
+        {
+          "action": "seek",
+          "value": 604800000
+        }
+      ]
+    },
+    {
+      "name": "fullscreen playback",
+      "state": "fullscreen",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "muteMovie"
+        },
+        {
+          "action": "toggleFullscreen"
+        }
+      ],
+      "expected": [
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "muteMovie"
+        },
+        {
+          "action": "toggleFullscreen"
+        }
+      ]
+    },
+    {
+      "name": "zero duration disables seeking",
+      "state": "paused",
+      "positionMs": 0,
+      "durationMs": 0,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ],
+      "requests": [
+        {
+          "action": "seek",
+          "value": 0
+        },
+        {
+          "action": "skip",
+          "value": 1
+        }
+      ],
+      "expected": []
+    }
+  ]
+}

@@ -137,13 +137,14 @@ def design_image_names(root: Path) -> set[str]:
     suffixes = [theme + "-" + locale for theme in ("dark", "light") for locale in ("en", "ru")]
     names = {state + "-" + suffix + "-" + viewport + ".png" for state in contract['LibraryLayout']['states'] for suffix in suffixes for viewport in sizes}
     names |= {"settings" + section + state + "-" + suffix + "-" + size("settingsWidth", "settingsHeight") + ".png" for section in contract['SettingsDialog']['sections'] for state in contract['SettingsDialog']['states'] for suffix in suffixes}
+    names |= {"player" + state + "-" + suffix + "-" + viewport + ".png" for state in contract['PlayerChrome']['states'] for suffix in suffixes for viewport in sizes}
     return {name.casefold() for name in names}
 
 
 def retain_design_images(root: Path, payload: Path, target: str) -> None:
     source = root / "artifacts/design" / target
     if not source.exists():
-        return
+        raise ValueError("Required design render matrix is missing")
     files = list(source.iterdir())
     expected = design_image_names(root)
     if source.is_symlink() or len(files) != len(expected) or {p.name.casefold() for p in files} != expected:

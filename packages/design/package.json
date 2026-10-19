@@ -13,6 +13,7 @@
     "apple",
     "windows",
     "linux",
-    "settings.json"
+    "settings.json",
+    "player.json"
   ]
 }

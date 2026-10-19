@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows and Compose",
-  "status": "Library and SettingsDialog renderers/gallery: SwiftUI/WPF; Compose source pending its dependency build. Other components remain specifications.",
+  "status": "Library, SettingsDialog and core PlayerChrome renderers/gallery: SwiftUI/WPF; Compose source pending its dependency build. Media engines and remaining overlays are not integrated.",
   "components": {
     "LibraryLayout": {
       "structure": [
@@ -67,7 +67,10 @@
         "muteMovie",
         "openCall",
         "showLibrary",
-        "endWatching"
+        "endWatching",
+        "toggleFullscreen",
+        "openPlayerSettings",
+        "openPlaylist"
       ],
       "overlays": [
         "timelinePreview",
@@ -76,7 +79,20 @@
         "playlist",
         "playerSettings"
       ],
-      "cursorBehavior": "Hide an idle cursor over playing video; restore on movement, pause, or interaction, in windowed and fullscreen modes."
+      "cursorBehavior": "Hide an idle cursor over playing video; restore on movement, pause, or interaction, in windowed and fullscreen modes.",
+      "renderedActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen"
+      ]
     },
     "SettingsDialog": {
       "tokens": [
