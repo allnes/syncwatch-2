@@ -148,10 +148,10 @@ public static class SyncWatchTokens
     public const double LayoutCallMinimumWidth = 260;
     public static Thickness LayoutCallMinimumWidthThickness => new(LayoutCallMinimumWidth);
     public static CornerRadius LayoutCallMinimumWidthCornerRadius => new(LayoutCallMinimumWidth);
-    public const double LayoutCallPreviewHeight = 48;
+    public const double LayoutCallPreviewHeight = 56;
     public static Thickness LayoutCallPreviewHeightThickness => new(LayoutCallPreviewHeight);
     public static CornerRadius LayoutCallPreviewHeightCornerRadius => new(LayoutCallPreviewHeight);
-    public const double LayoutCallPreviewWidth = 74;
+    public const double LayoutCallPreviewWidth = 88;
     public static Thickness LayoutCallPreviewWidthThickness => new(LayoutCallPreviewWidth);
     public static CornerRadius LayoutCallPreviewWidthCornerRadius => new(LayoutCallPreviewWidth);
     public const double LayoutCallRadius = 22;

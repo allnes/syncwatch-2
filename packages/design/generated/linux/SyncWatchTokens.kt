@@ -70,8 +70,8 @@ object SyncWatchTokens {
     const val layoutCallInset: Float = 8.0f
     const val layoutCallMinimumHeight: Float = 210.0f
     const val layoutCallMinimumWidth: Float = 260.0f
-    const val layoutCallPreviewHeight: Float = 48.0f
-    const val layoutCallPreviewWidth: Float = 74.0f
+    const val layoutCallPreviewHeight: Float = 56.0f
+    const val layoutCallPreviewWidth: Float = 88.0f
     const val layoutCallRadius: Float = 22.0f
     const val layoutCallResizeSize: Float = 12.0f
     const val layoutCallVolumeWidth: Float = 64.0f

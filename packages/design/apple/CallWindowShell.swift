@@ -226,7 +226,7 @@ public struct CallWindowShell: View {
                                 .font(.system(size: SyncWatchTokens.typeCaptionSize)).foregroundStyle(
                                     theme.textSecondary
                                 )
-                                .multilineTextAlignment(.center).padding(2)
+                                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true).padding(2)
                         }
                     }
                     .frame(

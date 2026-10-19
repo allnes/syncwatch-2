@@ -115,7 +115,7 @@ Native validation retains 80 PlayerSettings images per platform (five sections, 
 
 ## Call window component
 
-`call.json` defines six host states, five local-preview states, eleven presentation requests and ten gallery cases. SwiftUI/WPF `CallWindowShell` and matching Compose source share a 300 by 210 initial viewport, a 420 by 300 gallery viewport, rounded 22-unit chrome, a compact header, 34-unit media buttons, a separate call-volume range and a 74 by 48 self-view slot. Palette, geometry, English/Russian copy and first-party polygon icons are generated from the common library.
+`call.json` defines six host states, five local-preview states, eleven presentation requests and ten gallery cases. SwiftUI/WPF `CallWindowShell` and matching Compose source share a 300 by 210 initial viewport, a 420 by 300 gallery viewport, rounded 22-unit chrome, a compact header, 34-unit media buttons, a separate call-volume range and a 88 by 56 self-view slot. Palette, geometry, English/Russian copy and first-party polygon icons are generated from the common library.
 
 `CallPresentation` accepts explicit nullable joined, microphone, camera and volume observations plus enabled action IDs. `webSurfaceReady` does not mean joined. Media requests require a ready surface, confirmed membership, the relevant capability and a known observation for that control. Unknown membership/observations disable the corresponding controls. Request payloads are finite and bounded: move carries two deltas, resize carries a width/height from the shared minimum to 8192, volume is 0 through 1, booleans are 0 or 1, and window/hangup requests carry no values. Requests neither acknowledge themselves nor mutate observations.
 

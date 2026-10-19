@@ -98,8 +98,8 @@ public enum SyncWatchTokens {
     public static let layoutCallInset: CGFloat = 8
     public static let layoutCallMinimumHeight: CGFloat = 210
     public static let layoutCallMinimumWidth: CGFloat = 260
-    public static let layoutCallPreviewHeight: CGFloat = 48
-    public static let layoutCallPreviewWidth: CGFloat = 74
+    public static let layoutCallPreviewHeight: CGFloat = 56
+    public static let layoutCallPreviewWidth: CGFloat = 88
     public static let layoutCallRadius: CGFloat = 22
     public static let layoutCallResizeSize: CGFloat = 12
     public static let layoutCallVolumeWidth: CGFloat = 64

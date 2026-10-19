@@ -194,11 +194,11 @@
     },
     "callPreviewWidth": {
       "type": "number",
-      "value": 74
+      "value": 88
     },
     "callPreviewHeight": {
       "type": "number",
-      "value": 48
+      "value": 56
     },
     "callButtonSize": {
       "type": "number",

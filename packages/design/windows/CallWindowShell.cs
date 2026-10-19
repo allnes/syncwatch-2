@@ -125,6 +125,7 @@ public sealed class CallWindowShell : UserControl
         if (presentation.ShowsRemoteSurface && RemoteSurface is not null) body.Children.Add(RemoteSurface);
         else { var state = Text(T("callState" + presentation.State)); state.Foreground = Brushes.White; state.TextAlignment = TextAlignment.Center; state.TextWrapping = TextWrapping.Wrap; state.Margin = new Thickness(SyncWatchTokens.LayoutCallInset); body.Children.Add(state); }
         var preview = new Grid { Width = SyncWatchTokens.LayoutCallPreviewWidth, Height = SyncWatchTokens.LayoutCallPreviewHeight, ClipToBounds = true }; preview.SetResourceReference(BackgroundProperty, "theme.surfaceRaised.brush");
+        preview.Clip = new RectangleGeometry(new Rect(0, 0, preview.Width, preview.Height), SyncWatchTokens.ControlFieldRadius, SyncWatchTokens.ControlFieldRadius);
         if (presentation.ShowsLocalPreview && LocalPreview is not null) preview.Children.Add(LocalPreview);
         else { var label = Text(T(presentation.PreviewLabel(LocalPreview is not null)), true); label.FontSize = SyncWatchTokens.TypeCaptionSize; label.TextAlignment = TextAlignment.Center; label.TextWrapping = TextWrapping.Wrap; label.Margin = new Thickness(2); preview.Children.Add(label); }
         AutomationProperties.SetAutomationId(preview, "call.localPreview"); AutomationProperties.SetName(preview, T(presentation.PreviewLabel(LocalPreview is not null)));
@@ -160,8 +161,10 @@ public sealed class CallWindowShell : UserControl
             var figure = new PathFigure { StartPoint = new Point(polygon[0], polygon[1]), IsClosed = true, IsFilled = true };
             for (int i = 2; i < polygon.Length; i += 2) figure.Segments.Add(new LineSegment(new Point(polygon[i], polygon[i + 1]), true)); geometry.Children.Add(new PathGeometry([figure]));
         }
-        var icon = new System.Windows.Shapes.Path { Data = geometry, Width = SyncWatchTokens.LayoutCallIconSize, Height = SyncWatchTokens.LayoutCallIconSize, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0) };
-        icon.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, active ? "color.dark.text.brush" : "theme.text.brush"); return icon;
+        var path = new System.Windows.Shapes.Path { Data = geometry, Stretch = Stretch.None };
+        path.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, active ? "color.dark.text.brush" : "theme.text.brush");
+        var canvas = new Canvas { Width = 20, Height = 20 }; canvas.Children.Add(path);
+        return new Viewbox { Child = canvas, Width = SyncWatchTokens.LayoutCallIconSize, Height = SyncWatchTokens.LayoutCallIconSize, VerticalAlignment = VerticalAlignment.Center };
     }
     private Button Button(string action, string icon, string label, double[]? values = null, bool small = false, bool active = false, bool slash = false)
     {

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "3735720e946e3c17ff7419ea860c43b32df870550eb393ae1abcf3412a7499de",
+  "sourceDigest": "4d579c34877a3b51211798cb256fb2691ae637b59582c8c843613abee97143a2",
   "sources": {
-    "tokens/geometry.json": "e13ae532357d34f81fcdbeb0ad132c6acdbdace6e4f05a67073212bc55885781",
+    "tokens/geometry.json": "1c60acd9453ab4320482ef0a01d1ae4ed69331c89ec96e32911908b9725edada",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "395deadfdc18154c6caf518fd19754ab7bc309fba4a47a056ebe382ea7e5e807",
@@ -2262,12 +2262,12 @@
     {
       "id": "layout.callPreviewHeight",
       "type": "number",
-      "value": 48
+      "value": 56
     },
     {
       "id": "layout.callPreviewWidth",
       "type": "number",
-      "value": 74
+      "value": 88
     },
     {
       "id": "layout.callRadius",
