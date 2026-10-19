@@ -308,7 +308,7 @@ test('one declarative composition and its source digest reach every client', () 
 });
 
 test('declarative document rejects malformed structure, references and visual rules', () => {
-    const mutations = [s => s.components.Library.kind = 'nativeLibrary', s => s.components.Library.props.gap = 'NaN',
+    const mutations = [s => s.components.Call.children[1].props.gestureMode = 'unknown', s => s.components.Library.kind = 'nativeLibrary', s => s.components.Library.props.gap = 'NaN',
         s => s.components.Library.props.gap = '@missing.token', s => s.components.Library.props.background = '@layout.panelGap',
         s => s.components.Library.props.background = 'theme.missing', s => s.components.Library.props.unknownStyle = '1',
         s => s.components.Library.props.height = '= 1 +', s => s.components.Library.children[0].id = s.components.Library.id,

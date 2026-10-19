@@ -36,6 +36,7 @@ export function validateLayouts(spec, tokens, copy, inputs) {
         if (Object.keys(node).some(k=>!['id','kind','styles','props','children'].includes(k)) || !Array.isArray(node.children) || !Array.isArray(node.styles)) throw Error('Unexpected design node fields');
         for (const style of node.styles) if (!Object.hasOwn(spec.styles,style)) throw Error('Unknown design style');
         properties(node.props);
+        if (node.kind === 'gesture' && !['delta','extent'].includes(node.props.gestureMode)) throw Error('Invalid gesture coordinate mode');
         if (node.kind === 'include' && !Object.hasOwn(spec.components,node.props.component)) throw Error('Unknown design component');
         if (['repeat','scroll','gesture'].includes(node.kind) && node.children.length !== 1) throw Error('Expected one content template');
         if (node.kind === 'if' && (node.children.length < 1 || node.children.length > 2)) throw Error('Invalid design condition');

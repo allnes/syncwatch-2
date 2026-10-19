@@ -160,7 +160,7 @@ public class DesignSurface : UserControl
                 if (!ReferenceEquals(gesture.Tag, gestureChild))
                 {
                     gesture.Template = null; gesture.ApplyTemplate(); Detach(gestureChild);
-                    var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); presenter.SetValue(ContentPresenter.ContentProperty, gestureChild);
+                    var presenter = new FrameworkElementFactory(typeof(ContentPresenter)); presenter.SetBinding(ContentPresenter.ContentProperty, new System.Windows.Data.Binding("Tag") { RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent) });
                     gesture.Template = new ControlTemplate(typeof(Thumb)) { VisualTree = presenter }; gesture.Tag = gestureChild;
                 }
                 Bind(id, n => gesture.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"));
@@ -202,6 +202,7 @@ public class DesignSurface : UserControl
         var border = previous?.Frame as Border ?? new Border { Child = core };
         if (fresh)
         {
+            border.SizeChanged += (_, _) => { if (elements.TryGetValue(id, out var n)) ClipFrame(border, n); };
             Point? origin = null;
             IInputElement? coordinateSpace = null;
             border.MouseLeftButtonDown += (_, e) =>
@@ -230,11 +231,15 @@ public class DesignSurface : UserControl
             Frame(border, n); border.RenderTransform = new TranslateTransform(n.Number("offsetX"), n.Number("offsetY")); border.Padding = Insets(n); border.CornerRadius = Radius(n); border.BorderThickness = new Thickness(n.Number("borderWidth")); Paint(border, Border.BackgroundProperty, n.Text("background")); Paint(border, Border.BorderBrushProperty, n.Text("border"));
             if (!n.Text("gradient").Equals("", StringComparison.Ordinal)) { var brush = new LinearGradientBrush { StartPoint = PointValue(n.Text("gradientStart")), EndPoint = PointValue(n.Text("gradientEnd")) }; var colors = n.Text("gradient").Split('|'); var offsets = n.Text("gradientOffsets").Split('|'); for (int i = 0; i < Math.Min(colors.Length, offsets.Length); i++) brush.GradientStops.Add(new GradientStop(((SolidColorBrush)Brush(colors[i], border)).Color, DesignContext.Number(offsets[i]))); border.Background = brush; }
             if (core is TextBlock t) { t.FontSize = Math.Max(1, n.Number("fontSize")); t.FontWeight = Weight(n.Text("weight")); Paint(t, TextBlock.ForegroundProperty, n.Text("foreground")); AutomationProperties.SetAutomationId(t, n.Text("automation")); }
-            AutomationProperties.SetName(border, n.Text("label")); border.ClipToBounds = n.Flag("clip");
+            AutomationProperties.SetName(border, n.Text("label")); ClipFrame(border, n);
             if (n.Props.ContainsKey("backgroundOpacity") && border.Background is Brush fill) { var clone = fill.CloneCurrentValue(); clone.Opacity *= Math.Clamp(n.Number("backgroundOpacity"), 0, 1); border.Background = clone; }
         });
         buildingViews[id] = new(node.Kind, core, border);
         return border;
+    }
+    private static void ClipFrame(Border border, DesignElement node)
+    {
+        border.Clip = node.Flag("clip") ? new RectangleGeometry(new Rect(border.RenderSize), border.CornerRadius.TopLeft, border.CornerRadius.TopLeft) : null;
     }
     private static void Detach(FrameworkElement? view)
     {

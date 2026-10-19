@@ -159,6 +159,7 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
 @Composable private fun RenderDesignNode(n:DesignElement,theme:SyncWatchTheme,slots:Map<String,@Composable BoxScope.()->Unit>,onEvent:(DesignEvent)->Unit,modifier:Modifier=Modifier) {
     val enabled=!n.props.containsKey("enabled")||n.flag("enabled")
     val currentEvent by rememberUpdatedState(onEvent)
+    val currentNode by rememberUpdatedState(n)
     fun emit(value:String?=null) { if(enabled) currentEvent(DesignEvent(n.text("action"),value?:n.props["value"],n.props["payload"])) }
     val frame=modifier.designFrame(n,theme).semantics { if(n.text("label").isNotEmpty()) contentDescription=n.text("label"); if(n.flag("selected")) selected=true }
     when(n.kind){
@@ -212,7 +213,7 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
             }.focusable(enabled).semantics{if(enabled)customActions=listOf(CustomAccessibilityAction(n.text("label")){publish(n.number("gestureStep"),if(n.text("gestureMode")=="extent")n.number("gestureStep")else 0.0);true})}
             .pointerInput(enabled,density){if(enabled)awaitEachGesture{
                 val down=awaitFirstDown();var total=Offset.Zero
-                val ox=n.number("originWidth");val oy=n.number("originHeight")
+                val ox=currentNode.number("originWidth");val oy=currentNode.number("originHeight")
                 drag(down.id){change->val delta=change.position-change.previousPosition;total+=delta;change.consume();val v=if(n.text("gestureMode")=="extent")total else delta;publish((v.x/density).toDouble(),(v.y/density).toDouble(),ox,oy)}
             }},contentAlignment=Alignment.Center){n.children.forEach{RenderDesignNode(it,theme,slots,onEvent)}}
         }
