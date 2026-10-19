@@ -112,7 +112,7 @@ SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolba
 
 The isolated `--player-settings-gallery` selects each section, editing/saved/error/read-only state, theme and language, and can simulate failure. The gear in `--player-gallery` opens an owned dialog; successful save updates only in-memory fixture values and skip/default-volume observations. Neither gallery reads application preferences or starts a provider. Applying and persisting player preferences in a real session requires the application/media adapters.
 
-Native validation retains 80 PlayerSettings images per platform (five sections, four states, two themes and two languages), giving 224 images per native artifact. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
+Native validation covers every declared PlayerSettings section, state, theme and language in the required artifact matrix. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.
 
 
 ## Declarative document and binding boundary
