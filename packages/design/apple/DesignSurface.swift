@@ -228,6 +228,13 @@ struct DesignPaint {
         }
     }
 }
+private struct DesignContour: Shape {
+    var radius: Double
+    var circular: Bool
+    func path(in rect: CGRect) -> Path {
+        circular ? Circle().path(in: rect) : RoundedRectangle(cornerRadius: radius).path(in: rect)
+    }
+}
 private struct DesignDecoration: ViewModifier {
     var node: DesignElement
     var paint: DesignPaint
@@ -267,9 +274,9 @@ private struct DesignDecoration: ViewModifier {
                         node.props["backgroundOpacity"] == nil ? 1 : node.number("backgroundOpacity"))
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .clipShape(DesignContour(radius: radius, circular: node.string("radius") == "circle"))
             .overlay(
-                RoundedRectangle(cornerRadius: radius).stroke(
+                DesignContour(radius: radius, circular: node.string("radius") == "circle").stroke(
                     paint.color(node.string("border")), lineWidth: node.number("borderWidth"))
             )
             .offset(x: node.number("offsetX"), y: node.number("offsetY"))
