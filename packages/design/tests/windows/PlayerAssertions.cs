@@ -64,6 +64,7 @@ internal static class PlayerAssertions
         Check(Enum.GetNames<PlayerVisualState>().Select(n => char.ToLowerInvariant(n[0]) + n[1..]).SequenceEqual(SyncWatchPlayer.States), "state contract");
         var view = new PlayerChrome(); var received = new List<Event>(); view.ActionRequested += (a, v) => received.Add(new(a, v));
         view.Render(ready); Layout(view); Check(received.Count == 0, "render emits no input");
+        Check(Element<Button>(view, "player.playerSettings").IsEnabled && !Element<Button>(view, "player.audioTracks").IsEnabled, "settings capability is available without enabling provider track actions");
         Element<Slider>(view, "player.seek").Value = 5000;
         Element<Button>(view, "player.play").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Check(received.SequenceEqual(new[] { new Event("seek", 5000), new Event("playPause", null) }) && view.Presentation.PositionMs == ready.PositionMs, "native input requests and immutable observation");

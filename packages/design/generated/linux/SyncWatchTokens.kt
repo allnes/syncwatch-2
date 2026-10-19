@@ -26,6 +26,12 @@ object SyncWatchTokens {
     const val colorSharedSelection: Long = 0x2F8CFF26L
     const val colorSharedSuccess: Long = 0x30D98BFFL
     const val colorSharedVideoSurface: Long = 0x000000FFL
+    const val colorSubtitleBlack: Long = 0x000000FFL
+    const val colorSubtitleCharcoal: Long = 0x202020FFL
+    const val colorSubtitleCyan: Long = 0x9FE7FFFFL
+    const val colorSubtitleGray: Long = 0x4A4A4AFFL
+    const val colorSubtitleWarm: Long = 0xFFF3A6FFL
+    const val colorSubtitleWhite: Long = 0xFFFFFFFFL
     const val controlBorderWidth: Float = 1.0f
     const val controlBrandSize: Float = 38.0f
     const val controlButtonRadius: Float = 12.0f
@@ -66,7 +72,11 @@ object SyncWatchTokens {
     const val layoutPanelRadius: Float = 16.0f
     const val layoutPlayerBottomInset: Float = 78.0f
     const val layoutPlayerFooterHeight: Float = 86.0f
+    const val layoutPlayerSettingsCardPadding: Float = 11.0f
+    const val layoutPlayerSettingsCardRadius: Float = 10.0f
+    const val layoutPlayerSettingsColorSize: Float = 22.0f
     const val layoutPlayerSettingsHeight: Float = 460.0f
+    const val layoutPlayerSettingsPreviewHeight: Float = 130.0f
     const val layoutPlayerSettingsSidebarWidth: Float = 170.0f
     const val layoutPlayerTimeWidth: Float = 64.0f
     const val layoutPlayerToolbarHeight: Float = 40.0f
@@ -213,7 +223,7 @@ object SyncWatchCopy {
         "en" to "invalidConfiguration" -> "Check the settings and try again."
         "en" to "saveFailed" -> "Could not save changes. Try again."
         "en" to "settingsUnavailable" -> "These settings are not available yet."
-        "en" to "settingsReadOnly" -> "Settings cannot be changed right now."
+        "en" to "settingsReadOnly" -> "Settings are read-only"
         "en" to "galleryLibrary" -> "Library"
         "en" to "gallerySettings" -> "Settings"
         "en" to "optionOn" -> "On"
@@ -246,6 +256,61 @@ object SyncWatchCopy {
         "en" to "noVideoProvider" -> "Playback provider is not connected"
         "en" to "noPlayerAction" -> "No user action"
         "en" to "unsupportedPlayerControl" -> "Available after media integration"
+        "en" to "playback" -> "Playback"
+        "en" to "image" -> "Image"
+        "en" to "advanced" -> "Advanced"
+        "en" to "playbackHint" -> "Local playback and timeline previews."
+        "en" to "subtitlesHint" -> "Configure the local subtitle presentation."
+        "en" to "imageHint" -> "Local image adjustments."
+        "en" to "audioHint" -> "Movie output preferences."
+        "en" to "advancedHint" -> "Rendering, cursor and preview cache."
+        "en" to "skipInterval" -> "Skip interval"
+        "en" to "timelinePreview" -> "Timeline previews"
+        "en" to "subtitleFont" -> "Font"
+        "en" to "subtitleSize" -> "Size"
+        "en" to "subtitleTextColor" -> "Text color"
+        "en" to "subtitleOutlineColor" -> "Outline color"
+        "en" to "subtitleOutlineWidth" -> "Outline width"
+        "en" to "subtitlePosition" -> "Position"
+        "en" to "subtitleVerticalOffset" -> "Vertical offset"
+        "en" to "subtitlePadding" -> "Edge padding"
+        "en" to "brightness" -> "Brightness"
+        "en" to "contrast" -> "Contrast"
+        "en" to "saturation" -> "Saturation"
+        "en" to "hue" -> "Hue"
+        "en" to "defaultVolume" -> "Default movie volume"
+        "en" to "rememberVolume" -> "Remember movie volume"
+        "en" to "normalizeAudio" -> "Normalize movie audio"
+        "en" to "smoothScaling" -> "Smooth scaling"
+        "en" to "hideIdleCursor" -> "Hide idle cursor over playing video"
+        "en" to "cursorDelay" -> "Cursor hide delay"
+        "en" to "previewCache" -> "Preview cache"
+        "en" to "fontSystem" -> "System font"
+        "en" to "fontSerif" -> "Serif"
+        "en" to "fontMonospace" -> "Monospace"
+        "en" to "colorWhite" -> "White"
+        "en" to "colorWarm" -> "Warm yellow"
+        "en" to "colorCyan" -> "Cyan"
+        "en" to "colorBlack" -> "Black"
+        "en" to "colorCharcoal" -> "Charcoal"
+        "en" to "colorGray" -> "Gray"
+        "en" to "positionTop" -> "Top"
+        "en" to "positionBottom" -> "Bottom"
+        "en" to "unitNone" -> "None"
+        "en" to "unitPoints" -> "pt"
+        "en" to "unitPercent" -> "%"
+        "en" to "unitMegabytes" -> "MB"
+        "en" to "unitDegrees" -> "°"
+        "en" to "unitMilliseconds" -> "ms"
+        "en" to "resetSection" -> "Reset section"
+        "en" to "subtitlePreview" -> "Subtitle preview"
+        "en" to "playerSettingsFixture" -> "Player settings fixture"
+        "en" to "readOnly" -> "Read-only"
+        "en" to "skip5" -> "5 s"
+        "en" to "skip10" -> "10 s"
+        "en" to "skip15" -> "15 s"
+        "en" to "skip30" -> "30 s"
+        "en" to "skip60" -> "60 s"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -310,7 +375,7 @@ object SyncWatchCopy {
         "ru" to "invalidConfiguration" -> "Проверьте настройки и попробуйте ещё раз."
         "ru" to "saveFailed" -> "Не удалось сохранить изменения. Попробуйте ещё раз."
         "ru" to "settingsUnavailable" -> "Эти настройки пока недоступны."
-        "ru" to "settingsReadOnly" -> "Сейчас настройки изменить нельзя."
+        "ru" to "settingsReadOnly" -> "Настройки доступны только для чтения"
         "ru" to "galleryLibrary" -> "Библиотека"
         "ru" to "gallerySettings" -> "Настройки"
         "ru" to "optionOn" -> "Вкл."
@@ -343,6 +408,61 @@ object SyncWatchCopy {
         "ru" to "noVideoProvider" -> "Медиаплеер не подключён"
         "ru" to "noPlayerAction" -> "Нет действий пользователя"
         "ru" to "unsupportedPlayerControl" -> "Доступно после подключения медиаплеера"
+        "ru" to "playback" -> "Воспроизведение"
+        "ru" to "image" -> "Изображение"
+        "ru" to "advanced" -> "Дополнительно"
+        "ru" to "playbackHint" -> "Локальная перемотка и предпросмотр."
+        "ru" to "subtitlesHint" -> "Локальное оформление субтитров."
+        "ru" to "imageHint" -> "Локальные параметры изображения."
+        "ru" to "audioHint" -> "Настройки звука фильма."
+        "ru" to "advancedHint" -> "Масштабирование, курсор и кэш."
+        "ru" to "skipInterval" -> "Интервал перемотки"
+        "ru" to "timelinePreview" -> "Предпросмотр на шкале времени"
+        "ru" to "subtitleFont" -> "Шрифт"
+        "ru" to "subtitleSize" -> "Размер"
+        "ru" to "subtitleTextColor" -> "Цвет текста"
+        "ru" to "subtitleOutlineColor" -> "Цвет обводки"
+        "ru" to "subtitleOutlineWidth" -> "Толщина обводки"
+        "ru" to "subtitlePosition" -> "Положение"
+        "ru" to "subtitleVerticalOffset" -> "Смещение по вертикали"
+        "ru" to "subtitlePadding" -> "Отступ от края"
+        "ru" to "brightness" -> "Яркость"
+        "ru" to "contrast" -> "Контраст"
+        "ru" to "saturation" -> "Насыщенность"
+        "ru" to "hue" -> "Оттенок"
+        "ru" to "defaultVolume" -> "Начальная громкость фильма"
+        "ru" to "rememberVolume" -> "Запоминать громкость фильма"
+        "ru" to "normalizeAudio" -> "Нормализация звука фильма"
+        "ru" to "smoothScaling" -> "Плавное масштабирование"
+        "ru" to "hideIdleCursor" -> "Скрывать курсор над играющим видео"
+        "ru" to "cursorDelay" -> "Задержка скрытия курсора"
+        "ru" to "previewCache" -> "Кэш предпросмотра"
+        "ru" to "fontSystem" -> "Системный шрифт"
+        "ru" to "fontSerif" -> "С засечками"
+        "ru" to "fontMonospace" -> "Моноширинный"
+        "ru" to "colorWhite" -> "Белый"
+        "ru" to "colorWarm" -> "Тёплый жёлтый"
+        "ru" to "colorCyan" -> "Голубой"
+        "ru" to "colorBlack" -> "Чёрный"
+        "ru" to "colorCharcoal" -> "Угольный"
+        "ru" to "colorGray" -> "Серый"
+        "ru" to "positionTop" -> "Сверху"
+        "ru" to "positionBottom" -> "Снизу"
+        "ru" to "unitNone" -> "Нет"
+        "ru" to "unitPoints" -> "пт"
+        "ru" to "unitPercent" -> "%"
+        "ru" to "unitMegabytes" -> "МБ"
+        "ru" to "unitDegrees" -> "°"
+        "ru" to "unitMilliseconds" -> "мс"
+        "ru" to "resetSection" -> "Сбросить раздел"
+        "ru" to "subtitlePreview" -> "Пример субтитров"
+        "ru" to "playerSettingsFixture" -> "Образец настроек плеера"
+        "ru" to "readOnly" -> "Только чтение"
+        "ru" to "skip5" -> "5 с"
+        "ru" to "skip10" -> "10 с"
+        "ru" to "skip15" -> "15 с"
+        "ru" to "skip30" -> "30 с"
+        "ru" to "skip60" -> "60 с"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -387,7 +507,7 @@ object SyncWatchSettings {
 
 object SyncWatchPlayer {
     val states = listOf("loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended")
-    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen")
+    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings")
     const val maximumPositionMs: Long = 604800000L
     val icons = mapOf(
         "play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
@@ -407,4 +527,67 @@ object SyncWatchPlayer {
         "subtitles" to listOf(listOf(2.0f, 4.0f, 18.0f, 4.0f, 18.0f, 16.0f, 2.0f, 16.0f, 2.0f, 14.0f, 16.0f, 14.0f, 16.0f, 6.0f, 4.0f, 6.0f, 4.0f, 16.0f, 2.0f, 16.0f), listOf(5.0f, 9.0f, 9.0f, 9.0f, 9.0f, 11.0f, 5.0f, 11.0f), listOf(11.0f, 9.0f, 15.0f, 9.0f, 15.0f, 11.0f, 11.0f, 11.0f)),
         "audio" to listOf(listOf(4.0f, 4.0f, 6.0f, 4.0f, 6.0f, 16.0f, 4.0f, 16.0f), listOf(9.0f, 1.0f, 11.0f, 1.0f, 11.0f, 19.0f, 9.0f, 19.0f), listOf(14.0f, 6.0f, 16.0f, 6.0f, 16.0f, 14.0f, 14.0f, 14.0f)),
     )
+}
+
+data class PlayerSettingOption(val id: String, val label: String, val colorToken: String?)
+data class PlayerSettingField(val id: String, val section: String, val kind: String, val label: String, val row: Int, val minimum: Double, val maximum: Double, val step: Double, val unit: String, val options: List<PlayerSettingOption>)
+
+object SyncWatchPlayerSettings {
+    val sections = listOf("playback", "subtitles", "image", "audio", "advanced")
+    val states = listOf("editing", "savedNotice", "invalidConfiguration", "readOnly")
+    val defaults = mapOf(
+        "skipSeconds" to "10",
+        "timelinePreview" to "true",
+        "subtitleFont" to "system",
+        "subtitleSize" to "30",
+        "subtitleColor" to "white",
+        "outlineColor" to "black",
+        "outlineWidth" to "2",
+        "subtitlePosition" to "bottom",
+        "subtitleOffset" to "0",
+        "subtitlePadding" to "20",
+        "brightness" to "0",
+        "contrast" to "0",
+        "saturation" to "0",
+        "hue" to "0",
+        "defaultVolume" to "100",
+        "rememberVolume" to "true",
+        "normalizeAudio" to "false",
+        "smoothScaling" to "true",
+        "hideIdleCursor" to "true",
+        "cursorDelay" to "2500",
+        "previewCache" to "150",
+    )
+    val fields = listOf(
+        PlayerSettingField("skipSeconds", "playback", "choice", "skipInterval", 0, 0.0, 0.0, 1.0, "unitNone", listOf(PlayerSettingOption("5", "skip5", null), PlayerSettingOption("10", "skip10", null), PlayerSettingOption("15", "skip15", null), PlayerSettingOption("30", "skip30", null), PlayerSettingOption("60", "skip60", null))),
+        PlayerSettingField("timelinePreview", "playback", "boolean", "timelinePreview", 1, 0.0, 0.0, 1.0, "unitNone", listOf()),
+        PlayerSettingField("subtitleFont", "subtitles", "choice", "subtitleFont", 0, 0.0, 0.0, 1.0, "unitNone", listOf(PlayerSettingOption("system", "fontSystem", null), PlayerSettingOption("serif", "fontSerif", null), PlayerSettingOption("monospace", "fontMonospace", null))),
+        PlayerSettingField("subtitleSize", "subtitles", "range", "subtitleSize", 0, 18.0, 48.0, 1.0, "unitPoints", listOf()),
+        PlayerSettingField("subtitleColor", "subtitles", "color", "subtitleTextColor", 1, 0.0, 0.0, 1.0, "unitNone", listOf(PlayerSettingOption("white", "colorWhite", "color.subtitle.white"), PlayerSettingOption("warm", "colorWarm", "color.subtitle.warm"), PlayerSettingOption("cyan", "colorCyan", "color.subtitle.cyan"))),
+        PlayerSettingField("outlineColor", "subtitles", "color", "subtitleOutlineColor", 1, 0.0, 0.0, 1.0, "unitNone", listOf(PlayerSettingOption("black", "colorBlack", "color.subtitle.black"), PlayerSettingOption("charcoal", "colorCharcoal", "color.subtitle.charcoal"), PlayerSettingOption("gray", "colorGray", "color.subtitle.gray"))),
+        PlayerSettingField("outlineWidth", "subtitles", "range", "subtitleOutlineWidth", 2, 0.0, 4.0, 0.5, "unitPoints", listOf()),
+        PlayerSettingField("subtitlePosition", "subtitles", "choice", "subtitlePosition", 3, 0.0, 0.0, 1.0, "unitNone", listOf(PlayerSettingOption("top", "positionTop", null), PlayerSettingOption("bottom", "positionBottom", null))),
+        PlayerSettingField("subtitleOffset", "subtitles", "range", "subtitleVerticalOffset", 3, -120.0, 120.0, 5.0, "unitPoints", listOf()),
+        PlayerSettingField("subtitlePadding", "subtitles", "range", "subtitlePadding", 4, 0.0, 60.0, 1.0, "unitPoints", listOf()),
+        PlayerSettingField("brightness", "image", "range", "brightness", 0, -1.0, 1.0, 0.05, "unitNone", listOf()),
+        PlayerSettingField("contrast", "image", "range", "contrast", 1, -1.0, 1.0, 0.05, "unitNone", listOf()),
+        PlayerSettingField("saturation", "image", "range", "saturation", 2, -1.0, 1.0, 0.05, "unitNone", listOf()),
+        PlayerSettingField("hue", "image", "range", "hue", 3, -180.0, 180.0, 5.0, "unitDegrees", listOf()),
+        PlayerSettingField("defaultVolume", "audio", "range", "defaultVolume", 0, 0.0, 100.0, 5.0, "unitPercent", listOf()),
+        PlayerSettingField("rememberVolume", "audio", "boolean", "rememberVolume", 1, 0.0, 0.0, 1.0, "unitNone", listOf()),
+        PlayerSettingField("normalizeAudio", "audio", "boolean", "normalizeAudio", 2, 0.0, 0.0, 1.0, "unitNone", listOf()),
+        PlayerSettingField("smoothScaling", "advanced", "boolean", "smoothScaling", 0, 0.0, 0.0, 1.0, "unitNone", listOf()),
+        PlayerSettingField("hideIdleCursor", "advanced", "boolean", "hideIdleCursor", 1, 0.0, 0.0, 1.0, "unitNone", listOf()),
+        PlayerSettingField("cursorDelay", "advanced", "range", "cursorDelay", 2, 500.0, 10000.0, 100.0, "unitMilliseconds", listOf()),
+        PlayerSettingField("previewCache", "advanced", "range", "previewCache", 3, 50.0, 500.0, 25.0, "unitMegabytes", listOf()),
+    )
+    fun color(id: String): Long? = when(id) {
+        "white" -> SyncWatchTokens.colorSubtitleWhite
+        "warm" -> SyncWatchTokens.colorSubtitleWarm
+        "cyan" -> SyncWatchTokens.colorSubtitleCyan
+        "black" -> SyncWatchTokens.colorSubtitleBlack
+        "charcoal" -> SyncWatchTokens.colorSubtitleCharcoal
+        "gray" -> SyncWatchTokens.colorSubtitleGray
+        else -> null
+    }
 }

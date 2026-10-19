@@ -114,7 +114,7 @@ private struct PlayerButtonStyle: ButtonStyle {
     }
 }
 
-private struct PlayerRange: View {
+struct PlayerRange: View {
     var value: Double
     var maximum: Double
     var label: String
@@ -297,6 +297,10 @@ public struct PlayerGallery: View {
     @State private var language = "en"
     @State private var dark = true
     @State private var lastAction = ""
+    @State private var showPlayerSettings = false
+    @State private var savedPlayerSettings = SyncWatchPlayerSettings.defaults
+    @State private var playerSettingsEditor = PlayerSettingsEditor()
+    @State private var dialogOffset = CGSize.zero
     public init() {}
     public var body: some View {
         VStack(spacing: 0) {
@@ -325,9 +329,45 @@ public struct PlayerGallery: View {
                 case "playPause": presentation.state = presentation.playing ? .paused : .playing
                 case "setMovieVolume": presentation.volume = value ?? 0
                 case "muteMovie": presentation.muted.toggle()
+                case "openPlayerSettings":
+                    playerSettingsEditor = PlayerSettingsEditor(
+                        values: savedPlayerSettings, editableFields: Set(SyncWatchPlayerSettings.defaults.keys),
+                        canSave: true)
+                    dialogOffset = .zero
+                    showPlayerSettings = true
                 default: break
                 }
             }
-        }.preferredColorScheme(dark ? .dark : .light)
+        }
+        .disabled(showPlayerSettings)
+        .overlay {
+            if showPlayerSettings {
+                GeometryReader { geometry in
+                    ZStack {
+                        SyncWatchTheme.resolve(dark ? .dark : .light).backgroundDeep.opacity(0.6).contentShape(
+                            Rectangle()
+                        ).onTapGesture {}
+                        PlayerSettingsDialog(
+                            editor: $playerSettingsEditor, language: language,
+                            onSave: { values in
+                                savedPlayerSettings = values
+                                presentation.skipSeconds = Int(values["skipSeconds"] ?? "10") ?? 10
+                                presentation.volume = (Double(values["defaultVolume"] ?? "100") ?? 100) / 100
+                                return true
+                            }, onClose: { showPlayerSettings = false },
+                            onMove: { delta in
+                                let maxX = max(0, (geometry.size.width - SyncWatchTokens.layoutSettingsWidth) / 2)
+                                let maxY = max(
+                                    0, (geometry.size.height - SyncWatchTokens.layoutPlayerSettingsHeight) / 2)
+                                dialogOffset = CGSize(
+                                    width: min(maxX, max(-maxX, dialogOffset.width + delta.width)),
+                                    height: min(maxY, max(-maxY, dialogOffset.height + delta.height)))
+                            }
+                        ).offset(dialogOffset)
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(dark ? .dark : .light)
     }
 }

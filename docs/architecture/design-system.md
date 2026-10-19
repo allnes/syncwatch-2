@@ -24,14 +24,16 @@ flowchart LR
 | `packages/design/themes.json` | Semantic dark/light color roles and logical units |
 | `packages/design/generated/` | Generated SwiftUI, C#, XAML, Kotlin and shared manifest |
 | `packages/design/copy.json` | English/Russian copy and Library gallery fixtures |
+| `packages/design/player.json` | Player states/actions and first-party normalized icons |
+| `packages/design/player-settings.json` | Player settings sections, fields, bounds, steps, choices, swatches, units and defaults |
 | `packages/design/settings.json` | Settings sections, field IDs/kinds/options/defaults and validation bounds |
-| `packages/design/apple/`, `windows/`, `linux/` | Native Library/Settings presentation and reusable components |
+| `packages/design/apple/`, `windows/`, `linux/` | Native Library/Settings/Player presentation and reusable components |
 | `packages/design/components.json` | Library, player, settings, and call window structures, states, and actions |
 | `packages/design/package.json` | Design package identity, version, license, and packaged assets |
 
 Tokens use the Style Dictionary `type`/`value` JSON format. Colors are sRGB hex values. Dimensions are logical numeric values mapped to points on macOS and density-independent units on Windows/Compose. Physical display scale is handled by the renderer rather than embedded in token values.
 
-The package contains design data, component specifications and the Library/Settings renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. The Compose Library renderer is source-only until its complete dependency build is available. Player, player-settings and call components remain specifications.
+The package contains design data, component specifications and the Library, Settings, PlayerChrome and PlayerSettingsDialog renderers. A [source-only native Node profile](../design-generator.md) runs Style Dictionary with pinned transitive sources, explicit package resolution, and custom formatter support. Dedicated SwiftUI/WPF/Kotlin formatters generate committed resources. The macOS and Windows shells render the Library workspace and an owned application-settings dialog. An opt-in gallery exercises presentation fixtures. Matching Compose renderers are source-only until their complete dependency build is available. Call components and remaining player overlays await implementation.
 
 ## Generated resources
 
@@ -94,4 +96,17 @@ Native checks add 48 Settings images (four sections, three states, two themes an
 
 `PlayerPresentation` describes observations and capabilities only. Requests do not acknowledge or mutate observations. Unknown/unavailable actions, invalid positions/durations, nonfinite/out-of-range volume, fractional seek positions and invalid skip directions are rejected. Skip produces a bounded absolute seek; it never adds a shared playback-speed preference or a separate synchronized skip operation. Loading, buffering, interrupted and ended states reject playback controls. Invalid observations are safely clamped for display while retaining navigation capabilities.
 
-SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolbar, centralized transport, timeline, movie volume/mute and an owned video-content slot. Updating observations creates no user request. Normal application entry into playback awaits its media adapter; `--player-gallery` is an isolated fixture. Track/playlist/settings controls remain unavailable, and window/call/navigation actions are callbacks rather than provider operations. Physical focus/keyboard/display-scale/video-overlay/fullscreen acceptance and complete media/provider integration remain open.
+SwiftUI/WPF `PlayerChrome` and matching Compose source render the compact toolbar, centralized transport, timeline, movie volume/mute and an owned video-content slot. Updating observations creates no user request. Normal application entry into playback awaits its media adapter; `--player-gallery` is an isolated fixture. The gallery gear opens the player-settings component; track/playlist controls remain unavailable, and window/call/navigation actions are callbacks rather than provider operations. Physical focus/keyboard/display-scale/video-overlay/fullscreen acceptance and complete media/provider integration remain open.
+
+
+## Player settings
+
+`player-settings.json` defines five sections and 21 fields independently of an operating system. Generated Swift/C#/Kotlin metadata includes field kinds, rows, localized labels, choices, color tokens, defaults, units and numeric bounds/steps. Numeric drafts use invariant decimal strings. All clients reject unsupported choices/booleans, unknown keys/capabilities, control characters, oversized values, nonfinite or nondecimal numbers, out-of-range values and values outside the declared step grid.
+
+`PlayerSettingsEditor` owns a draft and the last acknowledged snapshot. Edits and section reset affect only fields with edit capabilities; reset never writes storage. Cancel restores the last acknowledged snapshot. Save validates the entire draft and publishes a copy to the caller. A false acknowledgement retains the draft, displays failure and leaves the saved snapshot unchanged. Read-only mode rejects edits, reset and save even if edit capabilities were supplied.
+
+`PlayerSettingsDialog` uses a 680 by 460 content area, a 170-unit sidebar, compact cards, switches, range controls, choices and shared color swatches. Its header emits incremental move requests for its host. Sections preserve the same draft. The subtitle preview uses native generic system/serif/monospace fonts, actual text glyphs, shared fill/outline colors and bounded position/padding/offset. It adopts no bundled font or subtitle renderer. Preview appearance does not prove VLC subtitle behavior.
+
+The isolated `--player-settings-gallery` selects each section, editing/saved/error/read-only state, theme and language, and can simulate failure. The gear in `--player-gallery` opens an owned dialog; successful save updates only in-memory fixture values and skip/default-volume observations. Neither gallery reads application preferences or starts a provider. Applying and persisting player preferences in a real session requires the application/media adapters.
+
+Native validation retains 80 PlayerSettings images per platform (five sections, four states, two themes and two languages), giving 224 images per native artifact. The same input corpus exercises JavaScript generation, Swift and C# validation. Tests also check save/reset/cancel transactions, native WPF controls and actual subtitle glyph/color/size/position changes. Complete physical keyboard/focus, display-scale, real-video overlays and provider acceptance remain open. Matching Compose source has no compiled/rendered Linux UI until its declared build closure passes.

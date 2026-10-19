@@ -1,22 +1,23 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "ede3d9b9626bccebc429ac9ce7efaf781534ae0075a04419e0942f20791e9467",
+  "sourceDigest": "28de589b7fa0c56e06d7abdb71e5a94da7b75f2c2ae4b58c88f496704cd13b61",
   "sources": {
-    "tokens/geometry.json": "0f7ed6e895ef0d4e821116c5837536c64beda46b6f7675220933647ee864e7e8",
-    "tokens/palette.json": "8d7d87e9dd2beeb9dd4820e9b9023911c65d96ea61149fd0a0050cf9bee2d7e2",
+    "tokens/geometry.json": "99ac2cd29798ccdbf3209609ac5360c2fbcc62c3df6718641f7058ea28a1679f",
+    "tokens/palette.json": "8ee1b4fbd21568cf2b03f5b82ada0edbe6578979610fdb526301931861bc657a",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "ac13addc25491cf9f377d4dcecea10567db06d0f60da5f69f9752e5ae5f0055c",
-    "copy.json": "e6141f9e216960d81f08c3943cd47a9ab53c73aa2117ded93e01649589a1bd6a",
+    "components.json": "eee8165a2339a5e5b82c2a58257822d2e0b98108426d4117aa9fad7cebfa79d9",
+    "copy.json": "10687fe3b518dbd95940d0b6c2028aa401adc56f256e2c783b58c0df2d9c7f16",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
-    "player.json": "2e1cd0880ffb3298ba4c60b7daf35bcc8b125f19dc4f1d2b158e463166812595",
-    "package.json": "da5192e9b2cec3c4956e8fba79e240d423906a0cb16492ba1c7116f31bcd0170"
+    "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
+    "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
+    "package.json": "0707573164a704831f56eb1c033932109a8e08cc0329b3f4072a6750927d3a14"
   },
-  "generatorRevision": "e9c685f3296c89b08a627528130b3d85cb9c52c7b7bac178d29294f9e0cf30d3",
+  "generatorRevision": "2de90226a92dac949bb9d7f0e53d370a11856021bc68ff39a512b698979534e2",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "52a4eec82f6e94fde55b13d084f9427efe0d1cea7aa63acb5d388cadab0bf6c5",
+      "tools/design/generate.mjs": "70f91571477d4343becd8fbcb6101afae492cb68527fe805106647c2229c7429",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",
@@ -24,7 +25,8 @@
       "tools/design/sources.json": "61ee09429a49bf5ba132278fa43982326d0741e47974ed0ba5d5c431d9befcb3",
       "tools/design/presentation-formats.mjs": "f90280a1cc4ac23e1edb22a5d02e5fd91a82ce36309a6103fb9344753a050ae0",
       "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
-      "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36"
+      "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
+      "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -144,7 +146,7 @@
         "invalidConfiguration": "Check the settings and try again.",
         "saveFailed": "Could not save changes. Try again.",
         "settingsUnavailable": "These settings are not available yet.",
-        "settingsReadOnly": "Settings cannot be changed right now.",
+        "settingsReadOnly": "Settings are read-only",
         "galleryLibrary": "Library",
         "gallerySettings": "Settings",
         "optionOn": "On",
@@ -176,7 +178,62 @@
         "videoSurface": "Video surface",
         "noVideoProvider": "Playback provider is not connected",
         "noPlayerAction": "No user action",
-        "unsupportedPlayerControl": "Available after media integration"
+        "unsupportedPlayerControl": "Available after media integration",
+        "playback": "Playback",
+        "image": "Image",
+        "advanced": "Advanced",
+        "playbackHint": "Local playback and timeline previews.",
+        "subtitlesHint": "Configure the local subtitle presentation.",
+        "imageHint": "Local image adjustments.",
+        "audioHint": "Movie output preferences.",
+        "advancedHint": "Rendering, cursor and preview cache.",
+        "skipInterval": "Skip interval",
+        "timelinePreview": "Timeline previews",
+        "subtitleFont": "Font",
+        "subtitleSize": "Size",
+        "subtitleTextColor": "Text color",
+        "subtitleOutlineColor": "Outline color",
+        "subtitleOutlineWidth": "Outline width",
+        "subtitlePosition": "Position",
+        "subtitleVerticalOffset": "Vertical offset",
+        "subtitlePadding": "Edge padding",
+        "brightness": "Brightness",
+        "contrast": "Contrast",
+        "saturation": "Saturation",
+        "hue": "Hue",
+        "defaultVolume": "Default movie volume",
+        "rememberVolume": "Remember movie volume",
+        "normalizeAudio": "Normalize movie audio",
+        "smoothScaling": "Smooth scaling",
+        "hideIdleCursor": "Hide idle cursor over playing video",
+        "cursorDelay": "Cursor hide delay",
+        "previewCache": "Preview cache",
+        "fontSystem": "System font",
+        "fontSerif": "Serif",
+        "fontMonospace": "Monospace",
+        "colorWhite": "White",
+        "colorWarm": "Warm yellow",
+        "colorCyan": "Cyan",
+        "colorBlack": "Black",
+        "colorCharcoal": "Charcoal",
+        "colorGray": "Gray",
+        "positionTop": "Top",
+        "positionBottom": "Bottom",
+        "unitNone": "None",
+        "unitPoints": "pt",
+        "unitPercent": "%",
+        "unitMegabytes": "MB",
+        "unitDegrees": "°",
+        "unitMilliseconds": "ms",
+        "resetSection": "Reset section",
+        "subtitlePreview": "Subtitle preview",
+        "playerSettingsFixture": "Player settings fixture",
+        "readOnly": "Read-only",
+        "skip5": "5 s",
+        "skip10": "10 s",
+        "skip15": "15 s",
+        "skip30": "30 s",
+        "skip60": "60 s"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -243,7 +300,7 @@
         "invalidConfiguration": "Проверьте настройки и попробуйте ещё раз.",
         "saveFailed": "Не удалось сохранить изменения. Попробуйте ещё раз.",
         "settingsUnavailable": "Эти настройки пока недоступны.",
-        "settingsReadOnly": "Сейчас настройки изменить нельзя.",
+        "settingsReadOnly": "Настройки доступны только для чтения",
         "galleryLibrary": "Библиотека",
         "gallerySettings": "Настройки",
         "optionOn": "Вкл.",
@@ -275,7 +332,62 @@
         "videoSurface": "Область видео",
         "noVideoProvider": "Медиаплеер не подключён",
         "noPlayerAction": "Нет действий пользователя",
-        "unsupportedPlayerControl": "Доступно после подключения медиаплеера"
+        "unsupportedPlayerControl": "Доступно после подключения медиаплеера",
+        "playback": "Воспроизведение",
+        "image": "Изображение",
+        "advanced": "Дополнительно",
+        "playbackHint": "Локальная перемотка и предпросмотр.",
+        "subtitlesHint": "Локальное оформление субтитров.",
+        "imageHint": "Локальные параметры изображения.",
+        "audioHint": "Настройки звука фильма.",
+        "advancedHint": "Масштабирование, курсор и кэш.",
+        "skipInterval": "Интервал перемотки",
+        "timelinePreview": "Предпросмотр на шкале времени",
+        "subtitleFont": "Шрифт",
+        "subtitleSize": "Размер",
+        "subtitleTextColor": "Цвет текста",
+        "subtitleOutlineColor": "Цвет обводки",
+        "subtitleOutlineWidth": "Толщина обводки",
+        "subtitlePosition": "Положение",
+        "subtitleVerticalOffset": "Смещение по вертикали",
+        "subtitlePadding": "Отступ от края",
+        "brightness": "Яркость",
+        "contrast": "Контраст",
+        "saturation": "Насыщенность",
+        "hue": "Оттенок",
+        "defaultVolume": "Начальная громкость фильма",
+        "rememberVolume": "Запоминать громкость фильма",
+        "normalizeAudio": "Нормализация звука фильма",
+        "smoothScaling": "Плавное масштабирование",
+        "hideIdleCursor": "Скрывать курсор над играющим видео",
+        "cursorDelay": "Задержка скрытия курсора",
+        "previewCache": "Кэш предпросмотра",
+        "fontSystem": "Системный шрифт",
+        "fontSerif": "С засечками",
+        "fontMonospace": "Моноширинный",
+        "colorWhite": "Белый",
+        "colorWarm": "Тёплый жёлтый",
+        "colorCyan": "Голубой",
+        "colorBlack": "Чёрный",
+        "colorCharcoal": "Угольный",
+        "colorGray": "Серый",
+        "positionTop": "Сверху",
+        "positionBottom": "Снизу",
+        "unitNone": "Нет",
+        "unitPoints": "пт",
+        "unitPercent": "%",
+        "unitMegabytes": "МБ",
+        "unitDegrees": "°",
+        "unitMilliseconds": "мс",
+        "resetSection": "Сбросить раздел",
+        "subtitlePreview": "Пример субтитров",
+        "playerSettingsFixture": "Образец настроек плеера",
+        "readOnly": "Только чтение",
+        "skip5": "5 с",
+        "skip10": "10 с",
+        "skip15": "15 с",
+        "skip30": "30 с",
+        "skip60": "60 с"
       }
     },
     "gallery": {
@@ -465,7 +577,8 @@
       "showLibrary",
       "endWatching",
       "openCall",
-      "toggleFullscreen"
+      "toggleFullscreen",
+      "openPlayerSettings"
     ],
     "maximumPositionMs": 604800000,
     "icons": {
@@ -937,6 +1050,384 @@
       ]
     }
   },
+  "playerSettings": {
+    "schemaVersion": 1,
+    "sections": [
+      "playback",
+      "subtitles",
+      "image",
+      "audio",
+      "advanced"
+    ],
+    "states": [
+      "editing",
+      "savedNotice",
+      "invalidConfiguration",
+      "readOnly"
+    ],
+    "fields": [
+      {
+        "id": "skipSeconds",
+        "section": "playback",
+        "kind": "choice",
+        "label": "skipInterval",
+        "row": 0,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [
+          {
+            "id": "5",
+            "label": "skip5",
+            "colorToken": null
+          },
+          {
+            "id": "10",
+            "label": "skip10",
+            "colorToken": null
+          },
+          {
+            "id": "15",
+            "label": "skip15",
+            "colorToken": null
+          },
+          {
+            "id": "30",
+            "label": "skip30",
+            "colorToken": null
+          },
+          {
+            "id": "60",
+            "label": "skip60",
+            "colorToken": null
+          }
+        ],
+        "unit": "unitNone"
+      },
+      {
+        "id": "timelinePreview",
+        "section": "playback",
+        "kind": "boolean",
+        "label": "timelinePreview",
+        "row": 1,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "subtitleFont",
+        "section": "subtitles",
+        "kind": "choice",
+        "label": "subtitleFont",
+        "row": 0,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [
+          {
+            "id": "system",
+            "label": "fontSystem",
+            "colorToken": null
+          },
+          {
+            "id": "serif",
+            "label": "fontSerif",
+            "colorToken": null
+          },
+          {
+            "id": "monospace",
+            "label": "fontMonospace",
+            "colorToken": null
+          }
+        ],
+        "unit": "unitNone"
+      },
+      {
+        "id": "subtitleSize",
+        "section": "subtitles",
+        "kind": "range",
+        "label": "subtitleSize",
+        "row": 0,
+        "minimum": 18,
+        "maximum": 48,
+        "step": 1,
+        "options": [],
+        "unit": "unitPoints"
+      },
+      {
+        "id": "subtitleColor",
+        "section": "subtitles",
+        "kind": "color",
+        "label": "subtitleTextColor",
+        "row": 1,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [
+          {
+            "id": "white",
+            "label": "colorWhite",
+            "colorToken": "color.subtitle.white"
+          },
+          {
+            "id": "warm",
+            "label": "colorWarm",
+            "colorToken": "color.subtitle.warm"
+          },
+          {
+            "id": "cyan",
+            "label": "colorCyan",
+            "colorToken": "color.subtitle.cyan"
+          }
+        ],
+        "unit": "unitNone"
+      },
+      {
+        "id": "outlineColor",
+        "section": "subtitles",
+        "kind": "color",
+        "label": "subtitleOutlineColor",
+        "row": 1,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [
+          {
+            "id": "black",
+            "label": "colorBlack",
+            "colorToken": "color.subtitle.black"
+          },
+          {
+            "id": "charcoal",
+            "label": "colorCharcoal",
+            "colorToken": "color.subtitle.charcoal"
+          },
+          {
+            "id": "gray",
+            "label": "colorGray",
+            "colorToken": "color.subtitle.gray"
+          }
+        ],
+        "unit": "unitNone"
+      },
+      {
+        "id": "outlineWidth",
+        "section": "subtitles",
+        "kind": "range",
+        "label": "subtitleOutlineWidth",
+        "row": 2,
+        "minimum": 0,
+        "maximum": 4,
+        "step": 0.5,
+        "options": [],
+        "unit": "unitPoints"
+      },
+      {
+        "id": "subtitlePosition",
+        "section": "subtitles",
+        "kind": "choice",
+        "label": "subtitlePosition",
+        "row": 3,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [
+          {
+            "id": "top",
+            "label": "positionTop",
+            "colorToken": null
+          },
+          {
+            "id": "bottom",
+            "label": "positionBottom",
+            "colorToken": null
+          }
+        ],
+        "unit": "unitNone"
+      },
+      {
+        "id": "subtitleOffset",
+        "section": "subtitles",
+        "kind": "range",
+        "label": "subtitleVerticalOffset",
+        "row": 3,
+        "minimum": -120,
+        "maximum": 120,
+        "step": 5,
+        "options": [],
+        "unit": "unitPoints"
+      },
+      {
+        "id": "subtitlePadding",
+        "section": "subtitles",
+        "kind": "range",
+        "label": "subtitlePadding",
+        "row": 4,
+        "minimum": 0,
+        "maximum": 60,
+        "step": 1,
+        "options": [],
+        "unit": "unitPoints"
+      },
+      {
+        "id": "brightness",
+        "section": "image",
+        "kind": "range",
+        "label": "brightness",
+        "row": 0,
+        "minimum": -1,
+        "maximum": 1,
+        "step": 0.05,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "contrast",
+        "section": "image",
+        "kind": "range",
+        "label": "contrast",
+        "row": 1,
+        "minimum": -1,
+        "maximum": 1,
+        "step": 0.05,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "saturation",
+        "section": "image",
+        "kind": "range",
+        "label": "saturation",
+        "row": 2,
+        "minimum": -1,
+        "maximum": 1,
+        "step": 0.05,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "hue",
+        "section": "image",
+        "kind": "range",
+        "label": "hue",
+        "row": 3,
+        "minimum": -180,
+        "maximum": 180,
+        "step": 5,
+        "options": [],
+        "unit": "unitDegrees"
+      },
+      {
+        "id": "defaultVolume",
+        "section": "audio",
+        "kind": "range",
+        "label": "defaultVolume",
+        "row": 0,
+        "minimum": 0,
+        "maximum": 100,
+        "step": 5,
+        "options": [],
+        "unit": "unitPercent"
+      },
+      {
+        "id": "rememberVolume",
+        "section": "audio",
+        "kind": "boolean",
+        "label": "rememberVolume",
+        "row": 1,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "normalizeAudio",
+        "section": "audio",
+        "kind": "boolean",
+        "label": "normalizeAudio",
+        "row": 2,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "smoothScaling",
+        "section": "advanced",
+        "kind": "boolean",
+        "label": "smoothScaling",
+        "row": 0,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "hideIdleCursor",
+        "section": "advanced",
+        "kind": "boolean",
+        "label": "hideIdleCursor",
+        "row": 1,
+        "minimum": 0,
+        "maximum": 0,
+        "step": 1,
+        "options": [],
+        "unit": "unitNone"
+      },
+      {
+        "id": "cursorDelay",
+        "section": "advanced",
+        "kind": "range",
+        "label": "cursorDelay",
+        "row": 2,
+        "minimum": 500,
+        "maximum": 10000,
+        "step": 100,
+        "options": [],
+        "unit": "unitMilliseconds"
+      },
+      {
+        "id": "previewCache",
+        "section": "advanced",
+        "kind": "range",
+        "label": "previewCache",
+        "row": 3,
+        "minimum": 50,
+        "maximum": 500,
+        "step": 25,
+        "options": [],
+        "unit": "unitMegabytes"
+      }
+    ],
+    "defaults": {
+      "skipSeconds": "10",
+      "timelinePreview": "true",
+      "subtitleFont": "system",
+      "subtitleSize": "30",
+      "subtitleColor": "white",
+      "outlineColor": "black",
+      "outlineWidth": "2",
+      "subtitlePosition": "bottom",
+      "subtitleOffset": "0",
+      "subtitlePadding": "20",
+      "brightness": "0",
+      "contrast": "0",
+      "saturation": "0",
+      "hue": "0",
+      "defaultVolume": "100",
+      "rememberVolume": "true",
+      "normalizeAudio": "false",
+      "smoothScaling": "true",
+      "hideIdleCursor": "true",
+      "cursorDelay": "2500",
+      "previewCache": "150"
+    }
+  },
   "tokens": [
     {
       "id": "color.dark.background",
@@ -1047,6 +1538,36 @@
       "id": "color.shared.videoSurface",
       "type": "color",
       "value": "#000000FF"
+    },
+    {
+      "id": "color.subtitle.black",
+      "type": "color",
+      "value": "#000000FF"
+    },
+    {
+      "id": "color.subtitle.charcoal",
+      "type": "color",
+      "value": "#202020FF"
+    },
+    {
+      "id": "color.subtitle.cyan",
+      "type": "color",
+      "value": "#9FE7FFFF"
+    },
+    {
+      "id": "color.subtitle.gray",
+      "type": "color",
+      "value": "#4A4A4AFF"
+    },
+    {
+      "id": "color.subtitle.warm",
+      "type": "color",
+      "value": "#FFF3A6FF"
+    },
+    {
+      "id": "color.subtitle.white",
+      "type": "color",
+      "value": "#FFFFFFFF"
     },
     {
       "id": "control.borderWidth",
@@ -1249,9 +1770,29 @@
       "value": 86
     },
     {
+      "id": "layout.playerSettingsCardPadding",
+      "type": "number",
+      "value": 11
+    },
+    {
+      "id": "layout.playerSettingsCardRadius",
+      "type": "number",
+      "value": 10
+    },
+    {
+      "id": "layout.playerSettingsColorSize",
+      "type": "number",
+      "value": 22
+    },
+    {
       "id": "layout.playerSettingsHeight",
       "type": "number",
       "value": 460
+    },
+    {
+      "id": "layout.playerSettingsPreviewHeight",
+      "type": "number",
+      "value": 130
     },
     {
       "id": "layout.playerSettingsSidebarWidth",

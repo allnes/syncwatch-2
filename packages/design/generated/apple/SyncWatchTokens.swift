@@ -47,6 +47,18 @@ public enum SyncWatchTokens {
         .sRGB, red: 48.0 / 255, green: 217.0 / 255, blue: 139.0 / 255, opacity: 255.0 / 255)
     public static let colorSharedVideoSurface = Color(
         .sRGB, red: 0.0 / 255, green: 0.0 / 255, blue: 0.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleBlack = Color(
+        .sRGB, red: 0.0 / 255, green: 0.0 / 255, blue: 0.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleCharcoal = Color(
+        .sRGB, red: 32.0 / 255, green: 32.0 / 255, blue: 32.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleCyan = Color(
+        .sRGB, red: 159.0 / 255, green: 231.0 / 255, blue: 255.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleGray = Color(
+        .sRGB, red: 74.0 / 255, green: 74.0 / 255, blue: 74.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleWarm = Color(
+        .sRGB, red: 255.0 / 255, green: 243.0 / 255, blue: 166.0 / 255, opacity: 255.0 / 255)
+    public static let colorSubtitleWhite = Color(
+        .sRGB, red: 255.0 / 255, green: 255.0 / 255, blue: 255.0 / 255, opacity: 255.0 / 255)
     public static let controlBorderWidth: CGFloat = 1
     public static let controlBrandSize: CGFloat = 38
     public static let controlButtonRadius: CGFloat = 12
@@ -87,7 +99,11 @@ public enum SyncWatchTokens {
     public static let layoutPanelRadius: CGFloat = 16
     public static let layoutPlayerBottomInset: CGFloat = 78
     public static let layoutPlayerFooterHeight: CGFloat = 86
+    public static let layoutPlayerSettingsCardPadding: CGFloat = 11
+    public static let layoutPlayerSettingsCardRadius: CGFloat = 10
+    public static let layoutPlayerSettingsColorSize: CGFloat = 22
     public static let layoutPlayerSettingsHeight: CGFloat = 460
+    public static let layoutPlayerSettingsPreviewHeight: CGFloat = 130
     public static let layoutPlayerSettingsSidebarWidth: CGFloat = 170
     public static let layoutPlayerTimeWidth: CGFloat = 64
     public static let layoutPlayerToolbarHeight: CGFloat = 40
@@ -141,6 +157,12 @@ public enum SyncWatchTokens {
         "color.shared.selection": colorSharedSelection,
         "color.shared.success": colorSharedSuccess,
         "color.shared.videoSurface": colorSharedVideoSurface,
+        "color.subtitle.black": colorSubtitleBlack,
+        "color.subtitle.charcoal": colorSubtitleCharcoal,
+        "color.subtitle.cyan": colorSubtitleCyan,
+        "color.subtitle.gray": colorSubtitleGray,
+        "color.subtitle.warm": colorSubtitleWarm,
+        "color.subtitle.white": colorSubtitleWhite,
     ]
 
     public static let dimensions: [String: CGFloat] = [
@@ -184,7 +206,11 @@ public enum SyncWatchTokens {
         "layout.panelRadius": layoutPanelRadius,
         "layout.playerBottomInset": layoutPlayerBottomInset,
         "layout.playerFooterHeight": layoutPlayerFooterHeight,
+        "layout.playerSettingsCardPadding": layoutPlayerSettingsCardPadding,
+        "layout.playerSettingsCardRadius": layoutPlayerSettingsCardRadius,
+        "layout.playerSettingsColorSize": layoutPlayerSettingsColorSize,
         "layout.playerSettingsHeight": layoutPlayerSettingsHeight,
+        "layout.playerSettingsPreviewHeight": layoutPlayerSettingsPreviewHeight,
         "layout.playerSettingsSidebarWidth": layoutPlayerSettingsSidebarWidth,
         "layout.playerTimeWidth": layoutPlayerTimeWidth,
         "layout.playerToolbarHeight": layoutPlayerToolbarHeight,
@@ -336,7 +362,7 @@ public enum SyncWatchCopy {
             "invalidConfiguration": "Check the settings and try again.",
             "saveFailed": "Could not save changes. Try again.",
             "settingsUnavailable": "These settings are not available yet.",
-            "settingsReadOnly": "Settings cannot be changed right now.",
+            "settingsReadOnly": "Settings are read-only",
             "galleryLibrary": "Library",
             "gallerySettings": "Settings",
             "optionOn": "On",
@@ -369,6 +395,61 @@ public enum SyncWatchCopy {
             "noVideoProvider": "Playback provider is not connected",
             "noPlayerAction": "No user action",
             "unsupportedPlayerControl": "Available after media integration",
+            "playback": "Playback",
+            "image": "Image",
+            "advanced": "Advanced",
+            "playbackHint": "Local playback and timeline previews.",
+            "subtitlesHint": "Configure the local subtitle presentation.",
+            "imageHint": "Local image adjustments.",
+            "audioHint": "Movie output preferences.",
+            "advancedHint": "Rendering, cursor and preview cache.",
+            "skipInterval": "Skip interval",
+            "timelinePreview": "Timeline previews",
+            "subtitleFont": "Font",
+            "subtitleSize": "Size",
+            "subtitleTextColor": "Text color",
+            "subtitleOutlineColor": "Outline color",
+            "subtitleOutlineWidth": "Outline width",
+            "subtitlePosition": "Position",
+            "subtitleVerticalOffset": "Vertical offset",
+            "subtitlePadding": "Edge padding",
+            "brightness": "Brightness",
+            "contrast": "Contrast",
+            "saturation": "Saturation",
+            "hue": "Hue",
+            "defaultVolume": "Default movie volume",
+            "rememberVolume": "Remember movie volume",
+            "normalizeAudio": "Normalize movie audio",
+            "smoothScaling": "Smooth scaling",
+            "hideIdleCursor": "Hide idle cursor over playing video",
+            "cursorDelay": "Cursor hide delay",
+            "previewCache": "Preview cache",
+            "fontSystem": "System font",
+            "fontSerif": "Serif",
+            "fontMonospace": "Monospace",
+            "colorWhite": "White",
+            "colorWarm": "Warm yellow",
+            "colorCyan": "Cyan",
+            "colorBlack": "Black",
+            "colorCharcoal": "Charcoal",
+            "colorGray": "Gray",
+            "positionTop": "Top",
+            "positionBottom": "Bottom",
+            "unitNone": "None",
+            "unitPoints": "pt",
+            "unitPercent": "%",
+            "unitMegabytes": "MB",
+            "unitDegrees": "°",
+            "unitMilliseconds": "ms",
+            "resetSection": "Reset section",
+            "subtitlePreview": "Subtitle preview",
+            "playerSettingsFixture": "Player settings fixture",
+            "readOnly": "Read-only",
+            "skip5": "5 s",
+            "skip10": "10 s",
+            "skip15": "15 s",
+            "skip30": "30 s",
+            "skip60": "60 s",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -435,7 +516,7 @@ public enum SyncWatchCopy {
             "invalidConfiguration": "Проверьте настройки и попробуйте ещё раз.",
             "saveFailed": "Не удалось сохранить изменения. Попробуйте ещё раз.",
             "settingsUnavailable": "Эти настройки пока недоступны.",
-            "settingsReadOnly": "Сейчас настройки изменить нельзя.",
+            "settingsReadOnly": "Настройки доступны только для чтения",
             "galleryLibrary": "Библиотека",
             "gallerySettings": "Настройки",
             "optionOn": "Вкл.",
@@ -468,6 +549,61 @@ public enum SyncWatchCopy {
             "noVideoProvider": "Медиаплеер не подключён",
             "noPlayerAction": "Нет действий пользователя",
             "unsupportedPlayerControl": "Доступно после подключения медиаплеера",
+            "playback": "Воспроизведение",
+            "image": "Изображение",
+            "advanced": "Дополнительно",
+            "playbackHint": "Локальная перемотка и предпросмотр.",
+            "subtitlesHint": "Локальное оформление субтитров.",
+            "imageHint": "Локальные параметры изображения.",
+            "audioHint": "Настройки звука фильма.",
+            "advancedHint": "Масштабирование, курсор и кэш.",
+            "skipInterval": "Интервал перемотки",
+            "timelinePreview": "Предпросмотр на шкале времени",
+            "subtitleFont": "Шрифт",
+            "subtitleSize": "Размер",
+            "subtitleTextColor": "Цвет текста",
+            "subtitleOutlineColor": "Цвет обводки",
+            "subtitleOutlineWidth": "Толщина обводки",
+            "subtitlePosition": "Положение",
+            "subtitleVerticalOffset": "Смещение по вертикали",
+            "subtitlePadding": "Отступ от края",
+            "brightness": "Яркость",
+            "contrast": "Контраст",
+            "saturation": "Насыщенность",
+            "hue": "Оттенок",
+            "defaultVolume": "Начальная громкость фильма",
+            "rememberVolume": "Запоминать громкость фильма",
+            "normalizeAudio": "Нормализация звука фильма",
+            "smoothScaling": "Плавное масштабирование",
+            "hideIdleCursor": "Скрывать курсор над играющим видео",
+            "cursorDelay": "Задержка скрытия курсора",
+            "previewCache": "Кэш предпросмотра",
+            "fontSystem": "Системный шрифт",
+            "fontSerif": "С засечками",
+            "fontMonospace": "Моноширинный",
+            "colorWhite": "Белый",
+            "colorWarm": "Тёплый жёлтый",
+            "colorCyan": "Голубой",
+            "colorBlack": "Чёрный",
+            "colorCharcoal": "Угольный",
+            "colorGray": "Серый",
+            "positionTop": "Сверху",
+            "positionBottom": "Снизу",
+            "unitNone": "Нет",
+            "unitPoints": "пт",
+            "unitPercent": "%",
+            "unitMegabytes": "МБ",
+            "unitDegrees": "°",
+            "unitMilliseconds": "мс",
+            "resetSection": "Сбросить раздел",
+            "subtitlePreview": "Пример субтитров",
+            "playerSettingsFixture": "Образец настроек плеера",
+            "readOnly": "Только чтение",
+            "skip5": "5 с",
+            "skip10": "10 с",
+            "skip15": "15 с",
+            "skip30": "30 с",
+            "skip60": "60 с",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -580,6 +716,7 @@ public enum SyncWatchPlayer {
         "endWatching",
         "openCall",
         "toggleFullscreen",
+        "openPlayerSettings",
     ]
     public static let maximumPositionMs: Int64 = 604_800_000
     public static let icons: [String: [[Double]]] = [
@@ -1050,4 +1187,179 @@ public enum SyncWatchPlayer {
             ],
         ],
     ]
+}
+
+public struct PlayerSettingOption: Sendable {
+    public let id: String
+    public let label: String
+    public let colorToken: String?
+}
+
+public struct PlayerSettingField: Sendable {
+    public let id: String
+    public let section: String
+    public let kind: String
+    public let label: String
+    public let row: Int
+    public let minimum: Double
+    public let maximum: Double
+    public let step: Double
+    public let unit: String
+    public let options: [PlayerSettingOption]
+}
+
+public enum SyncWatchPlayerSettings {
+    public static let sections = ["playback", "subtitles", "image", "audio", "advanced"]
+    public static let states = [
+        "editing",
+        "savedNotice",
+        "invalidConfiguration",
+        "readOnly",
+    ]
+    public static let defaults: [String: String] = [
+        "skipSeconds": "10",
+        "timelinePreview": "true",
+        "subtitleFont": "system",
+        "subtitleSize": "30",
+        "subtitleColor": "white",
+        "outlineColor": "black",
+        "outlineWidth": "2",
+        "subtitlePosition": "bottom",
+        "subtitleOffset": "0",
+        "subtitlePadding": "20",
+        "brightness": "0",
+        "contrast": "0",
+        "saturation": "0",
+        "hue": "0",
+        "defaultVolume": "100",
+        "rememberVolume": "true",
+        "normalizeAudio": "false",
+        "smoothScaling": "true",
+        "hideIdleCursor": "true",
+        "cursorDelay": "2500",
+        "previewCache": "150",
+    ]
+    public static let fields: [PlayerSettingField] = [
+        PlayerSettingField(
+            id: "skipSeconds", section: "playback", kind: "choice",
+            label: "skipInterval", row: 0, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone",
+            options: [
+                PlayerSettingOption(id: "5", label: "skip5", colorToken: nil),
+                PlayerSettingOption(id: "10", label: "skip10", colorToken: nil),
+                PlayerSettingOption(id: "15", label: "skip15", colorToken: nil),
+                PlayerSettingOption(id: "30", label: "skip30", colorToken: nil),
+                PlayerSettingOption(id: "60", label: "skip60", colorToken: nil),
+            ]),
+        PlayerSettingField(
+            id: "timelinePreview", section: "playback", kind: "boolean",
+            label: "timelinePreview", row: 1, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "subtitleFont", section: "subtitles", kind: "choice",
+            label: "subtitleFont", row: 0, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone",
+            options: [
+                PlayerSettingOption(id: "system", label: "fontSystem", colorToken: nil),
+                PlayerSettingOption(id: "serif", label: "fontSerif", colorToken: nil),
+                PlayerSettingOption(id: "monospace", label: "fontMonospace", colorToken: nil),
+            ]),
+        PlayerSettingField(
+            id: "subtitleSize", section: "subtitles", kind: "range",
+            label: "subtitleSize", row: 0, minimum: 18, maximum: 48, step: 1,
+            unit: "unitPoints", options: []),
+        PlayerSettingField(
+            id: "subtitleColor", section: "subtitles", kind: "color",
+            label: "subtitleTextColor", row: 1, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone",
+            options: [
+                PlayerSettingOption(id: "white", label: "colorWhite", colorToken: "color.subtitle.white"),
+                PlayerSettingOption(id: "warm", label: "colorWarm", colorToken: "color.subtitle.warm"),
+                PlayerSettingOption(id: "cyan", label: "colorCyan", colorToken: "color.subtitle.cyan"),
+            ]),
+        PlayerSettingField(
+            id: "outlineColor", section: "subtitles", kind: "color",
+            label: "subtitleOutlineColor", row: 1, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone",
+            options: [
+                PlayerSettingOption(id: "black", label: "colorBlack", colorToken: "color.subtitle.black"),
+                PlayerSettingOption(id: "charcoal", label: "colorCharcoal", colorToken: "color.subtitle.charcoal"),
+                PlayerSettingOption(id: "gray", label: "colorGray", colorToken: "color.subtitle.gray"),
+            ]),
+        PlayerSettingField(
+            id: "outlineWidth", section: "subtitles", kind: "range",
+            label: "subtitleOutlineWidth", row: 2, minimum: 0, maximum: 4, step: 0.5,
+            unit: "unitPoints", options: []),
+        PlayerSettingField(
+            id: "subtitlePosition", section: "subtitles", kind: "choice",
+            label: "subtitlePosition", row: 3, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone",
+            options: [
+                PlayerSettingOption(id: "top", label: "positionTop", colorToken: nil),
+                PlayerSettingOption(id: "bottom", label: "positionBottom", colorToken: nil),
+            ]),
+        PlayerSettingField(
+            id: "subtitleOffset", section: "subtitles", kind: "range",
+            label: "subtitleVerticalOffset", row: 3, minimum: -120, maximum: 120, step: 5,
+            unit: "unitPoints", options: []),
+        PlayerSettingField(
+            id: "subtitlePadding", section: "subtitles", kind: "range",
+            label: "subtitlePadding", row: 4, minimum: 0, maximum: 60, step: 1,
+            unit: "unitPoints", options: []),
+        PlayerSettingField(
+            id: "brightness", section: "image", kind: "range",
+            label: "brightness", row: 0, minimum: -1, maximum: 1, step: 0.05,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "contrast", section: "image", kind: "range",
+            label: "contrast", row: 1, minimum: -1, maximum: 1, step: 0.05,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "saturation", section: "image", kind: "range",
+            label: "saturation", row: 2, minimum: -1, maximum: 1, step: 0.05,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "hue", section: "image", kind: "range",
+            label: "hue", row: 3, minimum: -180, maximum: 180, step: 5,
+            unit: "unitDegrees", options: []),
+        PlayerSettingField(
+            id: "defaultVolume", section: "audio", kind: "range",
+            label: "defaultVolume", row: 0, minimum: 0, maximum: 100, step: 5,
+            unit: "unitPercent", options: []),
+        PlayerSettingField(
+            id: "rememberVolume", section: "audio", kind: "boolean",
+            label: "rememberVolume", row: 1, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "normalizeAudio", section: "audio", kind: "boolean",
+            label: "normalizeAudio", row: 2, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "smoothScaling", section: "advanced", kind: "boolean",
+            label: "smoothScaling", row: 0, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "hideIdleCursor", section: "advanced", kind: "boolean",
+            label: "hideIdleCursor", row: 1, minimum: 0, maximum: 0, step: 1,
+            unit: "unitNone", options: []),
+        PlayerSettingField(
+            id: "cursorDelay", section: "advanced", kind: "range",
+            label: "cursorDelay", row: 2, minimum: 500, maximum: 10_000, step: 100,
+            unit: "unitMilliseconds", options: []),
+        PlayerSettingField(
+            id: "previewCache", section: "advanced", kind: "range",
+            label: "previewCache", row: 3, minimum: 50, maximum: 500, step: 25,
+            unit: "unitMegabytes", options: []),
+    ]
+    public static func color(_ id: String) -> Color? {
+        switch id {
+        case "white": SyncWatchTokens.colorSubtitleWhite
+        case "warm": SyncWatchTokens.colorSubtitleWarm
+        case "cyan": SyncWatchTokens.colorSubtitleCyan
+        case "black": SyncWatchTokens.colorSubtitleBlack
+        case "charcoal": SyncWatchTokens.colorSubtitleCharcoal
+        case "gray": SyncWatchTokens.colorSubtitleGray
+        default: nil
+        }
+    }
 }

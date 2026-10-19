@@ -93,6 +93,32 @@
         "value": "#EAF1F6",
         "type": "color"
       }
+    },
+    "subtitle": {
+      "white": {
+        "type": "color",
+        "value": "#FFFFFF"
+      },
+      "warm": {
+        "type": "color",
+        "value": "#FFF3A6"
+      },
+      "cyan": {
+        "type": "color",
+        "value": "#9FE7FF"
+      },
+      "black": {
+        "type": "color",
+        "value": "#000000"
+      },
+      "charcoal": {
+        "type": "color",
+        "value": "#202020"
+      },
+      "gray": {
+        "type": "color",
+        "value": "#4A4A4A"
+      }
     }
   }
 }

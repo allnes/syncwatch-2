@@ -105,7 +105,7 @@ data class PlayerPresentation(
     }
 }
 
-@Composable private fun PlayerRange(value: Double, maximum: Double, label: String, enabled: Boolean,
+@Composable internal fun PlayerRange(value: Double, maximum: Double, label: String, enabled: Boolean,
     theme: SyncWatchTheme, modifier: Modifier, step: Double, onChange: (Double) -> Unit) {
     val current by rememberUpdatedState(value)
     val currentChange by rememberUpdatedState(onChange)
@@ -188,27 +188,48 @@ data class PlayerPresentation(
 
 @Composable fun PlayerGallery() {
     var presentation by remember { mutableStateOf(PlayerPresentation.gallery(PlayerVisualState.paused)) }
-    var language by remember { mutableStateOf("en") }
-    var dark by remember { mutableStateOf(true) }
-    var last by remember { mutableStateOf("") }
+    var language by remember { mutableStateOf("en") }; var dark by remember { mutableStateOf(true) }; var last by remember { mutableStateOf("") }
+    var showSettings by remember { mutableStateOf(false) }
+    var savedSettings by remember { mutableStateOf(SyncWatchPlayerSettings.defaults.toMap()) }
+    var editor by remember { mutableStateOf(PlayerSettingsEditor()) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
-    Column {
-        Row(horizontalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp)) {
-            Action(presentation.state.name, true, theme) { presentation = PlayerPresentation.gallery(PlayerVisualState.entries[(presentation.state.ordinal + 1) % PlayerVisualState.entries.size]) }
-            Action(language, true, theme) { language = if (language == "en") "ru" else "en" }
-            Action(if (dark) "dark" else "light", true, theme) { dark = !dark }
-            Label(last, theme)
+    BoxWithConstraints {
+        Column {
+            Row(horizontalArrangement = Arrangement.spacedBy(SyncWatchTokens.controlCompactGap.dp)) {
+                Action(presentation.state.name, !showSettings, theme) { presentation = PlayerPresentation.gallery(PlayerVisualState.entries[(presentation.state.ordinal + 1) % PlayerVisualState.entries.size]) }
+                Action(language, !showSettings, theme) { language = if (language == "en") "ru" else "en" }
+                Action(if (dark) "dark" else "light", !showSettings, theme) { dark = !dark }
+                Label(last, theme)
+            }
+            PlayerChrome(if (showSettings) presentation.copy(enabledActions = emptySet()) else presentation, language, theme, Modifier.weight(1f), videoSurface = {
+                Label(SyncWatchCopy.text("playerFixture", language), theme.copy(text = SyncWatchTokens.colorDarkText))
+            }) { action, value ->
+                if (!showSettings) {
+                    last = "$action: $value"
+                    when (action) {
+                        "seek" -> presentation = presentation.copy(positionMs = value!!.toLong())
+                        "playPause" -> presentation = presentation.copy(state = if (presentation.playing) PlayerVisualState.paused else PlayerVisualState.playing)
+                        "setMovieVolume" -> presentation = presentation.copy(volume = value!!)
+                        "muteMovie" -> presentation = presentation.copy(muted = !presentation.muted)
+                        "openPlayerSettings" -> { editor = PlayerSettingsEditor(savedSettings, SyncWatchPlayerSettings.defaults.keys, true); offset = Offset.Zero; showSettings = true }
+                    }
+                }
+            }
         }
-        PlayerChrome(presentation, language, theme, Modifier.weight(1f), videoSurface = {
-            Label(SyncWatchCopy.text("playerFixture", language), theme.copy(text = SyncWatchTokens.colorDarkText))
-        }) { action, value ->
-            last = "$action: $value"
-            presentation = when (action) {
-                "seek" -> presentation.copy(positionMs = value!!.toLong())
-                "playPause" -> presentation.copy(state = if (presentation.playing) PlayerVisualState.paused else PlayerVisualState.playing)
-                "setMovieVolume" -> presentation.copy(volume = value!!)
-                "muteMovie" -> presentation.copy(muted = !presentation.muted)
-                else -> presentation
+        if (showSettings) {
+            val maxX = ((maxWidth.value - SyncWatchTokens.layoutSettingsWidth) / 2).coerceAtLeast(0f)
+            val maxY = ((maxHeight.value - SyncWatchTokens.layoutPlayerSettingsHeight) / 2).coerceAtLeast(0f)
+            Box(Modifier.fillMaxSize().background(rgba(theme.backgroundDeep).copy(alpha = .6f)).clickable { }, contentAlignment = Alignment.Center) {
+                Box(Modifier.offset(offset.x.dp, offset.y.dp)) {
+                    PlayerSettingsDialog(editor, { editor = it }, language, theme = theme, onSave = {
+                        savedSettings = it.toMap()
+                        presentation = presentation.copy(skipSeconds = it.getValue("skipSeconds").toInt(), volume = it.getValue("defaultVolume").toDouble() / 100)
+                        true
+                    }, onClose = { showSettings = false }, onMove = {
+                        offset = Offset((offset.x + it.x).coerceIn(-maxX, maxX), (offset.y + it.y).coerceIn(-maxY, maxY))
+                    })
+                }
             }
         }
     }

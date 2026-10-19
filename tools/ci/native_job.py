@@ -138,6 +138,7 @@ def design_image_names(root: Path) -> set[str]:
     names = {state + "-" + suffix + "-" + viewport + ".png" for state in contract['LibraryLayout']['states'] for suffix in suffixes for viewport in sizes}
     names |= {"settings" + section + state + "-" + suffix + "-" + size("settingsWidth", "settingsHeight") + ".png" for section in contract['SettingsDialog']['sections'] for state in contract['SettingsDialog']['states'] for suffix in suffixes}
     names |= {"player" + state + "-" + suffix + "-" + viewport + ".png" for state in contract['PlayerChrome']['states'] for suffix in suffixes for viewport in sizes}
+    names |= {"playersettings" + section + state + "-" + suffix + "-" + size("settingsWidth", "playerSettingsHeight") + ".png" for section in contract['PlayerSettingsDialog']['sections'] for state in contract['PlayerSettingsDialog']['states'] for suffix in suffixes}
     return {name.casefold() for name in names}
 
 

@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "units": "logical points on Apple; device-independent pixels on Windows and Compose",
-  "status": "Library, SettingsDialog and core PlayerChrome renderers/gallery: SwiftUI/WPF; Compose source pending its dependency build. Media engines and remaining overlays are not integrated.",
+  "status": "Library, SettingsDialog, core PlayerChrome and PlayerSettingsDialog renderers/gallery: SwiftUI/WPF; Compose source pending its dependency build. Media/provider integrations and remaining overlays are not available.",
   "components": {
     "LibraryLayout": {
       "structure": [
@@ -91,7 +91,8 @@
         "showLibrary",
         "endWatching",
         "openCall",
-        "toggleFullscreen"
+        "toggleFullscreen",
+        "openPlayerSettings"
       ]
     },
     "SettingsDialog": {
@@ -137,8 +138,18 @@
       ],
       "actions": [
         "moveDialog",
+        "selectSection",
+        "editField",
         "resetSection",
+        "save",
+        "cancel",
         "close"
+      ],
+      "states": [
+        "editing",
+        "savedNotice",
+        "invalidConfiguration",
+        "readOnly"
       ]
     },
     "CallWindowShell": {
