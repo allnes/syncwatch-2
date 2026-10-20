@@ -192,7 +192,7 @@
         },
         {
           "name": "CPython startup source and isolation regressions",
-          "run": "python tools/dependencies/build.py prepare --component cpython-startup-sources --platform windows-x64\npython -m unittest discover -s tools/python-runtime/tests -v"
+          "run": "python tools/dependencies/build.py prepare --component cpython-startup-sources --platform windows-x64\npython -m unittest discover -s tools/python-runtime/tests -v\npython -m unittest discover -s tools/ci/tests -v"
         },
         {
           "name": "Retain candidate and validation reports",

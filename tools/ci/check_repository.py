@@ -271,8 +271,9 @@ def check_workflows(root: Path) -> None:
             "Windows dependency regression tests must execute on the native Windows runner")
     test_commands = {step.get("run") for step in jobs["tests"]["steps"]}
     for commands, python, target in ((test_commands, "python3", "linux-x64"), (windows_commands, "python", "windows-x64")):
+        additional = "\npython -m unittest discover -s tools/ci/tests -v" if target == "windows-x64" else ""
         require(f"{python} tools/dependencies/build.py prepare --component cpython-startup-sources --platform {target}\n"
-                f"{python} -m unittest discover -s tools/python-runtime/tests -v" in commands,
+                f"{python} -m unittest discover -s tools/python-runtime/tests -v" + additional in commands,
                 "CPython startup regressions must prepare pinned sources and execute on Linux and Windows")
     require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")

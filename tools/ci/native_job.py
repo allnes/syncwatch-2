@@ -67,8 +67,10 @@ def extract_sdk(archive: Path, destination: Path) -> None:
         if len(entries) > 100000 or sum(item.file_size for item in entries) > 3 * 1024**3:
             raise ValueError("SDK archive exceeds extraction bounds")
         for entry in entries:
-            member = PurePosixPath(entry.filename)
-            if member.is_absolute() or ".." in member.parts or "\\" in entry.filename or ":" in entry.filename:
+            # ZipInfo normalizes Windows separators before exposing filename.
+            original = entry.orig_filename
+            member = PurePosixPath(original)
+            if member.is_absolute() or ".." in member.parts or any(c in original for c in ("\\", ":", "\x00")):
                 raise ValueError("SDK archive contains an unsafe path")
             if entry.external_attr >> 16 & 0o170000 == 0o120000:
                 raise ValueError("SDK archive contains a symbolic link")

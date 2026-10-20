@@ -34,7 +34,7 @@ class RepositoryChecks(unittest.TestCase):
     def write(self, name, content):
         path = self.root / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_text(content, encoding="utf-8", newline="\n")
         return path
 
     def test_current_repository_passes(self):
@@ -288,6 +288,14 @@ class WorkflowChecks(unittest.TestCase):
                 self.validate(lambda data: data["jobs"][job].update({"steps": [
                     step for step in data["jobs"][job]["steps"] if "tools/python-runtime/tests" not in step.get("run", "")
                 ]}))
+
+    def test_windows_ci_regressions_cannot_be_removed(self):
+        def remove(data):
+            for step in data["jobs"]["windows"]["steps"]:
+                if "tools/python-runtime/tests" in step.get("run", ""):
+                    step["run"] = step["run"].replace("\npython -m unittest discover -s tools/ci/tests -v", "")
+        with self.assertRaisesRegex(ValidationError, "CPython startup"):
+            self.validate(remove)
 
     def test_missing_pull_request_trigger_fails(self):
         with self.assertRaisesRegex(ValidationError, "trigger"):
