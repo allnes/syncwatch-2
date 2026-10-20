@@ -32,3 +32,25 @@ Use linux-x64 on Linux or python and windows-x64 on Windows. Both a build and re
 The payload contains the deterministic unchanged sources.zip, declaration analysis and source manifest, SDK case results, original full LICENSE/README notices and SELECTION.txt. The latter identifies the source-reference selection and separate first-party additions. The selected Python-2.0.1 license chain retains PSF, BeOpen, CNRI 1.6.1 and CWI terms; the complete upstream text also retains the documentation-code license alternative. No original source file is modified or relicensed under Apache-2.0.
 
 Full interpreter/core/standard-library and platform-extension source graphs, embedded origins, generated sources, packaged runtime libraries, TLS/CA data and Twisted/transitives need separate source/license and binary correspondence closure. Native embedding/ABI, authenticated TLS, real engine initialization, helper IPC, lifecycle and interoperability remain separate gates in the [Syncplay architecture](architecture/syncplay.md).
+
+## Native helper startup
+
+The first-party [startup module](../packages/python-startup/startup.h) implements isolated native initialization for a future dedicated helper process. Its field declarations and assignments are generated from the same startup policy; there are no platform-specific policy copies. It accepts verified absolute package paths, checks bounded inputs before preinitialization, clears configuration allocations on every configuration path, and compares actual interpreter paths with the requested paths before reporting success. A path-policy mismatch finalizes the newly owned interpreter and fails startup. Package verification must also exclude foreign configuration files, symlinks and unlisted modules before calling this API.
+
+Calls must be serialized. The module owns one initialization attempt per process, rejects an existing foreign interpreter, and requires finalization on the starting thread with its main interpreter and GIL still active. Invalid paths leave startup untouched; once preinitialization begins, retries require a new process. Initialization failure requires disposal of that helper process. Finalization errors are returned explicitly. CPython finalization does not guarantee unloading native extensions or reclaiming every allocation; the process boundary remains the final resource owner. No application or Syncplay startup uses this module yet.
+
+Generate or check native policy and exercise the real C API with installed development SDKs:
+
+```sh
+python3 tools/python-runtime/generate_policy.py
+python3 tools/python-runtime/generate_policy.py --check
+python3 tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json
+```
+
+Use `python` on Windows. The fixture requires a release, GIL-enabled CPython 3.12 or newer within 3.x with embedding headers, import/shared library and standard library, plus the [native C development tools](native-compression.md). It reuses installed CMake/compiler discovery and performs no SDK or library downloads. The report records SDK executable, full header inventory, configuration header, link-input and SDK runtime-library hashes, compiler identities and actual case results. These hashes identify development inputs; they are not a pinned product runtime or complete loaded-binary/source correspondence certificate.
+
+Each fixture runs in an owned temporary Unicode directory and child process. Cases cover actual flags and exact paths, locale/signal preservation, poisoned environment/current-directory rejection, Unicode module/file access, invalid inputs, foreign ownership, duplicate lifecycle calls, adjacent package configuration, initialization errors, script errors, wrong-thread finalization and flush failure. Commands have deadlines and bounded accepted diagnostics; temporary executables and SDK-linked outputs are removed. No SDK runtime or fixture executable is included in application or source-component artifacts.
+
+These checks establish the first-party C implementation against each measured developer SDK. The pinned CPython runtime, its complete implementation/stdlib/platform/embedded-origin source and license graph, package path resolver and native ABI remain unresolved. The native fixture keeps pinnedRuntimeBuilt, pinnedEmbeddingAbiVerified and runtimeReady false.
+
+The implementation follows CPython's [initialization configuration](https://docs.python.org/3.12/c-api/init_config.html) and [initialization/finalization requirements](https://docs.python.org/3.12/c-api/init.html).

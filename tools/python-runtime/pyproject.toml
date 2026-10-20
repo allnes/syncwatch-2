@@ -1,7 +1,7 @@
 [project]
 name = "syncwatch-python-startup-sources"
 version = "1.0.0"
-description = "Pinned startup declarations and isolated developer SDK validation"
+description = "Shared startup policy, native helper lifecycle and developer SDK validation"
 requires-python = ">=3.12"
 dependencies = []
 
