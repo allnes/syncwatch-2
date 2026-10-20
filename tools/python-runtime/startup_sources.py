@@ -22,8 +22,8 @@ SUMMARY = ("SyncWatch source-reference selection: six original CPython startup d
 
 
 def profile_data():
-    profile = json.loads((ROOT / "tools/python-runtime/profile.json").read_text())
-    registry = json.loads((ROOT / "tools/dependencies/components.json").read_text())["components"]
+    profile = json.loads((ROOT / "tools/python-runtime/profile.json").read_text(encoding="utf-8"))
+    registry = json.loads((ROOT / "tools/dependencies/components.json").read_text(encoding="utf-8"))["components"]
     specification = {key: profile["source"][key] for key in ("revision", "license", "notices", "exports")}
     specification.update(requires=[], unusedSubmodules={})
     if (profile["schemaVersion"] != 1 or profile["runtimeReady"] is not False

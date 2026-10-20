@@ -91,15 +91,15 @@ class RepositoryChecks(unittest.TestCase):
         for member in ("apple", "windows", "linux"):
             (self.root / "packages/design" / member).mkdir(parents=True, exist_ok=True)
         for source in (REPOSITORY / "packages/design").rglob("*.json"):
-            self.write(str(source.relative_to(REPOSITORY)), source.read_text())
+            self.write(str(source.relative_to(REPOSITORY)), source.read_text(encoding="utf-8"))
 
         for member in ("LICENSE", "README.md"):
-            self.write("packages/design/" + member, (REPOSITORY / "packages/design" / member).read_text())
+            self.write("packages/design/" + member, (REPOSITORY / "packages/design" / member).read_text(encoding="utf-8"))
 
     def test_missing_token_reference_fails(self):
         self.copy_design()
         path = self.root / "packages/design/components.json"
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data["components"]["LibraryLayout"]["tokens"].append("unknown.token")
         path.write_text(json.dumps(data) + "\n")
         with self.assertRaisesRegex(ValidationError, "unknown token"):
@@ -108,7 +108,7 @@ class RepositoryChecks(unittest.TestCase):
     def test_invalid_geometry_fails(self):
         self.copy_design()
         path = self.root / "packages/design/tokens/geometry.json"
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data["layout"]["workspacePadding"]["value"] = True
         path.write_text(json.dumps(data) + "\n")
         with self.assertRaisesRegex(ValidationError, "numeric token"):
@@ -140,7 +140,7 @@ class RepositoryChecks(unittest.TestCase):
     def test_floating_submodule_branch_fails(self):
         self.initialize_submodule_fixture()
         path = self.root / ".gitmodules"
-        path.write_text(path.read_text() + "\tbranch = main\n")
+        path.write_text(path.read_text(encoding="utf-8") + "\tbranch = main\n")
         with self.assertRaisesRegex(ValidationError, "floating branches"):
             check_submodules(self.root)
 
@@ -154,7 +154,7 @@ class RepositoryChecks(unittest.TestCase):
     def test_design_aliases_resolve_and_reject_invalid_chains(self):
         self.copy_design()
         path = self.root / "packages/design/tokens/geometry.json"
-        source = json.loads(path.read_text())
+        source = json.loads(path.read_text(encoding="utf-8"))
         source["layout"]["alias"] = {"type": "number", "value": "{layout.panelGap}"}
         path.write_text(json.dumps(source))
         check_design(self.root)
@@ -169,7 +169,7 @@ class RepositoryChecks(unittest.TestCase):
     def test_design_theme_cannot_reference_dimensions(self):
         self.copy_design()
         path = self.root / "packages/design/themes.json"
-        source = json.loads(path.read_text())
+        source = json.loads(path.read_text(encoding="utf-8"))
         source["themes"]["dark"]["text"] = "layout.panelGap"
         path.write_text(json.dumps(source))
         with self.assertRaisesRegex(ValidationError, "invalid design theme color"):
@@ -180,12 +180,12 @@ class RepositoryChecks(unittest.TestCase):
         solution = ET.parse(REPOSITORY / "SyncWatch.slnx").getroot()
         files += [project.attrib["Path"] for project in solution.findall(".//Project")]
         for name in files:
-            self.write(name, (REPOSITORY / name).read_text())
+            self.write(name, (REPOSITORY / name).read_text(encoding="utf-8"))
 
     def test_native_sdk_roll_forward_fails(self):
         self.copy_native_manifests()
         path = self.root / "global.json"
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data["sdk"]["rollForward"] = "latestMajor"
         path.write_text(json.dumps(data) + "\n")
         with self.assertRaisesRegex(ValidationError, "exact toolchain pin"):
@@ -225,7 +225,7 @@ class ServerManifestChecks(unittest.TestCase):
                      "services/room-metadata/RoomMetadata/RoomMetadata.csproj", "services/room-metadata/RoomMetadata.Tests/RoomMetadata.Tests.csproj"]:
             path = self.root / name
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text((REPOSITORY / name).read_text())
+            path.write_text((REPOSITORY / name).read_text(encoding="utf-8"))
 
     def test_server_cannot_add_undeclared_registry_libraries(self):
         path = self.root / "services/room-metadata/RoomMetadata/RoomMetadata.csproj"
@@ -237,7 +237,7 @@ class ServerManifestChecks(unittest.TestCase):
 
     def test_server_sdk_archive_must_use_declared_official_source(self):
         path = self.root / "tools/server/toolchains.json"
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data["sources"]["linux-x64"]["url"] = "https://example.invalid/sdk.tar.gz"
         path.write_text(json.dumps(data) + "\n")
         with self.assertRaisesRegex(ValidationError, "official URLs"):
@@ -259,15 +259,15 @@ class WorkflowChecks(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.path = self.root / ".github/workflows/repository.yml"
         self.path.parent.mkdir(parents=True)
-        self.workflow = json.loads((REPOSITORY / ".github/workflows/repository.yml").read_text())
+        self.workflow = json.loads((REPOSITORY / ".github/workflows/repository.yml").read_text(encoding="utf-8"))
         action = self.root / ".github/actions/upload-native/action.yml"
         action.parent.mkdir(parents=True)
-        action.write_text((REPOSITORY / ".github/actions/upload-native/action.yml").read_text())
+        action.write_text((REPOSITORY / ".github/actions/upload-native/action.yml").read_text(encoding="utf-8"))
         reusable = self.root / ".github/workflows/dependency-build.yml"
-        reusable.write_text((REPOSITORY / ".github/workflows/dependency-build.yml").read_text())
+        reusable.write_text((REPOSITORY / ".github/workflows/dependency-build.yml").read_text(encoding="utf-8"))
         action = self.root / ".github/actions/dependency-build/action.yml"
         action.parent.mkdir(parents=True)
-        action.write_text((REPOSITORY / ".github/actions/dependency-build/action.yml").read_text())
+        action.write_text((REPOSITORY / ".github/actions/dependency-build/action.yml").read_text(encoding="utf-8"))
 
     def validate(self, mutate):
         workflow = copy.deepcopy(self.workflow)
@@ -293,7 +293,7 @@ class WorkflowChecks(unittest.TestCase):
         def remove(data):
             for step in data["jobs"]["windows"]["steps"]:
                 if "tools/python-runtime/tests" in step.get("run", ""):
-                    step["run"] = step["run"].replace("\npython -m unittest discover -s tools/ci/tests -v", "")
+                    step["run"] = step["run"].replace("\npython -X utf8=0 -m unittest discover -s tools/ci/tests -v", "")
         with self.assertRaisesRegex(ValidationError, "CPython startup"):
             self.validate(remove)
 
@@ -391,7 +391,7 @@ class WorkflowChecks(unittest.TestCase):
 
     def test_reusable_dependency_job_cannot_be_unbounded(self):
         path = self.root / ".github/workflows/dependency-build.yml"
-        content = json.loads(path.read_text())
+        content = json.loads(path.read_text(encoding="utf-8"))
         content["jobs"]["build"].pop("timeout-minutes")
         path.write_text(json.dumps(content) + "\n")
         with self.assertRaisesRegex(ValidationError, "bounded timeout"):

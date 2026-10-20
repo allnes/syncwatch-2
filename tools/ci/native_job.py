@@ -132,8 +132,8 @@ def apple_candidate(root: Path, output: Path) -> None:
 
 
 def design_image_names(root: Path) -> set[str]:
-    contract = json.loads((root / "packages/design/components.json").read_text())['components']
-    layout = json.loads((root / "packages/design/tokens/geometry.json").read_text())['layout']
+    contract = json.loads((root / "packages/design/components.json").read_text(encoding="utf-8"))['components']
+    layout = json.loads((root / "packages/design/tokens/geometry.json").read_text(encoding="utf-8"))['layout']
     size = lambda w, h: str(layout[w]['value']) + "x" + str(layout[h]['value'])
     sizes = [size("galleryWidth", "galleryHeight"), size("minimumWidth", "minimumHeight")]
     suffixes = [theme + "-" + locale for theme in ("dark", "light") for locale in ("en", "ru")]
@@ -209,7 +209,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("target", choices=("apple", "windows"))
     args = parser.parse_args()
-    specification = json.loads((ROOT / "tools/native/toolchains.json").read_text())[args.target]
+    specification = json.loads((ROOT / "tools/native/toolchains.json").read_text(encoding="utf-8"))[args.target]
     directory = ROOT / "artifacts/native" / args.target
     if directory.is_symlink() or not directory.resolve().is_relative_to(ROOT):
         raise ValueError("Native report directory must remain in the workspace")
