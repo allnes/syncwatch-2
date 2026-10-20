@@ -282,6 +282,13 @@ class WorkflowChecks(unittest.TestCase):
                 if step.get("run") != "python3 -m unittest discover -s tools/jvm/tests -v"
             ]}))
 
+    def test_missing_python_startup_regressions_fail(self):
+        for job in ("tests", "windows"):
+            with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "CPython startup"):
+                self.validate(lambda data: data["jobs"][job].update({"steps": [
+                    step for step in data["jobs"][job]["steps"] if "tools/python-runtime/tests" not in step.get("run", "")
+                ]}))
+
     def test_missing_pull_request_trigger_fails(self):
         with self.assertRaisesRegex(ValidationError, "trigger"):
             self.validate(lambda data: data["on"].pop("pull_request"))

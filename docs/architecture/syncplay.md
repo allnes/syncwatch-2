@@ -111,3 +111,5 @@ The integration targets the pinned Syncplay server and standard upstream clients
 Standard Syncplay clients do not implement SyncWatch-specific catalog metadata.
 
 See the [Syncplay protocol specification](https://syncplay.pl/about/protocol/). The pinned source defines the concrete engine behavior and integration points.
+
+The [shared CPython startup profile](../python-startup.md) records exact original initialization/lifecycle declarations and proposed isolated package-path policy. Its CLI probe exercises the developer SDK only; native interpreter compilation, matching embedding ABI, actual package path behavior and complete runtime source/TLS closure remain required before initialization.

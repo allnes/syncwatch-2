@@ -100,6 +100,10 @@
         {
           "name": "Native compression build-profile regression tests",
           "run": "python3 -m unittest discover -s tools/compression/tests -v"
+        },
+        {
+          "name": "CPython startup source and isolation regressions",
+          "run": "python3 tools/dependencies/build.py prepare --component cpython-startup-sources --platform linux-x64\npython3 -m unittest discover -s tools/python-runtime/tests -v"
         }
       ]
     },
@@ -185,6 +189,10 @@
         {
           "name": "Dependency infrastructure regression tests on Windows",
           "run": "python -m unittest discover -s tools/dependencies/tests -v\npython -m unittest discover -s tools/compression/tests -v"
+        },
+        {
+          "name": "CPython startup source and isolation regressions",
+          "run": "python tools/dependencies/build.py prepare --component cpython-startup-sources --platform windows-x64\npython -m unittest discover -s tools/python-runtime/tests -v"
         },
         {
           "name": "Retain candidate and validation reports",
