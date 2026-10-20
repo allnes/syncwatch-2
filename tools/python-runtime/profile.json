@@ -1,0 +1,81 @@
+{
+  "analysisSha256": "f174273f8c456c3f094b3fa0ab69eb25205e061e2dc0807a6f970e97924eeae6",
+  "requiredFunctions": {
+    "Include/cpython/initconfig.h": {
+      "PyConfig_Clear": "void PyConfig_Clear(PyConfig*)",
+      "PyConfig_InitIsolatedConfig": "void PyConfig_InitIsolatedConfig(PyConfig*config)",
+      "PyConfig_SetString": "PyStatus PyConfig_SetString(PyConfig*config,wchar_t**config_str,const wchar_t*str)",
+      "PyPreConfig_InitIsolatedConfig": "void PyPreConfig_InitIsolatedConfig(PyPreConfig*config)",
+      "PyStatus_Exception": "int PyStatus_Exception(PyStatus err)",
+      "PyWideStringList_Append": "PyStatus PyWideStringList_Append(PyWideStringList*list,const wchar_t*item)"
+    },
+    "Include/cpython/pylifecycle.h": {
+      "Py_InitializeFromConfig": "PyStatus Py_InitializeFromConfig(const PyConfig*config)",
+      "Py_PreInitialize": "PyStatus Py_PreInitialize(const PyPreConfig*src_config)"
+    },
+    "Include/pylifecycle.h": {
+      "Py_FinalizeEx": "int Py_FinalizeEx(void)",
+      "Py_IsInitialized": "int Py_IsInitialized(void)"
+    }
+  },
+  "runtimeReady": false,
+  "schemaVersion": 1,
+  "source": {
+    "exports": [
+      "Include/cpython/initconfig.h",
+      "Include/cpython/pylifecycle.h",
+      "Include/patchlevel.h",
+      "Include/pylifecycle.h",
+      "LICENSE",
+      "README.rst"
+    ],
+    "files": {
+      "Include/cpython/initconfig.h": "86e3b9d1de6f310415912e2cdfdc276e311c026ec7fdf6190893f6313cd860a3",
+      "Include/cpython/pylifecycle.h": "02505815b8bc3e33fe31a11f4f7f960826aa1dce2c4cee6d62d2a0394470c9bf",
+      "Include/patchlevel.h": "fa9d85bb7f6a2348e66556092dedb4e0ad072278eb79a99fc88dbfb601fc98ff",
+      "Include/pylifecycle.h": "d313c5f3fe805606061ea78982ca5d5a9f09e687210c8b0fbcb50db596106691",
+      "LICENSE": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "README.rst": "d4067fcabae9e06795bf36598b98c75d5ab23540dd08bd1f908d19c3957bba07"
+    },
+    "license": "Python-2.0.1",
+    "notices": [
+      "LICENSE",
+      "README.rst"
+    ],
+    "path": "3rdparty/cpython",
+    "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36"
+  },
+  "sourceArchiveSha256": "0f93166403b8c4cb9ef4d0b733d69efd5a7fe290720b6e79c1857408a678b5e5",
+  "startupPolicy": {
+    "config": {
+      "install_signal_handlers": 0,
+      "isolated": 1,
+      "module_search_paths_set": 1,
+      "parse_argv": 0,
+      "safe_path": 1,
+      "site_import": 0,
+      "use_environment": 0,
+      "user_site_directory": 0,
+      "write_bytecode": 0
+    },
+    "explicitPathFields": [
+      "home",
+      "program_name",
+      "executable",
+      "base_executable",
+      "prefix",
+      "base_prefix",
+      "exec_prefix",
+      "base_exec_prefix",
+      "stdlib_dir"
+    ],
+    "preConfig": {
+      "configure_locale": 0,
+      "isolated": 1,
+      "parse_argv": 0,
+      "use_environment": 0,
+      "utf8_mode": 1
+    }
+  },
+  "version": "3.12.15"
+}

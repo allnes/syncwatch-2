@@ -67,8 +67,10 @@ def extract_sdk(archive: Path, destination: Path) -> None:
         if len(entries) > 100000 or sum(item.file_size for item in entries) > 3 * 1024**3:
             raise ValueError("SDK archive exceeds extraction bounds")
         for entry in entries:
-            member = PurePosixPath(entry.filename)
-            if member.is_absolute() or ".." in member.parts or "\\" in entry.filename or ":" in entry.filename:
+            # ZipInfo normalizes Windows separators before exposing filename.
+            original = entry.orig_filename
+            member = PurePosixPath(original)
+            if member.is_absolute() or ".." in member.parts or any(c in original for c in ("\\", ":", "\x00")):
                 raise ValueError("SDK archive contains an unsafe path")
             if entry.external_attr >> 16 & 0o170000 == 0o120000:
                 raise ValueError("SDK archive contains a symbolic link")
@@ -130,8 +132,8 @@ def apple_candidate(root: Path, output: Path) -> None:
 
 
 def design_image_names(root: Path) -> set[str]:
-    contract = json.loads((root / "packages/design/components.json").read_text())['components']
-    layout = json.loads((root / "packages/design/tokens/geometry.json").read_text())['layout']
+    contract = json.loads((root / "packages/design/components.json").read_text(encoding="utf-8"))['components']
+    layout = json.loads((root / "packages/design/tokens/geometry.json").read_text(encoding="utf-8"))['layout']
     size = lambda w, h: str(layout[w]['value']) + "x" + str(layout[h]['value'])
     sizes = [size("galleryWidth", "galleryHeight"), size("minimumWidth", "minimumHeight")]
     suffixes = [theme + "-" + locale for theme in ("dark", "light") for locale in ("en", "ru")]
@@ -207,7 +209,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("target", choices=("apple", "windows"))
     args = parser.parse_args()
-    specification = json.loads((ROOT / "tools/native/toolchains.json").read_text())[args.target]
+    specification = json.loads((ROOT / "tools/native/toolchains.json").read_text(encoding="utf-8"))[args.target]
     directory = ROOT / "artifacts/native" / args.target
     if directory.is_symlink() or not directory.resolve().is_relative_to(ROOT):
         raise ValueError("Native report directory must remain in the workspace")

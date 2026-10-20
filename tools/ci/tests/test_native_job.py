@@ -65,11 +65,13 @@ class NativeJobChecks(unittest.TestCase):
                 native_job.check_host("apple")
 
     def test_sdk_archive_cannot_escape_its_destination(self):
-        for member in ("../outside", "/absolute", "C:/outside", "nested\\outside"):
+        for member in ("../outside", "/absolute", "C:/outside", "nested\\outside", "nested\x00outside"):
             with self.subTest(member=member):
                 archive = self.root / "sdk.zip"
                 with zipfile.ZipFile(archive, "w") as package:
-                    package.writestr(member, "bad")
+                    entry = zipfile.ZipInfo("fixture")
+                    entry.filename = member
+                    package.writestr(entry, "bad")
                 with self.assertRaisesRegex(ValueError, "unsafe path"):
                     native_job.extract_sdk(archive, self.root / "sdk")
 
@@ -125,7 +127,9 @@ class NativeJobChecks(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(), digest)
             with tarfile.open(fileobj=io.BytesIO(archive.read("SyncWatch.app.tar"))) as bundle_archive:
                 executable = bundle_archive.getmember("SyncWatch.app/Contents/MacOS/SyncWatch")
-                self.assertEqual(executable.mode & 0o111, 0o111)
+                self.assertEqual(executable.mode & 0o111, (bundle / "SyncWatch").stat().st_mode & 0o111)
+                if os.name != "nt":
+                    self.assertEqual(executable.mode & 0o111, 0o111)
                 self.assertEqual(executable.uid, 0)
                 self.assertEqual(executable.uname, "")
 
