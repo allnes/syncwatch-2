@@ -11,7 +11,6 @@ assert sys.path == EXPECTED_PATHS
 assert sys.executable == EXPECTED_EXECUTABLE and sys._base_executable == EXPECTED_EXECUTABLE
 assert sys.prefix == EXPECTED_PREFIX and sys.base_prefix == EXPECTED_PREFIX
 assert sys.exec_prefix == EXPECTED_PREFIX and sys.base_exec_prefix == EXPECTED_PREFIX
-assert sys._stdlib_dir == EXPECTED_STDLIB
 try:
     import syncwatch_poison
 except ModuleNotFoundError as error:

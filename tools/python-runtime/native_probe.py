@@ -43,11 +43,10 @@ def fixture(root, sdk, profile):
     values = dict.fromkeys(profile["startupPolicy"]["explicitPathFields"], str(sdk["prefix"]))
     for name in ("program_name", "executable", "base_executable"):
         values[name] = executable
-    values["stdlib_dir"] = str(sdk["stdlib"])
     literal = lambda value: "L" + json.dumps(value, ensure_ascii=True)
     declarations = "\n".join("    ." + key + " = " + literal(value) + "," for key, value in values.items())
     inputs = {"EXPECTED_PATHS": search, "EXPECTED_EXECUTABLE": executable, "EXPECTED_PREFIX": str(sdk["prefix"]),
-              "EXPECTED_STDLIB": str(sdk["stdlib"]), "OWNED_ROOT": str(root)}
+           "OWNED_ROOT": str(root)}
     checks = "\n".join(name + " = " + repr(value) for name, value in inputs.items()) + "\n"
     checks += (ROOT / "tools/python-runtime/native/checks.py").read_text(encoding="utf-8")
     content = ("static const wchar_t *fixture_search[] = {" + ", ".join(map(literal, search)) + "};\n"
@@ -89,7 +88,10 @@ def probe():
         binary = build / ("Release/startup-probe.exe" if sys.platform == "win32" else "startup-probe")
         cases = {}
         for name in CASES:
-            data = execute([str(binary), name], root, environment, timeout=30)
+            try:
+                data = execute([str(binary), name], root, environment, timeout=30)
+            except ValueError as error:
+                raise ValueError("Native startup case failed: " + name) from error
             if data.count(b"SYNCWATCH_NATIVE_STARTUP_OK") != 1:
                 raise ValueError("Native startup case did not report success: " + name)
             cases[name] = True

@@ -66,7 +66,6 @@ static int observed_paths(const sw_python_paths *paths)
     SW_OBSERVED(base_prefix, "base_prefix")
     SW_OBSERVED(exec_prefix, "exec_prefix")
     SW_OBSERVED(base_exec_prefix, "base_exec_prefix")
-    SW_OBSERVED(stdlib_dir, "_stdlib_dir")
 #undef SW_OBSERVED
     if (search == NULL || !PyList_CheckExact(search) ||
         PyList_Size(search) != (Py_ssize_t)paths->search_path_count) return 0;

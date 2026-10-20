@@ -29,7 +29,6 @@
     X(prefix) \
     X(base_prefix) \
     X(exec_prefix) \
-    X(base_exec_prefix) \
-    X(stdlib_dir)
+    X(base_exec_prefix)
 
 #endif
