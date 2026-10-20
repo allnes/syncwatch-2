@@ -81,9 +81,9 @@ def probe():
         root.mkdir()
         environment = fixture(root, sdk, profile)
         build = root / "build"
-        execute([cmake, "-S", str(ROOT / "tools/python-runtime/native"), "-B", str(build), *options,
-                 "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ROOT=" + str(ROOT), "-DSYNCWATCH_FIXTURE=" + str(root),
-                 "-DSYNCWATCH_PYTHON_INCLUDE=" + str(sdk["include"]), "-DSYNCWATCH_PYTHON_LIBRARY=" + str(sdk["library"])], root)
+        execute([cmake, "-S", (ROOT / "tools/python-runtime/native").as_posix(), "-B", build.as_posix(), *options,
+                 "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ROOT=" + ROOT.as_posix(), "-DSYNCWATCH_FIXTURE=" + root.as_posix(),
+                 "-DSYNCWATCH_PYTHON_INCLUDE=" + sdk["include"].as_posix(), "-DSYNCWATCH_PYTHON_LIBRARY=" + sdk["library"].as_posix()], root)
         execute([cmake, "--build", str(build), "--config", "Release", "--parallel", "2"], root)
         binary = build / ("Release/startup-probe.exe" if sys.platform == "win32" else "startup-probe")
         cases = {}
