@@ -28,6 +28,7 @@ def immutable_files(sources, profile):
     files = {"include/" + name.removeprefix("Include/"): data for name, data in sources["cpython"].items()
              if name.startswith("Include/") and name.endswith(".h")}
     files.update(notices(sources, profile))
+    files["LICENSE"] = (ROOT / "LICENSE").read_bytes()
     files["sources.zip"] = original_sources(sources, profile)
     files["selection.json"] = encoded({"profile": profile["profile"], "version": profile["version"],
         "modules": profile["extensions"], "stdlib": profile["stdlib"],

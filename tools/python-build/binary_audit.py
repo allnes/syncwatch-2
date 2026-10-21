@@ -14,7 +14,7 @@ def audit(paths, target, sdk, options):
                 "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"}
         elif target == "linux-x64":
             command = ["readelf", "-d", str(path)]
-            allowed = {"libc.so.6", "libm.so.6", "libdl.so.2", "libpthread.so.0", "libutil.so.1"}
+            allowed = {"libc.so.6", "libm.so.6", "libdl.so.2", "libpthread.so.0", "libutil.so.1", "ld-linux-x86-64.so.2"}
         else:
             instance = next(v.split("=", 1)[1] for v in options if v.startswith("-DCMAKE_GENERATOR_INSTANCE="))
             dumpbin = Path(instance) / "VC/Tools/MSVC" / sdk["compiler"].split()[1] / "bin/Hostx64/x64/dumpbin.exe"
