@@ -22,7 +22,8 @@ def resolve():
     candidates = [Path(shutil.which("perl") or "missing")]
     if native["target"] == "windows-x64":
         candidates += sorted(sdk_root.glob("strawberry-perl-*/original/perl/bin/perl.exe"), reverse=True)
-    perl = next((p.resolve() for p in candidates if p.is_file()), None)
+    perl = next((p.resolve() for p in candidates if p.is_file() and (native["target"] != "windows-x64"
+                 or output([str(p), "-e", 'print "$^V $^O"']).endswith("MSWin32"))), None)
     if perl is None:
         raise ValueError("Perl build SDK is required")
     perl_version = output([str(perl), "-e", 'print "$^V $^O"'])
@@ -36,8 +37,9 @@ def resolve():
         setup = Path(instance) / "VC/Auxiliary/Build/vcvarsall.bat"
         command = 'call "' + str(setup) + '" x64 >nul && set'
         result = subprocess.check_output(["cmd", "/d", "/s", "/c", command], text=True, timeout=60)
-        environment.update(line.split("=", 1) for line in result.splitlines() if "=" in line and not line.startswith("="))
-        environment["PATH"] += os.pathsep + str(perl.parent)
+        environment.update((key.upper(), value) for key, value in (line.split("=", 1) for line in result.splitlines()
+            if "=" in line and not line.startswith("=")))
+        environment["PATH"] = str(rust / "bin") + os.pathsep + str(perl.parent) + os.pathsep + environment["PATH"]
         if checksum(shutil.which("cl", path=environment["PATH"])) != native["compilerSha256"]:
             raise ValueError("MSVC command environment differs from the selected C SDK")
     else:

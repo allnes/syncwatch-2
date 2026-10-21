@@ -75,7 +75,7 @@ def fixture(root, sdk, profile, extra_checks=""):
     return environment
 
 
-def exercise_sdk(sdk, extra_checks="", selected_cases=CASES):
+def exercise_sdk(sdk, extra_checks="", selected_cases=CASES, on_output=None):
     if not selected_cases or any(name not in CASES for name in selected_cases):
         raise ValueError("Unknown native startup verification case")
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
@@ -100,6 +100,8 @@ def exercise_sdk(sdk, extra_checks="", selected_cases=CASES):
                 raise ValueError("Native startup case failed: " + name) from error
             if data.count(b"SYNCWATCH_NATIVE_STARTUP_OK") != 1:
                 raise ValueError("Native startup case did not report success: " + name)
+            if on_output is not None:
+                on_output(name, data)
             cases[name] = True
         if list(root.rglob("*.pyc")) or list(root.rglob("__pycache__")):
             raise ValueError("Native startup wrote unexpected bytecode")

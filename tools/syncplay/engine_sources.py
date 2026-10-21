@@ -51,8 +51,6 @@ def profile_data():
     if (component["sources"] != {profile["source"]["path"]: expected, origin["path"]: origin_specification}
             or component["roots"] != [profile["source"]["path"]]):
         raise ValueError("Engine source/license profile differs from the registered graph")
-    if registry["syncplay-runtime"]["status"] != "unavailable":
-        raise ValueError("Source packaging cannot enable an unresolved runtime")
     return profile
 
 

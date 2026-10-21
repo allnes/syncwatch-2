@@ -2,6 +2,7 @@
 
 import copy
 import json
+import threading
 from pathlib import Path
 
 import certifi
@@ -34,6 +35,7 @@ class Session(SyncplayClient):
 
     def __init__(self, host, port, name, room, player_port, events, *, options=None):
         install()
+        self._owner_thread = threading.get_ident()
         if not isinstance(host, str) or not host or type(port) is not int or not 0 < port < 65536:
             raise ValueError("Invalid Syncplay endpoint")
         self.events = events
@@ -47,9 +49,20 @@ class Session(SyncplayClient):
         self.initPlayer(self.bridge_player)
 
     def connect(self):
+        self.assert_owner_thread()
         self.start(self.endpoint_host, self.endpoint_port)
 
+    def assert_owner_thread(self):
+        if threading.get_ident() != self._owner_thread:
+            raise RuntimeError("Syncplay session requires its owning reactor thread")
+
+    @property
+    def has_initial_state(self):
+        return bool(self._protocol and self._protocol.logged and self._protocol.hadFirstStateUpdate
+                    and self._lastPlayerUpdate is not None)
+
     def media_loaded(self, handle, name, duration_ms, size):
+        self.assert_owner_thread()
         if (not isinstance(handle, str) or not handle or any(c in handle for c in "/\\:\x00")
                 or not isinstance(name, str) or not name or any(c in name for c in "/\\\x00")
                 or type(duration_ms) is not int or duration_ms < 0 or type(size) is not int or size < 0):
@@ -58,6 +71,8 @@ class Session(SyncplayClient):
         self.updateFile(name, duration_ms / 1000.0, handle, fileSize=size)
 
     def transport_failed(self, code):
+        if self._closing:
+            return
         self.userlist.currentUser.setReady(False)
         if self._player is not None:
             self._player.setPaused(True)
@@ -65,9 +80,12 @@ class Session(SyncplayClient):
             self.events("sync.disconnected", {"code": code})
 
     def close(self):
+        self.assert_owner_thread()
         if self._closing:
             return defer.succeed(None)
         self._closing = True
+        self.userlist.currentUser.setReady(False)
+        self.bridge_player.setPaused(True)
         service = getattr(self, "_reconnectingService", None)
         result = defer.maybeDeferred(service.stopService) if service is not None else defer.succeed(None)
         self.stop()

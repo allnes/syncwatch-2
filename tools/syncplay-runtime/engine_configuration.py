@@ -39,6 +39,14 @@ def configure(source):
         "        if fileSize is None:\n" + "".join("    " + line + "\n" for line in before.splitlines())
         + "        else:\n            size = fileSize\n")
     path.write_text(text, encoding="utf-8", newline="\n")
+    players = source / "syncplay/players/__init__.py"
+    original = players.read_text(encoding="utf-8")
+    if "from syncplay.players.mplayer import MplayerPlayer" not in original or "def getAvailablePlayers():" not in original:
+        raise ValueError("Original stock player package selection differs")
+    players.write_text("# SyncWatch 2026-10-22: select the upstream BasePlayer API for an injected native adapter.\n"
+                       "# Stock executable-launching players are outside this headless package.\n"
+                       "from syncplay.players.basePlayer import BasePlayer\n\n__all__ = [\"BasePlayer\"]\n",
+                       encoding="utf-8", newline="\n")
 
 
 def defaults(source):

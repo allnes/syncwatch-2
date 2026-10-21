@@ -63,7 +63,7 @@ def select(name, entry, entries, graph):
         return notices | {"text/CC0-1.0.txt"}
     if name == "boringssl":
         return notices | {"crypto/pkcs8/pkcs8.cc"}
-    excluded = {"test", "tests", "testsuite", "vectors", "fuzz", "fuzzing", "benches", "benchmarks", "examples", "doc", "docs", "demos"}
+    excluded = {"test", "tests", "testsuite", "test-data", "vectors", "fuzz", "fuzzing", "benches", "benchmarks", "examples", "doc", "docs", "demos"}
     selected = {n for n in entries if not n.startswith(".") and not any(p in excluded for p in n.split("/")[:-1])
                 and not n.endswith((".obj", ".o", ".lib", ".dll", ".pyd", ".so", ".a", ".png", ".jpg", ".svg", ".pdf"))
                 and entries[n][0] in {"100644", "100755"}}

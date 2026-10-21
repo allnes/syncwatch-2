@@ -19,6 +19,7 @@ class BridgePlayer(BasePlayer):
         self.port.request_state(self.observe)
 
     def observe(self, paused, position_ms):
+        self.client.assert_owner_thread()
         if type(paused) is not bool or type(position_ms) is not int or position_ms < 0:
             raise ValueError("Native playback state requires a pause flag and nonnegative integer milliseconds")
         self.client.updatePlayerStatus(paused, position_ms / 1000.0)

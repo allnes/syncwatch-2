@@ -32,6 +32,10 @@ else()
     target_compile_definitions(cffi_backend PRIVATE USE__THREAD=1 HAVE_SYNC_SYNCHRONIZE=1)
     target_link_libraries(cffi_backend PRIVATE "${SYNCWATCH_FFI_LIBRARY}" ${CMAKE_DL_LIBS})
     if(APPLE)
+        # The owned modern libffi exports the closure allocator supported on
+        # every selected macOS deployment target. Select CFFI's existing safe
+        # allocator path rather than its legacy writable/executable fallback.
+        target_compile_definitions(cffi_backend PRIVATE FFI_AVAILABLE_APPLE=1)
         set_target_properties(cffi_backend PROPERTIES INSTALL_RPATH "@loader_path")
     else()
         set_target_properties(cffi_backend PROPERTIES INSTALL_RPATH "$ORIGIN")

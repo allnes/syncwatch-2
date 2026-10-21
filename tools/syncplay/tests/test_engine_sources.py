@@ -126,8 +126,9 @@ class EngineSourcesTests(unittest.TestCase):
             engine.profile_data()
             registry["components"]["syncplay-runtime"]["status"] = "ready"
             self.write(self.root, {"tools/dependencies/components.json": engine.encoded(registry)})
-            with self.assertRaisesRegex(ValueError, "unresolved runtime"):
-                engine.profile_data()
+            # The source artifact never enables the application provider; the
+            # separately verified runtime component may now be buildable.
+            engine.profile_data()
             registry["components"]["syncplay-runtime"]["status"] = "unavailable"
             registry["components"][engine.COMPONENT]["sources"][profile["source"]["path"]]["notices"] = []
             self.write(self.root, {"tools/dependencies/components.json": engine.encoded(registry)})

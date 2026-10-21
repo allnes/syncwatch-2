@@ -299,7 +299,7 @@ def command(arguments):
 
 def build_environment(specification):
     # Build recipes receive OS/tool discovery variables, not runner credentials or ambient flags.
-    names = {"PATH", "HOME", "USERPROFILE", "LOCALAPPDATA", "APPDATA", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP", "TMPDIR", "LANG", "LC_ALL", "SYSTEMDRIVE", "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432"}
+    names = {"PATH", "HOME", "USERPROFILE", "LOCALAPPDATA", "APPDATA", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP", "TMPDIR", "LANG", "LC_ALL", "SYSTEMDRIVE", "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "SYNCWATCH_AUTOTOOLS_BIN"}
     return {**{key: value for key, value in os.environ.items() if key.upper() in names}, **specification["environment"], **OFFLINE}
 
 

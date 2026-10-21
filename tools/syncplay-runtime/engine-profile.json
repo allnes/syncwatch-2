@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "sources": {
+    "syncplay": {
+      "exports": [
+        "LICENSE",
+        "README.md",
+        "requirements.txt",
+        "requirements_gui.txt",
+        "setup.py",
+        "syncplay/__init__.py",
+        "syncplay/client.py",
+        "syncplay/constants.py",
+        "syncplay/messages.py",
+        "syncplay/messages_de.py",
+        "syncplay/messages_en.py",
+        "syncplay/messages_eo.py",
+        "syncplay/messages_es.py",
+        "syncplay/messages_fi.py",
+        "syncplay/messages_fr.py",
+        "syncplay/messages_it.py",
+        "syncplay/messages_ko.py",
+        "syncplay/messages_pt_BR.py",
+        "syncplay/messages_pt_PT.py",
+        "syncplay/messages_ru.py",
+        "syncplay/messages_tr.py",
+        "syncplay/messages_zh_CN.py",
+        "syncplay/players/__init__.py",
+        "syncplay/players/basePlayer.py",
+        "syncplay/protocols.py",
+        "syncplay/resources/third-party-notices.txt",
+        "syncplay/server.py",
+        "syncplay/ui/ConfigurationGetter.py",
+        "syncplay/utils.py"
+      ],
+      "files": {
+        "LICENSE": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+        "README.md": "9c41cb5b84ecd0d831a5bc195cea187915e9e2e2371d68d7ee61b66a7477173e",
+        "requirements.txt": "16ca8d26d1a383e26d7f1ae55ad5245bcb1480fca552c24fe06164f6feafc232",
+        "requirements_gui.txt": "be8394c6404ebefca6a0601525009e4230bc6ce8279c18c4432b998716685e73",
+        "setup.py": "59be8882fbdb996ee4d31bc41db242efa0d9381b60c441de63a9db9de9e17739",
+        "syncplay/__init__.py": "b4850f07f8e1b7f934b1bcea12c424a4345671d237e44319ed86e4c4110f8f3b",
+        "syncplay/client.py": "614ab7e324c58b31fb55e60a2845a34c312a069da74b8603c1726cd886d05f07",
+        "syncplay/constants.py": "0056c919516d7091d4386641ccc8bf9e11502e90ad262239ac592fe8649d1684",
+        "syncplay/messages.py": "6aef8bb9f261328e5716505aca4b491cec7455b57e411c8900e61d00562034ba",
+        "syncplay/messages_de.py": "b25c216e0f5298db55979cc6b8d77a419ecd7e6ceaece3efa4675de410822c95",
+        "syncplay/messages_en.py": "4d97258a4f2fca29ed97a84cf5b538b86a0a3cd873385aea6f861a53bc8d5a4e",
+        "syncplay/messages_eo.py": "bdbc8f69fe8990ef04130fb4cb259d1f34d2c111b44552afc278f6d05860402c",
+        "syncplay/messages_es.py": "29adf56cd48c1baffbf079f596e7c0f3f9deec5abf308132ad7d3a1ecf5dc85b",
+        "syncplay/messages_fi.py": "338552c67ce3ffc02454563efa0a4deaee51a9c93a6271cfed489838e1265314",
+        "syncplay/messages_fr.py": "5a844e50af4a42395def520f545e6dd49ddeb01418472d3c0705142e65044fd2",
+        "syncplay/messages_it.py": "64a9b8beabe24a0439d984e834f93b52cdf64f6241b42335e83f3b6612b1883d",
+        "syncplay/messages_ko.py": "6bfea95b4c542e8120a576fb335d4483c8311021519e684c322aa22b8613d17f",
+        "syncplay/messages_pt_BR.py": "3f2101c38c4340454f41cd37835d5af28d1b30e404de3a6749273ce57986f482",
+        "syncplay/messages_pt_PT.py": "d7f77744eb4d652844f383902690cc1c1c4fee0188e50046b46b0f7748c94ceb",
+        "syncplay/messages_ru.py": "d3b2221e926f357519f67d9b9261261531b33b75e9ac09c25a778c7619f93e62",
+        "syncplay/messages_tr.py": "e56e7b94d19bdfebd79a81f4ab6848578549a3ac1cc92a837b4f2a1d47f3e901",
+        "syncplay/messages_zh_CN.py": "388782b10f5e525f1d88aca538cdfe4ac21108d6ffceb9a0c1ad9cb043af05b5",
+        "syncplay/players/__init__.py": "ad00eda5a00fb7e907e2a3b51f05fdf94c2b0d45d80788a698fb1bb0827bf7bf",
+        "syncplay/players/basePlayer.py": "f817cb6d98f564dfa4627899000ab8b753202c677eabdc9f69c6a1c1e485a10b",
+        "syncplay/protocols.py": "4518bd84dc909d5285e5717e02bd1ed1b7b70f84f70666926206306a73c47969",
+        "syncplay/resources/third-party-notices.txt": "d7ea2379be68529b16875a342aae6161dc227cb531f34e74986f6bc1e8768023",
+        "syncplay/server.py": "6a042fec1182a53c7898f8d753d01cec360fcbb93fe9eb94f0f8176f8444328e",
+        "syncplay/ui/ConfigurationGetter.py": "665857106422c7ee5593e5ec85ff04d6338a7493d9abb4adcd0894e1efdda250",
+        "syncplay/utils.py": "8fb0048e265eceb89a973c0035d8f69ce6030100f337858599ea0e51892b4b9f"
+      },
+      "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
+      "notices": [
+        "LICENSE",
+        "README.md",
+        "syncplay/resources/third-party-notices.txt"
+      ],
+      "path": "3rdparty/syncplay",
+      "revision": "993232ab095bb810593459bc705b3e6fc64ad161",
+      "executables": []
+    },
+    "retry-decorator": {
+      "exports": [
+        "LICENSE",
+        "README.md",
+        "retry_decorator.py"
+      ],
+      "files": {
+        "LICENSE": "3684cfcd985ee60e38b0f4016f8ba7b5796ef1d553f36798e71a5ee9ac4cdb21",
+        "README.md": "a413745639b63dac522263bfcf6d5731b79e2894b5635c0d91575d37d932933d",
+        "retry_decorator.py": "46d3061766740dc2e8b23b5f8ca2188b618bf61453d03b3db9d8499dae0f1771"
+      },
+      "license": "BSD-3-Clause",
+      "notices": [
+        "LICENSE",
+        "README.md"
+      ],
+      "path": "3rdparty/retry-decorator",
+      "revision": "a26fe27039f45f3e83cfcad7046e1761ae056498",
+      "executables": []
+    }
+  }
+}

@@ -2942,7 +2942,8 @@
     "unicodedata",
     "_ssl",
     "_hashlib",
-    "_overlapped"
+    "_overlapped",
+    "_zoneinfo"
   ],
   "macosOnly": {
     "_scproxy": [
