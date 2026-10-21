@@ -82,5 +82,7 @@ def assemble(payload, target, sources, core_sources, profile, native, engine_fil
         for name in ["Makefile", "Modules/Setup.local"]:
             files["configuration/cpython/" + name] = (core_source.parent / "build" / name).read_bytes()
     files["configuration/source-graph.json"] = (ROOT / "tools/syncplay-runtime/graph.json").read_bytes()
+    files["configuration/python-profile.json"] = (ROOT / "tools/syncplay-runtime/python-profile.json").read_bytes()
+    files["configuration/engine-profile.json"] = (ROOT / "tools/syncplay-runtime/engine-profile.json").read_bytes()
     write_files(payload, files)
     return paths

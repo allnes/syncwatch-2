@@ -38,12 +38,17 @@ def inputs(root, target, operation):
 def build(work, output, core, sources, engines, sdk):
     cmake, options, native, rust, perl, env, identity = sdk
     paths = materialize_sources(work / "originals", sources)
+    print("Verifying original IDNA tables offline", flush=True)
     provenance = verify_idna(paths, work)
+    print("Building owned OpenSSL libraries", flush=True)
     openssl, ssl_commands = native_libraries.openssl(paths["openssl"], work, native, perl, env)
+    print("Building owned libffi or the original Windows CFFI port", flush=True)
     ffi, ffi_commands = native_libraries.libffi(paths["libffi"], work, native, env)
+    print("Building owned CPython core and selected modules", flush=True)
     profile, source, compiled, core_commands = python_core.build(work / "python", core, openssl, cmake, options, native)
     python = crypto_native.python_sdk(work, profile, core, source, compiled, openssl, native["target"], env)
     backend, cffi_commands = crypto_native.cffi(paths["cffi"], work, python, ffi, cmake, options, native, env)
+    print("Building cryptography from the offline Git-only Cargo graph", flush=True)
     extension, crypto_commands = crypto_native.cryptography(paths, work, python, compiled, openssl, backend, rust, native, env)
     engine_files, changes = engine_sources.assemble(engines, work)
     layout = distribution.assemble(output, native["target"], sources, core, profile, compiled, engine_files, source)
@@ -99,6 +104,7 @@ def main():
     if args.operation == "build":
         def perform(work):
             commands, provenance = build(work, output, core, sources, engines, sdk)
+            print("Verifying relocated native startup and real Syncplay TLS exchange", flush=True)
             return engine_package.seal(output, identity, options, source_identity, commands, provenance, work)
         if args.work:
             args.work.mkdir(parents=True)  # Never overwrite an earlier outcome.

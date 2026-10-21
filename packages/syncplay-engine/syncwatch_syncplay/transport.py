@@ -47,7 +47,8 @@ class StrictClientProtocol(SyncClientProtocol):
             super().handleMessages(messages)
 
     def handleTLS(self, message):
-        if self._phase != "requested" or not isinstance(message, dict) or message.get("startTLS") != "true":
+        if (self._phase != "requested" or not isinstance(message, dict)
+                or set(message) != {"startTLS"} or message.get("startTLS") != "true"):
             self._reject("tls_required")
             return
         self._phase = "handshaking"

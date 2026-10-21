@@ -22,7 +22,7 @@ def verify(paths, work):
         shutil.copyfile(original, data / original.name)
     environment = os.environ.copy()
     environment.update(PYTHONPATH=str(paths["idna"]), PYTHONDONTWRITEBYTECODE="1", PYTHONNOUSERSITE="1")
-    result = subprocess.run([sys.executable, "-S", "-B", str(paths["idna"] / "tools/idna-data"),
+    result = subprocess.run([sys.executable, "-X", "utf8", "-S", "-B", str(paths["idna"] / "tools/idna-data"),
         "make-libdata", "--version", "18.0.0", "--source", str(data), "--dir", str(output),
         "--no-cache"], cwd=work, env=environment, capture_output=True, timeout=180)
     if result.returncode:

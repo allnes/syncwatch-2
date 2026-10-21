@@ -5,6 +5,7 @@ import ipaddress
 import json
 from pathlib import Path
 import time
+import threading
 
 import syncwatch_syncplay
 from cryptography import x509
@@ -30,6 +31,7 @@ class SimulatedPlayer:
         self.since = time.monotonic()
         self.commands = []
         self.released = False
+        self.release_count = 0
 
     def current(self):
         return self.position if self.paused else self.position + round((time.monotonic() - self.since) * self.rate * 1000)
@@ -59,6 +61,7 @@ class SimulatedPlayer:
 
     def release(self):
         self.released = True
+        self.release_count += 1
 
 
 class ObservedServerProtocol(SyncServerProtocol):
@@ -168,6 +171,17 @@ def run(root):
             yield wait_for(lambda: a.userlist.areAllUsersInRoomReady() and b.userlist.areAllUsersInRoomReady(), "readiness")
             report["tls"]["authenticatedHello"] = set(factory.hellos) == {"acceptance-a", "acceptance-b"}
             report["playback"]["readiness"] = True
+            wrong_thread = []
+            def foreign_observation():
+                try:
+                    a.bridge_player.observe(False, 0)
+                except RuntimeError:
+                    wrong_thread.append(True)
+            worker = threading.Thread(target=foreign_observation)
+            worker.start()
+            worker.join(timeout=1)
+            assert not worker.is_alive() and wrong_thread == [True]
+            report["lifecycle"]["foreignThreadRejected"] = True
             pa.set_paused(False)
             a.bridge_player.observe(False, pa.current())
             yield wait_for(lambda: not pb.paused, "shared play")
@@ -240,7 +254,8 @@ def run(root):
         finally:
             yield defer.DeferredList([session.close() for session in sessions], consumeErrors=True)
             yield defer.DeferredList([defer.maybeDeferred(listener.stopListening) for listener in listeners], consumeErrors=True)
-            report["lifecycle"]["ownedPlayersReleased"] = all(s.bridge_player.port.released for s in sessions)
+            report["lifecycle"]["ownedPlayersReleased"] = all(s.bridge_player.port.released
+                and s.bridge_player.port.release_count == 1 for s in sessions)
             reactor.stop()
 
     reactor.callWhenRunning(scenario)

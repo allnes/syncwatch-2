@@ -77,7 +77,7 @@ def select(name, entry, entries, graph):
     if name == "libffi":
         selected |= {"doc/Makefile.am", "testsuite/Makefile.am"}
         selected = {n for n in selected if not n.startswith("src/") or "/" not in n.removeprefix("src/")
-                    or n.startswith(("src/aarch64/", "src/x86/"))}
+                    or n.startswith(("src/aarch64/", "src/x86/")) or n.endswith(".h")}
     return selected | notices
 
 

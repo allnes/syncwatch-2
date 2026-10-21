@@ -83,7 +83,7 @@ def cryptography(paths, work, python, core, openssl, backend, rust, native, envi
             del env[key]
     env.update(CARGO_HOME=str(work / "empty-cargo-home"), CARGO_TARGET_DIR=str(work / "rust-target"),
         CARGO_NET_OFFLINE="true", PYO3_CONFIG_FILE=str(config), PYO3_PYTHON=str(core["executable"]),
-        PYTHONHOME=str(sdk), PYTHONPATH=os.pathsep.join([str(directory), str(paths["cffi"] / "src"),
+        PYTHONHOME=str(sdk), PYTHONPATH=os.pathsep.join([str(directory / "python312.zip"), str(directory), str(paths["cffi"] / "src"),
             str(paths["pycparser"]), str(backend.parent)]), SYNCWATCH_PYTHON_INCLUDE=str(sdk / "include"),
         SYNCWATCH_PYTHON_LIB=str(sdk / "lib"), OPENSSL_DIR=str(openssl), OPENSSL_STATIC="0",
         OPENSSL_NO_PKG_CONFIG="1", OPENSSL_LIBS="libssl:libcrypto" if windows else "ssl:crypto",

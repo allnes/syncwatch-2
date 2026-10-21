@@ -140,6 +140,10 @@
         {
           "name": "Owned bootstrap stdlib native fixture",
           "run": "python3 tools/python-stdlib/stdlib_probe.py --report artifacts/python-stdlib/native.json"
+        },
+        {
+          "name": "Headless runtime package regression tests",
+          "run": "python3 -m unittest discover -s tools/syncplay-runtime/tests -v"
         }
       ]
     },
