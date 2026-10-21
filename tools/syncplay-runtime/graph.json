@@ -234,7 +234,8 @@
         "text/GPL-2.0-only.txt": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3",
         "text/GPL-3.0-only.txt": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
         "text/MPL-2.0.txt": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172",
-        "text/Unicode-3.0.txt": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1"
+        "text/Unicode-3.0.txt": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        "text/CC0-1.0.txt": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
       }
     },
     "rust-asn1": {
@@ -243,8 +244,13 @@
       "revision": "3abb539ddb67a9008050a17ca16eb65a5ad3da62",
       "license": "BSD-3-Clause",
       "noticeSha256": {
-        "LICENSE": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985",
-        "asn1_derive/LICENSE": "1e881ecf2862d01e6e5bc2b861e46886d2a6fb01499c0c508a209a7271b13cf2"
+        "LICENSE": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985"
+      },
+      "noticeAliases": {
+        "asn1_derive/LICENSE": {
+          "target": "LICENSE",
+          "linkSha256": "1e881ecf2862d01e6e5bc2b861e46886d2a6fb01499c0c508a209a7271b13cf2"
+        }
       }
     },
     "rust-base64": {
@@ -274,9 +280,17 @@
       "license": "MIT OR Apache-2.0",
       "noticeSha256": {
         "LICENSE-APACHE": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
-        "LICENSE-MIT": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
-        "find-msvc-tools/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "find-msvc-tools/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        "LICENSE-MIT": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+      },
+      "noticeAliases": {
+        "find-msvc-tools/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "find-msvc-tools/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        }
       }
     },
     "rust-cfg-if": {
@@ -296,11 +310,25 @@
       "license": "MIT OR Apache-2.0",
       "noticeSha256": {
         "LICENSE-APACHE": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
-        "LICENSE-MIT": "333ea3aaa3cadb819f4acd9f9153f9feee060a995ca8710f32bc5bd9a4b91734",
-        "foreign-types-shared/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "foreign-types-shared/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
-        "foreign-types/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "foreign-types/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        "LICENSE-MIT": "333ea3aaa3cadb819f4acd9f9153f9feee060a995ca8710f32bc5bd9a4b91734"
+      },
+      "noticeAliases": {
+        "foreign-types-shared/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "foreign-types-shared/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        },
+        "foreign-types/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "foreign-types/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        }
       }
     },
     "rust-heck": {
@@ -406,19 +434,51 @@
       "noticeSha256": {
         "LICENSE-APACHE": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9",
         "LICENSE-MIT": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6",
-        "pyo3-build-config/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "pyo3-build-config/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
-        "pyo3-ffi/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "pyo3-ffi/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
         "pyo3-introspection/LICENSE-APACHE": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9",
         "pyo3-introspection/LICENSE-MIT": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6",
-        "pyo3-macros-backend/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "pyo3-macros-backend/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
-        "pyo3-macros/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "pyo3-macros/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
-        "pyo3-runtime/LICENSE-APACHE": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399",
-        "pyo3-runtime/LICENSE-MIT": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a",
         "src/buffer.rs": "c22b7d5dab213b2bd08bbfaf2931e66d6c9c0943eda3b7a67397efadcfbc0ab6"
+      },
+      "noticeAliases": {
+        "pyo3-build-config/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "pyo3-build-config/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        },
+        "pyo3-ffi/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "pyo3-ffi/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        },
+        "pyo3-macros-backend/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "pyo3-macros-backend/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        },
+        "pyo3-macros/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "pyo3-macros/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        },
+        "pyo3-runtime/LICENSE-APACHE": {
+          "target": "LICENSE-APACHE",
+          "linkSha256": "154397a08d0cb342110281129971868cd562542d0780b0d10722788cd11a1399"
+        },
+        "pyo3-runtime/LICENSE-MIT": {
+          "target": "LICENSE-MIT",
+          "linkSha256": "72af89a828df52a9dcc42512ed64663b3b8d7961dd7a5586d44478eede82bc7a"
+        }
       }
     },
     "rust-quote": {

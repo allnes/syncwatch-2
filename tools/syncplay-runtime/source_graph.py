@@ -3,6 +3,7 @@
 import hashlib
 import json
 from pathlib import Path
+import posixpath
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -43,10 +44,21 @@ def check_originals(root=ROOT):
         if not source["noticeSha256"]:
             raise ValueError("Source has no complete original notice inventory: " + source["path"])
         for name, expected in source["noticeSha256"].items():
+            metadata = subprocess.check_output(["git", "ls-tree", source["revision"], "--", name], cwd=repository).decode().split()
+            if not metadata or metadata[0] not in {"100644", "100755"}:
+                raise ValueError("A complete notice must be an original regular file: " + name)
             data = subprocess.check_output(["git", "show", source["revision"] + ":" + name], cwd=repository)
             if hashlib.sha256(data).hexdigest() != expected:
                 raise ValueError("Original complete notice differs: " + source["path"] + "/" + name)
             checked += 1
+        for name, alias in source.get("noticeAliases", {}).items():
+            metadata = subprocess.check_output(["git", "ls-tree", source["revision"], "--", name], cwd=repository).decode().split()
+            data = subprocess.check_output(["git", "show", source["revision"] + ":" + name], cwd=repository)
+            target = posixpath.normpath(posixpath.join(posixpath.dirname(name), data.decode()))
+            if (not metadata or metadata[0] != "120000" or target != alias["target"]
+                    or target not in source["noticeSha256"]
+                    or hashlib.sha256(data).hexdigest() != alias["linkSha256"]):
+                raise ValueError("Notice alias is detached from its complete original grant")
     return {"sourceRoots": len(graph["sources"]), "rustCrates": len(graph["crates"]),
             "originalNotices": checked, "runtimeReady": False}
 

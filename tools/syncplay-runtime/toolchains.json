@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "rustVersion": "1.99.1",
+  "targets": {
+    "macos-arm64": {
+      "triple": "aarch64-apple-darwin",
+      "components": {
+        "rustc": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rustc-1.99.1-aarch64-apple-darwin.tar.xz",
+          "sha256": "23948a0a9c162fd2952defb3fb0462c44e8fcfd1a4ab8a274a1e1bdb2cf810a3",
+          "directory": "rustc-1.99.1-aarch64-apple-darwin",
+          "component": "rustc"
+        },
+        "cargo": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/cargo-1.99.1-aarch64-apple-darwin.tar.xz",
+          "sha256": "685e563d94db1f003ffa5f5831439eec02569b9950b69867953c8213269c1eaf",
+          "directory": "cargo-1.99.1-aarch64-apple-darwin",
+          "component": "cargo"
+        },
+        "rust-std": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rust-std-1.99.1-aarch64-apple-darwin.tar.xz",
+          "sha256": "fe79d6ab5a0321de26463999d8c112b8ad3eafbcbcf822d66a2300b45dde1031",
+          "directory": "rust-std-1.99.1-aarch64-apple-darwin",
+          "component": "rust-std-aarch64-apple-darwin"
+        }
+      }
+    },
+    "windows-x64": {
+      "triple": "x86_64-pc-windows-msvc",
+      "components": {
+        "rustc": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rustc-1.99.1-x86_64-pc-windows-msvc.tar.xz",
+          "sha256": "7da83c2af1f209606b0160f25174d2867c7c7b73667c32c9e5fbcef4f5f45348",
+          "directory": "rustc-1.99.1-x86_64-pc-windows-msvc",
+          "component": "rustc"
+        },
+        "cargo": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/cargo-1.99.1-x86_64-pc-windows-msvc.tar.xz",
+          "sha256": "4adb46c3707dee790682f7769d86983841148111695f561c843c33daa2af0c9b",
+          "directory": "cargo-1.99.1-x86_64-pc-windows-msvc",
+          "component": "cargo"
+        },
+        "rust-std": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rust-std-1.99.1-x86_64-pc-windows-msvc.tar.xz",
+          "sha256": "4fe09430ded40b8b3092b49f0a651178eb1f8154ef4d1f1a73f2a3595b2d956f",
+          "directory": "rust-std-1.99.1-x86_64-pc-windows-msvc",
+          "component": "rust-std-x86_64-pc-windows-msvc"
+        }
+      }
+    },
+    "linux-x64": {
+      "triple": "x86_64-unknown-linux-gnu",
+      "components": {
+        "rustc": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rustc-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+          "sha256": "2ff05ff9c08a90861e7f6e4065b40a8b87463b4576186fd613871c3e37f2091f",
+          "directory": "rustc-1.99.1-x86_64-unknown-linux-gnu",
+          "component": "rustc"
+        },
+        "cargo": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/cargo-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+          "sha256": "53f3521949404d595efb06a55c12c5658d4ed1c75566f33d3d514eaebe70bd8a",
+          "directory": "cargo-1.99.1-x86_64-unknown-linux-gnu",
+          "component": "cargo"
+        },
+        "rust-std": {
+          "url": "https://static.rust-lang.org/dist/2026-10-15/rust-std-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+          "sha256": "109b074225bf5b9ea3820890876bfdf4ed161adbfaf94b2b4b5984c85ee5d958",
+          "directory": "rust-std-1.99.1-x86_64-unknown-linux-gnu",
+          "component": "rust-std-x86_64-unknown-linux-gnu"
+        }
+      }
+    }
+  }
+}
