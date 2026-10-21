@@ -3,6 +3,7 @@
 import argparse
 import configparser
 import hashlib
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -103,7 +104,7 @@ def export_paths(source):
     if "exports" not in source:
         return None
     paths = source["exports"]
-    require(isinstance(paths, list) and 0 < len(paths) <= 256, "Source exports must be a nonempty bounded list")
+    require(isinstance(paths, list) and 0 < len(paths) <= 512, "Source exports must be a nonempty bounded list")
     for path in paths:
         member(path)
     require(paths == sorted(set(paths)), "Source exports must be sorted and unique")
@@ -162,6 +163,34 @@ def verify_source_export(archive, entries, revision, notices):
                         checksum.update(chunk)
             require(checksum.hexdigest() == expected, "Source export changed pinned Git blob bytes")
         require(found == set(entries), "Source export omitted pinned files (check export-ignore attributes)")
+
+
+def export_original_blobs(source, archive, entries, revision):
+    """Archive exact Git blobs, without checkout/archive EOL or export filters."""
+    objects = list(dict.fromkeys(identity for _mode, identity in entries.values()))
+    data = subprocess.check_output(["git", "cat-file", "--batch"], cwd=source,
+                                   input=("\n".join(objects) + "\n").encode())
+    stream = io.BytesIO(data)
+    blobs = {}
+    for identity in objects:
+        header = stream.readline().decode("ascii").strip().split()
+        require(len(header) == 3 and header[:2] == [identity, "blob"], "Git object export returned an unexpected type")
+        contents = stream.read(int(header[2]))
+        require(len(contents) == int(header[2]) and stream.read(1) == b"\n", "Truncated Git blob export")
+        blobs[identity] = contents
+    require(not stream.read(1), "Unexpected Git object export data")
+    with tarfile.open(archive, "w", format=tarfile.PAX_FORMAT, pax_headers={"comment": revision}) as package:
+        for name, (mode, identity) in sorted(entries.items()):
+            contents = blobs[identity]
+            entry = tarfile.TarInfo(name)
+            entry.mode = int(mode[-3:], 8)
+            if mode == "120000":
+                entry.type = tarfile.SYMTYPE
+                entry.linkname = contents.decode("utf-8")
+                package.addfile(entry)
+            else:
+                entry.size = len(contents)
+                package.addfile(entry, io.BytesIO(contents))
 
 
 def registry(root):
@@ -334,7 +363,10 @@ def initialize_sources(root, sources, directory):
         arguments = ["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf", "archive", "--format=tar", "--output", str(archive), "HEAD"]
         if exports is not None:
             arguments += ["--", *[":(literal)" + p for p in exports]]
-        subprocess.run(arguments, cwd=source, check=True)
+        if entries is None:
+            subprocess.run(arguments, cwd=source, check=True)
+        else:
+            export_original_blobs(source, archive, entries, specification["revision"])
         if exports is not None:
             verify_source_export(archive, entries, specification["revision"], specification["notices"])
         snapshots[path] = {

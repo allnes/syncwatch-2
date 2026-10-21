@@ -24,6 +24,19 @@ TARGET = next(name for name, (system, architectures, _) in build.PLATFORMS.items
 
 
 class DependencyBuildTests(unittest.TestCase):
+    def test_original_blob_export_ignores_upstream_eol_conversion(self):
+        source = self.root / "3rdparty/example"
+        (source / ".gitattributes").write_text("*.props text eol=crlf\n")
+        (source / "build.props").write_bytes(b"original\nsource\n")
+        self.commit(source)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        entries = build.exported_entries(source, ["LICENSE", "build.props"])
+        archive = self.root / "original.tar"
+        build.export_original_blobs(source, archive, entries, revision)
+        build.verify_source_export(archive, entries, revision, ["LICENSE"])
+        with tarfile.open(archive) as package:
+            self.assertEqual(package.extractfile("build.props").read(), b"original\nsource\n")
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -307,8 +320,10 @@ class DependencyBuildTests(unittest.TestCase):
                 (source / ".gitattributes").write_text(ignored + " export-ignore\n")
                 self.update_source_pin()
                 self.set_exports(["LICENSE", "library.txt"])
-                with self.assertRaisesRegex(ValueError, "omitted pinned files"):
-                    self.prepare()
+                self.prepare()
+                with tarfile.open(self.root / f"artifacts/dependencies/example/{TARGET}/example.tar") as archive:
+                    self.assertEqual(archive.extractfile("LICENSE").read(), b"Fixture source license\n")
+                    self.assertEqual(archive.extractfile("library.txt").read(), b"source payload\n")
 
     def test_git_export_substitution_cannot_change_pinned_source_bytes(self):
         source = self.root / "3rdparty/example"
@@ -316,8 +331,9 @@ class DependencyBuildTests(unittest.TestCase):
         (source / ".gitattributes").write_text("library.txt export-subst\n")
         self.update_source_pin()
         self.set_exports(["LICENSE", "library.txt"])
-        with self.assertRaisesRegex(ValueError, "changed pinned Git blob bytes"):
-            self.prepare()
+        self.prepare()
+        with tarfile.open(self.root / f"artifacts/dependencies/example/{TARGET}/example.tar") as archive:
+            self.assertEqual(archive.extractfile("library.txt").read(), b"$Format:%H$\n")
 
     def test_selected_tree_must_cover_all_nested_notices(self):
         source = self.root / "3rdparty/example"

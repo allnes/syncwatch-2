@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.30)
+project(SyncWatchEmbeddedCompression LANGUAGES C)
+set(ZLIB_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(ZLIB_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(ZLIB_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(ZLIB_INSTALL OFF CACHE BOOL "" FORCE)
+foreach(feature GVMAT64 INFBACK9 CRC32VX)
+    set(ZLIB_WITH_${feature} OFF CACHE BOOL "" FORCE)
+endforeach()
+foreach(binding ADA BLAST IOSTREAM3 MINIZIP PUFF TESTZLIB ZLIB1_DLL)
+    set(ZLIB_BUILD_${binding} OFF CACHE BOOL "" FORCE)
+endforeach()
+add_subdirectory("${SYNCWATCH_ZLIB_SOURCE}" upstream EXCLUDE_FROM_ALL)
+# Use upstream's supported compiler define consistently for every original
+# translation unit, including source-local includes of the original zconf.h.
+target_compile_definitions(zlibstatic PUBLIC Z_PREFIX)
+set_property(TARGET zlibstatic PROPERTY POSITION_INDEPENDENT_CODE ON)
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/library-$<CONFIG>.txt" CONTENT "$<TARGET_FILE:zlibstatic>")

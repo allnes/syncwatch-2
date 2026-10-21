@@ -5,7 +5,7 @@ add_executable(startup-probe probe.c "${SYNCWATCH_ROOT}/packages/python-startup/
 target_compile_features(startup-probe PRIVATE c_std_11)
 target_include_directories(startup-probe PRIVATE "${SYNCWATCH_ROOT}/packages/python-startup" "${SYNCWATCH_FIXTURE}")
 target_include_directories(startup-probe SYSTEM PRIVATE "${SYNCWATCH_PYTHON_INCLUDE}")
-target_link_libraries(startup-probe PRIVATE "${SYNCWATCH_PYTHON_LIBRARY}" Threads::Threads)
+target_link_libraries(startup-probe PRIVATE "${SYNCWATCH_PYTHON_LIBRARY}" Threads::Threads ${CMAKE_DL_LIBS})
 if(MSVC)
     target_compile_options(startup-probe PRIVATE /W4 /WX /utf-8)
 else()
