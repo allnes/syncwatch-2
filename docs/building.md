@@ -81,6 +81,8 @@ The ready components are the dependency-free fastjsonschema source package, the 
 
 Components may use [explicit source exports](architecture/dependencies.md#complete-source-graph) to snapshot reviewed files/directories from a pinned submodule, including all declared notices. Exported bytes are checked against Git before cold compilation or cache reuse. The annotations profile exercises this path on every supported build platform while retaining its reviewed JAR digests. Run the dependency infrastructure regression tests with `python3 -m unittest discover -s tools/dependencies/tests -v`.
 
+The [bootstrap standard-library component](python-stdlib.md) packages pinned encoding sources into an unchanged, deterministic ZIP on all three targets. Its native SDK fixture verifies the owned package and initializes the C startup API with that ZIP as its only module search path. This remains a prerequisite: the pinned native interpreter, complete standard library and Syncplay/TLS runtime are not available yet.
+
 ## Source and contract validation
 
 Repository checks require Git, Python 3.12 or newer, and Node.js 22 or newer. Contract validation imports only the pinned validator source:

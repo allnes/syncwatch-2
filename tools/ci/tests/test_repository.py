@@ -322,6 +322,20 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "trigger"):
             self.validate(lambda data: data["on"].pop("pull_request"))
 
+    def test_owned_stdlib_native_fixture_cannot_be_omitted(self):
+        for job in ("tests", "apple", "windows"):
+            with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Owned bootstrap stdlib"):
+                self.validate(lambda data: data["jobs"][job].update({"steps": [
+                    step for step in data["jobs"][job]["steps"] if "tools/python-stdlib/stdlib_probe.py" not in step.get("run", "")
+                ]}))
+
+    def test_bootstrap_stdlib_regressions_cannot_be_omitted(self):
+        for job in ("tests", "windows"):
+            with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Bootstrap stdlib regressions"):
+                self.validate(lambda data: data["jobs"][job].update({"steps": [
+                    step for step in data["jobs"][job]["steps"] if "tools/python-stdlib/tests" not in step.get("run", "")
+                ]}))
+
     def test_path_filtered_workflow_fails(self):
         with self.assertRaisesRegex(ValidationError, "path filters"):
             self.validate(lambda data: data["on"]["pull_request"].update({"paths": ["src/**"]}))

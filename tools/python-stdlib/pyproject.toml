@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-python-bootstrap-stdlib"
+version = "1.0.0"
+description = "Exact bootstrap encoding package and native ZIP-only startup verification"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/python-stdlib/tests -v"

@@ -16,7 +16,7 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 | `3rdparty/unicode-data` | `release-20210720-u13` / `84a95001ba850554e65234dde62cbdb0ad41105a` | Two Unicode 13.0.0 files verified against the published release for titlecase provenance | Unicode-DFS-2016; full original permission notice and data attribution |
 | `3rdparty/retry-decorator` | `a26fe27039f45f3e83cfcad7046e1761ae056498` | Provenance and full BSD notice for the retry function already embedded in Syncplay | BSD 3-Clause; original LICENSE and README |
 | `3rdparty/zlib` | `v1.3.2` / `da607da739fa6047df13e66a2af6b8bec7c2a498` | Static native compression prerequisite for the planned CPython runtime | Zlib; original LICENSE, README and public-header notice |
-| `3rdparty/cpython` | `v3.12.15` / `e848e4b09ca4bc67c0041c9ce7526dae471d4c36` | Selected startup declarations and reference/notice sources | Python-2.0.1; complete original LICENSE and README |
+| `3rdparty/cpython` | `v3.12.15` / `e848e4b09ca4bc67c0041c9ce7526dae471d4c36` | Selected startup declarations, bootstrap encoding sources and reference/notices | Python-2.0.1; complete original LICENSE and README |
 | `3rdparty/hacl-star` | `bb3d0dc8d9d15a5cd51094d5b69e70aa09005ff0` | Original hash C sources, headers and generator/runtime provenance | Selected generated code MIT; full MIT and Apache-2.0 texts |
 | `3rdparty/karamel` | `95968326f0ca1d6f9056347496482d285e6a9f1e` | Original verified uint128 and portable runtime-header closure | Apache-2.0; full license and original notices |
 | `3rdparty/arduinolibs` | `72715b172b07794dddfe35497360d9da13f42f85` | Original cited endian-macro source and complete notice provenance | MIT; original Southern Storm Software notice |
@@ -28,6 +28,8 @@ The [native compression component](../native-compression.md) builds static zlib 
 The [native hash library](../native-hashing.md) compiles four unchanged HACL hash C sources with separately generated namespace configuration. Its exact KaRaMeL header and cited Arduino macro origins, complete notices, deterministic static archive and actual C API checks are verified on native builds and cache restoration. This prerequisite does not enable an interpreter or Syncplay runtime.
 
 The first-party [Python package verifier](../python-package.md) statically links the existing reviewed HACL SHA-256 object. Its tests use developer Python/ctypes and the native C SDK as tools; they adopt no additional application library and package no SDK or test runtime. HACL source and full-notice obligations remain those of the exact registered profile.
+
+The [bootstrap standard-library component](../python-stdlib.md) distributes twelve unchanged Python encoding modules in a deterministic ZIP, with complete original source/notice correspondence and a separate selection summary. Its native fixture verifies the ZIP before initialization and uses it as the sole module search path. Developer SDK builtin/frozen implementations remain outside this distribution and audit; full pinned interpreter, native origins/ABI, complete standard-library and TLS closure remain required.
 
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
