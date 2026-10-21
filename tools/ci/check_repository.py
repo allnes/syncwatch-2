@@ -275,6 +275,10 @@ def check_workflows(root: Path) -> None:
         require(f"{python} tools/dependencies/build.py prepare --component cpython-startup-sources --platform {target}\n"
                 f"{python} -m unittest discover -s tools/python-runtime/tests -v" + additional in commands,
                 "CPython startup regressions must prepare pinned sources and execute on Linux and Windows")
+    for commands, python, target in ((test_commands, "python3", "linux-x64"), (windows_commands, "python", "windows-x64")):
+        require(f"{python} tools/dependencies/build.py prepare --component hacl-hash --platform {target}\n"
+                f"{python} -m unittest discover -s tools/hashing/tests -v" in commands,
+                "Native hash regressions must prepare pinned sources and execute on Linux and Windows")
     for name, python in (("tests", "python3"), ("apple", "python3"), ("windows", "python")):
         commands = {step.get("run") for step in jobs[name]["steps"]}
         require(f"{python} tools/python-runtime/generate_policy.py --check\n"

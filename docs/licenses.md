@@ -35,6 +35,10 @@ The dependency verifier checks notices, the original source inventory, and sourc
 
 The [Kotlin stdlib source package](kotlin-stdlib-sources.md) retains Apache-2.0, GWT/Guava, BSD-3-Clause ThreeTenBP and BSL-1.0 Boost notices with all selected original sources. Its two Unicode 13 data files retain the full pinned Unicode-DFS-2016 notice and original data attribution. Publication digests and common/JVM titlecase correspondence are verified offline. This source-only package contains no compiler, binary stdlib, native library, font or JVM; it does not clear those future distributions.
 
+## Native hash library
+
+The [native hash profile](native-hashing.md) retains all 48 selected original files and complete notices. Generated HACL hash C/header sources use MIT with their original INRIA, CMU, Microsoft and HACL Contributors notices; HACL's root Apache-2.0 and full distribution MIT text are both retained. Original KaRaMeL runtime headers use Apache-2.0. The cited Arduino endian origin retains the full 2015 Southern Storm Software MIT notice. CPython reference files retain the full Python-2.0.1 and historical PSF/BeOpen/CNRI/CWI license chain. Separate generated namespace configuration and first-party build/probe code do not alter these original files. Preserve all licenses, attributions and source correspondence; future vendor modifications require appropriate prominent change notices. This scope does not clear the full interpreter or a TLS provider.
+
 ## Other components
 
 The [dependency architecture](architecture/dependencies.md) records the other pinned sources. Syncplay uses Apache-2.0; fastjsonschema uses BSD-3-Clause and retains its license in the built validator package. The native shells and metadata service use the declared platform SDKs/frameworks without registry library packages.

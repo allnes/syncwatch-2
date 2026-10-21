@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-native-hash"
+version = "1.0.0"
+description = "Source-pinned static HACL hash build and native API verification"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/hashing/tests -v"
