@@ -363,7 +363,7 @@
     },
     "syncplay-runtime": {
       "status": "unavailable",
-      "reason": "CPython, Twisted TLS and transitive sources are not resolved",
+      "reason": "Pinned headless TLS candidate graph is registered; complete native builds and real engine acceptance remain in development",
       "plannedIn": "PR08"
     },
     "libvlc": {
