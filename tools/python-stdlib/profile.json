@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "version": "3.12.15",
+  "runtimeReady": false,
+  "codecs": [
+    "ascii",
+    "latin_1",
+    "utf_8",
+    "utf_8_sig",
+    "utf_16",
+    "utf_16_be",
+    "utf_16_le",
+    "utf_32",
+    "utf_32_be",
+    "utf_32_le"
+  ],
+  "source": {
+    "path": "3rdparty/cpython",
+    "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+    "license": "Python-2.0.1",
+    "notices": [
+      "LICENSE",
+      "README.rst"
+    ],
+    "exports": [
+      "LICENSE",
+      "Lib/encodings/__init__.py",
+      "Lib/encodings/aliases.py",
+      "Lib/encodings/ascii.py",
+      "Lib/encodings/latin_1.py",
+      "Lib/encodings/utf_16.py",
+      "Lib/encodings/utf_16_be.py",
+      "Lib/encodings/utf_16_le.py",
+      "Lib/encodings/utf_32.py",
+      "Lib/encodings/utf_32_be.py",
+      "Lib/encodings/utf_32_le.py",
+      "Lib/encodings/utf_8.py",
+      "Lib/encodings/utf_8_sig.py",
+      "README.rst"
+    ],
+    "files": {
+      "LICENSE": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "Lib/encodings/__init__.py": "78c4744d407690f321565488710b5aaf6486b5afa8d185637aa1e7633ab59cd8",
+      "Lib/encodings/aliases.py": "6fdcc49ba23a0203ae6cf28e608f8e6297d7c4d77d52e651db3cb49b9564c6d2",
+      "Lib/encodings/ascii.py": "578aa1173f7cc60dad2895071287fe6182bd14787b3fbf47a6c7983dfe3675e3",
+      "Lib/encodings/latin_1.py": "b75503e532a27c636477396c855209ff5f3036536d2a4bede0a576c89382b60c",
+      "Lib/encodings/utf_16.py": "6c36257f7b8d214473560d195e71bccef0c69a53e1e52d2800b7a7890aad7e58",
+      "Lib/encodings/utf_16_be.py": "3357196f3fa52433326a6626880e34964e00c5570aee50e9a0a0a7c6d86f6e4f",
+      "Lib/encodings/utf_16_le.py": "3aedaf3eb49769282daef1eaedfd4fa1c31fe5eebeff67fe2307c89dc2e2fd80",
+      "Lib/encodings/utf_32.py": "2072eece5f6026ad2d3549ab193a9e38894ea15ca9d5b3cd408fd6b116acc0c2",
+      "Lib/encodings/utf_32_be.py": "cbba20e1f6d0879c7c4293446c371a9f79e7c90bf3c78a77a9b8fc72b18915dd",
+      "Lib/encodings/utf_32_le.py": "9134b91047d85b442898d59effe23e7e0cf4167ca341ae31119a731dbf880a7b",
+      "Lib/encodings/utf_8.py": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d",
+      "Lib/encodings/utf_8_sig.py": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d",
+      "README.rst": "d4067fcabae9e06795bf36598b98c75d5ab23540dd08bd1f908d19c3957bba07"
+    }
+  },
+  "requiredCoreInterfaces": [
+    "sys",
+    "codecs",
+    "_codecs",
+    "zipimport"
+  ],
+  "windowsOptionalInterface": "_winapi",
+  "unsupportedExamples": [
+    "cp1251",
+    "idna",
+    "shift_jis"
+  ],
+  "stdlibSha256": "88278514f62ffa86bdfdedba3264aa25069790ec9692b94fd5dade12f20cfda4",
+  "sourceArchiveSha256": "ec162cf7e43912a219ecde8a168aac82fcfe679656b7e11b856814ef314ff3c0",
+  "analysisSha256": "2c924e52a81d1e2c7be54b6efe9c1939bc99a01a0a14500543e446db8fa1c982",
+  "vectors": {
+    "ascii": {
+      "text": "SyncWatch",
+      "hex": "53796e635761746368"
+    },
+    "latin_1": {
+      "text": "caf\u00e9",
+      "hex": "636166e9"
+    },
+    "utf_8": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "cebc20d182d0b5d181d18220f09f9880"
+    },
+    "utf_8_sig": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "efbbbfcebc20d182d0b5d181d18220f09f9880"
+    },
+    "utf_16": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "fffebc032000420435044104420420003dd800de"
+    },
+    "utf_16_be": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "03bc002004420435044104420020d83dde00"
+    },
+    "utf_16_le": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "bc032000420435044104420420003dd800de"
+    },
+    "utf_32": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "fffe0000bc03000020000000420400003504000041040000420400002000000000f60100"
+    },
+    "utf_32_be": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "000003bc0000002000000442000004350000044100000442000000200001f600"
+    },
+    "utf_32_le": {
+      "text": "\u03bc \u0442\u0435\u0441\u0442 \ud83d\ude00",
+      "hex": "bc03000020000000420400003504000041040000420400002000000000f60100"
+    }
+  }
+}

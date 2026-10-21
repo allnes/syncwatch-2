@@ -58,3 +58,5 @@ These checks establish the first-party C implementation against each measured de
 The implementation follows CPython's [initialization configuration](https://docs.python.org/3.12/c-api/init_config.html) and [initialization/finalization requirements](https://docs.python.org/3.12/c-api/init.html).
 
 The [native package verifier](python-package.md) now implements the shared inventory/path boundary for trusted expected files. It maps accepted package paths into this existing contract without loading an interpreter. Authentic package/source/ABI identity and immutable installation remain separate prerequisites; no pinned runtime is enabled.
+
+The separate [bootstrap standard-library fixture](python-stdlib.md) combines native package verification with this startup API. Its only module search path is the verified owned encoding ZIP, with no installed SDK standard-library directories. This additional proof still links a developer SDK and uses its builtin/frozen modules; it does not establish the pinned native runtime or embedding ABI.

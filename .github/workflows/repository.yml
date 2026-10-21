@@ -114,8 +114,16 @@
           "run": "python3 tools/python-package/package_probe.py --report artifacts/python-package/native.json"
         },
         {
+          "name": "Bootstrap stdlib source and cache regressions",
+          "run": "python3 tools/dependencies/build.py prepare --component cpython-bootstrap-stdlib --platform linux-x64\npython3 -m unittest discover -s tools/python-stdlib/tests -v"
+        },
+        {
           "name": "Native CPython startup SDK fixture",
           "run": "python3 tools/python-runtime/generate_policy.py --check\npython3 tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
+        },
+        {
+          "name": "Owned bootstrap stdlib native fixture",
+          "run": "python3 tools/python-stdlib/stdlib_probe.py --report artifacts/python-stdlib/native.json"
         }
       ]
     },
@@ -175,6 +183,10 @@
           "run": "python3 tools/python-runtime/generate_policy.py --check\npython3 tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
         },
         {
+          "name": "Owned bootstrap stdlib native fixture",
+          "run": "python3 tools/python-stdlib/stdlib_probe.py --report artifacts/python-stdlib/native.json"
+        },
+        {
           "name": "Retain candidate and validation reports",
           "if": "${{ always() }}",
           "timeout-minutes": 5,
@@ -225,6 +237,14 @@
         {
           "name": "Native CPython startup SDK fixture",
           "run": "python tools/python-runtime/generate_policy.py --check\npython tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
+        },
+        {
+          "name": "Bootstrap stdlib source and cache regressions",
+          "run": "python tools/dependencies/build.py prepare --component cpython-bootstrap-stdlib --platform windows-x64\npython -m unittest discover -s tools/python-stdlib/tests -v"
+        },
+        {
+          "name": "Owned bootstrap stdlib native fixture",
+          "run": "python tools/python-stdlib/stdlib_probe.py --report artifacts/python-stdlib/native.json"
         },
         {
           "name": "Retain candidate and validation reports",

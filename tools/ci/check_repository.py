@@ -286,6 +286,12 @@ def check_workflows(root: Path) -> None:
                 "Native CPython startup must compile and execute on Linux, macOS and Windows")
         require(f"{python} tools/python-package/package_probe.py --report artifacts/python-package/native.json" in commands,
                 "Native Python package verification must compile and execute on Linux, macOS and Windows")
+        require(f"{python} tools/python-stdlib/stdlib_probe.py --report artifacts/python-stdlib/native.json" in commands,
+                "Owned bootstrap stdlib must execute its native ZIP-only fixture on all three platforms")
+    for commands, python, target in ((test_commands, "python3", "linux-x64"), (windows_commands, "python", "windows-x64")):
+        require(f"{python} tools/dependencies/build.py prepare --component cpython-bootstrap-stdlib --platform {target}\n"
+                f"{python} -m unittest discover -s tools/python-stdlib/tests -v" in commands,
+                "Bootstrap stdlib regressions must prepare pinned sources and execute on Linux and Windows")
     require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
     metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}
