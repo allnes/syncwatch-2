@@ -24,6 +24,19 @@ TARGET = next(name for name, (system, architectures, _) in build.PLATFORMS.items
 
 
 class DependencyBuildTests(unittest.TestCase):
+    def test_original_blob_export_ignores_upstream_eol_conversion(self):
+        source = self.root / "3rdparty/example"
+        (source / ".gitattributes").write_text("*.props text eol=crlf\n")
+        (source / "build.props").write_bytes(b"original\nsource\n")
+        self.commit(source)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        entries = build.exported_entries(source, ["LICENSE", "build.props"])
+        archive = self.root / "original.tar"
+        build.export_original_blobs(source, archive, entries, revision)
+        build.verify_source_export(archive, entries, revision, ["LICENSE"])
+        with tarfile.open(archive) as package:
+            self.assertEqual(package.extractfile("build.props").read(), b"original\nsource\n")
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include <Python.h>
 #include <locale.h>
 #include <signal.h>
@@ -9,7 +12,10 @@
 #ifdef MS_WINDOWS
 #include <windows.h>
 #else
+#include <dlfcn.h>
+#include <limits.h>
 #include <pthread.h>
+#include <stdlib.h>
 #endif
 
 #define CHECK(expression) do { if (!(expression)) { \
@@ -17,6 +23,34 @@
 
 static void sentinel(int number) { (void)number; }
 static sw_python_result thread_result;
+
+static int owned_library(void)
+{
+    const char *(*function)(void) = Py_GetVersion;
+    void *address = NULL;
+    _Static_assert(sizeof(function) == sizeof(address), "Native function address must fit the loader API");
+    memcpy(&address, &function, sizeof(address));
+#ifdef MS_WINDOWS
+    wchar_t loaded[32768];
+    HMODULE module = NULL;
+    DWORD size;
+    (void)fixture_runtime;
+    CHECK(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                            address, &module));
+    size = GetModuleFileNameW(module, loaded, 32768);
+    CHECK(size > 0 && size < 32768);
+    CHECK(_wcsicmp(loaded, fixture_runtime_wide) == 0);
+#else
+    Dl_info info;
+    char loaded[PATH_MAX], expected[PATH_MAX];
+    (void)fixture_runtime_wide;
+    CHECK(dladdr(address, &info) != 0);
+    CHECK(realpath(info.dli_fname, loaded) != NULL);
+    CHECK(realpath(fixture_runtime, expected) != NULL);
+    CHECK(strcmp(loaded, expected) == 0);
+#endif
+    return 0;
+}
 #ifdef MS_WINDOWS
 static DWORD WINAPI stop_elsewhere(LPVOID unused)
 #else
@@ -86,15 +120,24 @@ int main(int argc, char **argv)
     sw_python_result final_result;
     int script_result;
     CHECK(argc == 2);
+    CHECK(owned_library() == 0);
     CHECK(strncmp(Py_GetVersion(), PY_VERSION " ", strlen(PY_VERSION) + 1) == 0);
     if (strcmp(argv[1], "foreign") == 0) {
+        PyPreConfig preconfig;
         PyConfig config;
         PyStatus status;
+        /* A separate embedding owner initializes its own valid UTF-8 runtime. */
+        PyPreConfig_InitIsolatedConfig(&preconfig);
+        preconfig.utf8_mode = 1;
+        status = Py_PreInitialize(&preconfig);
+        CHECK(!PyStatus_Exception(status));
         PyConfig_InitIsolatedConfig(&config);
+        config.site_import = 0;
         status = PyConfig_SetString(&config, &config.home, paths.home);
         CHECK(!PyStatus_Exception(status));
         status = Py_InitializeFromConfig(&config);
         PyConfig_Clear(&config);
+        if (PyStatus_Exception(status)) fprintf(stderr, "Foreign startup: %s\n", status.err_msg);
         CHECK(!PyStatus_Exception(status) && Py_IsInitialized());
         CHECK(sw_python_start(&paths) == SW_PYTHON_INVALID_STATE);
         CHECK(sw_python_stop() == SW_PYTHON_INVALID_STATE && Py_IsInitialized());

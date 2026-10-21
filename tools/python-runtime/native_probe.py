@@ -32,11 +32,11 @@ def execute(args, cwd, environment=None, timeout=120):
     return data
 
 
-def fixture(root, sdk, profile):
+def fixture(root, sdk, profile, extra_checks=""):
     owned = root / "modules-\u03bc-\u0442\u0435\u0441\u0442"
     owned.mkdir()
     (owned / "sw_native_fixture.py").write_text('VALUE = "SyncWatch \\u03bc \\u0442\\u0435\\u0441\\u0442"\n', encoding="utf-8")
-    search = [str(p) for p in (sdk["stdlib"], sdk["extensions"], owned) if p.is_dir()]
+    search = [str(p) for p in (sdk["stdlib"], sdk["extensions"], owned) if p.is_dir() or (p.is_file() and p.suffix == ".zip")]
     application = root / "application/bin"
     application.mkdir(parents=True)
     executable = str(application / "owned-helper")
@@ -48,12 +48,14 @@ def fixture(root, sdk, profile):
     inputs = {"EXPECTED_PATHS": search, "EXPECTED_EXECUTABLE": executable, "EXPECTED_PREFIX": str(sdk["prefix"]),
            "OWNED_ROOT": str(root)}
     checks = "\n".join(name + " = " + repr(value) for name, value in inputs.items()) + "\n"
-    checks += (ROOT / "tools/python-runtime/native/checks.py").read_text(encoding="utf-8")
+    checks += (ROOT / "tools/python-runtime/native/checks.py").read_text(encoding="utf-8") + "\n" + extra_checks
     content = ("static const wchar_t *fixture_search[] = {" + ", ".join(map(literal, search)) + "};\n"
                "static const sw_python_paths fixture_paths = {\n" + declarations + "\n"
                f"    .search_path_count = {len(search)}, .search_paths = fixture_search\n}};\n"
                "static const wchar_t *fixture_missing = " + literal(str(root / "missing-stdlib")) + ";\n"
                "static const wchar_t *fixture_adjacent = " + literal(str(root / "owned-helper")) + ";\n"
+               "static const wchar_t *fixture_runtime_wide = " + literal(str(sdk["runtime"])) + ";\n"
+               "static const char *fixture_runtime = " + json.dumps(str(sdk["runtime"]), ensure_ascii=True) + ";\n"
                "static const char *fixture_checks = " + json.dumps(checks, ensure_ascii=True) + ";\n")
     (root / "fixture.h").write_text(content, encoding="utf-8", newline="\n")
     poison = root / "poison"
@@ -70,16 +72,15 @@ def fixture(root, sdk, profile):
     return environment
 
 
-def probe():
+def exercise_sdk(sdk, extra_checks=""):
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
     if GENERATED.read_text(encoding="utf-8") != render(profile):
         raise ValueError("Native policy differs from the shared startup profile")
-    sdk, identity = resolve()
     cmake, options, compiler = c_toolchain()
     with tempfile.TemporaryDirectory(prefix="sw-native-python-") as temporary:
         root = Path(temporary) / "startup-\u03bc-\u0442\u0435\u0441\u0442"
         root.mkdir()
-        environment = fixture(root, sdk, profile)
+        environment = fixture(root, sdk, profile, extra_checks)
         build = root / "build"
         execute([cmake, "-S", (ROOT / "tools/python-runtime/native").as_posix(), "-B", build.as_posix(), *options,
                  "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ROOT=" + ROOT.as_posix(), "-DSYNCWATCH_FIXTURE=" + root.as_posix(),
@@ -97,9 +98,16 @@ def probe():
             cases[name] = True
         if list(root.rglob("*.pyc")) or list(root.rglob("__pycache__")):
             raise ValueError("Native startup wrote unexpected bytecode")
-        return {"developerSdkOnly": True, "sdk": identity, "compiler": compiler, "cases": cases,
-                "policySha256": sha(GENERATED), "pinnedRuntimeBuilt": False, "pinnedEmbeddingAbiVerified": False,
-                "runtimeReady": False}
+        return {"compiler": compiler, "cases": cases, "loadedLibraryVerified": True, "policySha256": sha(GENERATED)}
+
+
+def probe():
+    profile = json.loads(PROFILE.read_text(encoding="utf-8"))
+    if GENERATED.read_text(encoding="utf-8") != render(profile):
+        raise ValueError("Native policy differs from the shared startup profile")
+    sdk, identity = resolve()
+    return {"developerSdkOnly": True, "sdk": identity, **exercise_sdk(sdk),
+            "pinnedRuntimeBuilt": False, "pinnedEmbeddingAbiVerified": False, "runtimeReady": False}
 
 
 def main():
