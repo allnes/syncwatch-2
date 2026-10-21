@@ -109,6 +109,8 @@ class StdlibTests(unittest.TestCase):
             root.mkdir()
             fixture(root, self.payload["stdlib.zip"], self.profile)
             header = (root / "fixture.h").read_text(encoding="ascii")
+            self.assertIn("\\U0001f600", header)
+            self.assertNotIn("\\ud83d", header)
             initializer = re.search(r"fixture_checks\[\] = \{([\d,]+)\};", header).group(1)
             values = list(map(int, initializer.split(",")))
             self.assertEqual(values[-1], 0)

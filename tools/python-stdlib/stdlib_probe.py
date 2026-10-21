@@ -51,7 +51,11 @@ def fixture(root, archive, profile):
     # Python escapes retain Unicode values while C character initializers remain portable ASCII.
     script = "\n".join(name + " = " + ascii(value) for name, value in inputs.items()) + "\n"
     script += (ROOT / "tools/python-stdlib/native/checks.py").read_text(encoding="utf-8")
-    wide = lambda value: "L" + json.dumps(str(value), ensure_ascii=True)
+    def wide(value):
+        # C universal character names use one code point, including non-BMP paths.
+        literal = json.dumps(str(value), ensure_ascii=False)
+        return "L" + "".join("\\U%08x" % ord(c) if ord(c) > 0xffff else
+                             "\\u%04x" % ord(c) if ord(c) > 127 else c for c in literal)
     header = ("static const char *fixture_names[] = {" + ",".join(json.dumps(n) for n in CASES) + "};\n"
               "static const wchar_t *fixture_roots[] = {" + ",".join(wide(p) for p in roots) + "};\n"
               "static const wchar_t *fixture_executable = " + wide(executable) + ";\n"
@@ -84,7 +88,7 @@ def probe():
     if hashlib.sha256(archive).hexdigest() != profile["stdlibSha256"]:
         raise ValueError("Accepted bootstrap stdlib bytes changed")
     with tempfile.TemporaryDirectory(prefix="sw-bootstrap-stdlib-") as temporary:
-        root = Path(temporary).resolve() / "package-\u03bc-\u0442\u0435\u0441\u0442"
+        root = Path(temporary).resolve() / "package-\u03bc-\u0442\u0435\u0441\u0442-\U0001f600"
         root.mkdir()
         poison, environment = fixture(root, archive, profile)
         if sys.platform == "win32":
