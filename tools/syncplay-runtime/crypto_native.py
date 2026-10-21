@@ -28,6 +28,10 @@ def python_sdk(work, profile, sources, source, native, openssl, target, environm
     (sdk / "lib").mkdir(exist_ok=True)
     shutil.copyfile(native["runtime"], directory / native["runtime"].name)
     shutil.copyfile(native["library"], sdk / "lib" / native["library"].name)
+    if target == "linux-x64":
+        # The linker resolves -lpython3.12 through its unversioned SDK name;
+        # the application's loaded SONAME remains libpython3.12.so.1.0.
+        shutil.copyfile(native["library"], sdk / "lib/libpython3.12.so")
     for path in native["extensions"]:
         shutil.copyfile(path, directory / path.name)
     if windows:
