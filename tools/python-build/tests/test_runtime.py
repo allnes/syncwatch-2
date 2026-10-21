@@ -52,6 +52,8 @@ class RuntimeTests(unittest.TestCase):
             self.assertIn('{"_imp", PyInit__imp}', config)
             self.assertIn('{"_string", PyInit__string}', config)
             self.assertIn('{"winreg", PyInit_winreg}', config)
+            self.assertIn('{"_ast", PyInit__ast}', config)
+            self.assertIn('{"_tokenize", PyInit__tokenize}', config)
             self.assertNotIn('{"_random",', config)
             ns = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
             tree = ET.parse(source / "PCbuild/pcbuild.proj")

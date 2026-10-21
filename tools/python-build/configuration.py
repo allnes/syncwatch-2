@@ -34,7 +34,7 @@ def module_sources(source, profile):
 def windows_setup(source, profile):
     names, files = module_sources(source, profile)
     names.discard("posix"); names.discard("pwd")
-    names.update(["nt", "gc", "msvcrt", "winreg", "zlib", "_imp", "_string"])
+    names.update(["nt", "gc", "msvcrt", "winreg", "zlib", "_imp", "_string", "_ast", "_tokenize"])
     # Socket/select remain separate native extension DLLs in the upstream build.
     names.discard("_socket"); names.discard("select")
     files.update(["gcmodule.c", "getbuildinfo.c", "getpath.c", "main.c", "zlibmodule.c", "_io/winconsoleio.c"])

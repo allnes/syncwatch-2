@@ -79,6 +79,15 @@ def original_sources(sources, profile):
     selected = {name: data for name, data in cpython.items()
                 if name.startswith(("Include/", "Python/", "Objects/", "Parser/", "PC/", "PCbuild/", "Tools/build/"))}
     selected.update({name: cpython[name] for name in profile["stdlib"]})
+    # Frozen Python code is compiled into the library as well as C sources.
+    # Preserve every original input declared by the pinned freeze project.
+    import xml.etree.ElementTree as ET
+    namespace = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
+    project = ET.fromstring(cpython["PCbuild/_freeze_module.vcxproj"])
+    for item in project.findall(".//m:None", namespace):
+        if item.find("m:ModName", namespace) is not None:
+            path = item.get("Include").replace("\\", "/").removeprefix("../")
+            selected[path] = cpython[path]
     # Parse declarations from unchanged inputs before any configuration edits.
     import re
     bootstrap = cpython["Modules/Setup.bootstrap.in"].decode()
