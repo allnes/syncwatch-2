@@ -153,3 +153,7 @@ The shell enables media controls only after explicit joined observations and cap
 Launch the native executable with `--selection-menu-gallery` to review playlist, audio-track and subtitle menus. Choose a menu kind, empty/available/read-only/long-list case, theme and language. Selection updates only the gallery's in-memory fixture and records the correlated request. It does not read preferences, select real media/tracks or contact a provider. Normal player track/playlist actions remain unavailable until their integration supplies capabilities.
 
 Native checks include every menu kind, state, theme and language declared by the shared contracts in the required artifact matrix. The common input corpus verifies identity/revision, action scopes, invalid observations and UTF-8 bounds through the generator, Swift and C#. Actual WPF controls verify input-free observation refresh, selection requests and long-list scrolling. Linux carries matching data/model/renderer/gallery source; it has no runnable gallery until compiler/Compose/native/font/license closure passes.
+
+## Unicode type-table source and native proof
+
+The [Unicode type-table component](python-unicode.md) reproduces the pinned CPython Unicode 15.0 header from separately pinned data and executes an exhaustive native C transcript on all three targets. Its source/data payload and developer SDK proof do not enable an interpreter, embedding ABI or Syncplay runtime.
