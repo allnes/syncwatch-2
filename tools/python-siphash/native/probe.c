@@ -57,7 +57,7 @@ int main(void)
     prefix[8] = (unsigned char)(FIXTURE_CASES >> 24);
     prefix[9] = (unsigned char)(FIXTURE_CASES >> 16);
     prefix[10] = (unsigned char)(FIXTURE_CASES >> 8);
-    prefix[11] = (unsigned char)FIXTURE_CASES;
+    prefix[11] = (unsigned char)(FIXTURE_CASES & 0xffu);
     if (fwrite(prefix, 1, sizeof(prefix), stdout) != sizeof(prefix)) return 4;
     for (size_t key = 0; key < sizeof(fixture_keys) / sizeof(fixture_keys[0]); ++key)
         for (size_t pattern = 0; pattern < sizeof(fixture_messages) / sizeof(fixture_messages[0]); ++pattern)
