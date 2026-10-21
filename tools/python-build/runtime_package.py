@@ -20,7 +20,7 @@ def layout(payload, target):
     runtime = payload / ("bin" if windows else "lib") / name
     return {"prefix": payload, "include": payload / "include", "runtime": runtime,
             "library": payload / "lib/python312.lib" if windows else runtime,
-            "stdlib": payload / ("python312.zip" if windows else "lib/python312.zip"),
+            "stdlib": payload / ("bin/python312.zip" if windows else "lib/python312.zip"),
             "extensions": runtime.parent}
 
 
