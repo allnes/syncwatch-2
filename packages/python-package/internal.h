@@ -14,9 +14,14 @@ size_t swp_find(const sw_package *package, const wchar_t *relative);
 int swp_directory(const sw_package *package, const wchar_t *relative);
 int swp_child(const wchar_t *parent, const wchar_t *name, wchar_t *result);
 sw_package_result swp_platform_verify(const sw_package *package);
-typedef struct swp_hash swp_hash;
-swp_hash *swp_hash_create(void);
+#include "syncwatch_hacl.h"
+/* Match the pinned public SHA-256 state layout; no vendor allocator is called. */
+typedef struct {
+    Hacl_Hash_SHA2_state_t_256 state;
+    uint32_t words[8];
+    uint8_t buffer[64];
+} swp_hash;
+void swp_hash_init(swp_hash *hash);
 int swp_hash_update(swp_hash *hash, unsigned char *data, uint32_t size);
 int swp_hash_matches(swp_hash *hash, const unsigned char expected[32]);
-void swp_hash_close(swp_hash *hash);
 #endif

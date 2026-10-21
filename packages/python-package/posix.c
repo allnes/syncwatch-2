@@ -51,7 +51,7 @@ static sw_package_result file_hash(int parent, const char *name, const struct st
     unsigned char buffer[65536];
     struct stat before, after;
     uint64_t total = 0;
-    swp_hash *hash = NULL;
+    swp_hash hash;
     sw_package_result status = SW_PACKAGE_IO_FAILED;
     int fd = openat(parent, name, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
     if (fd < 0) return errno == ELOOP ? SW_PACKAGE_UNSAFE_ENTRY : SW_PACKAGE_IO_FAILED;
@@ -60,8 +60,7 @@ static sw_package_result file_hash(int parent, const char *name, const struct st
     if (!S_ISREG(before.st_mode) || before.st_nlink != 1 || before.st_dev != device || !unchanged(entry, &before)) goto done;
     status = SW_PACKAGE_SIZE_MISMATCH;
     if (before.st_size < 0 || (uint64_t)before.st_size != expected->size) goto done;
-    hash = swp_hash_create();status = SW_PACKAGE_RESOURCE_LIMIT;
-    if (!hash) goto done;
+    swp_hash_init(&hash);
     for (;;) {
         ssize_t n = read(fd, buffer, sizeof(buffer));
         if (n < 0 && errno == EINTR) continue;
@@ -72,7 +71,7 @@ static sw_package_result file_hash(int parent, const char *name, const struct st
         if ((uint64_t)n > expected->size - total) goto done;
         total += (uint64_t)n;
         status = SW_PACKAGE_RESOURCE_LIMIT;
-        if (!swp_hash_update(hash, buffer, (uint32_t)n)) goto done;
+        if (!swp_hash_update(&hash, buffer, (uint32_t)n)) goto done;
     }
     status = SW_PACKAGE_IO_FAILED;
     if (fstat(fd, &after)) goto done;
@@ -80,9 +79,9 @@ static sw_package_result file_hash(int parent, const char *name, const struct st
     if (!unchanged(&before, &after)) goto done;
     status = SW_PACKAGE_SIZE_MISMATCH;
     if (total != expected->size) goto done;
-    status = swp_hash_matches(hash, expected->sha256) ? SW_PACKAGE_OK : SW_PACKAGE_DIGEST_MISMATCH;
+    status = swp_hash_matches(&hash, expected->sha256) ? SW_PACKAGE_OK : SW_PACKAGE_DIGEST_MISMATCH;
 done:
-    swp_hash_close(hash);close(fd);return status;
+    close(fd);return status;
 }
 static sw_package_result walk(const sw_package *p, int fd, const wchar_t *prefix, dev_t device, size_t *seen, size_t depth)
 {

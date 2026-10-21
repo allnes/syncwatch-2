@@ -38,7 +38,7 @@ static sw_package_result file_hash(const wchar_t *path, const sw_package_file *e
     unsigned char buffer[65536];
     BY_HANDLE_FILE_INFORMATION before, after;
     uint64_t total = 0, size;
-    swp_hash *hash = NULL;
+    swp_hash hash;
     sw_package_result status = SW_PACKAGE_IO_FAILED;
     HANDLE file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                               FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
@@ -52,8 +52,7 @@ static sw_package_result file_hash(const wchar_t *path, const sw_package_file *e
     size = ((uint64_t)before.nFileSizeHigh << 32) | before.nFileSizeLow;
     status = SW_PACKAGE_SIZE_MISMATCH;
     if (size != expected->size) goto done;
-    hash = swp_hash_create();status = SW_PACKAGE_RESOURCE_LIMIT;
-    if (!hash) goto done;
+    swp_hash_init(&hash);
     for (;;) {
         DWORD size_read;
         status = SW_PACKAGE_IO_FAILED;
@@ -62,7 +61,7 @@ static sw_package_result file_hash(const wchar_t *path, const sw_package_file *e
         status = SW_PACKAGE_SIZE_MISMATCH;
         if (size_read > expected->size - total) goto done;
         total += size_read;status = SW_PACKAGE_RESOURCE_LIMIT;
-        if (!swp_hash_update(hash, buffer, size_read)) goto done;
+        if (!swp_hash_update(&hash, buffer, size_read)) goto done;
     }
     status = SW_PACKAGE_IO_FAILED;
     if (!GetFileInformationByHandle(file, &after)) goto done;
@@ -70,9 +69,9 @@ static sw_package_result file_hash(const wchar_t *path, const sw_package_file *e
     if (!unchanged(&before, &after)) goto done;
     status = SW_PACKAGE_SIZE_MISMATCH;
     if (total != expected->size) goto done;
-    status = swp_hash_matches(hash, expected->sha256) ? SW_PACKAGE_OK : SW_PACKAGE_DIGEST_MISMATCH;
+    status = swp_hash_matches(&hash, expected->sha256) ? SW_PACKAGE_OK : SW_PACKAGE_DIGEST_MISMATCH;
 done:
-    swp_hash_close(hash);CloseHandle(file);return status;
+    CloseHandle(file);return status;
 }
 static sw_package_result walk(const sw_package *p, const wchar_t *prefix, DWORD volume, size_t *seen, size_t depth)
 {

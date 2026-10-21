@@ -23,6 +23,7 @@
     "test_layout_rejects_missing_duplicate_or_escaping_roles",
     "test_missing_file",
     "test_missing_subdirectory",
+    "test_native_hash_import_formats",
     "test_nonreserved_dos_prefix_is_portable",
     "test_null_arguments_and_existing_output",
     "test_query_capacity_is_atomic",
@@ -34,7 +35,8 @@
     "test_traversal_nonportable_and_reserved_names",
     "test_truncated_or_appended_file",
     "test_unlisted_unicode_file",
-    "test_unsorted_duplicate_case_alias_and_overlap"
+    "test_unsorted_duplicate_case_alias_and_overlap",
+    "test_vendor_allocator_missing_or_failed_imports_rejected"
   ],
   "platformOnly": {
     "test_fifo_without_blocking": [
@@ -45,5 +47,10 @@
       "windows-x64"
     ]
   },
-  "runtimeReady": false
+  "runtimeReady": false,
+  "hashImports": [
+    "python_hashlib_Hacl_Hash_SHA2_digest_256",
+    "python_hashlib_Hacl_Hash_SHA2_reset_256",
+    "python_hashlib_Hacl_Hash_SHA2_update_256"
+  ]
 }
