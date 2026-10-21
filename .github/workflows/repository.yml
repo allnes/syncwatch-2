@@ -114,6 +114,10 @@
           "run": "python3 tools/python-package/package_probe.py --report artifacts/python-package/native.json"
         },
         {
+          "name": "SipHash source, oracle and cache regressions",
+          "run": "python3 tools/dependencies/build.py prepare --component cpython-siphash --platform linux-x64\npython3 -m unittest discover -s tools/python-siphash/tests -v"
+        },
+        {
           "name": "Unicode source, oracle and cache regressions",
           "run": "python3 tools/dependencies/build.py prepare --component cpython-unicode-types --platform linux-x64\npython3 -m unittest discover -s tools/python-unicode/tests -v"
         },
@@ -241,6 +245,10 @@
         {
           "name": "Native CPython startup SDK fixture",
           "run": "python tools/python-runtime/generate_policy.py --check\npython tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
+        },
+        {
+          "name": "SipHash source, oracle and cache regressions",
+          "run": "python tools/dependencies/build.py prepare --component cpython-siphash --platform windows-x64\npython -m unittest discover -s tools/python-siphash/tests -v"
         },
         {
           "name": "Unicode source, oracle and cache regressions",

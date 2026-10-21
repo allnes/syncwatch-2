@@ -3,13 +3,13 @@
 import hashlib
 from pathlib import Path
 import re
-import subprocess
 import sys
-import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/compression"))
 from toolchain import resolve
+sys.path.insert(0, str(ROOT / "tools/native"))
+from c_probe import compile_transcript
 
 
 def fixture(cpython, header):
@@ -31,22 +31,6 @@ def fixture(cpython, header):
 
 def native_proof(cpython, header, expected, cmake, options, sdk):
     content, fragments = fixture(cpython, header)
-    with tempfile.TemporaryDirectory(prefix="sw-unicode-") as temporary:
-        work = Path(temporary).resolve()
-        (work / "fixture.h").write_bytes(content)
-        build = work / "build"
-        subprocess.run([cmake, "-S", (ROOT / "tools/python-unicode/native").as_posix(), "-B", build.as_posix(),
-                        *options, "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_FIXTURE=" + work.as_posix()], check=True, timeout=60)
-        subprocess.run([cmake, "--build", build.as_posix(), "--config", "Release", "--parallel", "2"], check=True, timeout=120)
-        executable = Path((build / "probe-Release.txt").read_text(encoding="utf-8"))
-        transcript = work / "transcript.bin"
-        with transcript.open("wb") as output:
-            process = subprocess.run([str(executable)], stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.PIPE, timeout=30)
-        if process.returncode or process.stderr or transcript.stat().st_size != expected["bytes"]:
-            raise ValueError("Native Unicode transcript failed or has an unexpected size")
-        with transcript.open("rb") as stream:
-            actual = hashlib.file_digest(stream, "sha256").hexdigest()
-        if actual != expected["sha256"]:
-            raise ValueError("Native Unicode transcript differs from the independent source oracle")
+    compile_transcript(ROOT / "tools/python-unicode/native", {"fixture.h": content, "NOTICES.txt": cpython["LICENSE"] + b"\n" + cpython["Include/unicodeobject.h"]}, expected, cmake, options)
     return {"sdk": sdk, "transcript": expected, "originalFragmentSha256": fragments,
             "headerSha256": hashlib.sha256(header).hexdigest(), "pythonSdkLinked": False}
