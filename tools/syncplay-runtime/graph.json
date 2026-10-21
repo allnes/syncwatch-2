@@ -16,7 +16,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
-      }
+      },
+      "version": "26.1.0"
     },
     "automat": {
       "path": "3rdparty/python-automat",
@@ -25,7 +26,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "b2201301678d0a937d938543827ca1360712eb34e23de8ee3f3bfffbd4c0e376"
-      }
+      },
+      "version": "25.4.16"
     },
     "constantly": {
       "path": "3rdparty/python-constantly",
@@ -35,7 +37,9 @@
       "noticeSha256": {
         "LICENSE": "020870fcaf4bf9c50b233e331817094fe109b91c0880570fd476f527cfbfc085",
         "constantly/_version.py": "a2c65f296888b531b3fde17b099379e75d35070e6c02610b98b3991d332e3c18"
-      }
+      },
+      "version": "23.10.4",
+      "archiveDate": "2023-10-28 16:14:45 -0700"
     },
     "incremental": {
       "path": "3rdparty/python-incremental",
@@ -44,7 +48,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "d043bc8899b4695de1f4511d8f507b927e11723b981ce600fa3ef7b73954afa5"
-      }
+      },
+      "version": "24.11.0"
     },
     "hyperlink": {
       "path": "3rdparty/python-hyperlink",
@@ -53,7 +58,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "7468ded55310f64fbf085b8e892df81d1bcc49263bf535d3c2c58b014cfae214"
-      }
+      },
+      "version": "21.0.0"
     },
     "idna": {
       "path": "3rdparty/python-idna",
@@ -62,7 +68,8 @@
       "license": "BSD-3-Clause AND Unicode-3.0",
       "noticeSha256": {
         "LICENSE.md": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04"
-      }
+      },
+      "version": "3.20"
     },
     "zope.interface": {
       "path": "3rdparty/python-zope-interface",
@@ -72,7 +79,8 @@
       "noticeSha256": {
         "COPYRIGHT.txt": "b9bff5ab8be7e1f0c5d59ec258f3b401249ef50d41adb647beb58104cffccb27",
         "LICENSE.txt": "3e671db11df687516cc1db5b3d65e4aa383eaca3c20cea3faf53a0f7335d0a3c"
-      }
+      },
+      "version": "8.7"
     },
     "typing_extensions": {
       "path": "3rdparty/python-typing_extensions",
@@ -81,7 +89,8 @@
       "license": "Python-2.0",
       "noticeSha256": {
         "LICENSE": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
-      }
+      },
+      "version": "4.16.0"
     },
     "service_identity": {
       "path": "3rdparty/python-service_identity",
@@ -90,7 +99,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "24bd0a9ba7d0eae08a3a6e32a1b09f8e6871fa0325520a2fcb00e1539eaa602a"
-      }
+      },
+      "version": "26.1.0"
     },
     "cffi": {
       "path": "3rdparty/python-cffi",
@@ -100,7 +110,8 @@
       "noticeSha256": {
         "LICENSE": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63",
         "src/c/libffi_x86_x64/LICENSE": "40a537c7d74baeed3831304e92d1664ababd7ad8a3cf29f11a257c9e47145248"
-      }
+      },
+      "version": "2.1.1"
     },
     "pycparser": {
       "path": "3rdparty/python-pycparser",
@@ -109,7 +120,8 @@
       "license": "BSD-3-Clause",
       "noticeSha256": {
         "LICENSE": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90"
-      }
+      },
+      "version": "3.11"
     },
     "pem": {
       "path": "3rdparty/python-pem",
@@ -118,7 +130,8 @@
       "license": "MIT",
       "noticeSha256": {
         "LICENSE": "b7206e8d9df2efa94d32d67dbe07c8444b8016f1978a38b0cd4c0235c36d7bc3"
-      }
+      },
+      "version": "23.1.0"
     },
     "certifi": {
       "path": "3rdparty/python-certifi",
@@ -127,7 +140,8 @@
       "license": "MPL-2.0",
       "noticeSha256": {
         "LICENSE": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
-      }
+      },
+      "version": "2026.10.19"
     },
     "packaging": {
       "path": "3rdparty/python-packaging",
@@ -138,7 +152,8 @@
         "LICENSE": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
         "LICENSE.APACHE": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
         "LICENSE.BSD": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
-      }
+      },
+      "version": "26.3"
     },
     "libffi": {
       "path": "3rdparty/libffi",
@@ -149,7 +164,8 @@
         "LICENSE": "d5699fa516968e3a1550e6c902b7441c78856f2603d61bedd0b0662a26655366",
         "LICENSE-BUILDTOOLS": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94",
         "src/dlmalloc.c": "c603bff55ca0f128948640622cba34354f7af84f4d1e0c562f7f2307b0c21658"
-      }
+      },
+      "version": "3.5.2"
     },
     "twisted": {
       "path": "3rdparty/python-twisted",
@@ -159,7 +175,8 @@
       "noticeSha256": {
         "LICENSE": "d7a2f74fe5c2b3f610052b75b5a131728c49823b28088893dacacf8d58849a4d",
         "src/twisted/copyright.py": "b2025abd25e02f4374abb4450059ed059f1b8be4e057ee53b01773d5268c088e"
-      }
+      },
+      "version": "26.4.0"
     },
     "cryptography": {
       "path": "3rdparty/python-cryptography",
@@ -191,7 +208,8 @@
         "vectors/cryptography_vectors/x509/custom/cp_user_notice_no_explicit_text.pem": "f6f583e67cd6ab9e1653b84eff6d9696d96dd0238ab59c1623ba4909418e9ed9",
         "vectors/cryptography_vectors/x509/custom/cp_user_notice_with_explicit_text.pem": "f3d6244b93960dc773844e929e4f204eace44666d4cf2d6761fc0d149016d9a9",
         "vectors/cryptography_vectors/x509/custom/cp_user_notice_with_notice_reference.pem": "b7149151896faa230834a671f5654e69a5e3fad03d05321b63a71b9129bce775"
-      }
+      },
+      "version": "50.0.2"
     },
     "pyopenssl": {
       "path": "3rdparty/python-pyopenssl",
@@ -200,7 +218,8 @@
       "license": "Apache-2.0",
       "noticeSha256": {
         "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
-      }
+      },
+      "version": "26.4.0"
     },
     "openssl": {
       "path": "3rdparty/openssl",
@@ -214,7 +233,8 @@
         "external/perl/Text-Template-1.56/LICENSE": "9837f05336ef3cbacb6a96e1672a0426d81ad01191f214b8d48e22ca62338181",
         "providers/implementations/digests/blake2_impl.h": "852f08af333d76ea63ee8fccbe998373df2ac698b7d7cf3c0f6e071d8fd495e3",
         "util/perl/OpenSSL/copyright.pm": "04213b69dbebc8ba0dd8a6216af1d9422f9b63619c1cf2f1d8aa107b83bbb608"
-      }
+      },
+      "version": "3.5.9"
     },
     "boringssl": {
       "path": "3rdparty/boringssl",
@@ -804,5 +824,96 @@
   "baseComponents": [
     "cpython-embedded",
     "syncplay-engine-sources"
-  ]
+  ],
+  "pythonPackages": {
+    "attrs": {
+      "root": "src",
+      "distribution": "attrs"
+    },
+    "automat": {
+      "root": "src",
+      "distribution": "Automat"
+    },
+    "constantly": {
+      "root": ".",
+      "distribution": "constantly",
+      "include": [
+        "constantly/"
+      ]
+    },
+    "incremental": {
+      "root": "src",
+      "distribution": "incremental"
+    },
+    "hyperlink": {
+      "root": ".",
+      "distribution": "hyperlink",
+      "include": [
+        "hyperlink/"
+      ]
+    },
+    "idna": {
+      "root": ".",
+      "distribution": "idna",
+      "include": [
+        "idna/"
+      ]
+    },
+    "zope.interface": {
+      "root": "src",
+      "distribution": "zope.interface"
+    },
+    "typing_extensions": {
+      "root": "src",
+      "distribution": "typing_extensions"
+    },
+    "service_identity": {
+      "root": "src",
+      "distribution": "service_identity"
+    },
+    "cffi": {
+      "root": "src",
+      "distribution": "cffi",
+      "include": [
+        "cffi/"
+      ]
+    },
+    "pycparser": {
+      "root": ".",
+      "distribution": "pycparser",
+      "include": [
+        "pycparser/"
+      ]
+    },
+    "pem": {
+      "root": "src",
+      "distribution": "pem"
+    },
+    "certifi": {
+      "root": ".",
+      "distribution": "certifi",
+      "include": [
+        "certifi/"
+      ]
+    },
+    "packaging": {
+      "root": "src",
+      "distribution": "packaging"
+    },
+    "twisted": {
+      "root": "src",
+      "distribution": "Twisted"
+    },
+    "cryptography": {
+      "root": "src",
+      "distribution": "cryptography",
+      "include": [
+        "cryptography/"
+      ]
+    },
+    "pyopenssl": {
+      "root": "src",
+      "distribution": "pyOpenSSL"
+    }
+  }
 }

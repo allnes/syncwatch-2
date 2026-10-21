@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import platform
 import shutil
@@ -111,6 +112,19 @@ def resolve():
     spec, target = specification()
     directory = Path.home() / ".local/share/syncwatch/toolchains" / ("rust-" + spec["rustVersion"] + "-" + target)
     return verify(directory, spec, target)
+
+
+def build_environment(home, parent=None):
+    environment = dict(os.environ if parent is None else parent)
+    suffix = ".exe" if platform.system() == "Windows" else ""
+    environment["PATH"] = str(home / "bin") + os.pathsep + environment.get("PATH", "")
+    environment["RUSTC"] = str(home / ("bin/rustc" + suffix))
+    environment["RUSTDOC"] = str(home / ("bin/rustdoc" + suffix))
+    # The vendor's rust-objcopy is nested below rustlib and needs the SDK's
+    # own LLVM library. This is a build-tool environment, not a runtime path.
+    if platform.system() == "Darwin":
+        environment["DYLD_FALLBACK_LIBRARY_PATH"] = str(home / "lib")
+    return environment
 
 
 if __name__ == "__main__":

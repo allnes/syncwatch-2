@@ -53,13 +53,17 @@ def exports(entries, selected, prefix=""):
 def select(name, entry, entries, graph):
     notices = set(entry["noticeSha256"])
     if name == "idna-unicode-data":
-        return notices | {n for n in entries if n.startswith(("unicodetools/data/ucd/18.0.0/", "unicodetools/data/idna/18.0.0/"))
-                           and n.endswith(".txt") and "/Unihan/" not in n and "/auxiliary/" not in n and "/extracted/" not in n}
+        ucd = "unicodetools/data/ucd/18.0.0/"
+        idna = "unicodetools/data/idna/18.0.0/"
+        return notices | {ucd + name for name in ["ReadMe.txt", "UnicodeData.txt", "PropList.txt",
+            "DerivedCoreProperties.txt", "Blocks.txt", "HangulSyllableType.txt",
+            "extracted/DerivedJoiningType.txt", "Scripts.txt", "DerivedNormalizationProps.txt"]} | {
+            idna + "IdnaMappingTable.txt", idna + "IdnaTestV2.txt"}
     if name == "license-texts":
         return notices | {"text/CC0-1.0.txt"}
     if name == "boringssl":
         return notices | {"crypto/pkcs8/pkcs8.cc"}
-    excluded = {"test", "tests", "testsuite", "fuzz", "fuzzing", "benches", "benchmarks", "examples", "doc", "docs", "demos"}
+    excluded = {"test", "tests", "testsuite", "vectors", "fuzz", "fuzzing", "benches", "benchmarks", "examples", "doc", "docs", "demos"}
     selected = {n for n in entries if not n.startswith(".") and not any(p in excluded for p in n.split("/")[:-1])
                 and not n.endswith((".obj", ".o", ".lib", ".dll", ".pyd", ".so", ".a", ".png", ".jpg", ".svg", ".pdf"))
                 and entries[n][0] in {"100644", "100755"}}

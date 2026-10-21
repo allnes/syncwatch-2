@@ -15,6 +15,7 @@
       "Include/pymacro.h",
       "Include/unicodeobject.h",
       "LICENSE",
+      "Lib/platform.py",
       "Modules/_blake2/impl/blake2.h",
       "Modules/_blake2/impl/blake2b.c",
       "Modules/_blake2/impl/blake2s.c",
@@ -2942,5 +2943,10 @@
     "_ssl",
     "_hashlib",
     "_overlapped"
-  ]
+  ],
+  "macosOnly": {
+    "_scproxy": [
+      "Modules/_scproxy.c"
+    ]
+  }
 }

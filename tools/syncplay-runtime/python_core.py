@@ -15,6 +15,8 @@ def selected_profile(target):
     profile = json.loads(Path(__file__).with_name("python-profile.json").read_text(encoding="utf-8"))
     if profile["profile"] != "headless-syncplay-python-v1" or profile["syncplayRuntimeReady"] is not False:
         raise ValueError("Unknown engine interpreter configuration")
+    if target == "macos-arm64":
+        profile["extensions"].update(profile["macosOnly"])
     if target == "windows-x64":
         for name in profile["posixOnly"]:
             del profile["extensions"][name]
@@ -34,6 +36,8 @@ def build(work, sources, openssl, cmake, options, sdk):
                     # Use upstream binascii's independent CRC implementation.
                     # Its optional auto-detected zlib must not link an OS copy.
                     "configureEnvironment": {"ac_cv_header_zlib_h": "no", "ac_cv_lib_z_gzread": "no"}}
+        if sdk["target"] == "macos-arm64":
+            settings["moduleFlags"]["_scproxy"] = ["-framework", "SystemConfiguration", "-framework", "CoreFoundation"]
         # Upstream's source-built freeze executables run through a system shell.
         # Use their owned loader-relative directories; environment search paths
         # are neither reliable on macOS nor an application runtime policy.

@@ -46,7 +46,7 @@ def build_native(work, sources, profile, cmake, options, sdk, dependencies=None)
     # These upstream-supported metadata macros contain no build wall clock.
     path = source / "Modules/getbuildinfo.c"
     path.write_bytes(b'/* SyncWatch stable build metadata; original algorithm follows unchanged. */\n'
-                     b'#define DATE "source-pinned"\n#define TIME "00:00:00"\n' + path.read_bytes())
+                     b'#define DATE "Nov 14 2023"\n#define TIME "22:13:20"\n' + path.read_bytes())
     commands = {}
     environment = os.environ.copy()
     environment.update(SOURCE_DATE_EPOCH="1700000000", PYTHONHASHSEED="0", PYTHONDONTWRITEBYTECODE="1")
@@ -83,6 +83,10 @@ def build_native(work, sources, profile, cmake, options, sdk, dependencies=None)
         environment.update(dependencies.get("configureEnvironment", {}))
         if target == "macos-arm64":
             environment["MACOSX_DEPLOYMENT_TARGET"] = "13.0"
+            # New SDKs can weak-link pipe2 even though the supported macOS
+            # deployment target does not provide it. Select upstream's pipe
+            # and fcntl fallback instead of calling a missing weak symbol.
+            environment["ac_cv_func_pipe2"] = "no"
             environment["SDKROOT"] = next(v.split("=", 1)[1] for v in options if v.startswith("-DCMAKE_OSX_SYSROOT="))
             environment["LDFLAGS"] = "-Wl,-rpath,@loader_path/../lib"
         else:

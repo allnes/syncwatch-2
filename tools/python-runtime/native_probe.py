@@ -28,7 +28,8 @@ def execute(args, cwd, environment=None, timeout=120):
         output.seek(0)
         data = output.read(65537)
     if result.returncode or len(data) > 65536:
-        raise ValueError("Native SDK command failed or exceeded diagnostic bounds:\n" + data[:8192].decode("utf-8", errors="replace"))
+        raise ValueError("Native SDK command failed (exit " + str(result.returncode)
+                         + ") or exceeded diagnostic bounds:\n" + data[:8192].decode("utf-8", errors="replace"))
     return data
 
 
@@ -74,7 +75,9 @@ def fixture(root, sdk, profile, extra_checks=""):
     return environment
 
 
-def exercise_sdk(sdk, extra_checks=""):
+def exercise_sdk(sdk, extra_checks="", selected_cases=CASES):
+    if not selected_cases or any(name not in CASES for name in selected_cases):
+        raise ValueError("Unknown native startup verification case")
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
     if GENERATED.read_text(encoding="utf-8") != render(profile):
         raise ValueError("Native policy differs from the shared startup profile")
@@ -90,7 +93,7 @@ def exercise_sdk(sdk, extra_checks=""):
         execute([cmake, "--build", str(build), "--config", "Release", "--parallel", "2"], root)
         binary = build / ("Release/startup-probe.exe" if sys.platform == "win32" else "startup-probe")
         cases = {}
-        for name in CASES:
+        for name in selected_cases:
             try:
                 data = execute([str(binary), name], root, environment, timeout=30)
             except ValueError as error:

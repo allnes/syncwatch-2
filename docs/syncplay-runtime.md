@@ -52,6 +52,14 @@ their actual versions and identities for the build. These SDK exceptions do not
 permit copying a developer Python runtime, third-party site-packages, system
 OpenSSL or system libffi into the application.
 
+The Rust compiler's standard language libraries and compiler support are an
+explicit native SDK boundary, like the C compiler's support libraries. Their
+exact original vendor components are verified together with the compiler, and
+their complete original copyright and license material accompanies the native
+output. This boundary covers compiler standard support, including its static
+linkage; application crates, Python modules, OpenSSL and libffi are built from
+their declared Git sources. No Rust SDK installation is bundled with the app.
+
 ## Acceptance
 
 The same aggregate change must build the complete runtime on macOS arm64,
