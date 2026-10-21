@@ -1,5 +1,5 @@
 {
-  "analysisSha256": "f174273f8c456c3f094b3fa0ab69eb25205e061e2dc0807a6f970e97924eeae6",
+  "analysisSha256": "67fda2d1fd6a88f691f720e28c310164cbe0450902919794b58322c79c24055e",
   "requiredFunctions": {
     "Include/cpython/initconfig.h": {
       "PyConfig_Clear": "void PyConfig_Clear(PyConfig*)",
@@ -66,8 +66,7 @@
       "prefix",
       "base_prefix",
       "exec_prefix",
-      "base_exec_prefix",
-      "stdlib_dir"
+      "base_exec_prefix"
     ],
     "preConfig": {
       "configure_locale": 0,

@@ -104,6 +104,10 @@
         {
           "name": "CPython startup source and isolation regressions",
           "run": "python3 tools/dependencies/build.py prepare --component cpython-startup-sources --platform linux-x64\npython3 -m unittest discover -s tools/python-runtime/tests -v"
+        },
+        {
+          "name": "Native CPython startup SDK fixture",
+          "run": "python3 tools/python-runtime/generate_policy.py --check\npython3 tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
         }
       ]
     },
@@ -155,6 +159,10 @@
           "run": "python3 tools/ci/native_job.py apple"
         },
         {
+          "name": "Native CPython startup SDK fixture",
+          "run": "python3 tools/python-runtime/generate_policy.py --check\npython3 tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
+        },
+        {
           "name": "Retain candidate and validation reports",
           "if": "${{ always() }}",
           "timeout-minutes": 5,
@@ -193,6 +201,10 @@
         {
           "name": "CPython startup source and isolation regressions",
           "run": "python tools/dependencies/build.py prepare --component cpython-startup-sources --platform windows-x64\npython -m unittest discover -s tools/python-runtime/tests -v\npython -X utf8=0 -m unittest discover -s tools/ci/tests -v"
+        },
+        {
+          "name": "Native CPython startup SDK fixture",
+          "run": "python tools/python-runtime/generate_policy.py --check\npython tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json"
         },
         {
           "name": "Retain candidate and validation reports",

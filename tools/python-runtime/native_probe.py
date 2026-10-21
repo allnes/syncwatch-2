@@ -1,0 +1,118 @@
+"""Compile and exercise first-party native startup against the installed development SDK."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+from generate_policy import GENERATED, PROFILE, ROOT, render
+from native_sdk import resolve, sha
+
+sys.path.insert(0, str(ROOT / "tools/compression"))
+from toolchain import resolve as c_toolchain
+
+
+CASES = ("success", "wrong-thread", "foreign", "init-failure", "adjacent-config", "script-error", "finalize-error")
+
+
+def execute(args, cwd, environment=None, timeout=120):
+    with tempfile.TemporaryFile() as output:
+        try:
+            result = subprocess.run(args, cwd=cwd, env=environment, stdin=subprocess.DEVNULL,
+                                    stdout=output, stderr=subprocess.STDOUT, timeout=timeout)
+        except subprocess.TimeoutExpired as error:
+            raise ValueError("Native SDK command timed out") from error
+        output.seek(0)
+        data = output.read(65537)
+    if result.returncode or len(data) > 65536:
+        raise ValueError("Native SDK command failed or exceeded diagnostic bounds:\n" + data[:8192].decode("utf-8", errors="replace"))
+    return data
+
+
+def fixture(root, sdk, profile):
+    owned = root / "modules-\u03bc-\u0442\u0435\u0441\u0442"
+    owned.mkdir()
+    (owned / "sw_native_fixture.py").write_text('VALUE = "SyncWatch \\u03bc \\u0442\\u0435\\u0441\\u0442"\n', encoding="utf-8")
+    search = [str(p) for p in (sdk["stdlib"], sdk["extensions"], owned) if p.is_dir()]
+    application = root / "application/bin"
+    application.mkdir(parents=True)
+    executable = str(application / "owned-helper")
+    values = dict.fromkeys(profile["startupPolicy"]["explicitPathFields"], str(sdk["prefix"]))
+    for name in ("program_name", "executable", "base_executable"):
+        values[name] = executable
+    literal = lambda value: "L" + json.dumps(value, ensure_ascii=True)
+    declarations = "\n".join("    ." + key + " = " + literal(value) + "," for key, value in values.items())
+    inputs = {"EXPECTED_PATHS": search, "EXPECTED_EXECUTABLE": executable, "EXPECTED_PREFIX": str(sdk["prefix"]),
+           "OWNED_ROOT": str(root)}
+    checks = "\n".join(name + " = " + repr(value) for name, value in inputs.items()) + "\n"
+    checks += (ROOT / "tools/python-runtime/native/checks.py").read_text(encoding="utf-8")
+    content = ("static const wchar_t *fixture_search[] = {" + ", ".join(map(literal, search)) + "};\n"
+               "static const sw_python_paths fixture_paths = {\n" + declarations + "\n"
+               f"    .search_path_count = {len(search)}, .search_paths = fixture_search\n}};\n"
+               "static const wchar_t *fixture_missing = " + literal(str(root / "missing-stdlib")) + ";\n"
+               "static const wchar_t *fixture_adjacent = " + literal(str(root / "owned-helper")) + ";\n"
+               "static const char *fixture_checks = " + json.dumps(checks, ensure_ascii=True) + ";\n")
+    (root / "fixture.h").write_text(content, encoding="utf-8", newline="\n")
+    poison = root / "poison"
+    poison.mkdir()
+    for folder in (root, poison):
+        for name in ("json", "sitecustomize", "usercustomize", "syncwatch_poison", "sw_native_fixture"):
+            (folder / (name + ".py")).write_text('raise RuntimeError("Controlled poison executed")\n', encoding="utf-8")
+    (root / "pyvenv.cfg").write_text("home = missing\ninclude-system-site-packages = true\n", encoding="utf-8")
+    environment = {key: value for key, value in os.environ.items() if key.upper() in {"SYSTEMROOT", "WINDIR"}}
+    environment.update(TEMP=str(root), TMP=str(root), PYTHONHOME=str(root / "missing-home"), PYTHONPATH=str(poison),
+                       PYTHONUSERBASE=str(poison), PYTHONSTARTUP=str(poison / "json.py"), PYTHONINSPECT="1", PYTHONUTF8="0")
+    if sys.platform == "win32":
+        environment["PATH"] = str(sdk["runtime"].parent)
+    return environment
+
+
+def probe():
+    profile = json.loads(PROFILE.read_text(encoding="utf-8"))
+    if GENERATED.read_text(encoding="utf-8") != render(profile):
+        raise ValueError("Native policy differs from the shared startup profile")
+    sdk, identity = resolve()
+    cmake, options, compiler = c_toolchain()
+    with tempfile.TemporaryDirectory(prefix="sw-native-python-") as temporary:
+        root = Path(temporary) / "startup-\u03bc-\u0442\u0435\u0441\u0442"
+        root.mkdir()
+        environment = fixture(root, sdk, profile)
+        build = root / "build"
+        execute([cmake, "-S", (ROOT / "tools/python-runtime/native").as_posix(), "-B", build.as_posix(), *options,
+                 "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ROOT=" + ROOT.as_posix(), "-DSYNCWATCH_FIXTURE=" + root.as_posix(),
+                 "-DSYNCWATCH_PYTHON_INCLUDE=" + sdk["include"].as_posix(), "-DSYNCWATCH_PYTHON_LIBRARY=" + sdk["library"].as_posix()], root)
+        execute([cmake, "--build", str(build), "--config", "Release", "--parallel", "2"], root)
+        binary = build / ("Release/startup-probe.exe" if sys.platform == "win32" else "startup-probe")
+        cases = {}
+        for name in CASES:
+            try:
+                data = execute([str(binary), name], root, environment, timeout=30)
+            except ValueError as error:
+                raise ValueError("Native startup case failed: " + name) from error
+            if data.count(b"SYNCWATCH_NATIVE_STARTUP_OK") != 1:
+                raise ValueError("Native startup case did not report success: " + name)
+            cases[name] = True
+        if list(root.rglob("*.pyc")) or list(root.rglob("__pycache__")):
+            raise ValueError("Native startup wrote unexpected bytecode")
+        return {"developerSdkOnly": True, "sdk": identity, "compiler": compiler, "cases": cases,
+                "policySha256": sha(GENERATED), "pinnedRuntimeBuilt": False, "pinnedEmbeddingAbiVerified": False,
+                "runtimeReady": False}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report", type=Path)
+    args = parser.parse_args()
+    result = probe()
+    data = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if args.report:
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(data, encoding="utf-8")
+    print(data, end="")
+
+
+if __name__ == "__main__":
+    main()
