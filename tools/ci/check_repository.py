@@ -284,6 +284,8 @@ def check_workflows(root: Path) -> None:
         require(f"{python} tools/python-runtime/generate_policy.py --check\n"
                 f"{python} tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json" in commands,
                 "Native CPython startup must compile and execute on Linux, macOS and Windows")
+        require(f"{python} tools/python-package/package_probe.py --report artifacts/python-package/native.json" in commands,
+                "Native Python package verification must compile and execute on Linux, macOS and Windows")
     require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
     metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}
