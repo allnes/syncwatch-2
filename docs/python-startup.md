@@ -56,3 +56,5 @@ Each fixture runs in an owned temporary Unicode directory and child process. Cas
 These checks establish the first-party C implementation against each measured developer SDK. The pinned CPython runtime, its complete implementation/stdlib/platform/embedded-origin source and license graph, package path resolver and native ABI remain unresolved. The native fixture keeps pinnedRuntimeBuilt, pinnedEmbeddingAbiVerified and runtimeReady false.
 
 The implementation follows CPython's [initialization configuration](https://docs.python.org/3.12/c-api/init_config.html) and [initialization/finalization requirements](https://docs.python.org/3.12/c-api/init.html).
+
+The [native package verifier](python-package.md) now implements the shared inventory/path boundary for trusted expected files. It maps accepted package paths into this existing contract without loading an interpreter. Authentic package/source/ABI identity and immutable installation remain separate prerequisites; no pinned runtime is enabled.

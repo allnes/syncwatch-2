@@ -12,6 +12,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Building JVM annotations](jvm-annotations.md): pinned Java sources, compiler SDK and verified JAR artifacts.
 - [Building JBR API](jbr-api.md): optional runtime-service interfaces, source generation and ordinary-JDK fallback checks.
 - [Kotlin stdlib sources](kotlin-stdlib-sources.md): reviewed source package, complete notices and pinned Unicode titlecase provenance.
+- [Python package verification](python-package.md): shared native inventory, filesystem and startup path boundary.
 - [Native hash library](native-hashing.md): pinned HACL sources, original runtime-header provenance and verified static artifacts.
 - [Licenses and distribution](licenses.md): first-party licensing and third-party notices.
 

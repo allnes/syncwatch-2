@@ -311,6 +311,13 @@ class WorkflowChecks(unittest.TestCase):
                     step for step in data["jobs"][job]["steps"] if "tools/hashing/tests" not in step.get("run", "")
                 ]}))
 
+    def test_native_package_verification_cannot_be_omitted(self):
+        for job in ("tests", "apple", "windows"):
+            with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Native Python package verification"):
+                self.validate(lambda data: data["jobs"][job].update({"steps": [
+                    step for step in data["jobs"][job]["steps"] if "tools/python-package/package_probe.py" not in step.get("run", "")
+                ]}))
+
     def test_missing_pull_request_trigger_fails(self):
         with self.assertRaisesRegex(ValidationError, "trigger"):
             self.validate(lambda data: data["on"].pop("pull_request"))

@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-native-python-package"
+version = "1.0.0"
+description = "Shared native package inventory and startup path verification fixtures"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 tools/python-package/package_probe.py --report artifacts/python-package/native.json"

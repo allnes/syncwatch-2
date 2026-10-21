@@ -1,0 +1,73 @@
+"""Build an owned test module against the real static package and verified hash archive."""
+import hashlib
+import json
+import re
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools/hashing"))
+from hash_sdk import resolve
+
+
+def sha(path):
+    with Path(path).open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def execute(args):
+    with tempfile.TemporaryFile() as output:
+        result = subprocess.run(args, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT, timeout=600)
+        output.seek(0);data = output.read(262145)
+    if result.returncode or len(data) > 262144:
+        raise ValueError("Native package build failed or exceeded diagnostic bounds:\n" + data[-16384:].decode("utf-8", errors="replace"))
+
+
+def imports(tool, library, target):
+    args = [tool, "/nologo", "/symbols", str(library)] if target == "windows-x64" else [tool, "-u", str(library)]
+    process = subprocess.run(args, capture_output=True, timeout=30)
+    if process.returncode or len(process.stdout) > 1048576:
+        raise ValueError("Native package import inspection failed or exceeded bounds")
+    found = set()
+    for line in process.stdout.decode("utf-8", errors="replace").splitlines():
+        if target == "windows-x64" and "UNDEF" not in line:
+            continue
+        parts = line.split()
+        token = parts[-1].lstrip("_") if parts else ""
+        if re.fullmatch(r"(?:python_hashlib_)?Hacl_\w+", token):
+            found.add(token)
+    expected = json.loads((ROOT/"tools/python-package/profile.json").read_text(encoding="utf-8"))["hashImports"]
+    if sorted(found) != expected:
+        raise ValueError("Native package must import only SHA-256 reset/update/digest, with no vendor allocator")
+    return sorted(found)
+
+
+def build(root):
+    cmake, options, sdk, symbol_tool = resolve()
+    execute([sys.executable, "tools/dependencies/build.py", "build", "--component", "hacl-hash", "--platform", sdk["target"]])
+    artifact = ROOT / "artifacts/dependencies/hacl-hash" / sdk["target"]
+    with zipfile.ZipFile(artifact / "artifact.zip") as archive:
+        manifest_bytes = archive.read("build-manifest.json")
+        manifest = json.loads(manifest_bytes)
+    # The prerequisite driver recompiled and verified its accepted payload.
+    if manifest["result"] != "success" or manifest["inputs"]["platform"] != sdk["target"]:
+        raise ValueError("Native hash prerequisite was not verified")
+    directory = root / "build"
+    execute([cmake, "-S", (ROOT / "tools/python-package").as_posix(), "-B", directory.as_posix(), *options,
+             "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ROOT=" + ROOT.as_posix(), "-DSYNCWATCH_HASH=" + (artifact / "payload").as_posix()])
+    execute([cmake, "--build", directory.as_posix(), "--config", "Release", "--parallel", "2"])
+    module = Path((directory / "module-Release.txt").read_text(encoding="utf-8"))
+    library = Path((directory / "library-Release.txt").read_text(encoding="utf-8"))
+    symbols = imports(symbol_tool, library, sdk["target"])
+    paths = [p for directory in [ROOT/"packages/python-package", ROOT/"tools/python-package"] for p in directory.rglob("*")
+             if p.is_file() and p.suffix in {".c", ".h", ".py", ".txt", ".toml", ".json"}]
+    paths += [ROOT/"packages/python-startup/startup.h", ROOT/"packages/python-startup/policy.generated.h",
+              ROOT/"tools/python-runtime/profile.json", ROOT/"tools/compression/toolchain.py", ROOT/"tools/hashing/hash_sdk.py"]
+    return module, {"compiler": sdk, "hashImports": symbols, "hashArtifactKey": manifest["key"], "hashManifestSha256": hashlib.sha256(manifest_bytes).hexdigest(),
+                    "staticLibrarySha256": sha(library), "testModuleSha256": sha(module),
+                    "firstPartyFiles": {p.relative_to(ROOT).as_posix(): sha(p) for p in sorted(paths)},
+                    "pinnedRuntimeBuilt": False, "pinnedEmbeddingAbiVerified": False, "runtimeReady": False,
+                    "testRuntimeDistributed": False}

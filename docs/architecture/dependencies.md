@@ -27,6 +27,8 @@ The [native compression component](../native-compression.md) builds static zlib 
 
 The [native hash library](../native-hashing.md) compiles four unchanged HACL hash C sources with separately generated namespace configuration. Its exact KaRaMeL header and cited Arduino macro origins, complete notices, deterministic static archive and actual C API checks are verified on native builds and cache restoration. This prerequisite does not enable an interpreter or Syncplay runtime.
 
+The first-party [Python package verifier](../python-package.md) statically links the existing reviewed HACL SHA-256 object. Its tests use developer Python/ctypes and the native C SDK as tools; they adopt no additional application library and package no SDK or test runtime. HACL source and full-notice obligations remain those of the exact registered profile.
+
 The Apache 2.0 requirement applies to the shared design library and Style Dictionary. It does not change VLC's license. The planned native adapters use Swift C interoperability and C# P/Invoke directly; VLCKit and LibVLCSharp are not included.
 
 The [Syncplay engine source package](../syncplay-sources.md) retains the selected upstream code and complete source/notice inventory without changing the pin. Its README has a separate MIT notice, and its embedded retry decorator has a BSD-3-Clause origin, so the selected package records `Apache-2.0 AND MIT AND BSD-3-Clause`. `3rdparty/retry-decorator` pins the origin used to retain full notices and verify fragment provenance; it is not an installed runtime package. This source-only component does not adopt CPython, Twisted, TLS/CA data, external-player or GUI dependencies, and does not enable `syncplay-runtime`.
