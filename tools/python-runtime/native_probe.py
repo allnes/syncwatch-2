@@ -56,7 +56,9 @@ def fixture(root, sdk, profile, extra_checks=""):
                "static const wchar_t *fixture_adjacent = " + literal(str(root / "owned-helper")) + ";\n"
                "static const wchar_t *fixture_runtime_wide = " + literal(str(sdk["runtime"])) + ";\n"
                "static const char *fixture_runtime = " + json.dumps(str(sdk["runtime"]), ensure_ascii=True) + ";\n"
-               "static const char *fixture_checks = " + json.dumps(checks, ensure_ascii=True) + ";\n")
+               "static const unsigned char fixture_check_bytes[] = {" +
+               ",".join(str(byte) for byte in checks.encode("utf-8") + b"\0") + "};\n"
+               "#define fixture_checks ((const char *)fixture_check_bytes)\n")
     (root / "fixture.h").write_text(content, encoding="utf-8", newline="\n")
     poison = root / "poison"
     poison.mkdir()
