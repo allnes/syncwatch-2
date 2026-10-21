@@ -68,6 +68,10 @@ def select(name, entry, entries, graph):
                 and not n.endswith((".obj", ".o", ".lib", ".dll", ".pyd", ".so", ".a", ".png", ".jpg", ".svg", ".pdf"))
                 and entries[n][0] in {"100644", "100755"}}
     # Rust documentation is sometimes a compiler input via include_str!.
+    if name == "openssl":
+        # Configure reads the directory graph even for disabled test/fuzz/docs
+        # targets. Retain their original build declarations, not their code.
+        selected |= {n for n in entries if n.endswith("/build.info")}
     if name == "rust-pyo3":
         selected |= {n for n in entries if n.startswith("guide/") and n.endswith(".md")}
     if name == "libffi":

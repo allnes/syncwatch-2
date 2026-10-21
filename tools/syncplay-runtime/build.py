@@ -104,8 +104,11 @@ def main():
             args.work.mkdir(parents=True)  # Never overwrite an earlier outcome.
             report = perform(args.work.resolve())
         else:
-            with tempfile.TemporaryDirectory(prefix="sw-engine-build-") as temporary:
-                report = perform(Path(temporary).resolve())
+            work = Path(tempfile.mkdtemp(prefix="native-build-", dir=output.parent)).resolve()
+            # Preserve the exact failed build and raw logs for diagnosis. A
+            # successful build has its command/log hashes sealed in the receipt.
+            report = perform(work)
+            shutil.rmtree(work)
     else:
         originals = distribution.originals(sources, core, profile) | engine_sources.originals(engines)
         report = engine_package.verify(output, identity, options, source_identity, originals, root / "acceptance")

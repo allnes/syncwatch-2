@@ -20,8 +20,7 @@ def profile_data():
         sources[source["path"]] = {k: source[k] for k in ("revision", "license", "notices", "exports")}
         sources[source["path"]].update(requires=[], unusedSubmodules={})
     if (profile["schemaVersion"] != 1 or profile["runtimeReady"] is not False
-            or registry[COMPONENT]["sources"] != sources or registry[COMPONENT]["roots"] != list(sources)
-            or registry["syncplay-runtime"]["status"] != "unavailable"):
+            or registry[COMPONENT]["sources"] != sources or registry[COMPONENT]["roots"] != list(sources)):
         raise ValueError("Unicode profile differs from its non-runtime source graph")
     return profile
 

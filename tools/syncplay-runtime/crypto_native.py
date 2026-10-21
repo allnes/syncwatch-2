@@ -105,4 +105,8 @@ def cryptography(paths, work, python, core, openssl, backend, rust, native, envi
     result = work / "rust-target/release" / name
     if not result.is_file():
         raise ValueError("Source-built cryptography extension is missing")
-    return result, {"command": command, "crateAuthorities": graph}
+    commands = {"command": command, "crateAuthorities": graph}
+    if native["target"] == "macos-arm64":
+        commands["libraryIdentity"] = execute("library-identity", ["install_name_tool", "-id",
+            "@rpath/_rust.abi3.so", str(result)], source, logs, env)
+    return result, commands

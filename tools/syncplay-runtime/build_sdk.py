@@ -36,7 +36,7 @@ def resolve():
         instance = next(o.split("=", 1)[1] for o in options if o.startswith("-DCMAKE_GENERATOR_INSTANCE="))
         setup = Path(instance) / "VC/Auxiliary/Build/vcvarsall.bat"
         command = 'call "' + str(setup) + '" x64 >nul && set'
-        result = subprocess.check_output(["cmd", "/d", "/s", "/c", command], text=True, timeout=60)
+        result = subprocess.check_output('cmd /d /s /c "' + command + '"', text=True, timeout=60)
         environment.update((key.upper(), value) for key, value in (line.split("=", 1) for line in result.splitlines()
             if "=" in line and not line.startswith("=")))
         environment["PATH"] = str(rust / "bin") + os.pathsep + str(perl.parent) + os.pathsep + environment["PATH"]
@@ -49,11 +49,15 @@ def resolve():
         identity["autotools"] = {}
         for name in ["m4", "autoconf", "automake", "aclocal", "autoreconf", "autom4te", "autoheader", "libtoolize"]:
             alternatives = [name, "glibtoolize"] if name == "libtoolize" else [name]
+            if name == "m4" and native["target"] == "macos-arm64":
+                alternatives = ["/opt/homebrew/opt/m4/bin/m4", "gm4", "m4"]
             path = next((shutil.which(n, path=environment["PATH"]) for n in alternatives
                          if shutil.which(n, path=environment["PATH"])), None)
             if path is None:
                 raise ValueError("Required autotools SDK is missing: " + name)
-            identity["autotools"][name] = {"version": output([path, "--version"]).splitlines()[0], "sha256": checksum(path)}
+            version = subprocess.check_output([path, "--version"], env=environment, text=True,
+                                              stderr=subprocess.STDOUT, timeout=30).strip()
+            identity["autotools"][name] = {"version": version.splitlines()[0], "sha256": checksum(path)}
             environment[{"m4": "M4", "autoconf": "AUTOCONF", "automake": "AUTOMAKE", "aclocal": "ACLOCAL",
                          "autoreconf": "AUTORECONF", "autom4te": "AUTOM4TE", "autoheader": "AUTOHEADER",
                          "libtoolize": "LIBTOOLIZE"}[name]] = path

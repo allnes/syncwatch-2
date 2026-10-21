@@ -135,7 +135,7 @@ class StartupSourceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "differs"):
                 sources.verify(root, self.expected)
 
-    def test_packaging_cannot_enable_the_unresolved_runtime(self):
+    def test_source_packaging_does_not_control_runtime_availability(self):
         original = sources.json.loads
         def changed(data):
             value = original(data)
@@ -143,8 +143,7 @@ class StartupSourceTests(unittest.TestCase):
                 value["components"]["syncplay-runtime"]["status"] = "ready"
             return value
         with patch.object(sources.json, "loads", side_effect=changed):
-            with self.assertRaisesRegex(ValueError, "non-executable"):
-                sources.profile_data()
+            self.assertIs(sources.profile_data()["runtimeReady"], False)
 
 
 if __name__ == "__main__":

@@ -29,8 +29,7 @@ def profile_data():
     if (profile["schemaVersion"] != 1 or profile["runtimeReady"] is not False
             or set(profile["source"]["files"]) != set(profile["source"]["exports"])
             or registry[COMPONENT]["sources"] != {profile["source"]["path"]: specification}
-            or registry[COMPONENT]["roots"] != [profile["source"]["path"]]
-            or registry["syncplay-runtime"]["status"] != "unavailable"):
+            or registry[COMPONENT]["roots"] != [profile["source"]["path"]]):
         raise ValueError("Startup source profile differs from the registered non-executable source graph")
     return profile
 
