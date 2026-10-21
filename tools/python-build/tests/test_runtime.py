@@ -28,6 +28,12 @@ class RuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "complete grant"):
             validate(sources, profile)
 
+    def test_complete_notice_paths_match_the_dependency_envelope(self):
+        from source_profile import notices
+        retained = notices(self.sources, self.profile)
+        self.assertEqual(retained["notices/python-unicode-data/LICENSE"], self.sources["unicode"]["LICENSE"])
+        self.assertNotIn("notices/unicode/LICENSE", retained)
+
     def test_unix_configuration_disables_ambient_optional_extensions(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); source = root / "source"; (source / "Modules").mkdir(parents=True)

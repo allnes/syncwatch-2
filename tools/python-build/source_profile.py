@@ -121,5 +121,5 @@ def notices(sources, profile):
     result = {}
     for name, key in [("cpython", "source"), ("zlib", "zlib"), ("unicode", "unicode")]:
         for path in profile[key]["notices"]:
-            result["notices/" + name + "/" + path] = sources[name][path]
+            result["notices/" + Path(profile[key]["path"]).name + "/" + path] = sources[name][path]
     return result

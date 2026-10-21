@@ -72,6 +72,14 @@ def package(payload, sources, profile, sdk, source, native, commands, options):
         data = (source / name).read_bytes()
         if data != sources["cpython"][name]:
             files["configuration/" + name] = data
+    generated = source if sdk["target"] == "windows-x64" else source.parent / "build"
+    if sdk["target"] != "windows-x64":
+        for name in ["Makefile", "Modules/Setup.local"]:
+            files["configuration/" + name] = (generated / name).read_bytes()
+    files["configuration/generated-source-hashes.json"] = encoded({
+        path.relative_to(generated).as_posix(): digest(path.read_bytes())
+        for path in sorted((generated / "Python").rglob("*"))
+        if path.is_file() and (path.suffix == ".h" or path.name == "deepfreeze.c")})
     write_files(payload, files)
     proof = relocated_probe(payload, sdk["target"])
     report = {"schemaVersion": 1, "profileSha256": digest(encoded(profile)), "sdk": sdk,
