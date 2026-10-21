@@ -63,10 +63,14 @@ def resolve():
                          "libtoolize": "LIBTOOLIZE"}[name]] = path
         macro_root = Path(subprocess.check_output([environment["ACLOCAL"], "--print-ac-dir"],
             env=environment, text=True, timeout=30).strip())
+        macro_roots = [macro_root]
+        if (macro_root / "dirlist").is_file():
+            macro_roots.extend(Path(n.strip()) for n in (macro_root / "dirlist").read_text().splitlines()
+                               if n.strip() and not n.lstrip().startswith("#"))
         identity["autotoolsMacros"] = {}
         for name in ["libtool.m4", "ltdl.m4", "ltoptions.m4", "ltsugar.m4", "ltversion.m4", "lt~obsolete.m4"]:
-            path = macro_root / name
-            if not path.is_file():
+            path = next((root / name for root in macro_roots if (root / name).is_file()), None)
+            if path is None:
                 raise ValueError("The libtool SDK requires its complete macro package: " + name)
             identity["autotoolsMacros"][name] = checksum(path)
         environment["CC"] = next(o.split("=", 1)[1] for o in options if o.startswith("-DCMAKE_C_COMPILER="))
