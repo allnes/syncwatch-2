@@ -123,3 +123,7 @@ The [bootstrap encoding package](../python-stdlib.md) provides a deterministic o
 ## Unicode type-table source and native proof
 
 The [Unicode type-table component](../python-unicode.md) reproduces the pinned CPython Unicode 15.0 header from separately pinned data and executes an exhaustive native C transcript on all three targets. Its source/data payload and developer SDK proof do not enable an interpreter, embedding ABI or Syncplay runtime.
+
+## SipHash source and native correspondence
+
+The [SipHash component](../python-siphash.md) retains the separately pinned origin and original CPython modifications, validates original known answers and executes the selected raw functions on all three C SDK targets. Its provenance payload does not provide an interpreter, complete Python hashing or Syncplay runtime.

@@ -296,6 +296,10 @@ def check_workflows(root: Path) -> None:
         require(f"{python} tools/dependencies/build.py prepare --component cpython-unicode-types --platform {target}\n"
                 f"{python} -m unittest discover -s tools/python-unicode/tests -v" in commands,
                 "Unicode regressions must prepare pinned sources and execute on Linux and Windows")
+    for commands, python, target in ((test_commands, "python3", "linux-x64"), (windows_commands, "python", "windows-x64")):
+        require(f"{python} tools/dependencies/build.py prepare --component cpython-siphash --platform {target}\n"
+                f"{python} -m unittest discover -s tools/python-siphash/tests -v" in commands,
+                "SipHash regressions must prepare pinned sources and execute on Linux and Windows")
     require("python3 -m unittest discover -s tools/jvm/tests -v" in test_commands, "offline JVM metadata audit tests must execute")
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
     metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}

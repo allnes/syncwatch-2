@@ -1749,13 +1749,15 @@
       "inputs": [
         "tools/python-unicode",
         "tools/compression/toolchain.py",
-        "LICENSE"
+        "LICENSE",
+        "tools/native/c_probe.py"
       ],
       "watch": [
         "3rdparty/cpython",
         "3rdparty/python-unicode-data",
         "tools/python-unicode",
-        "tools/compression/toolchain.py"
+        "tools/compression/toolchain.py",
+        "tools/native/c_probe.py"
       ],
       "targets": {
         "linux-x64": {
@@ -1860,6 +1862,171 @@
           "verifyCommand": [
             "{python}",
             "tools/python-unicode/unicode_build.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 300
+        }
+      }
+    },
+    "cpython-siphash": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/cpython",
+        "3rdparty/csiphash"
+      ],
+      "sources": {
+        "3rdparty/cpython": {
+          "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+          "license": "Python-2.0.1 AND MIT",
+          "notices": [
+            "LICENSE",
+            "README.rst",
+            "Python/pyhash.c"
+          ],
+          "exports": [
+            "Include/pyhash.h",
+            "Include/pyport.h",
+            "LICENSE",
+            "Lib/test/test_hash.py",
+            "Python/bootstrap_hash.c",
+            "Python/pyhash.c",
+            "README.rst"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/csiphash": {
+          "revision": "4c46a5986b6dba69d747eae9890907cab2a6f583",
+          "license": "MIT",
+          "notices": [
+            "README.md",
+            "csiphash.c"
+          ],
+          "exports": [
+            "README.md",
+            "csiphash.c",
+            "test.c"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/python-siphash",
+        "tools/native/c_probe.py",
+        "tools/compression/toolchain.py",
+        "LICENSE"
+      ],
+      "watch": [
+        "3rdparty/cpython",
+        "3rdparty/csiphash",
+        "tools/python-siphash",
+        "tools/native/c_probe.py",
+        "tools/compression/toolchain.py"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-siphash": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "raw-siphash-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-siphash": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "raw-siphash-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 300
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-siphash": {
+              "command": [
+                "{python}",
+                "tools/compression/toolchain.py"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "raw-siphash-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/python-siphash/siphash_build.py",
             "verify",
             "--platform",
             "windows-x64"

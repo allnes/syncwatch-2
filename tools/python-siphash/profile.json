@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "profile": "raw-siphash-v1",
+  "version": "3.12.15",
+  "sources": {
+    "cpython": {
+      "path": "3rdparty/cpython",
+      "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+      "license": "Python-2.0.1 AND MIT",
+      "notices": [
+        "LICENSE",
+        "README.rst",
+        "Python/pyhash.c"
+      ],
+      "files": {
+        "Include/pyhash.h": "a6bfc2bdb7d20abd9ee39d1a4ded6308632bf5d7534683d4032e4b7de2d8b355",
+        "Include/pyport.h": "1cb92172d631c9176c32caec8a330c74a544e4a5a2f1e82c15b0f2411fb87bb7",
+        "LICENSE": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "Lib/test/test_hash.py": "a0e11ef01adbb1a48084a10064b4596cc3c1c6c207b40508bf3a705da6e4d830",
+        "Python/bootstrap_hash.c": "55b5cacbe432a46ff2c1f71985a263ae886f5f57584bf35676d7d38e9f611663",
+        "Python/pyhash.c": "7f18429290df0726669cbd6d8b5a8b48b843efff648fe8863d48da5db4745628",
+        "README.rst": "d4067fcabae9e06795bf36598b98c75d5ab23540dd08bd1f908d19c3957bba07"
+      },
+      "exports": [
+        "Include/pyhash.h",
+        "Include/pyport.h",
+        "LICENSE",
+        "Lib/test/test_hash.py",
+        "Python/bootstrap_hash.c",
+        "Python/pyhash.c",
+        "README.rst"
+      ]
+    },
+    "csiphash": {
+      "path": "3rdparty/csiphash",
+      "revision": "4c46a5986b6dba69d747eae9890907cab2a6f583",
+      "license": "MIT",
+      "notices": [
+        "README.md",
+        "csiphash.c"
+      ],
+      "files": {
+        "README.md": "7084dee0e6e56b8c8b4a768fa3e6d434984d1e380cf2be3ee0ac3952c91ed543",
+        "csiphash.c": "3820756c9314a6b222008e59b34a5c0c72a361f6fc346df49e6a366e41f78acc",
+        "test.c": "ad319f69a47991f2fb322bc9bccde0630ceadd6a5d808d518e68142802e111cb"
+      },
+      "exports": [
+        "README.md",
+        "csiphash.c",
+        "test.c"
+      ]
+    }
+  },
+  "sourceArchiveSha256": "e625f9cf4a2a2985828c435dea2b6289071e22a082151d2f7c3cd9187658d827",
+  "analysisSha256": "27cc544b13d93436ede1f888ce0e2e49f33c28a7c7f3cf597d561e70c594d930",
+  "corpusSha256": "2f7ac40c2d4072fdc4e6d49b56c8d8d5fc585fb3f57a739dc3901d204db5f167",
+  "transcript": {
+    "schemaVersion": 1,
+    "sha256": "a5f6cd84f6ac40fd984d771314d383ad09b822de97e0a1a3c8fc87aa1e34d531",
+    "bytes": 611532,
+    "cases": 25480,
+    "knownAnswers": 76440,
+    "algorithms": [
+      "siphash13",
+      "siphash24",
+      "_Py_KeyedHash"
+    ],
+    "fixtureKeys": 6,
+    "messagePatterns": 2,
+    "lengths": 265,
+    "maximumLength": 4097,
+    "alignmentOffsets": 8,
+    "originalSipHash24Vectors": 64,
+    "originalCPythonVectors": 10,
+    "zeroLengthNullInput": true
+  },
+  "runtimeReady": false
+}
