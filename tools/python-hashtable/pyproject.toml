@@ -1,0 +1,9 @@
+[project]
+name = "syncwatch-cpython-hashtable"
+version = "1.0.0"
+description = "Exact hashtable origin/source and native correspondence"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.syncwatch]
+test-command = "python3 -m unittest discover -s tools/python-hashtable/tests -v"

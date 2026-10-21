@@ -88,3 +88,6 @@
 [submodule "3rdparty/csiphash"]
 	path = 3rdparty/csiphash
 	url = https://github.com/majek/csiphash.git
+[submodule "3rdparty/libcfu"]
+	path = 3rdparty/libcfu
+	url = https://github.com/codebrainz/libcfu.git

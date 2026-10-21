@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "profile": "raw-hashtable-v1",
+  "version": "3.12.15",
+  "sources": {
+    "cpython": {
+      "path": "3rdparty/cpython",
+      "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+      "license": "Python-2.0.1 AND MIT AND BSD-3-Clause",
+      "notices": [
+        "LICENSE",
+        "README.rst",
+        "Python/pyhash.c",
+        "Python/hashtable.c"
+      ],
+      "files": {
+        "Include/internal/pycore_hashtable.h": "690488a7e50ad743e1bb685702fbcfac866ace89d2417a247c1171afdc222261",
+        "Include/pymacro.h": "c82a7ed12ffe85aa119e917a486a388cb0fc345719a7330bf1e2951d2d4f5282",
+        "Include/pyport.h": "1cb92172d631c9176c32caec8a330c74a544e4a5a2f1e82c15b0f2411fb87bb7",
+        "LICENSE": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "Python/hashtable.c": "7fa6457b5a314727a5a3fad3b958c874fdbd10a71c51f932376391efc266dcc4",
+        "Python/pyhash.c": "7f18429290df0726669cbd6d8b5a8b48b843efff648fe8863d48da5db4745628",
+        "README.rst": "d4067fcabae9e06795bf36598b98c75d5ab23540dd08bd1f908d19c3957bba07"
+      },
+      "exports": [
+        "Include/internal/pycore_hashtable.h",
+        "Include/pymacro.h",
+        "Include/pyport.h",
+        "LICENSE",
+        "Python/hashtable.c",
+        "Python/pyhash.c",
+        "README.rst"
+      ]
+    },
+    "libcfu": {
+      "path": "3rdparty/libcfu",
+      "revision": "193f5c5558a562383e61c735e2c5781609ad7f45",
+      "license": "BSD-3-Clause",
+      "notices": [
+        "AUTHORS",
+        "COPYING",
+        "src/cfuhash.c",
+        "src/cfuhash.h"
+      ],
+      "files": {
+        "AUTHORS": "1bc52c347fa6c6d62b00b2e10b74326105c275d9ad4ec49c02ff88d1a67daf83",
+        "COPYING": "f510321e0e0c243437f5e6e2c30da3a7b300f3b91596bf6f554e42fea3f691ae",
+        "README": "b48eb514ef973d058920f18996be0817f793fcbd51e53ba0e169c764ae9d33bc",
+        "src/cfuhash.c": "a680aceeaf98cbe3f4711fbd9c137de21540fbae0f7bb62b364cb19e565ba8a7",
+        "src/cfuhash.h": "27ed9a545658c485c07afa9976b8ad5a89f148a0a796e987a4943eee766438c8"
+      },
+      "exports": [
+        "AUTHORS",
+        "COPYING",
+        "README",
+        "src/cfuhash.c",
+        "src/cfuhash.h"
+      ]
+    }
+  },
+  "sourceArchiveSha256": "031ce42bbff3bfbe765965fa69048c29366762ff0a29902e4ffc7444f2236625",
+  "analysisSha256": "81b32b00abf1b736c90c0bd6dd0963a39de21179b271bb347d67c78f65d52a0f",
+  "transcript": {
+    "schemaVersion": 1,
+    "bytes": 244633,
+    "sha256": "52f9f50ffa9d4a8b3fccb72838aa03c0d8105015725d6298dcb0a5745d79f755",
+    "profiles": 4,
+    "operationsPerProfile": 2184,
+    "keys": 256,
+    "records": 8736,
+    "failureSweep": true
+  },
+  "runtimeReady": false,
+  "corpusSha256": "a84e46a85ee269bebc73549df67831967098e27055da46cfe2803b5d11f717a7"
+}

@@ -406,6 +406,13 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "SipHash regressions"):
             self.validate(remove)
 
+    def test_hashtable_regressions_cannot_be_removed(self):
+        def remove(data):
+            data["jobs"]["tests"]["steps"] = [s for s in data["jobs"]["tests"]["steps"]
+                                                 if s.get("name") != "Hashtable source, oracle and cache regressions"]
+        with self.assertRaisesRegex(ValidationError, "Hashtable regressions"):
+            self.validate(remove)
+
     def test_remote_actions_cannot_replace_local_artifact_action(self):
         with self.assertRaisesRegex(ValidationError, "repository-owned action"):
             self.validate(lambda data: data["jobs"]["apple"]["steps"][-1].update({"uses": "external/action@main"}))
