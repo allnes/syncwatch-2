@@ -1216,6 +1216,7 @@
           "notices": [
             "LICENSE",
             "LICENSE-BUILDTOOLS",
+            "doc/libffi.texi",
             "src/dlmalloc.c"
           ],
           "exports": [
@@ -1231,6 +1232,7 @@
             "configure.ac",
             "configure.host",
             "doc/Makefile.am",
+            "doc/libffi.texi",
             "generate-darwin-source-and-headers.py",
             "include",
             "libffi.map.in",

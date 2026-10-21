@@ -60,12 +60,12 @@ def cffi(source, work, python, ffi, cmake, options, native, environment):
     sdk, directory = python
     library = sdk / "lib" / ("python312.lib" if native["target"] == "windows-x64" else "libpython3.12.dylib"
                              if native["target"] == "macos-arm64" else "libpython3.12.so.1.0")
-    arguments = [cmake, "-S", str(ROOT / "tools/syncplay-runtime/cffi"), "-B", str(build), *options,
-        "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_CFFI_SOURCE=" + str(source),
-        "-DSYNCWATCH_PYTHON_INCLUDE=" + str(sdk / "include"), "-DSYNCWATCH_PYTHON_CONFIG=" + str(sdk / "include"),
-        "-DSYNCWATCH_PYTHON_LIBRARY=" + str(library)]
+    arguments = [cmake, "-S", (ROOT / "tools/syncplay-runtime/cffi").as_posix(), "-B", build.as_posix(), *options,
+        "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_CFFI_SOURCE=" + source.as_posix(),
+        "-DSYNCWATCH_PYTHON_INCLUDE=" + (sdk / "include").as_posix(), "-DSYNCWATCH_PYTHON_CONFIG=" + (sdk / "include").as_posix(),
+        "-DSYNCWATCH_PYTHON_LIBRARY=" + library.as_posix()]
     if ffi is not None:
-        arguments += ["-DSYNCWATCH_FFI_INCLUDE=" + str(ffi / "include"), "-DSYNCWATCH_FFI_LIBRARY=" + str(ffi / "lib/libffi.a")]
+        arguments += ["-DSYNCWATCH_FFI_INCLUDE=" + (ffi / "include").as_posix(), "-DSYNCWATCH_FFI_LIBRARY=" + (ffi / "lib/libffi.a").as_posix()]
     commands = {"configure": execute("configure", arguments, work, logs, environment)}
     commands["compile"] = execute("compile", [cmake, "--build", str(build), "--config", "Release", "--parallel", "4"], work, logs, environment)
     return Path((build / "library-Release.txt").read_text()), commands

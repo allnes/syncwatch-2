@@ -1069,6 +1069,7 @@
         "configure.ac",
         "configure.host",
         "doc/Makefile.am",
+        "doc/libffi.texi",
         "generate-darwin-source-and-headers.py",
         "include",
         "libffi.map.in",
@@ -1136,6 +1137,7 @@
       "notices": [
         "LICENSE",
         "LICENSE-BUILDTOOLS",
+        "doc/libffi.texi",
         "src/dlmalloc.c"
       ],
       "files": {
@@ -1151,6 +1153,7 @@
         "configure.ac": "611bdfe20bb67e205a179c137a8eae752000e7d63da5d7ec4b1c55e8b4ba5e1d",
         "configure.host": "2d632ccb9780a4e05772e1361aec505eb0c38977531a9c6ab4b7370c20af4d83",
         "doc/Makefile.am": "9a56679034cebf73189c4d4d689cdeeaed2f6af68945cc9d52a3846dece0567b",
+        "doc/libffi.texi": "27ccaa4a87c95e48d81b637309856516c64020576de27fea20eb12306f8702dc",
         "generate-darwin-source-and-headers.py": "2dde02074f59badb28a630cd281d086acff2ce0d2d40847c349dcd4af6d8c509",
         "include/Makefile.am": "8871b1d64ee11480512d1aa05b6fb0c41d2778e46bc2c3f3bdc3a28bd97417fc",
         "include/ffi.h.in": "00297008a442a2bc436b9919a1fc78cd3b482c9d52f228f7516112b2eed8e25b",

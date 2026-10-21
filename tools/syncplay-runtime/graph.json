@@ -163,7 +163,8 @@
       "noticeSha256": {
         "LICENSE": "d5699fa516968e3a1550e6c902b7441c78856f2603d61bedd0b0662a26655366",
         "LICENSE-BUILDTOOLS": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94",
-        "src/dlmalloc.c": "c603bff55ca0f128948640622cba34354f7af84f4d1e0c562f7f2307b0c21658"
+        "src/dlmalloc.c": "c603bff55ca0f128948640622cba34354f7af84f4d1e0c562f7f2307b0c21658",
+        "doc/libffi.texi": "27ccaa4a87c95e48d81b637309856516c64020576de27fea20eb12306f8702dc"
       },
       "version": "3.5.2"
     },
