@@ -114,3 +114,7 @@ Each source update records an exact revision and the corresponding license/notic
 ## Room metadata service
 
 The metadata service uses the .NET/ASP.NET Core 10 shared framework, including Kestrel, JSON, cryptography, configuration, and WebSocket APIs. These are platform SDK/runtime dependencies under the SDK exception above. It installs no registry libraries. The server check uses the existing pinned fastjsonschema source for generated wire observations; Python is a developer/CI toolchain, not a service runtime. SDK archives for Linux x64, macOS arm64, and Windows x64 are pinned by SHA-512 in [the server toolchain manifest](../../tools/server/toolchains.json). See [build and run commands](../room-service.md).
+
+## Unicode type-table source and native proof
+
+The [Unicode type-table component](../python-unicode.md) reproduces the pinned CPython Unicode 15.0 header from separately pinned data and executes an exhaustive native C transcript on all three targets. Its source/data payload and developer SDK proof do not enable an interpreter, embedding ABI or Syncplay runtime.

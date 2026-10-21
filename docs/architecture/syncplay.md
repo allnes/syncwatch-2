@@ -119,3 +119,7 @@ The shared first-party native startup module accepts explicit verified package p
 The [native Python package verifier](../python-package.md) checks a trusted file inventory, rejects unexpected configuration and filesystem aliases, and produces owned paths for the startup API. Its completed scan is not an authenticated or immutable installation. Full pinned runtime/source/ABI and TLS/engine gates still apply before helper initialization.
 
 The [bootstrap encoding package](../python-stdlib.md) provides a deterministic original-source ZIP and a native verification/startup fixture whose only module search path is that owned ZIP. It removes installed standard-library directories from that proof while retaining the explicit developer-SDK builtin/frozen boundary. A complete source-built native runtime, standard library and TLS/Syncplay graph are still required.
+
+## Unicode type-table source and native proof
+
+The [Unicode type-table component](../python-unicode.md) reproduces the pinned CPython Unicode 15.0 header from separately pinned data and executes an exhaustive native C transcript on all three targets. Its source/data payload and developer SDK proof do not enable an interpreter, embedding ABI or Syncplay runtime.

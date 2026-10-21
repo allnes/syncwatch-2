@@ -82,3 +82,6 @@
 [submodule "3rdparty/arduinolibs"]
 	path = 3rdparty/arduinolibs
 	url = https://github.com/rweather/arduinolibs.git
+[submodule "3rdparty/python-unicode-data"]
+	path = 3rdparty/python-unicode-data
+	url = https://github.com/unicode-org/unicodetools.git
