@@ -48,7 +48,8 @@ def fixture(root, archive, profile):
               "EXPECTED_EXECUTABLE": str(executable), "CODECS": profile["codecs"],
               "VECTORS": profile["vectors"],
               "UNSUPPORTED_CODECS": profile["unsupportedExamples"]}
-    script = "\n".join(name + " = " + repr(value) for name, value in inputs.items()) + "\n"
+    # Python escapes retain Unicode values while C character initializers remain portable ASCII.
+    script = "\n".join(name + " = " + ascii(value) for name, value in inputs.items()) + "\n"
     script += (ROOT / "tools/python-stdlib/native/checks.py").read_text(encoding="utf-8")
     wide = lambda value: "L" + json.dumps(str(value), ensure_ascii=True)
     header = ("static const char *fixture_names[] = {" + ",".join(json.dumps(n) for n in CASES) + "};\n"
@@ -58,7 +59,7 @@ def fixture(root, archive, profile):
               ",".join(str(n) for n in hashlib.sha256(archive).digest()) + "}};\n"
               "static const sw_package_result fixture_errors[] = {SW_PACKAGE_OK, SW_PACKAGE_DIGEST_MISMATCH, "
               "SW_PACKAGE_MISSING_ENTRY, SW_PACKAGE_UNEXPECTED_ENTRY};\n"
-              "static const char fixture_checks[] = {" + ",".join(str(n) for n in script.encode()) + ",0};\n")
+              "static const char fixture_checks[] = {" + ",".join(str(n) for n in script.encode("ascii")) + ",0};\n")
     (root / "fixture.h").write_text(header, encoding="utf-8", newline="\n")
     poison = root / "poison"
     poison.mkdir()

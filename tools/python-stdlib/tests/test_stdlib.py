@@ -4,6 +4,7 @@ import copy
 import io
 from pathlib import Path
 import platform
+import re
 import sys
 import tempfile
 import unittest
@@ -100,6 +101,24 @@ class StdlibTests(unittest.TestCase):
                 self.skipTest("This account cannot create symbolic links")
             with self.assertRaisesRegex(ValueError, "symbolic links"):
                 verify(root, self.payload)
+
+    def test_native_fixture_preserves_unicode_with_portable_C_characters(self):
+        from stdlib_probe import fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "unicode-\u03bc-\u0442\u0435\u0441\u0442-\U0001f600"
+            root.mkdir()
+            fixture(root, self.payload["stdlib.zip"], self.profile)
+            header = (root / "fixture.h").read_text(encoding="ascii")
+            initializer = re.search(r"fixture_checks\[\] = \{([\d,]+)\};", header).group(1)
+            values = list(map(int, initializer.split(",")))
+            self.assertEqual(values[-1], 0)
+            self.assertTrue(all(0 <= value < 128 for value in values))
+            script = bytes(values[:-1]).decode("ascii")
+            # Read only assignments before the fixture body; do not execute startup observations here.
+            namespace = {}
+            exec(script.split("import sys", 1)[0], namespace)
+            self.assertEqual(namespace["EXPECTED_ROOT"], str(root / "success"))
+            self.assertEqual(namespace["VECTORS"], self.profile["vectors"])
 
 
 if __name__ == "__main__":
