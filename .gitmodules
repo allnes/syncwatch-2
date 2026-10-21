@@ -73,3 +73,12 @@
 [submodule "3rdparty/cpython"]
 	path = 3rdparty/cpython
 	url = https://github.com/python/cpython.git
+[submodule "3rdparty/hacl-star"]
+	path = 3rdparty/hacl-star
+	url = https://github.com/hacl-star/hacl-star.git
+[submodule "3rdparty/karamel"]
+	path = 3rdparty/karamel
+	url = https://github.com/FStarLang/karamel.git
+[submodule "3rdparty/arduinolibs"]
+	path = 3rdparty/arduinolibs
+	url = https://github.com/rweather/arduinolibs.git

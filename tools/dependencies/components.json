@@ -1313,6 +1313,247 @@
           "timeoutSeconds": 120
         }
       }
+    },
+    "hacl-hash": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/cpython"
+      ],
+      "sources": {
+        "3rdparty/arduinolibs": {
+          "revision": "72715b172b07794dddfe35497360d9da13f42f85",
+          "license": "MIT",
+          "notices": [
+            "libraries/Crypto/utility/EndianUtil.h"
+          ],
+          "exports": [
+            "libraries/Crypto/utility/EndianUtil.h"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/cpython": {
+          "revision": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+          "license": "Python-2.0.1",
+          "notices": [
+            "LICENSE",
+            "README.rst",
+            "Modules/_hacl/README.md",
+            "Modules/_hacl/refresh.sh"
+          ],
+          "exports": [
+            "LICENSE",
+            "Modules/_hacl/README.md",
+            "Modules/_hacl/refresh.sh",
+            "README.rst"
+          ],
+          "requires": [
+            "3rdparty/hacl-star"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/hacl-star": {
+          "revision": "bb3d0dc8d9d15a5cd51094d5b69e70aa09005ff0",
+          "license": "MIT AND Apache-2.0",
+          "notices": [
+            "LICENSE",
+            "dist/LICENSE.txt",
+            "dist/gcc-compatible/INFO.txt",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "dist/LICENSE.txt",
+            "dist/gcc-compatible/Hacl_Hash_MD5.c",
+            "dist/gcc-compatible/Hacl_Hash_MD5.h",
+            "dist/gcc-compatible/Hacl_Hash_SHA1.c",
+            "dist/gcc-compatible/Hacl_Hash_SHA1.h",
+            "dist/gcc-compatible/Hacl_Hash_SHA2.c",
+            "dist/gcc-compatible/Hacl_Hash_SHA2.h",
+            "dist/gcc-compatible/Hacl_Hash_SHA3.c",
+            "dist/gcc-compatible/Hacl_Hash_SHA3.h",
+            "dist/gcc-compatible/Hacl_Krmllib.h",
+            "dist/gcc-compatible/Hacl_Streaming_Types.h",
+            "dist/gcc-compatible/INFO.txt",
+            "dist/gcc-compatible/internal/Hacl_Hash_MD5.h",
+            "dist/gcc-compatible/internal/Hacl_Hash_SHA1.h",
+            "dist/gcc-compatible/internal/Hacl_Hash_SHA2.h",
+            "dist/gcc-compatible/internal/Hacl_Hash_SHA3.h",
+            "dist/gcc-compatible/internal/Hacl_Krmllib.h",
+            "dist/karamel/include/krml/internal/compat.h",
+            "dist/karamel/include/krml/internal/target.h",
+            "dist/karamel/include/krml/internal/types.h",
+            "dist/karamel/include/krml/lowstar_endianness.h",
+            "dist/karamel/krmllib/dist/minimal/FStar_UInt128.h",
+            "dist/karamel/krmllib/dist/minimal/FStar_UInt128_Verified.h",
+            "dist/karamel/krmllib/dist/minimal/FStar_UInt_8_16_32_64.h",
+            "dist/karamel/krmllib/dist/minimal/LowStar_Endianness.h",
+            "dist/karamel/krmllib/dist/minimal/fstar_uint128_gcc64.h",
+            "dist/karamel/krmllib/dist/minimal/fstar_uint128_msvc.h",
+            "dist/karamel/krmllib/dist/minimal/fstar_uint128_struct_endianness.h"
+          ],
+          "requires": [
+            "3rdparty/karamel"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/karamel": {
+          "revision": "95968326f0ca1d6f9056347496482d285e6a9f1e",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "include/krml/internal/compat.h",
+            "include/krml/internal/target.h",
+            "include/krml/internal/types.h",
+            "include/krml/lowstar_endianness.h",
+            "krmllib/dist/minimal/FStar_UInt128.h",
+            "krmllib/dist/minimal/FStar_UInt128_Verified.h",
+            "krmllib/dist/minimal/FStar_UInt_8_16_32_64.h",
+            "krmllib/dist/minimal/LowStar_Endianness.h",
+            "krmllib/dist/minimal/fstar_uint128_gcc64.h",
+            "krmllib/dist/minimal/fstar_uint128_msvc.h",
+            "krmllib/dist/minimal/fstar_uint128_struct_endianness.h"
+          ],
+          "requires": [
+            "3rdparty/arduinolibs"
+          ],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/hashing",
+        "tools/compression/toolchain.py",
+        "tools/dependencies/source_files.py",
+        "LICENSE"
+      ],
+      "watch": [
+        "tools/hashing",
+        "tools/compression/toolchain.py",
+        "3rdparty/arduinolibs",
+        "3rdparty/cpython",
+        "3rdparty/hacl-star",
+        "3rdparty/karamel"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-hash": {
+              "command": [
+                "{python}",
+                "tools/hashing/hacl_build.py",
+                "identity"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "static-hash-v1",
+            "verifiedUint128": true
+          },
+          "command": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 600
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-hash": {
+              "command": [
+                "{python}",
+                "tools/hashing/hacl_build.py",
+                "identity"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "static-hash-v1",
+            "verifiedUint128": true
+          },
+          "command": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 600
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-hash": {
+              "command": [
+                "{python}",
+                "tools/hashing/hacl_build.py",
+                "identity"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "static-hash-v1",
+            "verifiedUint128": true
+          },
+          "command": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/hashing/hacl_build.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 600
+        }
+      }
     }
   }
 }
