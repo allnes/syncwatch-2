@@ -42,6 +42,11 @@ def resolve():
         environment["PATH"] = str(rust / "bin") + os.pathsep + str(perl.parent) + os.pathsep + environment["PATH"]
         if checksum(shutil.which("cl", path=environment["PATH"])) != native["compilerSha256"]:
             raise ValueError("MSVC command environment differs from the selected C SDK")
+        nmake = Path(shutil.which("cl", path=environment["PATH"])).with_name("nmake.exe")
+        if not nmake.is_file():
+            raise ValueError("The selected MSVC SDK is missing nmake")
+        environment["SYNCWATCH_NMAKE"] = str(nmake)
+        identity["nmakeSha256"] = checksum(nmake)
     else:
         private = os.environ.get("SYNCWATCH_AUTOTOOLS_BIN")
         if private:

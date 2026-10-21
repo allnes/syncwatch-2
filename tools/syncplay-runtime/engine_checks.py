@@ -19,7 +19,6 @@ from twisted.internet import defer, protocol, task
 from syncplay.server import SyncFactory
 from syncplay.protocols import SyncServerProtocol
 from syncwatch_syncplay.session import Session
-from syncwatch_syncplay.transport import tls_options
 
 
 class SimulatedPlayer:
@@ -139,8 +138,8 @@ def run(root):
             events.append((kind, value))
             if kind == "sync.disconnected":
                 observations.append((name, player.paused, session.userlist.currentUser.isReady()))
-        options = tls_options("127.0.0.1", [ca_pem]) if trusted else None
-        session = Session("127.0.0.1", port, name, "acceptance-room", player, receive, options=options)
+        session = Session("127.0.0.1", port, name, "acceptance-room", player, receive,
+                          trust_roots=[ca_pem] if trusted else None)
         session.handshake_timeout = 2.0
         session.media_loaded("owned-handle-" + name, "acceptance-film.mkv", 600000, 4096)
         session.connect()

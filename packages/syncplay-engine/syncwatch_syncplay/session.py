@@ -33,14 +33,16 @@ class Session(SyncplayClient):
     ownsReactor = False
     handshake_timeout = 10.0
 
-    def __init__(self, host, port, name, room, player_port, events, *, options=None):
+    def __init__(self, host, port, name, room, player_port, events, *, trust_roots=None):
         install()
         self._owner_thread = threading.get_ident()
         if not isinstance(host, str) or not host or type(port) is not int or not 0 < port < 65536:
             raise ValueError("Invalid Syncplay endpoint")
         self.events = events
         certificates = [str(value).encode("ascii") for value in pem.parse_file(certifi.where())]
-        self.tls_options = options if options is not None else tls_options(host, certificates)
+        # Fixtures may supply owned CA certificates, never a replacement TLS
+        # context that could bypass endpoint verification or the TLS minimum.
+        self.tls_options = tls_options(host, certificates if trust_roots is None else trust_roots)
         self.endpoint_host, self.endpoint_port = host, port
         self._closing = False
         super().__init__(None, BridgeUI(events), configuration(host, port, name, room))

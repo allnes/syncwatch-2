@@ -20,8 +20,11 @@ def openssl(source, work, native, perl, environment):
     if native["target"] == "windows-x64":
         env["CC"] = "cl"
     commands = {"configure": execute("configure", [str(perl), str(source / "Configure"), target, *flags], build, logs, env)}
-    make = "nmake" if native["target"] == "windows-x64" else "make"
-    commands["compile"] = execute("compile", [make, *([] if make == "nmake" else ["-j4"]), "build_libs"], build, logs, env)
+    windows = native["target"] == "windows-x64"
+    # CreateProcess searches the parent's PATH, not the supplied child PATH.
+    # Resolve nmake from the identified MSVC SDK before spawning it.
+    make = env["SYNCWATCH_NMAKE"] if windows else "make"
+    commands["compile"] = execute("compile", [make, *([] if windows else ["-j4"]), "build_libs"], build, logs, env)
     commands["install"] = execute("install", [make, "install_dev"], build, logs, env)
     if native["target"] == "macos-arm64":
         for name in ["libcrypto.3.dylib", "libssl.3.dylib"]:
