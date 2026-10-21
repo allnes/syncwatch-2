@@ -15,17 +15,27 @@ def profile_data():
     value = json.loads((ROOT / "tools/python-build/profile.json").read_text(encoding="utf-8"))
     if value["schemaVersion"] != 1 or value["syncplayRuntimeReady"] is not False or value["version"] != "3.12.15":
         raise ValueError("Unsupported embedded interpreter profile")
-    for source in [value["source"], value["zlib"]]:
+    for source in [value["source"], value["zlib"], value["unicode"]]:
         if (source["exports"] != sorted(set(source["exports"]))
                 or not set(source["notices"]) <= set(source["files"])
                 or not set(source["executables"]) <= set(source["files"])
                 or any(not any(name == p or name.startswith(p + "/") for p in source["exports"]) for name in source["files"])):
             raise ValueError("Interpreter source or notice inventory differs")
+    component = json.loads((ROOT / "tools/dependencies/components.json").read_text())["components"][COMPONENT]
+    expected = {source["path"]: {**{k: source[k] for k in ("revision", "license", "notices", "exports")},
+                                "requires": [], "unusedSubmodules": {}}
+                for source in [value["source"], value["zlib"], value["unicode"]]}
+    if component["sources"] != expected or set(component["roots"]) != set(expected):
+        raise ValueError("Interpreter source/license graph differs from the registry")
+    unicode = json.loads((ROOT / "tools/python-unicode/profile.json").read_text())
+    if (value["unicode"]["files"] != unicode["sources"]["unicode"]["files"]
+            or value["source"]["files"]["Objects/unicodetype_db.h"] != unicode["sources"]["cpython"]["files"]["Objects/unicodetype_db.h"]):
+        raise ValueError("Interpreter Unicode table/data differs from the reviewed source profile")
     return value
 
 
 def read_sources(paths, profile):
-    return {name: read_snapshot(paths[name], profile[key]) for name, key in [("cpython", "source"), ("zlib", "zlib")]}
+    return {name: read_snapshot(paths[name], profile[key]) for name, key in [("cpython", "source"), ("zlib", "zlib"), ("unicode", "unicode")]}
 
 
 def materialize(root, files, executables=()):
@@ -41,7 +51,7 @@ def materialize(root, files, executables=()):
 
 
 def validate(sources, profile):
-    for name, key in [("cpython", "source"), ("zlib", "zlib")]:
+    for name, key in [("cpython", "source"), ("zlib", "zlib"), ("unicode", "unicode")]:
         if {p: digest(data) for p, data in sources[name].items()} != profile[key]["files"]:
             raise ValueError("Interpreter original source or full notice differs")
     required = {
@@ -94,12 +104,13 @@ def original_sources(sources, profile):
                 if path in cpython and path not in selected:
                     selected[path] = cpython[path]; pending.append(path)
     return archive_bytes({"cpython/" + name: data for name, data in selected.items()} |
-                         {"zlib/" + name: data for name, data in sources["zlib"].items()})
+                         {"zlib/" + name: data for name, data in sources["zlib"].items()} |
+                         {"unicode/" + name: data for name, data in sources["unicode"].items()})
 
 
 def notices(sources, profile):
     result = {}
-    for name, key in [("cpython", "source"), ("zlib", "zlib")]:
+    for name, key in [("cpython", "source"), ("zlib", "zlib"), ("unicode", "unicode")]:
         for path in profile[key]["notices"]:
             result["notices/" + name + "/" + path] = sources[name][path]
     return result

@@ -17,8 +17,8 @@ class RuntimeTests(unittest.TestCase):
     def setUpClass(cls):
         cls.profile = profile_data()
         target = "windows-x64" if sys.platform == "win32" else "macos-arm64" if sys.platform == "darwin" else "linux-x64"
-        cls.sources = read_sources({n: ROOT / "artifacts/dependencies/cpython-embedded" / target / (n + ".tar")
-                                   for n in ["cpython", "zlib"]}, cls.profile)
+        cls.sources = read_sources({n: ROOT / "artifacts/dependencies/cpython-embedded" / target / (file + ".tar")
+                                   for n, file in [("cpython", "cpython"), ("zlib", "zlib"), ("unicode", "python-unicode-data")]}, cls.profile)
 
     def test_original_grants_cannot_be_replaced_by_a_short_label(self):
         sources = copy.deepcopy(self.sources); profile = copy.deepcopy(self.profile)
@@ -51,6 +51,7 @@ class RuntimeTests(unittest.TestCase):
             config = (source / "PC/config.c").read_text()
             self.assertIn('{"_imp", PyInit__imp}', config)
             self.assertIn('{"_string", PyInit__string}', config)
+            self.assertIn('{"winreg", PyInit_winreg}', config)
             self.assertNotIn('{"_random",', config)
             ns = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
             tree = ET.parse(source / "PCbuild/pcbuild.proj")

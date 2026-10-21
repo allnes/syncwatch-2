@@ -2210,7 +2210,8 @@
       "always": true,
       "roots": [
         "3rdparty/cpython",
-        "3rdparty/zlib"
+        "3rdparty/zlib",
+        "3rdparty/python-unicode-data"
       ],
       "sources": {
         "3rdparty/cpython": {
@@ -2252,7 +2253,8 @@
             "Python/getcopyright.c",
             "Python/initconfig.c",
             "Python/perf_trampoline.c",
-            "Python/sysmodule.c"
+            "Python/sysmodule.c",
+            "Tools/unicode/makeunicodedata.py"
           ],
           "exports": [
             "Doc/library/token-list.inc",
@@ -2513,6 +2515,7 @@
             "Tools/freeze",
             "Tools/gdb",
             "Tools/peg_generator",
+            "Tools/unicode/makeunicodedata.py",
             "aclocal.m4",
             "config.guess",
             "config.sub",
@@ -2567,6 +2570,35 @@
           ],
           "requires": [],
           "unusedSubmodules": {}
+        },
+        "3rdparty/python-unicode-data": {
+          "revision": "66a3fa9dbdca3b67053a483d130564eabc5fe095",
+          "license": "Unicode-DFS-2016",
+          "notices": [
+            "LICENSE",
+            "README.md",
+            "unicodetools/data/ucd/15.0.0/ReadMe.txt"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "unicodetools/data/ucd/15.0.0/CaseFolding.txt",
+            "unicodetools/data/ucd/15.0.0/CompositionExclusions.txt",
+            "unicodetools/data/ucd/15.0.0/DerivedCoreProperties.txt",
+            "unicodetools/data/ucd/15.0.0/DerivedNormalizationProps.txt",
+            "unicodetools/data/ucd/15.0.0/EastAsianWidth.txt",
+            "unicodetools/data/ucd/15.0.0/LineBreak.txt",
+            "unicodetools/data/ucd/15.0.0/NameAliases.txt",
+            "unicodetools/data/ucd/15.0.0/NamedSequences.txt",
+            "unicodetools/data/ucd/15.0.0/ReadMe.txt",
+            "unicodetools/data/ucd/15.0.0/SpecialCasing.txt",
+            "unicodetools/data/ucd/15.0.0/UnicodeData.txt",
+            "unicodetools/data/ucd/15.0.0/Unihan/kAccountingNumeric.txt",
+            "unicodetools/data/ucd/15.0.0/Unihan/kOtherNumeric.txt",
+            "unicodetools/data/ucd/15.0.0/Unihan/kPrimaryNumeric.txt"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
         }
       },
       "inputs": [
@@ -2574,7 +2606,8 @@
         "tools/python-runtime",
         "tools/compression/toolchain.py",
         "packages/python-startup",
-        "LICENSE"
+        "LICENSE",
+        "tools/python-unicode/profile.json"
       ],
       "watch": [
         "3rdparty/cpython",
@@ -2582,7 +2615,9 @@
         "tools/python-build",
         "tools/python-runtime",
         "tools/compression/toolchain.py",
-        "packages/python-startup"
+        "packages/python-startup",
+        "3rdparty/python-unicode-data",
+        "tools/python-unicode/profile.json"
       ],
       "targets": {
         "linux-x64": {

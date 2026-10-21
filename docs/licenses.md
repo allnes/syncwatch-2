@@ -45,6 +45,8 @@ The [embedded interpreter profile](embedded-python.md) retains CPython's complet
 
 The selected build excludes optional OpenSSL, HACL hashing, expat, mpdecimal, libffi/ctypes, SQLite, readline, Tk, bzip2 and lzma modules. Their inactive build metadata is not clearance for a future enabled binary. No platform SDK or Microsoft runtime DLL is redistributed; the installed platform runtime remains a prerequisite. TLS/CA and the complete Syncplay runtime require their own enabled-graph and final distribution review.
 
+The interpreter's Unicode type tables retain the complete Unicode-DFS-2016 grant, original Unicode 15.0 inputs and CPython generator notice from the [Unicode source profile](python-unicode.md). The table and its data revision match that independently verified profile; no new Unicode data or normalization/name module is adopted.
+
 The [dependency architecture](architecture/dependencies.md) records the other pinned sources. Syncplay uses Apache-2.0; fastjsonschema uses BSD-3-Clause and retains its license in the built validator package. The native shells and metadata service use the declared platform SDKs/frameworks without registry library packages.
 
 VLC contains code under multiple licenses. The libVLC API is LGPL-2.1-or-later; the complete player, plugins, codecs, and contrib libraries require a distribution inventory for the selected build. Preserve applicable licenses and corresponding source, and support the replacement/relinking rights required by the selected LGPL distribution method. A license entry for the top-level VLC repository is not clearance for every possible module combination. The media component is not yet a registered distributable build.

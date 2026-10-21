@@ -42,7 +42,8 @@
       "Python/getcopyright.c",
       "Python/initconfig.c",
       "Python/perf_trampoline.c",
-      "Python/sysmodule.c"
+      "Python/sysmodule.c",
+      "Tools/unicode/makeunicodedata.py"
     ],
     "files": {
       "Doc/library/token-list.inc": "8d4f66d8ba1d2b411625b4ab2ea6b83defcc0af382c8c373eba42011f3db773b",
@@ -1857,6 +1858,7 @@
       "Tools/peg_generator/scripts/joinstats.py": "c31c14edaad591a4b7ba97fcfd972f73abba58a054a020306c1601db1c2927c5",
       "Tools/peg_generator/scripts/test_parse_directory.py": "1aacad38f86b783f9471e319598095a61bd5d97b5478146851ad4ed12816c84a",
       "Tools/peg_generator/scripts/test_pypi_packages.py": "bb712214828cb5205d35b416dfd3f7db7a5d37a753429abcb542658b2fecb848",
+      "Tools/unicode/makeunicodedata.py": "237eaa98c41ca86c6d7bca3acceb7697a49600aa2e6e9604c68d0e0af26c0a18",
       "aclocal.m4": "8b0b8ab2ffe701b1ba70dbb82afce3688f9744c4577aad6f2b51cfd321912af5",
       "config.guess": "af8a1922c9b3c240bf2119d4ec0965a0b5ec36b1016017ba66db44b3b53e9cea",
       "config.sub": "d611751fba98e807c9684d253bb02aa73d6825fe0e0b9ae3cbf258a59171c9b0",
@@ -2124,6 +2126,7 @@
       "Tools/freeze",
       "Tools/gdb",
       "Tools/peg_generator",
+      "Tools/unicode/makeunicodedata.py",
       "aclocal.m4",
       "config.guess",
       "config.sub",
@@ -2361,5 +2364,52 @@
     "Lib/urllib/parse.py",
     "Lib/warnings.py",
     "Lib/weakref.py"
-  ]
+  ],
+  "unicode": {
+    "path": "3rdparty/python-unicode-data",
+    "revision": "66a3fa9dbdca3b67053a483d130564eabc5fe095",
+    "license": "Unicode-DFS-2016",
+    "notices": [
+      "LICENSE",
+      "README.md",
+      "unicodetools/data/ucd/15.0.0/ReadMe.txt"
+    ],
+    "exports": [
+      "LICENSE",
+      "README.md",
+      "unicodetools/data/ucd/15.0.0/CaseFolding.txt",
+      "unicodetools/data/ucd/15.0.0/CompositionExclusions.txt",
+      "unicodetools/data/ucd/15.0.0/DerivedCoreProperties.txt",
+      "unicodetools/data/ucd/15.0.0/DerivedNormalizationProps.txt",
+      "unicodetools/data/ucd/15.0.0/EastAsianWidth.txt",
+      "unicodetools/data/ucd/15.0.0/LineBreak.txt",
+      "unicodetools/data/ucd/15.0.0/NameAliases.txt",
+      "unicodetools/data/ucd/15.0.0/NamedSequences.txt",
+      "unicodetools/data/ucd/15.0.0/ReadMe.txt",
+      "unicodetools/data/ucd/15.0.0/SpecialCasing.txt",
+      "unicodetools/data/ucd/15.0.0/UnicodeData.txt",
+      "unicodetools/data/ucd/15.0.0/Unihan/kAccountingNumeric.txt",
+      "unicodetools/data/ucd/15.0.0/Unihan/kOtherNumeric.txt",
+      "unicodetools/data/ucd/15.0.0/Unihan/kPrimaryNumeric.txt"
+    ],
+    "files": {
+      "LICENSE": "80b381b2f157c31e7f3222bdb932bda9fbd7b335e888beec56820fb2993363de",
+      "README.md": "41ef0cbd97f9e4a50236c07bf22e28e48ba76f323f4217bc4e64c45d02fcdaf8",
+      "unicodetools/data/ucd/15.0.0/CaseFolding.txt": "cdd49e55eae3bbf1f0a3f6580c974a0263cb86a6a08daa10fbf705b4808a56f7",
+      "unicodetools/data/ucd/15.0.0/CompositionExclusions.txt": "3b019c0a33c3140cbc920c078f4f9af2680ba4f71869c8d4de5190667c70b6a3",
+      "unicodetools/data/ucd/15.0.0/DerivedCoreProperties.txt": "d367290bc0867e6b484c68370530bdd1a08b6b32404601b8c7accaf83e05628d",
+      "unicodetools/data/ucd/15.0.0/DerivedNormalizationProps.txt": "d5687a48c95c7d6e1ec59cb29c0f2e8b052018eb069a4371b7368d0561e12a29",
+      "unicodetools/data/ucd/15.0.0/EastAsianWidth.txt": "743e7bc435c04ab1a8459710b1c3cad56eedced5b806b4659b6e69b85d0adf2a",
+      "unicodetools/data/ucd/15.0.0/LineBreak.txt": "012bca868e2c4e59a5a10a7546baf0c6fb1b2ef458c277f054915c8a49d292bf",
+      "unicodetools/data/ucd/15.0.0/NameAliases.txt": "3e39509e8fae3e5d50ba73759d0b97194501d14a9c63107a6372a46b38be18e8",
+      "unicodetools/data/ucd/15.0.0/NamedSequences.txt": "1d5202155f14841973aa540b1625f4befbde185ac77ce5aceaaaa0501a68bd66",
+      "unicodetools/data/ucd/15.0.0/ReadMe.txt": "53672c0d0b5185e3cf04c8e970d544c3af81ae7c8eeba0b9cf6d355aa954ae1f",
+      "unicodetools/data/ucd/15.0.0/SpecialCasing.txt": "78b29c64b5840d25c11a9f31b665ee551b8a499eca6c70d770fcad7dd710f494",
+      "unicodetools/data/ucd/15.0.0/UnicodeData.txt": "806e9aed65037197f1ec85e12be6e8cd870fc5608b4de0fffd990f689f376a73",
+      "unicodetools/data/ucd/15.0.0/Unihan/kAccountingNumeric.txt": "4be6579b04f17def3a017d0c25526ecfcd399444affec4b62e19a035905f5a79",
+      "unicodetools/data/ucd/15.0.0/Unihan/kOtherNumeric.txt": "d3d3f79a3d449f0180faf375e77b158ccac7d3c8df21139bb4162d1f01231715",
+      "unicodetools/data/ucd/15.0.0/Unihan/kPrimaryNumeric.txt": "2655068afe65ce7003772c7aa00dae421002bf24ebd7ef5f70b46a58eb3a54a1"
+    },
+    "executables": []
+  }
 }

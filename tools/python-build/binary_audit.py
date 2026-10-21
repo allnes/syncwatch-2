@@ -21,6 +21,7 @@ def audit(paths, target, sdk, options):
             command = [str(dumpbin), "/nologo", "/dependents", str(path)]
             allowed = {"KERNEL32.DLL", "ADVAPI32.DLL", "WS2_32.DLL", "SHELL32.DLL", "USER32.DLL",
                 "VERSION.DLL", "OLE32.DLL", "OLEAUT32.DLL", "BCRYPT.DLL", "UCRTBASE.DLL",
+                "PATHCCH.DLL", "IPHLPAPI.DLL", "RPCRT4.DLL",
                 "VCRUNTIME140.DLL", "VCRUNTIME140_1.DLL", "PYTHON312.DLL"}
         output = subprocess.check_output(command, text=True, stderr=subprocess.STDOUT, timeout=30)
         if target == "macos-arm64":

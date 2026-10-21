@@ -26,11 +26,12 @@ def main():
         if json.loads(os.environ["SYNCWATCH_DEPENDENCY_FLAGS"]) != {"profile": profile["profile"]}:
             raise ValueError("Unknown embedded interpreter configuration")
         root = Path(os.environ["SYNCWATCH_DEPENDENCY_SOURCES"])
-        paths = {name: root / profile[key]["path"] for name, key in [("cpython", "source"), ("zlib", "zlib")]}
+        paths = {name: root / profile[key]["path"] for name, key in [("cpython", "source"), ("zlib", "zlib"), ("unicode", "unicode")]}
         payload = Path(os.environ["SYNCWATCH_DEPENDENCY_OUTPUT"])
     else:
         root = ROOT / "artifacts/dependencies" / COMPONENT / sdk["target"]
-        paths = {name: root / (name + ".tar") for name in ["cpython", "zlib"]}
+        paths = {name: root / (name + ".tar") for name in ["cpython", "zlib", "python-unicode-data"]}
+        paths["unicode"] = paths.pop("python-unicode-data")
         payload = root / "payload"
     sources = read_sources(paths, profile)
     validate(sources, profile)

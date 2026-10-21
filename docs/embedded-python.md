@@ -1,6 +1,6 @@
 # Embedded Python runtime
 
-The `cpython-embedded` component builds CPython 3.12.15 from the pinned `3rdparty/cpython` source and zlib 1.3.2 from `3rdparty/zlib`. Supported targets are Apple Silicon macOS, Windows x64 and Linux x64. The [source profile](../tools/python-build/profile.json) owns exact original file hashes, executable modes, complete notices, module membership and standard-library selection.
+The `cpython-embedded` component builds CPython 3.12.15 from the pinned `3rdparty/cpython` source and zlib 1.3.2 from `3rdparty/zlib`. The pinned `3rdparty/python-unicode-data` supplies the original Unicode 15.0 data and complete grant for the core's type tables. Supported targets are Apple Silicon macOS, Windows x64 and Linux x64. The [source profile](../tools/python-build/profile.json) owns exact original file hashes, executable modes, complete notices, module membership and standard-library selection.
 
 The runtime contains the interpreter core, frozen import/bootstrap modules, the upstream bootstrap builtins and selected JSON, context, opcode, array, math, socket/select and compression modules. Windows also retains the registry builtin required by upstream import initialization. Other optional extensions are disabled. The selected standard library is an owned source ZIP; Python's installed development SDK and its standard library are never packaged.
 
