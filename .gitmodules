@@ -226,3 +226,33 @@
 [submodule "3rdparty/python-idna-unicode-data"]
 	path = 3rdparty/python-idna-unicode-data
 	url = https://github.com/unicode-org/unicodetools.git
+[submodule "3rdparty/ffmpeg"]
+	path = 3rdparty/ffmpeg
+	url = https://github.com/FFmpeg/FFmpeg.git
+[submodule "3rdparty/freetype"]
+	path = 3rdparty/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "3rdparty/harfbuzz"]
+	path = 3rdparty/harfbuzz
+	url = https://github.com/harfbuzz/harfbuzz.git
+[submodule "3rdparty/fribidi"]
+	path = 3rdparty/fribidi
+	url = https://github.com/fribidi/fribidi.git
+[submodule "3rdparty/libass"]
+	path = 3rdparty/libass
+	url = https://github.com/libass/libass.git
+[submodule "3rdparty/fontconfig"]
+	path = 3rdparty/fontconfig
+	url = https://github.com/fontconfig/fontconfig.git
+[submodule "3rdparty/expat"]
+	path = 3rdparty/expat
+	url = https://github.com/libexpat/libexpat.git
+[submodule "3rdparty/libiconv"]
+	path = 3rdparty/libiconv
+	url = https://github.com/winlibs/libiconv.git
+[submodule "3rdparty/dav1d"]
+	path = 3rdparty/dav1d
+	url = https://code.videolan.org/videolan/dav1d.git
+[submodule "3rdparty/meson"]
+	path = 3rdparty/meson
+	url = https://github.com/mesonbuild/meson.git
