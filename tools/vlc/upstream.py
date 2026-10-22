@@ -33,7 +33,7 @@ def build(context, sources, profile):
         "--disable-gnutls", "--disable-smbclient", "--disable-libgcrypt", "--disable-notify",
         "--disable-macosx", "--disable-sparkle", "--disable-chromecast",
         "--enable-avcodec", "--enable-avformat", "--enable-swscale", "--enable-freetype",
-        "--enable-fribidi", "--enable-harfbuzz", "--enable-libass"]
+        "--enable-fribidi", "--enable-harfbuzz", "--enable-libass", "--enable-samplerate"]
     if context.target == "windows-x64":
         flags.extend(["--with-libiconv-prefix=" + shell_path(context.prefix),
                       "--host=x86_64-w64-mingw32", "--build=x86_64-pc-msys"])

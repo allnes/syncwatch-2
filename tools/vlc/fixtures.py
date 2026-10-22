@@ -1,6 +1,9 @@
 """Create deterministic, first-party media fixtures without an external encoder."""
 
 import argparse
+import base64
+import hashlib
+import json
 import math
 from pathlib import Path
 import struct
@@ -58,6 +61,20 @@ def create(directory):
     path = directory / "owned-i420-pcm.avi"
     path.write_bytes(avi())
     return path
+
+
+def encoded(directory):
+    root = Path(__file__).resolve().parent / "media"
+    profile = json.loads((root / "fixtures.json").read_text())
+    result = {}
+    for name, item in profile["fixtures"].items():
+        data = base64.b64decode(b"".join((root / item["encoded"]).read_bytes().split()), validate=True)
+        if len(data) != item["bytes"] or hashlib.sha256(data).hexdigest() != item["sha256"]:
+            raise ValueError("First-party encoded media fixture changed")
+        path = directory / (name + ".mp4")
+        path.write_bytes(data)
+        result[name] = (path, item)
+    return result
 
 
 if __name__ == "__main__":

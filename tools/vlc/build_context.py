@@ -57,6 +57,12 @@ class BuildContext:
                 paths.extend([Path("/opt/homebrew/opt/gettext/bin"), Path("/opt/homebrew/bin")])
             self.shell = "/bin/sh"
         self.env["PATH"] = os.pathsep.join(str(p) for p in paths) + os.pathsep + self.env["PATH"]
+        for name, key in [("m4", "M4"), ("autoconf", "AUTOCONF"), ("automake", "AUTOMAKE"),
+                          ("aclocal", "ACLOCAL"), ("autoreconf", "AUTORECONF"), ("autom4te", "AUTOM4TE"),
+                          ("autoheader", "AUTOHEADER"),
+                          ("glibtoolize" if self.target == "macos-arm64" else "libtoolize", "LIBTOOLIZE")]:
+            path = self.tool(name)
+            self.env[key] = shell_path(path) if self.target == "windows-x64" else path
         prefix = self.prefix.as_posix()
         self.env.update(PKG_CONFIG_PATH=prefix + "/lib/pkgconfig",
                         PKG_CONFIG_LIBDIR=prefix + "/lib/pkgconfig",
@@ -82,6 +88,10 @@ class BuildContext:
             perl = [str(p) for p in (root / "usr/share").glob("automake-*")]
             if perl:
                 self.env["PERL5LIB"] = os.pathsep.join(perl + [str(root / "usr/share/autoconf")])
+                if len(perl) != 1:
+                    raise ValueError("Select one relocated Automake data package")
+                self.env["AUTOMAKE_LIBDIR"] = perl[0]
+                self.env["ACLOCAL_AUTOMAKE_DIR"] = str(root / "usr/share" / Path(perl[0]).name.replace("automake-", "aclocal-"))
             self.env["AUTOM4TE_CFG"] = str(root / "usr/share/autoconf/autom4te.cfg")
             self.env["AC_MACRODIR"] = str(root / "usr/share/autoconf")
 

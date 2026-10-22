@@ -52,6 +52,8 @@ def zlib(context, sources):
 
 def build(context, sources):
     zlib(context, sources)
+    cmake(context, "libsamplerate", sources["libsamplerate"], ["-DBUILD_SHARED_LIBS=ON",
+        "-DBUILD_TESTING=OFF", "-DLIBSAMPLERATE_EXAMPLES=OFF", "-DLIBSAMPLERATE_INSTALL=ON"])
     if context.target == "windows-x64":
         original = restore_iconv(sources["libiconv"])
         build = context.work / "iconv-build"

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fixtures": {
+    "h264-aac": {
+      "encoded": "h264-aac.b64",
+      "sha256": "eff4cb4b8ebdd9ab81926e8b5df59d2c335d4de966f607c62911657c351cbc18",
+      "bytes": 24842,
+      "videoCodec": "34363268",
+      "audioCodec": "6134706d",
+      "width": 320,
+      "height": 180,
+      "generator": "tools/vlc/create_encoded_fixture.swift",
+      "firstParty": true
+    }
+  }
+}

@@ -43,7 +43,7 @@ def restore_iconv(directory):
     # A disposable Git root scopes the patch paths independently of the checkout.
     subprocess.run(["git", "init", "-q", str(directory)], check=True)
     for arguments in [["--reverse", "--check"], ["--reverse"]]:
-        subprocess.run(["git", "-C", str(directory), "apply", *arguments,
+        subprocess.run(["git", "-C", str(directory), "-c", "core.autocrlf=false", "apply", *arguments,
                         str(directory / "libiconv.diff")], check=True)
     files = {p.relative_to(directory / "source").as_posix(): digest(p.read_bytes())
              for p in (directory / "source").rglob("*") if p.is_file()}

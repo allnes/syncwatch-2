@@ -256,3 +256,6 @@
 [submodule "3rdparty/meson"]
 	path = 3rdparty/meson
 	url = https://github.com/mesonbuild/meson.git
+[submodule "3rdparty/libsamplerate"]
+	path = 3rdparty/libsamplerate
+	url = https://github.com/libsndfile/libsamplerate.git
