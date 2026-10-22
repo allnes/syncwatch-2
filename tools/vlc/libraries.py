@@ -58,7 +58,8 @@ def build(context, sources):
         build.mkdir()
         context.run("iconv-configure", [shell_path(original / "configure"),
             "--prefix=" + shell_path(context.prefix), "--enable-shared", "--disable-static",
-            "--disable-nls", "--disable-rpath"], cwd=build, shell=True)
+            "--disable-nls", "--disable-rpath", "--host=x86_64-w64-mingw32",
+            "--build=x86_64-pc-msys"], cwd=build, shell=True)
         # Only the LGPL libraries and headers are built/installed, not the CLI.
         for part in ["libcharset", "lib", "include"]:
             context.run("iconv-" + part, ["make", "-C", part, "-j4", "all", "install"], cwd=build, shell=True)

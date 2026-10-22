@@ -112,7 +112,10 @@ class BuildContext:
         tools = {}
         for name in [self.env["CC"], self.env["CXX"], "make", "autoconf", "automake", "libtoolize" if self.target != "macos-arm64" else "glibtoolize", "pkg-config", "ninja", "cmake", "bison", "flex"]:
             path = self.tool(name)
-            result = subprocess.check_output([path, "--version"], env=self.env, stderr=subprocess.STDOUT, timeout=30)
+            command = [path, "--version"]
+            if self.target == "windows-x64":
+                command = [self.shell, "-c", shlex.join([shell_path(path), "--version"])]
+            result = subprocess.check_output(command, env=self.env, stderr=subprocess.STDOUT, timeout=30)
             tools[name] = {"sha256": checksum(path), "version": result.decode(errors="replace").splitlines()[0]}
         tools["buildPython"] = {"sha256": checksum(sys.executable), "version": sys.version.split()[0]}
         return {"target": self.target, "tools": tools, "sdkPackaged": False}

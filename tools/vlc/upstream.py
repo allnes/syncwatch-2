@@ -35,7 +35,8 @@ def build(context, sources, profile):
         "--enable-avcodec", "--enable-avformat", "--enable-swscale", "--enable-freetype",
         "--enable-fribidi", "--enable-harfbuzz", "--enable-libass"]
     if context.target == "windows-x64":
-        flags.append("--with-libiconv-prefix=" + shell_path(context.prefix))
+        flags.extend(["--with-libiconv-prefix=" + shell_path(context.prefix),
+                      "--host=x86_64-w64-mingw32", "--build=x86_64-pc-msys"])
     else:
         flags.append("--without-libiconv-prefix")
     context.run("vlc-configure", [shell_path(source / "configure"), *flags], cwd=build, shell=True)
