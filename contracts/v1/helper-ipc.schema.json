@@ -42,7 +42,13 @@
     "mediaGeneration": {
       "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
     },
-    "payload": {}
+    "payload": {},
+    "origin": {
+      "enum": [
+        "observation",
+        "user"
+      ]
+    }
   },
   "required": [
     "v",
@@ -663,6 +669,26 @@
           "replyTo"
         ]
       }
+    }
+  ],
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "player.state"
+            }
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "origin"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

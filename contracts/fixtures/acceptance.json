@@ -1171,5 +1171,52 @@
       "mediaGeneration": 3
     },
     "error": null
+  },
+  {
+    "name": "helper-player.state-user-origin",
+    "schema": "helper-ipc",
+    "value": {
+      "v": 1,
+      "id": "cmd-42",
+      "type": "player.state",
+      "clientRunId": "run-7",
+      "mediaGeneration": 3,
+      "payload": {
+        "status": "ready",
+        "positionMs": 140500,
+        "durationMs": 7200000,
+        "paused": true,
+        "rate": 1,
+        "seekable": true
+      },
+      "origin": "user"
+    },
+    "error": null,
+    "context": {
+      "clientRunId": "run-7",
+      "mediaGeneration": 3
+    }
+  },
+  {
+    "name": "helper-command-cannot-claim-user-origin",
+    "schema": "helper-ipc",
+    "value": {
+      "v": 1,
+      "id": "cmd-42",
+      "type": "bridge.hello",
+      "clientRunId": "run-7",
+      "mediaGeneration": 3,
+      "payload": {
+        "supportedVersions": [
+          1
+        ]
+      },
+      "origin": "user"
+    },
+    "error": "malformed",
+    "context": {
+      "clientRunId": "run-7",
+      "mediaGeneration": 3
+    }
   }
 ]

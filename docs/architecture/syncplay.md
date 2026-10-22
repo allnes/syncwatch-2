@@ -40,7 +40,7 @@ sequenceDiagram
 
 The application selection coordinator owns the loaded movie/playlist item. The native helper disables Syncplay's stock shared-playlist controller with its normal configuration; it must not independently reopen or rewind that owned file. Selection metadata integration remains separate from playback timing.
 
-A single command queue owns the native player. The coordinator applies local user actions and reports actual state to the engine. An engine correction must not become a second user command. Track origin, command ID, and media generation for ordering and acknowledgement while leaving drift decisions to Syncplay.
+A single command queue owns the native player. The coordinator applies local user actions and reports actual state to the engine. An engine correction must not become a second user command. Track origin, command ID, and media generation for ordering and acknowledgement while leaving drift decisions to Syncplay. Native `player.state` frames default to observation authority; only explicit user-origin frames enter the upstream user-change/send path. Correlated correction results update actual status with observation authority. Pending corrections suppress stale heartbeat playstate, while retaining the upstream ping/recovery flow.
 
 The application boundary uses integer milliseconds; upstream Python APIs use floating-point seconds. Obtain positions from VLC. Use a monotonic clock for elapsed time rather than treating another device's wall-clock timestamps as the playback clock.
 

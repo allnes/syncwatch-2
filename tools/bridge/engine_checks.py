@@ -26,10 +26,12 @@ class PipePlayer(SimulatedPlayer):
         threading.Thread(target=read, daemon=True).start()
         self.send("bridge.hello", {"supportedVersions": [1]})
 
-    def send(self, kind, payload, *, reply=None):
+    def send(self, kind, payload, *, reply=None, user=False):
         self.sequence += 1
         value = {"v": 1, "type": kind, "clientRunId": self.name, "mediaGeneration": 2, "payload": payload,
                  "replyTo" if reply else "id": reply or "cmd-" + str(self.sequence)}
+        if kind == "player.state":
+            value["origin"] = "user" if user else "observation"
         self.process.stdin.write((json.dumps(value) + "\n").encode())
         self.process.stdin.flush()
 
@@ -56,9 +58,9 @@ class PipePlayer(SimulatedPlayer):
         if any(kind == "sync.connection" for kind, _ in self.events):
             self.publish()
 
-    def publish(self):
+    def publish(self, *, user=False):
         self.send("player.state", {"status": "ready", "positionMs": self.current(), "durationMs": 600000,
-            "paused": self.paused, "rate": self.rate, "seekable": True})
+            "paused": self.paused, "rate": self.rate, "seekable": True}, user=user)
 
     def connected(self):
         return any(kind == "sync.connection" and p["state"] == "connected" for kind, p in self.events)
@@ -122,16 +124,16 @@ def bridge_run(root):
             a, b = players
             a.tick()
             a.set_paused(False)
-            a.publish()
+            a.publish(user=True)
             yield wait_for(lambda: not b.paused, "pipe shared play")
             print("PIPE_FIXTURE play", flush=True)
             a.tick()
             a.set_position(90000)
-            a.publish()
+            a.publish(user=True)
             yield wait_for(lambda: b.current() > 85000 and abs(a.current() - b.current()) < 1500, "pipe shared seek")
             b.tick()
             b.set_paused(True)
-            b.publish()
+            b.publish(user=True)
             yield wait_for(lambda: a.paused, "pipe shared pause")
             assert set(factory.hellos) == {"pipe-a", "pipe-b"}
             assert b'"Hello"' not in b"".join(factory.wire)

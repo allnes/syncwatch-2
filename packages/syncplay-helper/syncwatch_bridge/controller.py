@@ -78,7 +78,7 @@ class Controller:
         if kind == "player.state":
             if self.engine is None or self.closing:
                 raise ContractError("invalidState")
-            self.engine.observe(value["payload"])
+            self.engine.observe(value["payload"], user_initiated=value.get("origin") == "user")
             return
         fresh, result = self.replay.admit(value)
         if not fresh:

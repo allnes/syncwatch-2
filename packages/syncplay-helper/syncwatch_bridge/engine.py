@@ -13,10 +13,13 @@ class PlayerPort:
     def request_state(self, callback):
         self.observer = callback
 
-    def observe(self, state, *, notify=True):
+    def state_pending(self):
+        return bool(self.controller.pending)
+
+    def observe(self, state, *, notify=True, user_initiated=False):
         self.state = dict(state)
         if notify and self.observer is not None and not self.released:
-            self.observer(state["paused"], state["positionMs"])
+            self.observer(state["paused"], state["positionMs"], user_initiated=user_initiated)
 
     def set_paused(self, value):
         self.controller.request("player.setPaused", {"paused": value})
@@ -85,22 +88,26 @@ class Engine:
         m = self.media
         self.session.media_loaded(m["mediaHandle"], m["name"], m["durationMs"], m["fileSizeBytes"])
 
-    def observe(self, state):
+    def observe(self, state, *, user_initiated=False):
         if self.port is None or self.media is None:
             raise ContractError("invalidState")
         if state["durationMs"] != self.media["durationMs"]:
             raise ContractError("conflict")
         protocol = self.session._protocol if self.session is not None else None
-        self.port.observe(state, notify=bool(protocol and protocol.logged))
+        self.port.observe(state, notify=bool(protocol and protocol.logged), user_initiated=user_initiated)
 
     def player_result(self, result):
         if self.port is None:
             raise ContractError("invalidState")
         if self.port.state is None:
             return
-        # A correction acknowledgement completes ordering only. The next full
-        # native observation drives the upstream engine; do not turn a result
-        # into another playback action or feed a disconnected protocol.
+        if result["positionMs"] > self.media["durationMs"]:
+            raise ContractError("conflict")
+        # The correlated result contains actual native pause/position, not
+        # expected command values. Update engine observations with no user
+        # authority. Omit stale heartbeat state until every correction is acked.
+        state = self.port.state | {"positionMs": result["positionMs"], "paused": result["paused"]}
+        self.observe(state, user_initiated=False)
 
     def ready(self, value):
         if (self.session is None or not self.session.has_initial_state or self.port.state is None

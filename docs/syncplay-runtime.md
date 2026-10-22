@@ -70,3 +70,5 @@ disconnect/reconnect behavior, source and native import audits, relocated
 packaging checks and CI. A simulated player verifies the engine boundary only;
 actual embedded VLC, native application wiring, signing and release installation
 remain separate acceptance gates.
+
+The configured upstream status entry point accepts an explicit user-origin flag. Native observations update actual engine state without entering its existing user-action detection/send path; stock callers retain the original default. The original upstream source is retained unchanged alongside this narrow configuration derivative. The helper session omits stale local heartbeat playstate while its native corrections await acknowledgement; upstream timing and correction decisions remain unchanged.

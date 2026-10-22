@@ -19,8 +19,8 @@ class Engine:
     def connect(self, payload):
         self.actions.append(("connect", payload))
 
-    def observe(self, payload):
-        self.actions.append(("observe", payload))
+    def observe(self, payload, *, user_initiated=False):
+        self.actions.append(("observe", payload, user_initiated))
 
     def player_result(self, payload):
         self.actions.append(("result", payload))
@@ -97,7 +97,7 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(json.loads(self.sent[-1])["payload"]["code"], "invalidState")
         self.assertEqual(self.controller.engine.actions, [])
 
-    def test_command_ack_does_not_become_playback_observation(self):
+    def test_correction_ack_is_not_dispatched_as_a_user_state_event(self):
         self.receive(self.command())
         self.controller.request("player.setPaused", {"paused": False})
         self.assertEqual(self.controller.engine.actions, [])

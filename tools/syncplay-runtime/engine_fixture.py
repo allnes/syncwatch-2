@@ -38,6 +38,9 @@ class SimulatedPlayer:
     def request_state(self, report):
         report(self.paused, self.current())
 
+    def state_pending(self):
+        return False
+
     def set_paused(self, value):
         self.position = self.current()
         self.since = time.monotonic()

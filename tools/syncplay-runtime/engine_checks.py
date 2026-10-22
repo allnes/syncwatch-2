@@ -68,15 +68,15 @@ def run(root):
             assert not worker.is_alive() and wrong_thread == [True]
             report["lifecycle"]["foreignThreadRejected"] = True
             pa.set_paused(False)
-            a.bridge_player.observe(False, pa.current())
+            a.bridge_player.observe(False, pa.current(), user_initiated=True)
             yield wait_for(lambda: not pb.paused, "shared play")
             report["playback"]["play"] = True
             pa.set_position(90000)
-            a.bridge_player.observe(False, pa.current())
+            a.bridge_player.observe(False, pa.current(), user_initiated=True)
             yield wait_for(lambda: abs(pb.current() - pa.current()) < 1500 and pb.current() > 85000, "shared seek")
             report["playback"]["seek"] = True
             pb.set_paused(True)
-            b.bridge_player.observe(True, pb.current())
+            b.bridge_player.observe(True, pb.current(), user_initiated=True)
             yield wait_for(lambda: pa.paused and pb.paused and pa.current() > 85000 and pb.current() > 85000,
                            "shared pause at the observed seek position")
             report["playback"]["pause"] = True
