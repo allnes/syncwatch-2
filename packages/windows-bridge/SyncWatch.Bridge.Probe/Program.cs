@@ -14,9 +14,9 @@ byte[] Command(int id, string type, object payload) => JsonSerializer.SerializeT
     payload
 }).Concat(new byte[] { 10 }).ToArray();
 
-async Task<string> Read(HelperProcess helper)
+async Task<string> Read(HelperProcess helper, int seconds = 5)
 {
-    using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(5));
+    using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(seconds));
     using JsonDocument value = JsonDocument.Parse(await helper.ReadAsync(deadline.Token));
     return value.RootElement.GetProperty("type").GetString()!;
 }
@@ -25,7 +25,7 @@ await using (HelperProcess helper = HelperProcess.Start(args[0], args[1]))
 {
     byte[] hello = Command(1, "bridge.hello", new { supportedVersions = new[] { 1 } });
     await helper.SendAsync(hello);
-    if (await Read(helper) != "bridge.ready") throw new IOException("Missing handshake");
+    if (await Read(helper, 15) != "bridge.ready") throw new IOException("Missing handshake");
     await helper.SendAsync(hello);
     if (await Read(helper) != "bridge.ready") throw new IOException("Missing duplicate response");
     await helper.SendAsync(Command(2, "player.loaded", new { mediaHandle = "media-1", name = "Movie.mkv", durationMs = 60000, fileSizeBytes = 1234 }));

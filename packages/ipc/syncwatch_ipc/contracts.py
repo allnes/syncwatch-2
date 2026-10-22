@@ -88,7 +88,7 @@ class Context:
 
 
 class Registry:
-    def __init__(self, directory: Path, library):
+    def __init__(self, directory: Path, library, *, kinds=None):
         self.directory = directory.resolve()
         self.manifest = strict_json((self.directory / "manifest.json").read_bytes())
         self.schema_error = library.JsonSchemaValueException
@@ -104,12 +104,16 @@ class Registry:
             self.check_references(document)
         handlers = {scheme: self.resolve for scheme in ("https", "http", "file", "")}
         self.validators = {}
+        selected = set(self.manifest["schemas"] if kinds is None else kinds)
+        if not selected or not selected <= self.manifest["schemas"].keys():
+            raise ValueError("Unknown or empty schema selection")
         for name, relative in self.manifest["schemas"].items():
             path = (self.directory / relative).resolve()
             if not path.is_relative_to(self.directory) or not path.is_file():
                 raise ValueError("Contract entry must resolve to a local schema")
             document = self.resolve(SCHEMA_BASE + path.name)
-            self.validators[name] = library.compile(document, handlers=handlers, use_default=False)
+            if name in selected:
+                self.validators[name] = library.compile(document, handlers=handlers, use_default=False)
 
     def resolve(self, uri: str) -> dict:
         identity, _ = urldefrag(uri)

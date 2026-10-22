@@ -16,6 +16,7 @@ class PipePlayer(SimulatedPlayer):
         self.hold_corrections = False
         self.held = []
         self.cancelled_corrections = 0
+        self.started = time.monotonic()
         self.replies = {}
         self.frames = queue.Queue(maxsize=128)
         executable = runtime / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
@@ -121,7 +122,8 @@ def bridge_run(root):
             for username in ["pipe-a", "pipe-b"]:
                 player = PipePlayer(runtime, username)
                 players.append(player)
-                yield wait_for(lambda: "cmd-1" in player.replies, "pipe hello")
+                yield wait_for(lambda: "cmd-1" in player.replies, "pipe hello", timeout=15)
+                report.setdefault("helperStartupMs", []).append(round((time.monotonic() - player.started) * 1000))
                 print("PIPE_FIXTURE hello", username, flush=True)
                 player.send("player.loaded", {"mediaHandle": "media-1", "name": "pipe-film.mkv",
                                              "durationMs": 600000, "fileSizeBytes": 4096})

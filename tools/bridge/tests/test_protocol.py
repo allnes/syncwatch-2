@@ -137,6 +137,17 @@ class ProtocolTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "timeout"):
             self.controller.tick()
 
+    def test_helper_compiles_only_its_authority_with_the_same_contract_rules(self):
+        from syncwatch_ipc.contracts import Registry as SharedRegistry
+        import fastjsonschema
+        narrow = SharedRegistry(ROOT / "contracts", fastjsonschema, kinds=("helper-ipc",))
+        self.assertEqual(set(narrow.validators), {"helper-ipc"})
+        narrow.validate("helper-ipc", self.command())
+        with self.assertRaises(ContractError):
+            narrow.validate("helper-ipc", self.command(origin="user"))
+        with self.assertRaises(ValueError):
+            SharedRegistry(ROOT / "contracts", fastjsonschema, kinds=("unknown",))
+
     def test_missing_hello_times_out(self):
         self.now = 6
         with self.assertRaisesRegex(ContractError, "timeout"):

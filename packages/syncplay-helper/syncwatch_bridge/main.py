@@ -30,7 +30,7 @@ def main():
     from twisted.internet import task
     from .engine import Engine
     root = Path(__file__).resolve().parents[1]
-    registry = Registry(root / "contracts", fastjsonschema)
+    registry = Registry(root / "contracts", fastjsonschema, kinds=("helper-ipc",))
     revision = (root / "syncplay-revision.txt").read_text(encoding="ascii").strip()
     outgoing = queue.Queue(maxsize=64)
     incoming = queue.Queue(maxsize=64)
