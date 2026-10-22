@@ -127,6 +127,12 @@ def bridge_run(root):
             a.publish(user=True)
             yield wait_for(lambda: not b.paused, "pipe shared play")
             print("PIPE_FIXTURE play", flush=True)
+            # A delayed native correction/result is an observation, not a
+            # second user pause. The engine must restore canonical playback.
+            a.set_paused(True)
+            a.publish(user=False)
+            yield wait_for(lambda: not a.paused and not b.paused, "correction observation does not echo user pause")
+            report["correctionDoesNotEcho"] = True
             a.tick()
             a.set_position(90000)
             a.publish(user=True)
