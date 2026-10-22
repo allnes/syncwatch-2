@@ -1149,5 +1149,27 @@
     "schema": "helper-ipc",
     "frame": "{}\n{}\n",
     "error": "malformed"
+  },
+  {
+    "name": "helper-player.loaded",
+    "schema": "helper-ipc",
+    "value": {
+      "v": 1,
+      "id": "cmd-9",
+      "type": "player.loaded",
+      "clientRunId": "run-7",
+      "mediaGeneration": 3,
+      "payload": {
+        "mediaHandle": "media-1",
+        "name": "Movie.mkv",
+        "durationMs": 60000,
+        "fileSizeBytes": 1234
+      }
+    },
+    "context": {
+      "clientRunId": "run-7",
+      "mediaGeneration": 3
+    },
+    "error": null
   }
 ]

@@ -38,7 +38,8 @@ def relocated_probe(payload, target, logs=None):
             for line in data.decode("utf-8").splitlines():
                 if line.startswith("SYNCWATCH_ENGINE_PROOF "):
                     captured.append(json.loads(line.removeprefix("SYNCWATCH_ENGINE_PROOF ")))
-        exercise_sdk(paths, (ROOT / "tools/syncplay-runtime/engine_checks.py").read_text(encoding="utf-8"),
+        exercise_sdk(paths, (ROOT / "tools/syncplay-runtime/engine_fixture.py").read_text(encoding="utf-8") +
+                     (ROOT / "tools/syncplay-runtime/engine_checks.py").read_text(encoding="utf-8"),
                      selected_cases=("success",), on_output=output)
         if len(captured) != 1:
             raise ValueError("Real headless TLS acceptance report is missing")
