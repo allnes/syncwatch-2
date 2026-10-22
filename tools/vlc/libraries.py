@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 
 from build_context import shell_path
@@ -21,12 +22,14 @@ def meson(context, sources, name, options):
 def cmake(context, name, source, options):
     build = context.work / (name + "-build")
     command = context.tool("cmake")
+    version = subprocess.check_output([command, "--version"], env=context.env, text=True).split()[2]
+    policy = ["-DCMAKE_POLICY_VERSION_MINIMUM=3.5"] if int(version.split(".")[0]) >= 4 else []
     context.run(name + "-configure", [command, "-S", str(source), "-B", str(build), "-G", "Ninja",
         "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_C_COMPILER=" + context.tool(context.env["CC"]),
         "-DCMAKE_INSTALL_PREFIX=" + str(context.prefix), "-DCMAKE_INSTALL_LIBDIR=lib",
         "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF",
         "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-        *(["-DCMAKE_INSTALL_NAME_DIR=@rpath"] if context.target == "macos-arm64" else []), *options])
+        *(["-DCMAKE_INSTALL_NAME_DIR=@rpath"] if context.target == "macos-arm64" else []), *policy, *options])
     context.run(name + "-build", [command, "--build", str(build), "--parallel", "4"])
     context.run(name + "-install", [command, "--install", str(build)])
 
@@ -63,8 +66,11 @@ def build(context, sources):
             "--disable-nls", "--disable-rpath", "--host=x86_64-w64-mingw32",
             "--build=x86_64-pc-msys"], cwd=build, shell=True)
         # Only the LGPL libraries and headers are built/installed, not the CLI.
-        for part in ["libcharset", "lib", "include"]:
+        for part in ["libcharset", "lib"]:
             context.run("iconv-" + part, ["make", "-C", part, "-j4", "all", "install"], cwd=build, shell=True)
+        # The top-level install recipe copies this configured public header.
+        # include/ has no Makefile; top-level all also builds the GPL CLI.
+        shutil.copy2(build / "include/iconv.h.inst", context.prefix / "include/iconv.h")
     cmake(context, "freetype", sources["freetype"], ["-DBUILD_SHARED_LIBS=ON", "-DFT_DISABLE_ZLIB=OFF",
         "-DZLIB_LIBRARY=" + str(context.prefix / "lib/libz.a"), "-DZLIB_INCLUDE_DIR=" + str(context.prefix / "include"),
         "-DFT_DISABLE_BZIP2=ON", "-DFT_DISABLE_PNG=ON", "-DFT_DISABLE_HARFBUZZ=ON", "-DFT_DISABLE_BROTLI=ON"])

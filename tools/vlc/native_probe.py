@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 
 from fixtures import create, encoded
-from source_profile import ROOT
+from source_profile import ROOT, profile_data
 
 
 def verify(context, package):
@@ -21,6 +21,7 @@ def verify(context, package):
     if not actual.is_file():
         raise ValueError("Missing public libVLC runtime library")
     command = [context.tool(context.env["CC"]), "-std=c11", "-Wall", "-Wextra", "-Werror",
+        "-DSW_VLC_REVISION=" + json.dumps(profile_data()["sources"]["vlc"]["revision"]),
         "-I" + str(package / "include"), str(ROOT / "tools/vlc/probe.c"),
         "-L" + str(package / "lib"), "-lvlc", "-o", str(executable)]
     if context.target == "windows-x64":
@@ -34,13 +35,13 @@ def verify(context, package):
     env["VLC_PLUGIN_PATH"] = str(libraries / "vlc/plugins")
     if context.target == "windows-x64":
         env["PATH"] = str(libraries) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32")
-    fixtures = {"i420-pcm": (media, {"videoCodec": "30323449", "audioCodec": "6c363173"})}
+    fixtures = {"i420-pcm": (media, {"videoCodec": "30323449", "audioCodec": "6c363173", "width": 320, "height": 180})}
     fixtures.update(encoded(directory))
     results = {}
     for name, (fixture, metadata) in fixtures.items():
         output = directory / (name + "-proof.log")
         with output.open("wb") as log:
-            process = subprocess.run([str(executable), str(fixture), str(actual)], env=env,
+            process = subprocess.run([str(executable), str(fixture), str(actual), str(metadata["width"]), str(metadata["height"])], env=env,
                 stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, timeout=60)
         if process.returncode:
             raise ValueError("Relocated media probe failed:\n" + output.read_text(errors="replace"))

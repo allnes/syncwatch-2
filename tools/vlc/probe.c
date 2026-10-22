@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef SW_VLC_REVISION
+#error "The native media probe requires its exact source revision"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 static void delay(void) { Sleep(10); }
@@ -130,14 +133,21 @@ int main(int argc, char **argv) {
     int result = 0;
     unsigned video_tracks = 0, audio_tracks = 0, paused_frames, paused_pixel, audio_frequency;
     uint32_t video_codec = 0, audio_codec = 0;
+    unsigned expected_width, expected_height;
+    char *end;
     libvlc_time_t paused_time;
     libvlc_media_track_t **tracks = NULL;
     uint64_t deadline;
-    if (argc != 3) { fprintf(stderr, "usage: vlc-probe owned-media-path expected-library-path\n"); return 2; }
+    if (argc != 5) { fprintf(stderr, "usage: vlc-probe owned-media-path expected-library-path input-width input-height\n"); return 2; }
+    expected_width = (unsigned)strtoul(argv[3], &end, 10);
+    REQUIRE(*end == '\0' && expected_width > 0 && expected_width <= 8192, "invalid fixture width");
+    expected_height = (unsigned)strtoul(argv[4], &end, 10);
+    REQUIRE(*end == '\0' && expected_height > 0 && expected_height <= 8192, "invalid fixture height");
     REQUIRE(owned_library(argv[2]), "loaded library is not the owned relocated artifact");
     instance = libvlc_new((int)(sizeof(options) / sizeof(options[0])), options);
     REQUIRE(instance, "cannot create owned native instance");
     REQUIRE(strncmp(libvlc_get_version(), "3.0.24 ", 7) == 0, "unexpected native version");
+    REQUIRE(strcmp(libvlc_get_changeset(), SW_VLC_REVISION) == 0, "unexpected native source revision");
     media = libvlc_media_new_path(instance, argv[1]);
     REQUIRE(media, "cannot create file media");
     REQUIRE(libvlc_media_parse_with_options(media, libvlc_media_parse_local, 10000) == 0,
@@ -147,7 +157,7 @@ int main(int argc, char **argv) {
     REQUIRE(libvlc_media_get_parsed_status(media) == libvlc_media_parsed_status_done, "metadata parse timed out");
     unsigned count = libvlc_media_tracks_get(media, &tracks);
     for (unsigned i = 0; i < count; ++i) {
-        if (tracks[i]->i_type == libvlc_track_video && tracks[i]->video->i_width == WIDTH && tracks[i]->video->i_height == HEIGHT) {
+        if (tracks[i]->i_type == libvlc_track_video && tracks[i]->video->i_width == expected_width && tracks[i]->video->i_height == expected_height) {
             ++video_tracks; video_codec = tracks[i]->i_codec;
         }
         if (tracks[i]->i_type == libvlc_track_audio && tracks[i]->audio->i_channels == 2 && tracks[i]->audio->i_rate == 48000) {
@@ -191,11 +201,11 @@ int main(int argc, char **argv) {
     REQUIRE(atomic_load(&observed.luminance) < 100, "reload did not restart actual media");
     libvlc_media_player_stop(player);
     printf("{\"version\":\"3.0.24\",\"videoTracks\":%u,\"audioTracks\":%u,"
-           "\"audioPeak\":%u,\"resampledToneHz\":%u,\"videoCodec\":\"%08x\",\"audioCodec\":\"%08x\","
+           "\"inputWidth\":%u,\"inputHeight\":%u,\"audioPeak\":%u,\"resampledToneHz\":%u,\"videoCodec\":\"%08x\",\"audioCodec\":\"%08x\","
            "\"cases\":[\"metadata\",\"decodeVideo\",\"decodeAudio\","
            "\"play\",\"pause\",\"seekPixels\",\"resume\",\"stop\",\"reload\",\"release\"],"
            "\"ownedLibraryLoaded\":true,\"physicalOutputAccepted\":false}\n", video_tracks, audio_tracks,
-           atomic_load(&observed.audio_peak), audio_frequency, video_codec, audio_codec);
+           expected_width, expected_height, atomic_load(&observed.audio_peak), audio_frequency, video_codec, audio_codec);
 cleanup:
     if (player) libvlc_media_player_release(player);
     if (media) libvlc_media_release(media);

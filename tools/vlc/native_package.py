@@ -32,6 +32,7 @@ def assemble(context, build, source, profile, destination):
         if len(matches) != 1:
             raise ValueError("Missing or ambiguous selected VLC plugin: " + name)
         copy_library(matches[0], plugins)
+    shutil.copytree(context.prefix / "include", destination / "include")
     include = destination / "include/vlc"
     include.mkdir(parents=True)
     for directory in [source / "include/vlc", build / "include/vlc"]:
@@ -41,8 +42,9 @@ def assemble(context, build, source, profile, destination):
     if context.target == "windows-x64":
         imports = destination / "lib"
         imports.mkdir()
-        for path in (build / "lib/.libs").glob("*.dll.a"):
-            shutil.copy2(path, imports / path.name)
+        for directory in [context.prefix / "lib", build / "lib/.libs"]:
+            for path in directory.glob("*.dll.a"):
+                shutil.copy2(path, imports / path.name)
     return libraries
 
 
@@ -52,7 +54,24 @@ def relocate(context, destination):
         owned = {p.name for p in binaries}
         for index, path in enumerate(binaries):
             output = subprocess.check_output(["otool", "-L", str(path)], text=True)
-            args = ["install_name_tool", "-id", "@rpath/" + path.name]
+            commands = subprocess.check_output(["otool", "-l", str(path)], text=True)
+            identities = re.findall(r"cmd LC_ID_DYLIB\s+cmdsize \d+\s+name (.*?) \(offset", commands)
+            args = ["install_name_tool"]
+            for identity in identities:
+                # Linker aliases must retain the same upstream SONAME. Giving
+                # each regular alias its own ID loads duplicate native images.
+                if identity.startswith(str(context.prefix)):
+                    identity = "@rpath/" + Path(identity).name
+                if not identity.startswith("@rpath/") or "/" in identity.removeprefix("@rpath/"):
+                    raise ValueError("Unexpected upstream native media identity")
+                args.extend(["-id", identity])
+            expected = "@loader_path/../../.." if "plugins" in path.parts else "@loader_path"
+            rpaths = re.findall(r"cmd LC_RPATH\s+cmdsize \d+\s+path (.*?) \(offset", commands)
+            for rpath in rpaths:
+                if rpath != expected:
+                    args.extend(["-delete_rpath", rpath])
+            if expected not in rpaths:
+                args.extend(["-add_rpath", expected])
             for line in output.splitlines()[1:]:
                 name = line.strip().split(" (", 1)[0]
                 if name.startswith(str(context.prefix)):

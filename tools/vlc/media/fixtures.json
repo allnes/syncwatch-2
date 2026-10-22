@@ -11,6 +11,28 @@
       "height": 180,
       "generator": "tools/vlc/create_encoded_fixture.swift",
       "firstParty": true
+    },
+    "1080p-h264-aac": {
+      "encoded": "1080p-h264-aac.b64",
+      "sha256": "106532ad20eaff5ed19b6c029b727afebd7c7da5d318a5cb67f4bb8d5e9aaa28",
+      "bytes": 46682,
+      "videoCodec": "34363268",
+      "audioCodec": "6134706d",
+      "width": 1920,
+      "height": 1080,
+      "generator": "tools/vlc/create_encoded_fixture.swift",
+      "firstParty": true
+    },
+    "4k-hevc-aac": {
+      "encoded": "4k-hevc-aac.b64",
+      "sha256": "d413243649a352977b27bf871321c8bdc61afce631ca3f388a64391c045dc844",
+      "bytes": 374668,
+      "videoCodec": "63766568",
+      "audioCodec": "6134706d",
+      "width": 3840,
+      "height": 2160,
+      "generator": "tools/vlc/create_encoded_fixture.swift",
+      "firstParty": true
     }
   }
 }

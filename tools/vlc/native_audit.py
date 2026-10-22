@@ -25,7 +25,8 @@ def imports(context, path):
         identity = re.findall(r"cmd LC_ID_DYLIB\s+cmdsize \d+\s+name (.*?) \(offset", commands)
         dependencies = [name for name in dependencies if name not in identity]
         rpaths = re.findall(r"cmd LC_RPATH\s+cmdsize \d+\s+path (.*?) \(offset", commands)
-        if any(p not in {"@loader_path", "@loader_path/../../.."} for p in rpaths):
+        expected = "@loader_path/../../.." if "plugins" in path.parts else "@loader_path"
+        if rpaths != [expected]:
             raise ValueError("Native media has a foreign Mach-O runpath: " + path.name)
         return dependencies
     if context.target == "linux-x64":
