@@ -8,10 +8,10 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
-import zipfile
 
 from build import ROOT
 from check import check
+from helper_archive import write_archive
 
 
 def target():
@@ -52,12 +52,9 @@ def verify(dotnet=None):
         subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, timeout=180, check=True)
     if b"SYNCWATCH_NATIVE_BRIDGE_OK" not in log.read_bytes():
         raise ValueError("Native transport probe did not report success")
-    with zipfile.ZipFile(directory.parent / (selected + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(directory.rglob("*")):
-            if path.is_file():
-                archive.write(path, "payload/" + path.relative_to(directory).as_posix())
-        archive.write(log, "native-probe.log")
-        archive.write(directory.parent / (selected + "-acceptance.json"), "acceptance.json")
+    write_archive(directory, [("native-probe.log", log),
+        ("acceptance.json", directory.parent / (selected + "-acceptance.json"))],
+        directory.parent / (selected + ".zip"))
 
 
 if __name__ == "__main__":
