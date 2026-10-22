@@ -22,6 +22,12 @@ class BridgePlayer(BasePlayer):
         self.client.assert_owner_thread()
         if type(paused) is not bool or type(position_ms) is not int or position_ms < 0:
             raise ValueError("Native playback state requires a pause flag and nonnegative integer milliseconds")
+        # An asynchronous native pause/result may arrive during TLS recovery.
+        # The upstream status API can toggle readiness and requires a live
+        # authenticated protocol; retain native state in its owner until then.
+        protocol = self.client._protocol
+        if protocol is None or not protocol.logged:
+            return
         self.client.updatePlayerStatus(paused, position_ms / 1000.0)
 
     def setPaused(self, value):

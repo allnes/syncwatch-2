@@ -8,6 +8,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/syncplay-runtime"))
 sys.path.insert(0, str(ROOT / "tools/python-runtime"))
+sys.path.insert(0, str(ROOT / "tools/python-build"))
+sys.path.insert(0, str(ROOT / "tools/dependencies"))
 from engine_package import relocated_probe
 
 

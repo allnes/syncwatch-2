@@ -85,6 +85,8 @@ def run(root):
             report["playback"]["lateJoin"] = True
             before = len(factory.hellos)
             a._protocol.transport.abortConnection()
+            yield wait_for(lambda: any(name == "acceptance-a" for name, _, _ in observations), "disconnect observation")
+            a.bridge_player.observe(True, pa.current())
             yield wait_for(lambda: len(factory.hellos) > before and a.isConnectedAndInARoom(), "TLS reconnect")
             assert any(name == "acceptance-a" and paused and ready is False for name, paused, ready in observations)
             report["lifecycle"]["disconnectPausedNotReady"] = True
