@@ -35,6 +35,17 @@ def audit(files, target, sdk, options):
             dependencies = re.findall(r"\(NEEDED\).*\[([^\]]+)\]", output)
         else:
             dependencies = [n.upper() for n in re.findall(r"^\s+([A-Za-z0-9_.-]+\.dll)\s*$", output, re.M | re.I)]
+            if not dependencies and path.name.lower() == "python3.dll":
+                # CPython's stable ABI shim has no import table: every export
+                # forwards to the owned versioned interpreter instead.
+                exports = subprocess.check_output([str(dumpbin), "/nologo", "/exports", str(path)],
+                    text=True, stderr=subprocess.STDOUT, timeout=30)
+                names = re.search(r"^\s*(\d+) number of names\s*$", exports, re.M)
+                forwarders = re.findall(r"\(forwarded to ([A-Za-z0-9_]+)\.[^)]+\)", exports)
+                if (names and forwarders and int(names[1]) == len(forwarders)
+                        and {n.upper() + ".DLL" for n in forwarders} == {"PYTHON312.DLL"}
+                        and "PYTHON312.DLL" in allowed):
+                    dependencies = ["PYTHON312.DLL"]
         if not dependencies or any(n not in allowed and not (target == "windows-x64"
             and re.fullmatch(r"API-MS-WIN-(?:CRT|CORE|SECURITY)-[A-Z0-9-]+\.DLL", n)) for n in dependencies):
             raise ValueError("Runtime links an undeclared library: " + path.name + " " + repr(dependencies))
