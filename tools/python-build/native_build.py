@@ -37,7 +37,8 @@ def execute(name, args, cwd, logs, env=None, timeout=1800):
     return {"command": args, "logSha256": checksum(path)}
 
 
-def build_native(work, sources, profile, cmake, options, sdk):
+def build_native(work, sources, profile, cmake, options, sdk, dependencies=None):
+    dependencies = dependencies or {}
     source, zlib, build, logs = (work / name for name in ["cpython", "zlib", "build", "logs"])
     logs.mkdir(parents=True)
     materialize(source, sources["cpython"], profile["source"]["executables"])
@@ -45,7 +46,7 @@ def build_native(work, sources, profile, cmake, options, sdk):
     # These upstream-supported metadata macros contain no build wall clock.
     path = source / "Modules/getbuildinfo.c"
     path.write_bytes(b'/* SyncWatch stable build metadata; original algorithm follows unchanged. */\n'
-                     b'#define DATE "source-pinned"\n#define TIME "00:00:00"\n' + path.read_bytes())
+                     b'#define DATE "Nov 14 2023"\n#define TIME "22:13:20"\n' + path.read_bytes())
     commands = {}
     environment = os.environ.copy()
     environment.update(SOURCE_DATE_EPOCH="1700000000", PYTHONHASHSEED="0", PYTHONDONTWRITEBYTECODE="1")
@@ -61,23 +62,31 @@ def build_native(work, sources, profile, cmake, options, sdk):
             "/p:IncludeSSL=false", "/p:IncludeTkinter=false", "/p:IncludeCTypes=false", "/p:KillPython=false",
             '/p:PythonForBuild="' + sys.executable + '"', "/p:zlibDir=" + str(zlib) + "\\",
             "/p:PreferredToolArchitecture=x64"]
-        for name, project in [("interpreter", "pcbuild.proj"), ("socket", "_socket.vcxproj"), ("select", "select.vcxproj")]:
+        properties.extend(dependencies.get("msbuildProperties", []))
+        projects = [("interpreter", "pcbuild.proj"),
+                    *((name.removeprefix("_"), name + ".vcxproj") for name in profile.get("windowsShared", ["_socket", "select"]))]
+        for name, project in projects:
             commands[name] = execute(name, [msbuild, str(source / "PCbuild" / project), "/m:4", "/nologo", "/v:minimal", *properties], source, logs, environment)
         native = source / "PCbuild/amd64"
         paths = {"executable": native / "python.exe", "runtime": native / "python312.dll",
                  "library": native / "python312.lib", "config": source / "PC/pyconfig.h",
-                 "extensions": [native / "_socket.pyd", native / "select.pyd"]}
+                 "extensions": [native / (name + ".pyd") for name in profile.get("windowsShared", ["_socket", "select"])]}
     else:
         zbuild = work / "zlib-build"
         commands["zlib-configure"] = execute("zlib-configure", [cmake, "-S", (ROOT / "tools/python-build/zlib").as_posix(), "-B", zbuild.as_posix(),
             *options, "-DCMAKE_BUILD_TYPE=Release", "-DSYNCWATCH_ZLIB_SOURCE=" + zlib.as_posix()], work, logs, environment)
         commands["zlib-build"] = execute("zlib-build", [cmake, "--build", zbuild.as_posix(), "--target", "zlibstatic", "--parallel", "4"], work, logs, environment)
         library = Path((zbuild / "library-Release.txt").read_text())
-        unix_setup(source, build, zlib, library, profile)
+        unix_setup(source, build, zlib, library, profile, dependencies.get("moduleFlags"))
         compiler = next(v.split("=", 1)[1] for v in options if v.startswith("-DCMAKE_C_COMPILER="))
         environment.update(CC=compiler, CONFIG_SITE="/dev/null", CFLAGS="-O2 -g0 -ffile-prefix-map=" + work.as_posix() + "=syncwatch-build")
+        environment.update(dependencies.get("configureEnvironment", {}))
         if target == "macos-arm64":
             environment["MACOSX_DEPLOYMENT_TARGET"] = "13.0"
+            # New SDKs can weak-link pipe2 even though the supported macOS
+            # deployment target does not provide it. Select upstream's pipe
+            # and fcntl fallback instead of calling a missing weak symbol.
+            environment["ac_cv_func_pipe2"] = "no"
             environment["SDKROOT"] = next(v.split("=", 1)[1] for v in options if v.startswith("-DCMAKE_OSX_SYSROOT="))
             environment["LDFLAGS"] = "-Wl,-rpath,@loader_path/../lib"
         else:

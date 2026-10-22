@@ -23,8 +23,7 @@ def profile_data():
         expected[source["path"]] = spec
     if (profile["schemaVersion"] != 1 or profile["sharedLibrary"] is not False or profile["runtimeReady"] is not False
             or profile["verifiedUint128"] is not True or profile["namespacePrefix"] != "python_hashlib_"
-            or registry[COMPONENT]["sources"] != expected or registry[COMPONENT]["roots"] != ["3rdparty/cpython"]
-            or registry["syncplay-runtime"]["status"] != "unavailable"):
+            or registry[COMPONENT]["sources"] != expected or registry[COMPONENT]["roots"] != ["3rdparty/cpython"]):
         raise ValueError("Hash source/license profile differs from the registered static graph")
     return profile
 

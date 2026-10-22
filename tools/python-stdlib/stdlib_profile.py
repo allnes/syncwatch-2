@@ -20,8 +20,7 @@ def profile_data():
             or set(source["files"]) != modules | set(source["notices"])
             or set(profile["vectors"]) != set(profile["codecs"])
             or registry[COMPONENT]["roots"] != [source["path"]]
-            or registry[COMPONENT]["sources"] != {source["path"]: expected}
-            or registry["syncplay-runtime"]["status"] != "unavailable"):
+            or registry[COMPONENT]["sources"] != {source["path"]: expected}):
         raise ValueError("Bootstrap stdlib profile differs from its non-runtime source graph")
     return profile
 

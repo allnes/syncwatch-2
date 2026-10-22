@@ -77,7 +77,7 @@ The [Kotlin stdlib source package](../kotlin-stdlib-sources.md) has a complete s
 
 | Component | Required source graph | Status |
 |---|---|---|
-| Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including declared requirements such as `certifi` and `pem` | Versions and source submodules are not resolved yet |
+| Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including `certifi` and `pem` | [Pinned candidate graph](../syncplay-runtime.md); aggregate native build and real engine acceptance under development |
 | Design generator | Selected native Node source profile and transitive dependencies | Source graph and offline build are available for JSON/custom native formatters; browser/ZIP/CLI/web-format features are excluded |
 | VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
 | Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Browser-host compatibility and source closure are unresolved |

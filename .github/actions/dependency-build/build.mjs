@@ -29,6 +29,9 @@ async function main() {
     if (['jvm-annotations', 'jbr-api'].includes(component) && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
         throw new Error('Pinned developer JDK provisioning failed');
     }
+    if (component === 'syncplay-runtime' && !runCommand([python, 'tools/syncplay-runtime/provision_sdks.py'])) {
+        throw new Error('Headless engine developer SDK provisioning failed');
+    }
     if (!run('prepare')) throw new Error('Dependency preparation failed');
     const prepared = JSON.parse(await readFile(resolve(directory, 'request.json'), 'utf8'));
     const present = await access(prepared.cacheFile).then(() => true, () => false);

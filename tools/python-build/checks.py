@@ -3,6 +3,8 @@
 import ast
 import json
 import math
+import os
+import platform
 import socket
 import struct
 import threading
@@ -12,6 +14,15 @@ import typing
 import zlib
 
 assert sys.version_info[:3] == (3, 12, 15)
+assert platform.python_implementation() == "CPython"
+assert platform.python_version() == "3.12.15"
+read_fd, write_fd = os.pipe()
+try:
+    assert os.write(write_fd, b"owned") == 5
+    assert os.read(read_fd, 5) == b"owned"
+finally:
+    os.close(read_fd)
+    os.close(write_fd)
 assert isinstance(ast.parse("value = 42"), ast.Module)
 assert list(tokenize.generate_tokens(iter(["value = 42"]).__next__))[0].string == "value"
 assert not set(sys.builtin_module_names) & {"_ssl", "_hashlib", "_ctypes", "_sqlite3", "_random", "pyexpat", "_decimal", "_bz2", "_lzma", "_tkinter"}

@@ -28,7 +28,8 @@ def execute(args, cwd, environment=None, timeout=120):
         output.seek(0)
         data = output.read(65537)
     if result.returncode or len(data) > 65536:
-        raise ValueError("Native SDK command failed or exceeded diagnostic bounds:\n" + data[:8192].decode("utf-8", errors="replace"))
+        raise ValueError("Native SDK command failed (exit " + str(result.returncode)
+                         + ") or exceeded diagnostic bounds:\n" + data[:8192].decode("utf-8", errors="replace"))
     return data
 
 
@@ -74,7 +75,9 @@ def fixture(root, sdk, profile, extra_checks=""):
     return environment
 
 
-def exercise_sdk(sdk, extra_checks=""):
+def exercise_sdk(sdk, extra_checks="", selected_cases=CASES, on_output=None):
+    if not selected_cases or any(name not in CASES for name in selected_cases):
+        raise ValueError("Unknown native startup verification case")
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
     if GENERATED.read_text(encoding="utf-8") != render(profile):
         raise ValueError("Native policy differs from the shared startup profile")
@@ -90,13 +93,15 @@ def exercise_sdk(sdk, extra_checks=""):
         execute([cmake, "--build", str(build), "--config", "Release", "--parallel", "2"], root)
         binary = build / ("Release/startup-probe.exe" if sys.platform == "win32" else "startup-probe")
         cases = {}
-        for name in CASES:
+        for name in selected_cases:
             try:
                 data = execute([str(binary), name], root, environment, timeout=30)
             except ValueError as error:
                 raise ValueError("Native startup case failed: " + name) from error
             if data.count(b"SYNCWATCH_NATIVE_STARTUP_OK") != 1:
                 raise ValueError("Native startup case did not report success: " + name)
+            if on_output is not None:
+                on_output(name, data)
             cases[name] = True
         if list(root.rglob("*.pyc")) or list(root.rglob("__pycache__")):
             raise ValueError("Native startup wrote unexpected bytecode")

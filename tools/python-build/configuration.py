@@ -7,13 +7,14 @@ import xml.etree.ElementTree as ET
 NS = "http://schemas.microsoft.com/developer/msbuild/2003"
 
 
-def unix_setup(source, build, zlib, library, profile):
+def unix_setup(source, build, zlib, library, profile, module_flags=None):
     names = re.findall(r"^@MODULE_[A-Z0-9_]+_TRUE@([a-zA-Z0-9_]+) ",
                        (source / "Modules/Setup.stdlib.in").read_text(), re.M)
     selected = profile["extensions"]
     lines = ["# Configured by SyncWatch embedded-core-v1; original algorithms unchanged.", "*static*"]
     for name, files in selected.items():
-        lines.append(name + " " + " ".join(Path(p).relative_to("Modules").as_posix() for p in files))
+        lines.append(name + " " + " ".join(Path(p).relative_to("Modules").as_posix() for p in files)
+                     + (" " + " ".join(module_flags[name]) if module_flags and name in module_flags else ""))
     # No '=' in a makesetup module line: it denotes a Makefile assignment.
     lines.append("zlib zlibmodule.c -DZ_PREFIX -I" + zlib.as_posix() + " " + library.as_posix())
     lines += ["*disabled*", *(name for name in names if name not in selected and name != "zlib")]
@@ -36,7 +37,7 @@ def windows_setup(source, profile):
     names.discard("posix"); names.discard("pwd")
     names.update(["nt", "gc", "msvcrt", "winreg", "zlib", "_imp", "_string", "_ast", "_tokenize"])
     # Socket/select remain separate native extension DLLs in the upstream build.
-    names.discard("_socket"); names.discard("select")
+    names.difference_update(profile.get("windowsShared", ["_socket", "select"]))
     files.update(["gcmodule.c", "getbuildinfo.c", "getpath.c", "main.c", "zlibmodule.c", "_io/winconsoleio.c"])
     config = (source / "PC/config.c").read_text(encoding="utf-8")
     mapping = dict(re.findall(r'\{"([a-zA-Z0-9_]+)", (PyInit_[a-zA-Z0-9_]+)\}', config))

@@ -91,3 +91,138 @@
 [submodule "3rdparty/libcfu"]
 	path = 3rdparty/libcfu
 	url = https://github.com/codebrainz/libcfu.git
+[submodule "3rdparty/python-attrs"]
+	path = 3rdparty/python-attrs
+	url = https://github.com/python-attrs/attrs.git
+[submodule "3rdparty/python-automat"]
+	path = 3rdparty/python-automat
+	url = https://github.com/glyph/automat.git
+[submodule "3rdparty/python-constantly"]
+	path = 3rdparty/python-constantly
+	url = https://github.com/twisted/constantly.git
+[submodule "3rdparty/python-incremental"]
+	path = 3rdparty/python-incremental
+	url = https://github.com/twisted/incremental.git
+[submodule "3rdparty/python-hyperlink"]
+	path = 3rdparty/python-hyperlink
+	url = https://github.com/python-hyper/hyperlink.git
+[submodule "3rdparty/python-idna"]
+	path = 3rdparty/python-idna
+	url = https://github.com/kjd/idna.git
+[submodule "3rdparty/python-zope-interface"]
+	path = 3rdparty/python-zope-interface
+	url = https://github.com/zopefoundation/zope.interface.git
+[submodule "3rdparty/python-typing_extensions"]
+	path = 3rdparty/python-typing_extensions
+	url = https://github.com/python/typing_extensions.git
+[submodule "3rdparty/python-service_identity"]
+	path = 3rdparty/python-service_identity
+	url = https://github.com/pyca/service-identity.git
+[submodule "3rdparty/python-cffi"]
+	path = 3rdparty/python-cffi
+	url = https://github.com/python-cffi/cffi.git
+[submodule "3rdparty/python-pycparser"]
+	path = 3rdparty/python-pycparser
+	url = https://github.com/eliben/pycparser.git
+[submodule "3rdparty/python-pem"]
+	path = 3rdparty/python-pem
+	url = https://github.com/hynek/pem.git
+[submodule "3rdparty/python-certifi"]
+	path = 3rdparty/python-certifi
+	url = https://github.com/certifi/python-certifi.git
+[submodule "3rdparty/python-packaging"]
+	path = 3rdparty/python-packaging
+	url = https://github.com/pypa/packaging.git
+[submodule "3rdparty/libffi"]
+	path = 3rdparty/libffi
+	url = https://github.com/libffi/libffi.git
+[submodule "3rdparty/python-twisted"]
+	path = 3rdparty/python-twisted
+	url = https://github.com/twisted/twisted.git
+[submodule "3rdparty/python-cryptography"]
+	path = 3rdparty/python-cryptography
+	url = https://github.com/pyca/cryptography.git
+[submodule "3rdparty/python-pyopenssl"]
+	path = 3rdparty/python-pyopenssl
+	url = https://github.com/pyca/pyopenssl.git
+[submodule "3rdparty/openssl"]
+	path = 3rdparty/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "3rdparty/boringssl"]
+	path = 3rdparty/boringssl
+	url = https://github.com/google/boringssl.git
+[submodule "3rdparty/license-texts"]
+	path = 3rdparty/license-texts
+	url = https://github.com/spdx/license-list-data.git
+[submodule "3rdparty/rust-asn1"]
+	path = 3rdparty/rust-asn1
+	url = https://github.com/alex/rust-asn1.git
+[submodule "3rdparty/rust-base64"]
+	path = 3rdparty/rust-base64
+	url = https://github.com/marshallpierce/rust-base64.git
+[submodule "3rdparty/rust-bitflags"]
+	path = 3rdparty/rust-bitflags
+	url = https://github.com/bitflags/bitflags.git
+[submodule "3rdparty/rust-cc"]
+	path = 3rdparty/rust-cc
+	url = https://github.com/rust-lang/cc-rs.git
+[submodule "3rdparty/rust-cfg-if"]
+	path = 3rdparty/rust-cfg-if
+	url = https://github.com/rust-lang/cfg-if.git
+[submodule "3rdparty/rust-foreign-types"]
+	path = 3rdparty/rust-foreign-types
+	url = https://github.com/sfackler/foreign-types
+[submodule "3rdparty/rust-heck"]
+	path = 3rdparty/rust-heck
+	url = https://github.com/withoutboats/heck.git
+[submodule "3rdparty/rust-itoa"]
+	path = 3rdparty/rust-itoa
+	url = https://github.com/dtolnay/itoa.git
+[submodule "3rdparty/rust-libc"]
+	path = 3rdparty/rust-libc
+	url = https://github.com/rust-lang/libc.git
+[submodule "3rdparty/rust-once_cell"]
+	path = 3rdparty/rust-once_cell
+	url = https://github.com/matklad/once_cell.git
+[submodule "3rdparty/rust-openssl"]
+	path = 3rdparty/rust-openssl
+	url = https://github.com/rust-openssl/rust-openssl.git
+[submodule "3rdparty/rust-pem"]
+	path = 3rdparty/rust-pem
+	url = https://github.com/jcreekmore/pem-rs.git
+[submodule "3rdparty/rust-pkg-config"]
+	path = 3rdparty/rust-pkg-config
+	url = https://github.com/rust-lang/pkg-config-rs.git
+[submodule "3rdparty/rust-portable-atomic"]
+	path = 3rdparty/rust-portable-atomic
+	url = https://github.com/taiki-e/portable-atomic.git
+[submodule "3rdparty/rust-proc-macro2"]
+	path = 3rdparty/rust-proc-macro2
+	url = https://github.com/dtolnay/proc-macro2.git
+[submodule "3rdparty/rust-pyo3"]
+	path = 3rdparty/rust-pyo3
+	url = https://github.com/pyo3/pyo3.git
+[submodule "3rdparty/rust-quote"]
+	path = 3rdparty/rust-quote
+	url = https://github.com/dtolnay/quote.git
+[submodule "3rdparty/rust-self_cell"]
+	path = 3rdparty/rust-self_cell
+	url = https://github.com/Voultapher/self_cell.git
+[submodule "3rdparty/rust-shlex"]
+	path = 3rdparty/rust-shlex
+	url = https://github.com/comex/rust-shlex.git
+[submodule "3rdparty/rust-syn"]
+	path = 3rdparty/rust-syn
+	url = https://github.com/dtolnay/syn.git
+[submodule "3rdparty/rust-target-lexicon"]
+	path = 3rdparty/rust-target-lexicon
+	url = https://github.com/bytecodealliance/target-lexicon.git
+[submodule "3rdparty/rust-unicode-ident"]
+	path = 3rdparty/rust-unicode-ident
+	url = https://github.com/dtolnay/unicode-ident.git
+[submodule "3rdparty/rust-vcpkg"]
+	path = 3rdparty/rust-vcpkg
+	url = https://github.com/mcgoo/vcpkg-rs.git
+[submodule "3rdparty/python-idna-unicode-data"]
+	path = 3rdparty/python-idna-unicode-data
+	url = https://github.com/unicode-org/unicodetools.git
