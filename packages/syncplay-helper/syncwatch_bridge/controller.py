@@ -19,6 +19,7 @@ class Controller:
         self.replay = Replay(pending_limit=capacity)
         self.pending = {}
         self.sequence = 0
+        self.user_sequence = 0
         self.event_sequence = 0
         self.deadline = clock() + timeout
         self.close_deadline = None
@@ -47,7 +48,7 @@ class Controller:
             raise ContractError("queueFull")
         self.sequence += 1
         identifier = "cmd-" + str(self.sequence)
-        message = self.message(kind, payload, id=identifier)
+        message = self.message(kind, payload, id=identifier, afterUserAction=self.user_sequence)
         self.pending[identifier] = (message, self.clock() + self.timeout)
         self.emit(message)
 
@@ -71,6 +72,8 @@ class Controller:
                 raise ContractError("invalidState")
             del self.pending[value["replyTo"]]
             if value["type"] == "bridge.error":
+                if value["payload"]["code"] == "cancelled" and pending[0]["afterUserAction"] < self.user_sequence:
+                    return
                 raise ContractError("unavailable")
             self.engine.player_result(value["payload"])
             return
@@ -78,6 +81,10 @@ class Controller:
         if kind == "player.state":
             if self.engine is None or self.closing:
                 raise ContractError("invalidState")
+            if value.get("origin") == "user":
+                if value["actionSequence"] <= self.user_sequence:
+                    raise ContractError("duplicate")
+                self.user_sequence = value["actionSequence"]
             self.engine.observe(value["payload"], user_initiated=value.get("origin") == "user")
             return
         fresh, result = self.replay.admit(value)

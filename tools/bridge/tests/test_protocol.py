@@ -108,6 +108,25 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(self.controller.engine.actions[0][0], "result")
         self.rejection("invalidState", reply)
 
+    def test_stale_correction_cancellation_is_correlated_with_newer_user_action(self):
+        self.receive(self.command())
+        self.controller.request("player.setPaused", {"paused": True})
+        request = json.loads(self.sent[-1])
+        self.assertEqual(request["afterUserAction"], 0)
+        state = self.command("player.state", payload={"status": "ready", "positionMs": 1000,
+            "durationMs": 60000, "paused": False, "rate": 1, "seekable": True}, origin="user", actionSequence=1)
+        self.receive(state)
+        reply = self.command("bridge.error", payload={"code": "cancelled", "message": "cancelled", "retryable": False})
+        del reply["id"]
+        reply["replyTo"] = "cmd-1"
+        self.receive(reply)
+        self.assertEqual(self.controller.pending, {})
+        self.rejection("duplicate", state)
+        self.controller.request("player.setPaused", {"paused": False})
+        self.assertEqual(json.loads(self.sent[-1])["afterUserAction"], 1)
+        reply["replyTo"] = "cmd-2"
+        self.rejection("unavailable", reply)
+
     def test_timeout_and_bounded_engine_queue(self):
         self.receive(self.command())
         self.controller.capacity = 1

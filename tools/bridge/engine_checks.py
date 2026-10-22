@@ -11,7 +11,11 @@ class PipePlayer(SimulatedPlayer):
         super().__init__()
         self.name = name
         self.sequence = 0
+        self.user_sequence = 0
         self.events = []
+        self.hold_corrections = False
+        self.held = []
+        self.cancelled_corrections = 0
         self.replies = {}
         self.frames = queue.Queue(maxsize=128)
         executable = runtime / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
@@ -32,12 +36,15 @@ class PipePlayer(SimulatedPlayer):
                  "replyTo" if reply else "id": reply or "cmd-" + str(self.sequence)}
         if kind == "player.state":
             value["origin"] = "user" if user else "observation"
+            if user:
+                self.user_sequence += 1
+                value["actionSequence"] = self.user_sequence
         self.process.stdin.write((json.dumps(value) + "\n").encode())
         self.process.stdin.flush()
 
     def tick(self):
-        while not self.frames.empty():
-            frame = self.frames.get_nowait()
+        while (self.held and not self.hold_corrections) or not self.frames.empty():
+            frame = self.held.pop(0) if self.held and not self.hold_corrections else self.frames.get_nowait()
             if not frame:
                 diagnostic = self.process.stderr.read(4096).decode("utf-8", errors="replace")
                 raise AssertionError("Real helper exited unexpectedly: " + diagnostic)
@@ -47,6 +54,14 @@ class PipePlayer(SimulatedPlayer):
                 assert kind != "bridge.error", payload
                 self.replies[value["replyTo"]] = kind
             elif kind.startswith("player."):
+                if self.hold_corrections:
+                    assert len(self.held) < 64
+                    self.held.append(frame)
+                    continue
+                if value.get("afterUserAction", 0) < self.user_sequence:
+                    self.cancelled_corrections += 1
+                    self.send("bridge.error", {"code": "cancelled", "message": "cancelled", "retryable": False}, reply=value["id"])
+                    continue
                 if kind == "player.setPaused": self.set_paused(payload["paused"])
                 elif kind == "player.setPosition": self.set_position(payload["positionMs"])
                 elif kind == "player.setSpeed": self.set_rate(payload["rate"])
@@ -133,9 +148,15 @@ def bridge_run(root):
             a.publish(user=False)
             yield wait_for(lambda: not a.paused and not b.paused, "correction observation does not echo user pause")
             report["correctionDoesNotEcho"] = True
-            a.tick()
+            # Hold a real older helper correction across a newer local seek.
+            # Its causal watermark must prevent it undoing that user action.
+            a.hold_corrections = True
+            b.set_paused(True)
+            b.publish(user=True)
+            yield wait_for(lambda: bool(a.held), "held native correction")
             a.set_position(90000)
             a.publish(user=True)
+            a.hold_corrections = False
             yield wait_for(lambda: b.current() > 85000 and abs(a.current() - b.current()) < 1500, "pipe shared seek")
             b.tick()
             b.set_paused(True)
@@ -143,7 +164,8 @@ def bridge_run(root):
             yield wait_for(lambda: a.paused, "pipe shared pause")
             assert set(factory.hellos) == {"pipe-a", "pipe-b"}
             assert b'"Hello"' not in b"".join(factory.wire)
-            report.update(play=True, seek=True, pause=True, noPlaintextIdentity=True)
+            assert a.cancelled_corrections > 0
+            report.update(play=True, seek=True, pause=True, noPlaintextIdentity=True, staleCorrectionsCancelled=True)
             a.send("sync.disconnect", {})
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "disconnected"
                                       for k, v in a.events), "pipe disconnect")

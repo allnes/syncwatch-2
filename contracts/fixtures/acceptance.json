@@ -1189,7 +1189,8 @@
         "rate": 1,
         "seekable": true
       },
-      "origin": "user"
+      "origin": "user",
+      "actionSequence": 1
     },
     "error": null,
     "context": {

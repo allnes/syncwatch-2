@@ -12,7 +12,7 @@ from urllib.parse import urldefrag
 SCHEMA_BASE = "https://schemas.syncwatch.invalid/v1/"
 INTEGER_FIELDS = {
     "v", "mediaGeneration", "watchGeneration", "sequence", "positionMs",
-    "durationMs", "fileSizeBytes", "port",
+    "durationMs", "fileSizeBytes", "port", "actionSequence", "afterUserAction",
 }
 
 

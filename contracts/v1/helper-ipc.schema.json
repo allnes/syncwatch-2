@@ -48,6 +48,14 @@
         "observation",
         "user"
       ]
+    },
+    "actionSequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "afterUserAction": {
+      "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
     }
   },
   "required": [
@@ -685,6 +693,53 @@
           "not": {
             "required": [
               "origin"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "origin": {
+            "const": "user"
+          }
+        },
+        "required": [
+          "origin"
+        ]
+      },
+      "then": {
+        "required": [
+          "actionSequence"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "actionSequence"
+          ]
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "player.setPaused",
+                "player.setPosition",
+                "player.setSpeed",
+                "player.openFile"
+              ]
+            }
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "afterUserAction"
             ]
           }
         }
