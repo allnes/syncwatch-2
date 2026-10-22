@@ -63,6 +63,15 @@ class Session(SyncplayClient):
         return bool(self._protocol and self._protocol.logged and self._protocol.hadFirstStateUpdate
                     and self._lastPlayerUpdate is not None)
 
+    def getLocalState(self):
+        # An asynchronous native correction is not applied until acknowledged.
+        # Keep upstream heartbeats, but omit a stale playstate while its native
+        # owner is applying the ordered correction. Timing decisions stay in
+        # the upstream engine; expected command values are not observations.
+        if self.bridge_player.port.state_pending():
+            return None, None, None, None
+        return super().getLocalState()
+
     def media_loaded(self, handle, name, duration_ms, size):
         self.assert_owner_thread()
         if (not isinstance(handle, str) or not handle or any(c in handle for c in "/\\:\x00")

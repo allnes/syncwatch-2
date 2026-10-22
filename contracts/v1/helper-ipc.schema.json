@@ -24,6 +24,7 @@
         "player.setSpeed",
         "player.openFile",
         "bridge.shutdown",
+        "player.loaded",
         "player.state",
         "sync.connection",
         "sync.participants",
@@ -41,7 +42,21 @@
     "mediaGeneration": {
       "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
     },
-    "payload": {}
+    "payload": {},
+    "origin": {
+      "enum": [
+        "observation",
+        "user"
+      ]
+    },
+    "actionSequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "afterUserAction": {
+      "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
+    }
   },
   "required": [
     "v",
@@ -615,6 +630,120 @@
           "id"
         ]
       }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "player.loaded"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "mediaHandle": {
+              "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/id"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f]+$"
+            },
+            "durationMs": {
+              "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/timeMs"
+            },
+            "fileSizeBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "mediaHandle",
+            "name",
+            "durationMs",
+            "fileSizeBytes"
+          ],
+          "additionalProperties": false
+        },
+        "id": {
+          "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/commandId"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "not": {
+        "required": [
+          "replyTo"
+        ]
+      }
+    }
+  ],
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "player.state"
+            }
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "origin"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "origin": {
+            "const": "user"
+          }
+        },
+        "required": [
+          "origin"
+        ]
+      },
+      "then": {
+        "required": [
+          "actionSequence"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "actionSequence"
+          ]
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "player.setPaused",
+                "player.setPosition",
+                "player.setSpeed",
+                "player.openFile"
+              ]
+            }
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "afterUserAction"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

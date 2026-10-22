@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; the shared Library workspace, application-settings dialog, core player chrome, player-settings and call shells and galleries consume a shared declarative component library; media, synchronization, and provider integrations remain planned. The shells do not yet expose the domain workflows or connect to the room service.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; the shared Library workspace, application-settings dialog, core player chrome, player-settings and call shells and galleries consume a shared declarative component library; source-built headless Syncplay/TLS and development pipe transports are present; native VLC and application provider activation remain incomplete. The shells do not yet expose the domain workflows or connect to the room service.
 
 ## Technology decisions
 
@@ -153,7 +153,7 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | Google Meet | Browser hosts, account access, media, native call controls, and capture shutdown are not implemented |
 | VLC | Native video rendering, Windows overlays, timeline previews, track adapters and applying player preferences to VLC are not implemented |
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
-| Syncplay bridge | Headless runtime, native IPC adapters, and reconnect behavior are not implemented |
+| Syncplay bridge | Source-built headless runtime and development helper/native pipe adapters are present; actual VLC, authenticated installation and application provider activation remain incomplete; Kotlin transport is source-only |
 | Shared design | Swift/WPF Library/Settings/core Player/PlayerSettings and galleries consume one declarative component tree through primitive adapters; native appearance preferences persist locally; Kotlin data and Compose Library/Settings/Player/PlayerSettings source are present with the Linux build still unavailable; call components and remaining player overlays remain planned |
 | Linux client | Kotlin/Compose Desktop is selected; dependency closure, toolchain, shell, domain implementation, application CI, playback, and calling are not implemented |
 

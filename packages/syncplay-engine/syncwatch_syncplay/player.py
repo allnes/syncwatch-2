@@ -18,11 +18,17 @@ class BridgePlayer(BasePlayer):
     def askForStatus(self):
         self.port.request_state(self.observe)
 
-    def observe(self, paused, position_ms):
+    def observe(self, paused, position_ms, *, user_initiated=False):
         self.client.assert_owner_thread()
         if type(paused) is not bool or type(position_ms) is not int or position_ms < 0:
             raise ValueError("Native playback state requires a pause flag and nonnegative integer milliseconds")
-        self.client.updatePlayerStatus(paused, position_ms / 1000.0)
+        # An asynchronous native pause/result may arrive during TLS recovery.
+        # The upstream status API can toggle readiness and requires a live
+        # authenticated protocol; retain native state in its owner until then.
+        protocol = self.client._protocol
+        if protocol is None or not protocol.logged:
+            return
+        self.client.updatePlayerStatus(paused, position_ms / 1000.0, fromUser=user_initiated)
 
     def setPaused(self, value):
         if type(value) is not bool:

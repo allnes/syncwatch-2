@@ -22,12 +22,14 @@
       },
       "inputs": [
         "contracts",
-        "tools/contracts/pyproject.toml"
+        "tools/contracts/pyproject.toml",
+        "packages/ipc"
       ],
       "watch": [
         "3rdparty/fastjsonschema",
         "contracts",
-        "tools/contracts"
+        "tools/contracts",
+        "packages/ipc"
       ],
       "targets": {
         "linux-x64": {

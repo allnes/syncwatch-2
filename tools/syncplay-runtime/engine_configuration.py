@@ -38,6 +38,18 @@ def configure(source):
     text = text.replace(before, "        # SyncWatch: native media metadata avoids resolving opaque local handles here.\n"
         "        if fileSize is None:\n" + "".join("    " + line + "\n" for line in before.splitlines())
         + "        else:\n            size = fileSize\n")
+    # Native status observations and explicit user actions have different
+    # authority. Preserve upstream state/correction handling while permitting
+    # only the latter to enter its existing user-change detection/send path.
+    before = "    def updatePlayerStatus(self, paused, position):"
+    if text.count(before) != 1:
+        raise ValueError("Original native observation API differs")
+    text = text.replace(before, "    def updatePlayerStatus(self, paused, position, fromUser=True):")
+    before = "        pauseChange, seeked = self._determinePlayerStateChange(paused, position)"
+    if text.count(before) != 1:
+        raise ValueError("Original user-state detection boundary differs")
+    text = text.replace(before, "        # SyncWatch: actual observations are not implicit user commands.\n"
+        "        pauseChange, seeked = self._determinePlayerStateChange(paused, position) if fromUser else (False, False)")
     path.write_text(text, encoding="utf-8", newline="\n")
     players = source / "syncplay/players/__init__.py"
     original = players.read_text(encoding="utf-8")

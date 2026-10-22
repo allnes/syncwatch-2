@@ -24,7 +24,9 @@ def execute(args, cwd, environment=None, timeout=120):
             result = subprocess.run(args, cwd=cwd, env=environment, stdin=subprocess.DEVNULL,
                                     stdout=output, stderr=subprocess.STDOUT, timeout=timeout)
         except subprocess.TimeoutExpired as error:
-            raise ValueError("Native SDK command timed out") from error
+            output.seek(0)
+            data = output.read(8192)
+            raise ValueError("Native SDK command timed out:\n" + data.decode("utf-8", errors="replace")) from error
         output.seek(0)
         data = output.read(65537)
     if result.returncode or len(data) > 65536:
@@ -75,7 +77,7 @@ def fixture(root, sdk, profile, extra_checks=""):
     return environment
 
 
-def exercise_sdk(sdk, extra_checks="", selected_cases=CASES, on_output=None):
+def exercise_sdk(sdk, extra_checks="", selected_cases=CASES, on_output=None, case_timeout=30):
     if not selected_cases or any(name not in CASES for name in selected_cases):
         raise ValueError("Unknown native startup verification case")
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
@@ -95,7 +97,7 @@ def exercise_sdk(sdk, extra_checks="", selected_cases=CASES, on_output=None):
         cases = {}
         for name in selected_cases:
             try:
-                data = execute([str(binary), name], root, environment, timeout=30)
+                data = execute([str(binary), name], root, environment, timeout=case_timeout)
             except ValueError as error:
                 raise ValueError("Native startup case failed: " + name) from error
             if data.count(b"SYNCWATCH_NATIVE_STARTUP_OK") != 1:
