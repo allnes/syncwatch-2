@@ -40,6 +40,21 @@ def main():
     draining = [False]
     frames = Frames(registry.manifest["maxFrameBytes"])
 
+    def diagnose(error):
+        code = error.code if isinstance(error, ContractError) else "internal"
+        detail = ""
+        if code == "internal":
+            trace = error.__traceback__
+            while trace is not None and trace.tb_next is not None:
+                trace = trace.tb_next
+            name = type(error).__name__
+            if name in {"AttributeError", "KeyError", "TypeError", "ValueError", "RuntimeError"} and trace is not None:
+                module = Path(trace.tb_frame.f_code.co_filename).name
+                if not module.isascii() or len(module) > 40:
+                    module = "module"
+                detail = " " + name + " " + module + " line " + str(trace.tb_lineno)
+        os.write(2, ("Helper stopped: " + code + detail + "\n").encode("ascii"))
+
     def send(data):
         try:
             outgoing.put_nowait(data)
@@ -61,6 +76,8 @@ def main():
             stop()
 
     def pump():
+        if controller.closing:
+            return
         try:
             while True:
                 try:
@@ -73,7 +90,9 @@ def main():
                     break
                 for frame in frames.feed(data):
                     controller.receive(frame)
-        except Exception:
+        except Exception as error:
+            if not controller.closing:
+                diagnose(error)
             abort()
         finally:
             wake.clear()
@@ -83,7 +102,9 @@ def main():
             pump()
         try:
             controller.tick()
-        except Exception:
+        except Exception as error:
+            if not controller.closing:
+                diagnose(error)
             abort()
         if draining[0] and writer_finished.is_set():
             reactor.stop()

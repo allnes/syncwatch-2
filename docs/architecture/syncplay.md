@@ -11,7 +11,7 @@ The integration relies on a pinned internal Python API rather than a separately 
 | `syncplay/client.py:SyncplayClient.__init__(playerClass, ui, config)` | Inject the player and noninteractive UI adapters |
 | `syncplay/players/basePlayer.py:BasePlayer` | Implement status requests, pause, position, speed, file opening, messages, startup, and cleanup |
 | `SyncplayClient.updatePlayerStatus(paused, position)` | Report actual native playback state in seconds |
-| `syncplay/protocols.py` | Reuse upstream transport, room, readiness, and playlist behavior |
+| `syncplay/protocols.py` | Reuse upstream transport, room, readiness, and playback-state behavior |
 | `syncplay/ui/consoleUI.py` and `UiManager` in `client.py` | Identify the required noninteractive UI callbacks |
 
 The helper does not launch the standard Syncplay UI or a separate VLC application. A custom BasePlayer adapter controls embedded libVLC directly. Drift correction remains in the upstream engine.
@@ -38,11 +38,15 @@ sequenceDiagram
     VLC->>B: Actual result with acknowledged origin
 ```
 
+The application selection coordinator owns the loaded movie/playlist item. The native helper disables Syncplay's stock shared-playlist controller with its normal configuration; it must not independently reopen or rewind that owned file. Selection metadata integration remains separate from playback timing.
+
 A single command queue owns the native player. The coordinator applies local user actions and reports actual state to the engine. An engine correction must not become a second user command. Track origin, command ID, and media generation for ordering and acknowledgement while leaving drift decisions to Syncplay.
 
 The application boundary uses integer milliseconds; upstream Python APIs use floating-point seconds. Obtain positions from VLC. Use a monotonic clock for elapsed time rather than treating another device's wall-clock timestamps as the playback clock.
 
 Only play, pause, seek, and movie/playlist-item selection are shared user playback actions. Volume/mute, tracks, subtitles, image/audio settings, previews, skip interval, window/cursor state, theme/language, and camera/microphone preferences are never replicated. Readiness and timing support the protocol; helper `setSpeed` performs local drift correction rather than synchronizing a user speed preference. Metadata bookkeeping does not authorize another remote stop, close, or settings action.
+
+The [development helper](../syncplay-bridge.md) implements owned process startup, strict inherited-pipe validation and native transport boundaries. It remains separate from production provider activation and actual VLC acceptance.
 
 ## Local IPC v1
 
@@ -64,6 +68,7 @@ Example acknowledgement:
 |---|---|
 | `bridge.hello / ready` | Negotiate IPC version, upstream revision, process run ID, and capabilities before accepting commands |
 | `sync.connect / disconnect / setReady` | Manage Syncplay connection and readiness |
+| `player.loaded` | Authorize an opaque local handle and its filename/duration/size metadata |
 | `player.state` | Report actual time, pause, rate, duration, seekability, and loaded generation |
 | `player.setPaused / setPosition / setSpeed / openFile` | Execute BridgePlayer actions in the native adapter |
 | `sync.connection / participants / readiness` | Publish engine state to the application |

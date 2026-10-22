@@ -30,7 +30,7 @@ def session(binary, runtime):
     # An oversized unfinished frame must terminate without reflecting its data.
     rejected = subprocess.run([str(binary), str(runtime)], input=b"x" * 65537, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, timeout=10)
-    if rejected.stdout or rejected.stderr:
+    if rejected.stdout or rejected.stderr != b"Helper stopped: frameTooLarge\n":
         raise ValueError("Invalid pipe input was echoed")
     return {"coalescedFrames": True, "identicalReplay": True, "shutdown": True, "oversizedInputClosed": True}
 

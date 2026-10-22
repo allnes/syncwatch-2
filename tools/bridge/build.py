@@ -29,7 +29,15 @@ def inventory(root):
     return result
 
 
+def first_party_inputs():
+    directories = ["packages/ipc", "packages/syncplay-helper", "packages/python-startup", "contracts", "tools/bridge"]
+    return {directory + "/" + name: value for directory in directories
+            for name, value in inventory(ROOT / directory).items()
+            if "__pycache__" not in name.split("/") and not name.endswith(".pyc")}
+
+
 def build(runtime, output):
+    inputs = first_party_inputs()
     cmake, options, sdk = resolve()
     receipt = json.loads((runtime / "build-report.json").read_text(encoding="utf-8"))
     files = inventory(runtime)
@@ -82,8 +90,13 @@ def build(runtime, output):
                   "runtimeReceiptSha256": digest(runtime / "build-report.json"),
                   "syncplayRevision": revision, "validatorRevision": pin, "validatorOriginals": originals,
                   "sourceCommit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+                  "sourceTree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT, text=True).strip(),
+                  "localChanges": bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT)),
+                  "firstPartyInputs": inputs,
                   "developmentHelperOnly": True, "authenticatedInstallation": False,
                   "files": inventory(owned)}
+        if first_party_inputs() != inputs:
+            raise ValueError("Helper build inputs changed during the build")
         (owned / "helper-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         shutil.move(str(owned), output)
     return output / "bin" / executable

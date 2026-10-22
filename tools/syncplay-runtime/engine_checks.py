@@ -23,6 +23,9 @@ def run(root):
                 observations.append((name, player.paused, session.userlist.currentUser.isReady()))
         session = Session("127.0.0.1", port, name, "acceptance-room", player, receive,
                           trust_roots=[ca_pem] if trusted else None)
+        # Match the native helper: media selection is application-owned, not a
+        # second stock-player playlist that may asynchronously reopen/rewind it.
+        session.getConfig()["sharedPlaylistEnabled"] = False
         session.handshake_timeout = 2.0
         session.media_loaded("owned-handle-" + name, "acceptance-film.mkv", 600000, 4096)
         session.connect()

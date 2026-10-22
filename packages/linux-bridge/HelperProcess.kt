@@ -62,9 +62,15 @@ class HelperProcess private constructor(private val process: Process) : AutoClos
         result.whenComplete { _, _ -> if (result.isCancelled) process.destroyForcibly() }
         try {
             executor.execute {
-                try { result.complete(work()) }
-                catch (error: Exception) { process.destroyForcibly(); result.completeExceptionally(error) }
-                finally { busy.set(false) }
+                try {
+                    val value = work()
+                    busy.set(false)
+                    result.complete(value)
+                } catch (error: Exception) {
+                    busy.set(false)
+                    process.destroyForcibly()
+                    result.completeExceptionally(error)
+                }
             }
         } catch (error: RejectedExecutionException) {
             busy.set(false)

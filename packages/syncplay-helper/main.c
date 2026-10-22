@@ -11,12 +11,21 @@
 
 static wchar_t paths[4][SW_PYTHON_MAX_PATH_CHARS];
 
+static int append_path(wchar_t *destination, const wchar_t *prefix, const wchar_t *suffix)
+{
+    size_t left = wcslen(prefix), right = wcslen(suffix);
+    if (left >= SW_PYTHON_MAX_PATH_CHARS || right >= SW_PYTHON_MAX_PATH_CHARS - left) return 0;
+    wmemcpy(destination, prefix, left);
+    wmemcpy(destination + left, suffix, right + 1);
+    return 1;
+}
+
 static int run(int argc, wchar_t **argv)
 {
     const wchar_t *search[4];
     sw_python_paths config;
     int result;
-    if (argc != 2) return 64;
+    if (argc != 2) { fputs("Helper argument count invalid\n", stderr); return 64; }
 #ifdef _WIN32
     if (_setmode(_fileno(stdin), _O_BINARY) == -1 || _setmode(_fileno(stdout), _O_BINARY) == -1) return 70;
 #define CORE L"/bin"
@@ -25,10 +34,11 @@ static int run(int argc, wchar_t **argv)
 #define CORE L"/lib"
 #define STDLIB L"/lib/python312.zip"
 #endif
-    if (swprintf(paths[0], SW_PYTHON_MAX_PATH_CHARS, L"%ls/app", argv[1]) < 0 ||
-        swprintf(paths[1], SW_PYTHON_MAX_PATH_CHARS, L"%ls/python", argv[1]) < 0 ||
-        swprintf(paths[2], SW_PYTHON_MAX_PATH_CHARS, L"%ls" STDLIB, argv[1]) < 0 ||
-        swprintf(paths[3], SW_PYTHON_MAX_PATH_CHARS, L"%ls" CORE, argv[1]) < 0) return 64;
+    if (!append_path(paths[0], argv[1], L"/app") || !append_path(paths[1], argv[1], L"/python") ||
+        !append_path(paths[2], argv[1], STDLIB) || !append_path(paths[3], argv[1], CORE)) {
+        fputs("Helper path limit exceeded\n", stderr);
+        return 64;
+    }
     search[0] = paths[0]; search[1] = paths[1]; search[2] = paths[2]; search[3] = paths[3];
     config.home = config.prefix = config.base_prefix = config.exec_prefix = config.base_exec_prefix = argv[1];
     config.program_name = config.executable = config.base_executable = argv[0];
@@ -75,9 +85,9 @@ int main(int argc, char **argv)
 {
     wchar_t *arguments[2];
     int result;
-    if (argc != 2) return 64;
+    if (argc != 2) { fputs("Helper argument count invalid\n", stderr); return 64; }
     arguments[0] = utf8(argv[0]); arguments[1] = utf8(argv[1]);
-    if (arguments[0] == NULL || arguments[1] == NULL) result = 64;
+    if (arguments[0] == NULL || arguments[1] == NULL) { fputs("Helper path encoding invalid\n", stderr); result = 64; }
     else result = run(argc, arguments);
     free(arguments[0]); free(arguments[1]);
     return result;

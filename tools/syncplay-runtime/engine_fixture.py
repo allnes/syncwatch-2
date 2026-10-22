@@ -115,5 +115,3 @@ def wait_for(predicate, description, timeout=5):
         if time.monotonic() >= deadline:
             raise AssertionError("Actual Syncplay acceptance timed out: " + description)
         yield task.deferLater(reactor, 0.02, lambda: None)
-
-

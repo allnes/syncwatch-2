@@ -16,7 +16,7 @@ class PipePlayer(SimulatedPlayer):
         self.frames = queue.Queue(maxsize=128)
         executable = runtime / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
         self.process = subprocess.Popen([str(executable), str(runtime)], stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         def read():
             while True:
                 frame = self.process.stdout.readline(65537)
@@ -36,7 +36,9 @@ class PipePlayer(SimulatedPlayer):
     def tick(self):
         while not self.frames.empty():
             frame = self.frames.get_nowait()
-            assert frame, "Real helper exited unexpectedly"
+            if not frame:
+                diagnostic = self.process.stderr.read(4096).decode("utf-8", errors="replace")
+                raise AssertionError("Real helper exited unexpectedly: " + diagnostic)
             value = json.loads(frame)
             kind, payload = value["type"], value["payload"]
             if "replyTo" in value:
@@ -52,8 +54,11 @@ class PipePlayer(SimulatedPlayer):
             else:
                 self.events.append((kind, payload))
         if any(kind == "sync.connection" for kind, _ in self.events):
-            self.send("player.state", {"status": "ready", "positionMs": self.current(), "durationMs": 600000,
-                "paused": self.paused, "rate": self.rate, "seekable": True})
+            self.publish()
+
+    def publish(self):
+        self.send("player.state", {"status": "ready", "positionMs": self.current(), "durationMs": 600000,
+            "paused": self.paused, "rate": self.rate, "seekable": True})
 
     def connected(self):
         return any(kind == "sync.connection" and p["state"] == "connected" for kind, p in self.events)
@@ -66,6 +71,7 @@ class PipePlayer(SimulatedPlayer):
                 self.process.kill()
                 self.process.wait(timeout=4)
         self.process.stdout.close()
+        self.process.stderr.close()
 
 
 def bridge_run(root):
@@ -109,14 +115,23 @@ def bridge_run(root):
             for p in players: p.send("sync.setReady", {"ready": True})
             yield wait_for(lambda: all(any(k == "sync.readiness" and v["ready"] for k, v in p.events)
                                       for p in players), "pipe readiness")
+            yield wait_for(lambda: all(any(k == "sync.participants" and len(v["participants"]) == 2
+                and all(user["ready"] for user in v["participants"]) for k, v in p.events) for p in players),
+                "all pipe participant readiness observations")
             print("PIPE_FIXTURE ready", flush=True)
             a, b = players
+            a.tick()
             a.set_paused(False)
+            a.publish()
             yield wait_for(lambda: not b.paused, "pipe shared play")
             print("PIPE_FIXTURE play", flush=True)
+            a.tick()
             a.set_position(90000)
+            a.publish()
             yield wait_for(lambda: b.current() > 85000 and abs(a.current() - b.current()) < 1500, "pipe shared seek")
+            b.tick()
             b.set_paused(True)
+            b.publish()
             yield wait_for(lambda: a.paused, "pipe shared pause")
             assert set(factory.hellos) == {"pipe-a", "pipe-b"}
             assert b'"Hello"' not in b"".join(factory.wire)
@@ -126,6 +141,8 @@ def bridge_run(root):
                                       for k, v in a.events), "pipe disconnect")
             report["disconnect"] = True
         except Exception:
+            print("PIPE_FAILURE", [{"events": p.events[-8:], "commands": p.commands[-8:], "paused": p.paused,
+                "position": p.current(), "exit": p.process.poll()} for p in players], "server", factory.states[-4:], flush=True)
             from twisted.python.failure import Failure
             failures.append(Failure())
         finally:

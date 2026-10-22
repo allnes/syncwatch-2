@@ -8,6 +8,8 @@ The helper requires `bridge.hello` before work, fixes the process run and media 
 
 `player.loaded` supplies an opaque authorized handle and local filename/duration/size metadata. It authorizes no arbitrary path or network URL. `player.state` reports actual native observations. Engine corrections are sent as `player.setPaused`, `player.setPosition`, `player.setSpeed` or `player.openFile`; a result is correlated with its correction and must not be converted into a second user action. Acknowledging connection initiation does not assert an authenticated connection. Readiness requires the initial canonical state and an observed ready player.
 
+Media selection belongs to the application coordinator. The helper disables the stock shared-playlist controller through the pinned engine configuration so it cannot independently reopen or rewind an application-owned file. This does not disable upstream play/pause/seek, readiness, drift correction or transport recovery. Shared movie/playlist-item selection still requires the application selection and RoomMetadata integration.
+
 The current helper accepts public trusted TLS endpoints. `secretHandle` fails as unavailable until the application credential broker is attached. Standard output contains protocol frames only. Upstream console text is suppressed; native adapters discard diagnostics without accumulating them.
 
 Build and exercise a previously source-built engine payload:

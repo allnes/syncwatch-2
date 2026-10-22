@@ -208,4 +208,3 @@ class Registry:
                 # New/rebound membership is accepted only as a server-ordered binding event.
                 if value["type"] != "member.bound":
                     reject(context.members.get(value["memberId"]) != value["clientRunId"], "foreignRun")
-
