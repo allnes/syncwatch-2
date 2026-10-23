@@ -21,7 +21,10 @@ def copy_library(source, directory):
 def assemble(context, build, source, profile, destination):
     destination.mkdir()
     libraries = destination / ("bin" if context.target == "windows-x64" else "lib")
-    plugins = libraries / "vlc/plugins/selected"
+    # Upstream Windows config_GetLibDir returns the DLL directory itself;
+    # Darwin/Linux append PACKAGE. Match each native default without process
+    # environment mutation or an obsolete --plugin-path override.
+    plugins = libraries / ("plugins/selected" if context.target == "windows-x64" else "vlc/plugins/selected")
     plugins.mkdir(parents=True)
     for directory in [context.prefix / "lib", context.prefix / "bin", build / "src/.libs", build / "lib/.libs"]:
         if directory.exists():
