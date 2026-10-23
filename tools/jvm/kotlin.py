@@ -114,7 +114,7 @@ def provision(spec, directory, archive=None, sbom=None):
 
 
 def argument_file(arguments, path):
-    """Java launcher argfiles avoid Windows command limits and shell parsing."""
+    """UTF-8 Kotlin/javac tool argfiles avoid command limits and shell parsing."""
     def quote(value):
         value = str(value)
         if any(c in value for c in "\x00\r\n"):
@@ -124,11 +124,12 @@ def argument_file(arguments, path):
 
 
 def java(arguments, directory, jdk_home):
-    with tempfile.TemporaryDirectory(prefix="java-args-") as temporary:
-        path = Path(temporary) / "arguments.txt"
-        argument_file(arguments, path)
-        return subprocess.check_output([tools(jdk_home)["java"], "@" + str(path)], cwd=directory,
-                                       env=java_environment(), stderr=subprocess.STDOUT, text=True)
+    # The Windows native launcher decodes @files using the host ANSI code page.
+    # Keep the short VM command on the Unicode process API; tools read long UTF-8
+    # argument lists themselves. Do not change a workstation's locale or code page.
+    return subprocess.check_output([tools(jdk_home)["java"], "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",
+                                    "-Dstderr.encoding=UTF-8", *map(str, arguments)], cwd=directory,
+                                   env=java_environment(), stderr=subprocess.STDOUT, text=True, encoding="utf-8")
 
 
 def compile(arguments, directory, jdk_home, compiler_home=None):
@@ -144,13 +145,16 @@ def compile(arguments, directory, jdk_home, compiler_home=None):
                 if Path(name).resolve().is_relative_to(compiler_home.resolve()):
                     raise ValueError("Compiler SDK JARs must not enter the application classpath")
     explicit = [a for a in arguments if a not in {"-no-stdlib", "-no-reflect"}]
-    command = ["-Xmx3g", "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-cp",
-               str(compiler_home / spec["compilerFiles"][0]), spec["compilerEntry"], "-no-stdlib", "-no-reflect", *explicit]
-    try:
-        return java(command, directory, jdk_home)
-    except subprocess.CalledProcessError as error:
-        print(error.output)
-        raise
+    with tempfile.TemporaryDirectory(prefix="kotlin-args-") as temporary:
+        path = Path(temporary) / "arguments.txt"
+        argument_file(["-no-stdlib", "-no-reflect", *explicit], path)
+        command = ["-Xmx3g", "-Djava.awt.headless=true", "-cp",
+                   str(compiler_home / spec["compilerFiles"][0]), spec["compilerEntry"], "@" + str(path)]
+        try:
+            return java(command, directory, jdk_home)
+        except subprocess.CalledProcessError as error:
+            print(error.output)
+            raise
 
 
 def main():

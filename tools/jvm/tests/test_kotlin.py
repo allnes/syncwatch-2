@@ -116,6 +116,20 @@ class KotlinSdkTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 kotlin.argument_file([value], path)
 
+    def test_long_unicode_compiler_inputs_are_read_by_the_utf8_tool_parser(self):
+        sources = [str(self.root / "Кино 映画" / ("source-" + str(n) + ".kt")) for n in range(2400)]
+        self.assertGreater(len(" ".join(sources)), 32767)
+        def execute(command, directory, home):
+            self.assertLess(len(" ".join(command)), 4096)
+            self.assertTrue(command[-1].startswith("@"))
+            data = Path(command[-1][1:]).read_text(encoding="utf-8")
+            self.assertIn("Кино 映画", data)
+            self.assertIn("source-2399.kt", data)
+            self.assertIn('"-no-stdlib"', data)
+            return "compiler fixture"
+        with patch.object(kotlin, "java", side_effect=execute):
+            self.assertEqual(kotlin.compile(sources, self.root, self.root, self.root), "compiler fixture")
+
 
 if __name__ == "__main__":
     unittest.main()
