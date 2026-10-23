@@ -27,11 +27,13 @@ internal static class PlaybackAcceptance
     internal static async Task RunAsync(PlaybackWorkspace workspace, string report, bool detach)
     {
         Dictionary<string, object> result = new() { ["success"] = false, ["physicalOutputAccepted"] = false, ["presentedSeekPixelsAccepted"] = false };
+        result["stage"] = "paused-load";
         try
         {
             var player = workspace.Player; var scope = workspace.Scope;
             PlaybackObservation initial = await Wait(workspace, v => v.Status == PlaybackStatus.Ready && v.Paused && v.Seekable);
             Require(initial.DurationMs == 4000 && initial.PositionMs < 300);
+            result["stage"] = "native-output";
             workspace.RequestAction("playPause");
             await Wait(workspace, v => !v.Paused && v.PositionMs >= 500 && v.VideoOutputs > 0 && v.Width == 320 && v.Height == 180);
             nint drawable = workspace.Surface.NativeHandle;
@@ -78,10 +80,19 @@ internal static class PlaybackAcceptance
             catch (ObjectDisposedException) { }
             result["nativeReleasedBeforeView"] = true;
             result["success"] = true;
+            result.Remove("stage");
         }
         catch (Exception error)
         {
             result["failure"] = error.GetType().Name + ": " + error.Message;
+            try
+            {
+                PlaybackObservation last = await workspace.Player.ObserveAsync(workspace.Scope);
+                result["lastStatus"] = last.Status.ToString(); result["lastPositionMs"] = last.PositionMs;
+                result["lastPaused"] = last.Paused; result["lastVideoOutputs"] = last.VideoOutputs;
+                result["lastWidth"] = last.Width; result["lastHeight"] = last.Height;
+            }
+            catch (Exception) { }
             await workspace.CloseAsync();
         }
         Finish(report, result);
