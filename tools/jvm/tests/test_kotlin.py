@@ -99,7 +99,10 @@ class KotlinSdkTests(unittest.TestCase):
 
     def test_sdk_jars_cannot_become_target_runtime_or_classpath(self):
         for arguments in [["-include-runtime"], ["-kotlin-home", str(self.root)],
-                          ["-classpath", str(self.root / "kotlinc/lib/kotlin-stdlib.jar")]]:
+                          ["-include-runtime=true"], ["-kotlin-home=" + str(self.root)],
+                          ["-Xplugin=" + str(self.root / "plugin.jar")],
+                          ["-classpath", str(self.root / "kotlinc/lib/kotlin-stdlib.jar")],
+                          ["-classpath=" + str(self.root / "kotlinc/lib/kotlin-stdlib.jar")]]:
             with patch.object(kotlin, "java") as execute:
                 with self.assertRaises(ValueError):
                     kotlin.compile(arguments, self.root, self.root, self.root)

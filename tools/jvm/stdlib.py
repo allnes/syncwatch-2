@@ -119,7 +119,7 @@ def verify(payload, files, source_profile, profile, annotation_files, annotation
         raise ValueError("Stdlib payload has missing or unexpected files")
     annotations.verify(payload / "annotations", annotation_files, annotation_profile, jdk_version)
     binary = (payload / BINARY).read_bytes()
-    if digest(binary) != profile["expectedJars"][BINARY]:
+    if digest(binary) != profile["expectedJars"][jdk.current_target()][BINARY]:
         raise ValueError("Stdlib binary differs from the reviewed source/compiler output")
     with zipfile.ZipFile(io.BytesIO(binary)) as archive:
         if len(archive.namelist()) != len(set(archive.namelist())):
@@ -131,18 +131,21 @@ def verify(payload, files, source_profile, profile, annotation_files, annotation
 
 def probe(payload, home, compiler):
     with tempfile.TemporaryDirectory(prefix="stdlib-consumer-") as temporary:
-        work = Path(temporary)
+        work = Path(temporary) / "Кино 映画"
+        work.mkdir()
         binary = (payload / BINARY).resolve()
         annotation_jar = (payload / "annotations" / annotations.BINARY).resolve()
-        classes = work / "classes"
+        classes = work / "compiled classes"
         classes.mkdir()
+        consumer = work / "StdlibConsumer.kt"
+        consumer.write_bytes((ROOT / "tools/jvm/tests/StdlibConsumer.kt").read_bytes())
         kotlin.compile(["-no-stdlib", "-no-reflect", "-jdk-home", str(home), "-classpath", str(binary),
                         "-jvm-target", "1.8", "-language-version", "2.3", "-api-version", "2.3", "-Werror",
-                        "-d", str(classes), str(ROOT / "tools/jvm/tests/StdlibConsumer.kt")], work, home, compiler)
+                        "-d", str(classes), str(consumer)], work, home, compiler)
         result = kotlin.java(["-cp", os.pathsep.join(map(str, [classes, binary, annotation_jar])), "StdlibConsumerKt", str(binary)], work, home)
         if "SYNCWATCH_STDLIB_OK" not in result:
             raise ValueError("Kotlin source-built runtime consumer failed")
-        javac(["--release", "9", "-encoding", "UTF-8", "-proc:none", "-d", str(classes),
+        javac(["--release", "9", "-encoding", "UTF-8", "-proc:none", "--class-path", str(binary), "-d", str(classes),
                str(ROOT / "tools/jvm/tests/StdlibModuleProbe.java")], work, home)
         result += kotlin.java(["--module-path", str(binary), "--add-modules", "kotlin.stdlib", "-cp", str(classes),
                                "StdlibModuleProbe", str(binary)], work, home)

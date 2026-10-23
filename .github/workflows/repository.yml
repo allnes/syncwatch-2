@@ -418,7 +418,7 @@
       }
     },
     "linux": {
-      "name": "Linux source and JVM boundaries",
+      "name": "Linux Kotlin domain and JVM boundaries",
       "runs-on": "ubuntu-24.04",
       "timeout-minutes": 30,
       "steps": [
@@ -431,7 +431,7 @@
           "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
         },
         {
-          "name": "Validate Linux source and executable JVM boundaries",
+          "name": "Compile Linux Kotlin domain and validate JVM boundaries",
           "env": {
             "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
           },

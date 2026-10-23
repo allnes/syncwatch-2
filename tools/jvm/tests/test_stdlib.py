@@ -30,7 +30,8 @@ class StdlibTests(unittest.TestCase):
             (payload / "annotations").mkdir()
             for name, data in expected.items():
                 (payload / name).write_bytes(data)
-            profile = {"expectedJars": {stdlib.BINARY: digest(binary)}}
+            profile = {"expectedJars": {target: {stdlib.BINARY: digest(binary)} for target in
+                                      ("macos-arm64", "linux-x64", "windows-x64")}}
             def verify():
                 stdlib.verify(payload, {}, {}, profile, {}, {"notices": []}, "fixture")
             with patch.object(stdlib, "support", return_value=support), patch.object(stdlib.annotations, "support_files", return_value={}), patch.object(stdlib.annotations, "verify") as annotation_verify:

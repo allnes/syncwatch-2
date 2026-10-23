@@ -29,6 +29,8 @@ This compiler is a build-platform SDK exception. Its bundled implementation depe
 
 ## Acceptance
 
-Cold builds and cache reuse verify exact deterministic JAR hashes, original source/notice correspondence, the named module and its original exports, Kotlin metadata, collection/sequence APIs, Unicode titlecase, regex groups, coroutines, JDK7 paths, JDK8 optionals and version reporting. Consumers check that Kotlin runtime classes load from the owned JAR. `jdeps` must report only `java.base`.
+Cold builds and cache reuse verify exact deterministic JAR hashes per native target, original source/notice correspondence, the named module and its original exports, Kotlin metadata, collection/sequence APIs, Unicode titlecase, regex groups, coroutines, JDK7 paths, Java interface defaults, JDK8 optionals and version reporting. Consumers compile and run in Unicode/space-containing directories and check that Kotlin runtime classes load from the owned JAR. `jdeps` must report only `java.base`.
+
+ARM64 and x64 compiler constant folding emit opposite signs for IEEE NaN in five entries; the remaining output bytes match. Target-specific hashes preserve these original compiler outputs. NaN behavior, public API and source/profile correspondence are checked separately; the difference does not introduce platform-specific application or design versions.
 
 The required dependency lane compiles and executes the Kotlin domain on every target against this runtime. It consumes the same 31 local-state cases and six lifecycle scenarios used by the Swift and C# domains, including generation ownership, atomic persistence, future-format preservation and bounded history. A successful domain check does not qualify Compose galleries, a desktop package, native video or physical output. Those remain separate Linux application requirements.

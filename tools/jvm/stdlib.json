@@ -28,6 +28,14 @@
     "-opt-in=kotlin.contracts.ExperimentalContracts"
   ],
   "expectedJars": {
-    "kotlin-stdlib-2.3.20-syncwatch.jar": "f728b81c6ad961a91a7b38d0564e3698a176c9df6ffd392c49e8fd0ce8f8f6fb"
+    "macos-arm64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "f728b81c6ad961a91a7b38d0564e3698a176c9df6ffd392c49e8fd0ce8f8f6fb"
+    },
+    "linux-x64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "24cd539c3218067e366bf43d5040f5cbd1b9adf329bc5b1d2e8883e25afc6fef"
+    },
+    "windows-x64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "24cd539c3218067e366bf43d5040f5cbd1b9adf329bc5b1d2e8883e25afc6fef"
+    }
   }
 }

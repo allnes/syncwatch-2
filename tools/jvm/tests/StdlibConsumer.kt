@@ -24,6 +24,9 @@ fun main(arguments: Array<String>) {
     check(Base64.decode(Base64.encode("Синхронизация".encodeToByteArray())).decodeToString() == "Синхронизация")
     check(Optional.of("present").getOrNull() == "present" && Optional.empty<String>().getOrNull() == null)
     check(3.seconds.inWholeMilliseconds == 3000L && (1u..3u).sum() == 6u)
+    check(Double.NaN.isNaN() && Float.NaN.isNaN())
+    check(listOf(1.0, Double.NaN).maxOrNull()!!.isNaN())
+    check(sequenceOf(1.0, Double.NaN).maxOrNull()!!.isNaN())
     var observed: Int? = null
     val action: suspend () -> Int = { 42 }
     action.startCoroutine(object : Continuation<Int> {

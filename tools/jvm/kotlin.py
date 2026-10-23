@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -44,7 +45,7 @@ def extract(archive, destination, spec):
     with zipfile.ZipFile(archive) as source:
         names, found, size = set(), set(), 0
         for item in source.infolist():
-            name = item.filename
+            name = item.orig_filename
             parts = PurePosixPath(name).parts
             if (not parts or any(p in {".", ".."} for p in parts) or name.startswith("/")
                     or "\\" in name or ":" in name or "\x00" in name or name.casefold() in names
@@ -133,12 +134,13 @@ def java(arguments, directory, jdk_home):
 def compile(arguments, directory, jdk_home, compiler_home=None):
     compiler_home = compiler_home or home()
     spec = specification()
-    if "-include-runtime" in arguments or "-kotlin-home" in arguments:
-        raise ValueError("Compiler SDK runtime JARs must not be packaged or inferred")
-    for flag in ("-classpath", "-cp"):
-        if flag in arguments:
-            import os
-            for name in arguments[arguments.index(flag) + 1].split(os.pathsep):
+    for index, argument in enumerate(arguments):
+        flag, separator, value = str(argument).partition("=")
+        if flag in {"-include-runtime", "-kotlin-home", "-Xplugin", "-Xcompiler-plugin"}:
+            raise ValueError("Compiler SDK runtimes and optional plugins are not application build inputs")
+        if flag in {"-classpath", "-cp"}:
+            value = value if separator else arguments[index + 1]
+            for name in value.split(os.pathsep):
                 if Path(name).resolve().is_relative_to(compiler_home.resolve()):
                     raise ValueError("Compiler SDK JARs must not enter the application classpath")
     explicit = [a for a in arguments if a not in {"-no-stdlib", "-no-reflect"}]
