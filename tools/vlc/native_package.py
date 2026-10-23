@@ -46,15 +46,6 @@ def assemble(context, build, source, profile, destination):
         for directory in [context.prefix / "lib", build / "lib/.libs"]:
             for path in directory.glob("*.dll.a"):
                 shutil.copy2(path, imports / path.name)
-    elif context.target == "linux-x64":
-        fonts = destination / "share/fonts"
-        fonts.mkdir(parents=True)
-        # Font files are OS/user resources, never copied from the developer SDK.
-        # This owned configuration keeps Fontconfig independent of its build prefix.
-        (fonts / "fonts.conf").write_bytes(b'<?xml version="1.0"?>\n<fontconfig>\n'
-            b'<dir>/usr/share/fonts</dir><dir>/usr/local/share/fonts</dir>\n'
-            b'<dir prefix="xdg">fonts</dir><cachedir prefix="xdg">fontconfig</cachedir>\n'
-            b'</fontconfig>\n')
     return libraries
 
 

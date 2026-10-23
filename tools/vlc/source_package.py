@@ -6,6 +6,7 @@ from source_profile import ROOT
 from source_files import archive_bytes, digest, encoded
 from configuration import vlc_files
 from sdk_material import notices
+from font_configuration import contents as font_contents
 
 
 def recipes():
@@ -26,6 +27,8 @@ def expected(snapshots, profile, context):
     files = {"sources/recipes.zip": archive_bytes(recipes()),
              "sources/profile.json": encoded(profile)}
     files.update(notices(context))
+    if context.target == "linux-x64":
+        files.update(font_contents(snapshots["fontconfig"], profile))
     for name, data in vlc_files(snapshots["vlc"], profile).items():
         files["sources/configured/vlc/" + name] = data
     inventory = {}

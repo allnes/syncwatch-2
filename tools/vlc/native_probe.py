@@ -17,6 +17,7 @@ def environment(package, target):
         env["PATH"] = str(libraries) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32")
     elif target == "linux-x64":
         env["FONTCONFIG_FILE"] = str(package / "share/fonts/fonts.conf")
+        env["FONTCONFIG_PATH"] = str(package / "share/fonts")
     return env
 
 

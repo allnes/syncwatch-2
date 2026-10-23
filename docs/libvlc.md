@@ -19,7 +19,9 @@ macOS uses the selected Apple SDK plus GNU M4, Autoconf, Automake, Libtool, Gett
 
 ## Selected sources and media behavior
 
-`tools/vlc/profile.json` records the exact files, original executable inventory, notices, source edges and plugin selection. The graph contains VLC, FFmpeg, dav1d, source-built zlib, FreeType, HarfBuzz, FriBidi, libass, libsamplerate, Fontconfig, Expat, GNU libiconv, Meson the separately pinned Unicode authority and source-built winpthreads for Windows. Fontconfig/Expat serve Linux; GNU iconv serves Windows; CoreText and DirectWrite are platform font providers. Font files come from the OS or user and are not bundled by this component.
+`tools/vlc/profile.json` records the exact files, original executable inventory, notices, source edges and plugin selection. The graph contains VLC, FFmpeg, dav1d, source-built zlib, FreeType, HarfBuzz, FriBidi, libass, libsamplerate, Fontconfig, Expat, GNU libiconv, Meson, the separately pinned Unicode authority and source-built winpthreads for Windows. Fontconfig/Expat serve Linux; GNU iconv serves Windows; CoreText and DirectWrite are platform font providers. Font files come from the OS or user and are not bundled by this component.
+
+Linux retains Fontconfig's original default alias, matching, hinting and fallback rules from its pinned source. The configuration is relocated into the owned package and checked against those source bytes on every verification. The consumer selects that configuration directory explicitly; it does not rely on a configuration left in the build prefix.
 
 FFmpeg uses dynamic libraries with GPL, version3 and nonfree components disabled. The actual libraries must report the expected license, version and configuration through their own APIs. FreeType uses its FreeType License choice. The full original grants and embedded notices are retained, including license alternatives for excluded original sources.
 
