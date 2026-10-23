@@ -5,6 +5,7 @@ import SyncWatchDomain
 /// Activated only by the explicit local native acceptance entry point.
 @MainActor enum PlaybackAcceptance {
     private enum Failure: Error { case timeout, surface, clock, pixels }
+    @MainActor private final class Transition { var completed = false }
     private static func wait(
         _ controller: PlaybackController, until predicate: (PlaybackObservation) -> Bool
     ) async throws -> PlaybackObservation {
@@ -65,13 +66,27 @@ import SyncWatchDomain
             let final = try await controller.player.observe(controller.scope)
             guard final.videoOutputs > 0, controller.view === view else { throw Failure.surface }
             for entering in [true, false] {
+                result["stage"] = entering ? "fullscreen-enter" : "fullscreen-exit"
+                let transition = Transition()
+                let notification =
+                    entering ? NSWindow.didEnterFullScreenNotification : NSWindow.didExitFullScreenNotification
+                let observer = NotificationCenter.default.addObserver(
+                    forName: notification, object: window, queue: .main
+                ) { _ in
+                    MainActor.assumeIsolated { transition.completed = true }
+                }
+                defer { NotificationCenter.default.removeObserver(observer) }
                 controller.action("toggleFullscreen", value: nil)
                 let deadline = ContinuousClock.now.advanced(by: .seconds(10))
-                while window.styleMask.contains(.fullScreen) != entering, ContinuousClock.now < deadline {
+                while !transition.completed, ContinuousClock.now < deadline {
                     try await Task.sleep(for: .milliseconds(50))
                 }
-                guard window.styleMask.contains(.fullScreen) == entering else { throw Failure.surface }
-                try await Task.sleep(for: .milliseconds(500))
+                result["fullscreenStyle"] = window.styleMask.rawValue
+                result["fullscreenCollection"] = window.collectionBehavior.rawValue
+                result["viewRetained"] = controller.view === view
+                guard transition.completed, window.styleMask.contains(.fullScreen) == entering else {
+                    throw Failure.surface
+                }
             }
             guard controller.view === view, try await controller.player.observe(controller.scope).videoOutputs > 0
             else { throw Failure.surface }
@@ -79,6 +94,7 @@ import SyncWatchDomain
             result["actualNativeSurface"] = true
             result["resizeRetainedDrawable"] = true
             result["fullscreenRetainedDrawable"] = true
+            result.removeValue(forKey: "stage")
             result["actualPausedClock"] = true
             await controller.close()
             do {

@@ -12,7 +12,7 @@ Local files must have absolute paths. Network URIs are not accepted. Software de
 
 ## Native surfaces and design
 
-The macOS application retains its AppKit `NSView` and window until asynchronous native stop finishes. Windows uses an `HwndHost` in the design library's video slot. Unexpected removal parks its child HWND invisibly until native release finishes, then destroys the parked window. The shared design owns layout, colors, text, control placement and action validation; the playback code supplies observations and native resources.
+The macOS application retains its AppKit `NSView` and window until asynchronous native stop finishes. The player explicitly enables [native fullscreen behavior](https://developer.apple.com/documentation/swiftui/view/windowfullscreenbehavior(_:)) on supported systems and waits for completed native transitions during acceptance. Windows uses an `HwndHost` in the design library's video slot. Unexpected removal parks its child HWND invisibly until native release finishes, then destroys the parked window. The shared design owns layout, colors, text, control placement and action validation; the playback code supplies observations and native resources.
 
 The present player layout places its toolbar and footer outside the video rectangle. WPF popovers and future overlapping controls still require the architecture's separate owned overlay-window integration and DPI/focus acceptance. The development surface does not qualify those workflows, a physical display or speaker output. Linux JNI acceptance does not qualify the pending Kotlin/Compose GUI or its runtime dependency closure.
 
@@ -26,7 +26,7 @@ SyncWatch.app/Contents/MacOS/SyncWatch --local-playback /absolute/movie.mkv
 
 The default media location is `Contents/Frameworks/Media` inside the macOS bundle, or `Media` beside the Windows application. For an unbundled build use `--media-package /absolute/sdk/payload`; Windows also accepts `--playback-bridge C:\absolute\syncwatch_playback.dll`. This explicit entry enables local playback only. Normal Library/watch activation, shared selection, helper/player coordination, track/settings menus, previews and Meet integration retain their own implementation gates.
 
-`--playback-report /absolute/report.json` runs actual AppKit/WPF acceptance against the authored four-second fixture and exits. It checks paused load, the advancing clock, pause stability, forward/backward seek observations, native surface creation, resizing and release. Windows `--playback-detach-probe` additionally exercises unexpected surface removal. Screen readback and physical output are reported separately; an unavailable capture does not imply presented-pixel acceptance.
+`--playback-report /absolute/report.json` runs actual AppKit/WPF acceptance against the authored four-second fixture and exits. It checks paused load, the advancing clock, pause stability, forward/backward seek observations, native surface creation, resizing, fullscreen transitions and release. Windows `--playback-detach-probe` additionally exercises unexpected surface removal. Screen readback and physical output are reported separately; an unavailable capture does not imply presented-pixel acceptance.
 
 ## Validation and CI
 

@@ -103,6 +103,10 @@ struct LocalPlaybackLaunch {
             return
         }
         if action == "toggleFullscreen" {
+            if #unavailable(macOS 15) {
+                window?.collectionBehavior.remove(.fullScreenNone)
+                window?.collectionBehavior.insert(.fullScreenPrimary)
+            }
             window?.toggleFullScreen(nil)
             return
         }
@@ -152,7 +156,14 @@ struct PlaybackWorkspace: View {
     @StateObject private var preferences = AppearancePreferences(
         store: FileLocalStateStore(url: AppearancePreferences.defaultURL))
     init(launch: LocalPlaybackLaunch) { _controller = StateObject(wrappedValue: PlaybackController(launch: launch)) }
-    var body: some View {
+    @ViewBuilder var body: some View {
+        if #available(macOS 15, *) {
+            content.windowFullScreenBehavior(.enabled)
+        } else {
+            content
+        }
+    }
+    private var content: some View {
         PlayerChrome(
             presentation: controller.presentation,
             language: preferences.state.preferences.language,
