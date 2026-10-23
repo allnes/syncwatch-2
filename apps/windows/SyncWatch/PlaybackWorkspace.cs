@@ -33,9 +33,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
     private bool attached;
+    private bool fullscreen;
+    private WindowState savedWindowState;
+    private WindowStyle savedWindowStyle;
     internal VLCPlayback Player => player;
     internal PlaybackScope Scope => scope;
     internal NativeVideoHost Surface => surface;
+    internal void RequestAction(string action, double? value = null) => Action(action, value);
     internal void DetachSurface()
     {
         chrome.VideoSurface = null;
@@ -109,8 +113,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         if (action == "toggleFullscreen")
         {
             Window window = Window.GetWindow(this);
-            if (window.WindowState == WindowState.Maximized) { window.WindowState = WindowState.Normal; window.WindowStyle = WindowStyle.SingleBorderWindow; }
-            else { window.WindowStyle = WindowStyle.None; window.WindowState = WindowState.Maximized; }
+            if (fullscreen) { window.WindowStyle = savedWindowStyle; window.WindowState = savedWindowState; }
+            else
+            {
+                savedWindowState = window.WindowState; savedWindowStyle = window.WindowStyle;
+                window.WindowStyle = WindowStyle.None; window.WindowState = WindowState.Maximized;
+            }
+            fullscreen = !fullscreen;
             return;
         }
         try

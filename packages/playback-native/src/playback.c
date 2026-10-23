@@ -69,6 +69,9 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
     if (!p->instance || !(p->player = p->api.libvlc_media_player_new(p->instance))) {
         sw_playback_close(p); return SW_ENGINE;
     }
+    /* Application controls own user actions; native input must not bypass the port. */
+    p->api.libvlc_video_set_key_input(p->player, 0);
+    p->api.libvlc_video_set_mouse_input(p->player, 0);
     if (surface) p->api.set_surface(p->player, surface);
     p->events = p->api.libvlc_media_player_event_manager(p->player);
     for (unsigned i = 0; i < sizeof(event_types) / sizeof(event_types[0]); ++i) {

@@ -32,17 +32,17 @@ internal static class PlaybackAcceptance
             var player = workspace.Player; var scope = workspace.Scope;
             PlaybackObservation initial = await Wait(workspace, v => v.Status == PlaybackStatus.Ready && v.Paused && v.Seekable);
             Require(initial.DurationMs == 4000 && initial.PositionMs < 300);
-            await player.SetPausedAsync(false, scope);
+            workspace.RequestAction("playPause");
             await Wait(workspace, v => !v.Paused && v.PositionMs >= 500 && v.VideoOutputs > 0 && v.Width == 320 && v.Height == 180);
             nint drawable = workspace.Surface.NativeHandle;
             Require(IsWindow(drawable) && GetWindow(drawable, 5) != 0 && GetClientRect(drawable, out Rect rectangle) && rectangle.Right > 0 && rectangle.Bottom > 0);
-            await player.SetPausedAsync(true, scope);
+            workspace.RequestAction("playPause");
             PlaybackObservation paused = await Wait(workspace, v => v.Paused);
             await Task.Delay(300);
             Require(Math.Abs((await player.ObserveAsync(scope)).PositionMs - paused.PositionMs) <= 60);
-            await player.SeekAsync(2500, scope);
+            workspace.RequestAction("seek", 2500);
             await Wait(workspace, v => v.Paused && v.PositionMs is >= 2300 and <= 2700);
-            await player.SeekAsync(250, scope);
+            workspace.RequestAction("seek", 250);
             await Wait(workspace, v => v.Paused && v.PositionMs < 650);
             Window window = Window.GetWindow(workspace);
             double width = window.Width, height = window.Height;
@@ -50,9 +50,20 @@ internal static class PlaybackAcceptance
             await Task.Delay(200);
             Require(workspace.Surface.NativeHandle == drawable && (await player.ObserveAsync(scope)).VideoOutputs > 0);
             window.Width = width; window.Height = height;
+            // Maximization and fullscreen are distinct application states.
+            window.WindowState = WindowState.Maximized;
+            WindowStyle style = window.WindowStyle;
+            workspace.RequestAction("toggleFullscreen");
+            await Task.Delay(200);
+            Require(window.WindowState == WindowState.Maximized && window.WindowStyle == WindowStyle.None);
+            workspace.RequestAction("toggleFullscreen");
+            await Task.Delay(200);
+            Require(window.WindowState == WindowState.Maximized && window.WindowStyle == style && workspace.Surface.NativeHandle == drawable);
+            window.WindowState = WindowState.Normal;
             result["actualNativeSurface"] = true;
             result["actualPausedClock"] = true;
             result["resizeRetainedDrawable"] = true;
+            result["fullscreenRetainedDrawable"] = true;
             if (detach)
             {
                 await player.SetPausedAsync(false, scope);

@@ -64,9 +64,21 @@ import SyncWatchDomain
             window.setFrame(original, display: true)
             let final = try await controller.player.observe(controller.scope)
             guard final.videoOutputs > 0, controller.view === view else { throw Failure.surface }
+            for entering in [true, false] {
+                controller.action("toggleFullscreen", value: nil)
+                let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+                while window.styleMask.contains(.fullScreen) != entering, ContinuousClock.now < deadline {
+                    try await Task.sleep(for: .milliseconds(50))
+                }
+                guard window.styleMask.contains(.fullScreen) == entering else { throw Failure.surface }
+                try await Task.sleep(for: .milliseconds(500))
+            }
+            guard controller.view === view, try await controller.player.observe(controller.scope).videoOutputs > 0
+            else { throw Failure.surface }
             result["nativeViewClass"] = NSStringFromClass(type(of: view.subviews[0]))
             result["actualNativeSurface"] = true
             result["resizeRetainedDrawable"] = true
+            result["fullscreenRetainedDrawable"] = true
             result["actualPausedClock"] = true
             await controller.close()
             do {

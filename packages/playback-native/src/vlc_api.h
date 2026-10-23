@@ -24,6 +24,8 @@
  X(void, libvlc_media_player_release, (libvlc_media_player_t *)) \
  X(void, libvlc_media_player_set_media, (libvlc_media_player_t *, libvlc_media_t *)) \
  X(int, libvlc_media_player_play, (libvlc_media_player_t *)) \
+ X(void, libvlc_video_set_key_input, (libvlc_media_player_t *, unsigned)) \
+ X(void, libvlc_video_set_mouse_input, (libvlc_media_player_t *, unsigned)) \
  X(void, libvlc_media_player_set_pause, (libvlc_media_player_t *, int)) \
  X(void, libvlc_media_player_stop, (libvlc_media_player_t *)) \
  X(void, libvlc_media_player_set_time, (libvlc_media_player_t *, libvlc_time_t)) \
