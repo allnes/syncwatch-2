@@ -557,6 +557,7 @@ public static class SyncWatchCopy
         ("en", "selectionFixtureLabel") => "Selection menu fixture",
         ("en", "selectionFixtureLong") => "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
         ("en", "galleryKind") => "Menu",
+        ("en", "playbackFailed") => "Could not open this movie.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -750,6 +751,7 @@ public static class SyncWatchCopy
         ("ru", "selectionFixtureLabel") => "Пример меню выбора",
         ("ru", "selectionFixtureLong") => "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
         ("ru", "galleryKind") => "Меню",
+        ("ru", "playbackFailed") => "Не удалось открыть фильм.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };

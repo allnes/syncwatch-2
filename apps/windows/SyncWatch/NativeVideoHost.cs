@@ -1,0 +1,51 @@
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
+
+namespace SyncWatch;
+
+// Native lifetime only. The design's video slot supplies all layout and appearance.
+internal sealed class NativeVideoHost(Func<Task> release) : HwndHost
+{
+    public event Action<nint>? SurfaceCreated;
+    protected override HandleRef BuildWindowCore(HandleRef parent)
+    {
+        nint handle = CreateWindowEx(0, "STATIC", "", 0x40000000 | 0x10000000 | 0x02000000 | 0x04000000,
+            0, 0, 0, 0, parent.Handle, 0, 0, 0);
+        if (handle == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        SurfaceCreated?.Invoke(handle);
+        return new(this, handle);
+    }
+    protected override void DestroyWindowCore(HandleRef window)
+    {
+        Task stopped = release();
+        if (stopped.IsCompletedSuccessfully) { DestroyWindow(window.Handle); return; }
+        // Unexpected visual-tree removal must not destroy a drawable still in
+        // use by VLC. Park it invisibly until asynchronous native stop completes.
+        nint parking = CreateWindowEx(0, "STATIC", "", 0, 0, 0, 0, 0, new nint(-3), 0, 0, 0);
+        if (parking == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        ShowWindow(window.Handle, 0);
+        if (SetParent(window.Handle, parking) == 0)
+        {
+            DestroyWindow(parking);
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+        _ = ReleaseParkedAsync(stopped, window.Handle, parking);
+    }
+    private async Task ReleaseParkedAsync(Task stopped, nint window, nint parking)
+    {
+        try { await stopped; }
+        finally { DestroyWindow(window); DestroyWindow(parking); }
+    }
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "CreateWindowExW", SetLastError = true)]
+    private static extern nint CreateWindowEx(uint extended, string type, string title, uint style,
+        int x, int y, int width, int height, nint parent, nint menu, nint instance, nint parameter);
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool DestroyWindow(nint window);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern nint SetParent(nint window, nint parent);
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool ShowWindow(nint window, int command);
+}

@@ -1,6 +1,7 @@
 <Solution>
     <Project Path="apps/windows/SyncWatch/SyncWatch.csproj" />
     <Project Path="packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+    <Project Path="packages/windows-playback/SyncWatch.Playback/SyncWatch.Playback.csproj" />
     <Project Path="packages/windows-domain/SyncWatch.Domain.Tests/SyncWatch.Domain.Tests.csproj" />
     <Project Path="packages/design/tests/windows/SyncWatch.Design.Tests.csproj" />
 </Solution>

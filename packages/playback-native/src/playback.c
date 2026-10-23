@@ -59,7 +59,7 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
         sw_playback_close(p); return SW_UNAVAILABLE;
     }
     /* Never silently select hardware paths whose controls are unqualified. */
-    const char *options[] = {"--no-video-title-show", "--no-osd", "--no-snapshot-preview", "--no-plugins-cache",
+    const char *options[] = {"--quiet", "--no-video-title-show", "--no-osd", "--no-snapshot-preview", "--no-plugins-cache",
         "--avcodec-hw=none", "--no-media-library", "--no-sub-autodetect-file",
         output == SW_OUTPUT_HEADLESS ? "--vout=dummy" :
             output == SW_OUTPUT_APPKIT ? "--vout=macosx" : "--vout=direct3d11",

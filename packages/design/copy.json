@@ -194,7 +194,8 @@
       "selectionUnavailable": "Selection unavailable",
       "selectionFixtureLabel": "Selection menu fixture",
       "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
-      "galleryKind": "Menu"
+      "galleryKind": "Menu",
+      "playbackFailed": "Could not open this movie."
     },
     "ru": {
       "brand": "SyncWatch",
@@ -389,7 +390,8 @@
       "selectionUnavailable": "Выбор недоступен",
       "selectionFixtureLabel": "Пример меню выбора",
       "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
-      "galleryKind": "Меню"
+      "galleryKind": "Меню",
+      "playbackFailed": "Не удалось открыть фильм."
     }
   },
   "gallery": {
