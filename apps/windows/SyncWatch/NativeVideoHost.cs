@@ -1,12 +1,23 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace SyncWatch;
 
 // Native lifetime only. The design's video slot supplies all layout and appearance.
-internal sealed class NativeVideoHost(Func<Task> release) : HwndHost
+internal sealed class NativeVideoHost : HwndHost
 {
+    private readonly Func<Task> release;
+    public NativeVideoHost(Func<Task> release)
+    {
+        this.release = release;
+        Unloaded += (_, _) => Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+        {
+            // A same-turn reparent is allowed to finish before disposal.
+            if (!IsLoaded) Dispose();
+        }));
+    }
     public event Action<nint>? SurfaceCreated;
     internal nint NativeHandle { get; private set; }
     internal bool Parked { get; private set; }

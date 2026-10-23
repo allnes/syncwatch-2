@@ -37,7 +37,11 @@ internal static class PlaybackAcceptance
             workspace.RequestAction("playPause");
             await Wait(workspace, v => !v.Paused && v.PositionMs >= 500 && v.VideoOutputs > 0 && v.Width == 320 && v.Height == 180);
             nint drawable = workspace.Surface.NativeHandle;
-            Require(IsWindow(drawable) && GetWindow(drawable, 5) != 0 && GetClientRect(drawable, out Rect rectangle) && rectangle.Right > 0 && rectangle.Bottom > 0);
+            bool exists = IsWindow(drawable), child = GetWindow(drawable, 5) != 0;
+            bool geometry = GetClientRect(drawable, out Rect rectangle);
+            result["nativeWindowExists"] = exists; result["nativeChildExists"] = child;
+            result["drawableWidth"] = rectangle.Right; result["drawableHeight"] = rectangle.Bottom;
+            Require(exists && child && geometry && rectangle.Right > 0 && rectangle.Bottom > 0);
             workspace.RequestAction("playPause");
             PlaybackObservation paused = await Wait(workspace, v => v.Paused);
             await Task.Delay(300);

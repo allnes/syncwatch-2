@@ -19,6 +19,7 @@
  X(void, libvlc_release, (libvlc_instance_t *)) \
  X(libvlc_media_t *, libvlc_media_new_path, (libvlc_instance_t *, const char *)) \
  X(void, libvlc_media_add_option, (libvlc_media_t *, const char *)) \
+ X(void, libvlc_media_add_option_flag, (libvlc_media_t *, const char *, unsigned)) \
  X(void, libvlc_media_release, (libvlc_media_t *)) \
  X(libvlc_media_player_t *, libvlc_media_player_new, (libvlc_instance_t *)) \
  X(void, libvlc_media_player_release, (libvlc_media_player_t *)) \

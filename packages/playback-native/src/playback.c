@@ -16,6 +16,7 @@ struct sw_playback {
     uint64_t generation;
     int loaded;
     int failed;
+    int output;
     atomic_uint_fast64_t sequence;
 };
 static const libvlc_event_type_t event_types[] = {
@@ -54,6 +55,7 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
     sw_playback *p = calloc(1, sizeof(*p));
     if (!p) return SW_ENGINE;
     atomic_init(&p->sequence, 0);
+    p->output = output;
     if (!sw_library_open(path, &p->api, output, &p->library)) { free(p); return SW_UNAVAILABLE; }
     if (strcmp(p->api.libvlc_get_version(), "3.0.24 Vetinari") || strcmp(p->api.libvlc_get_changeset(), revision)) {
         sw_playback_close(p); return SW_UNAVAILABLE;
@@ -101,6 +103,14 @@ int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
     libvlc_media_t *media = p->api.libvlc_media_new_path(p->instance, path);
     if (!media) { p->failed = 1; return SW_ENGINE; }
     p->api.libvlc_media_add_option(media, ":start-paused");
+    /* Surface setters reset inherited VLC options. Fixed trusted per-media
+     * options preserve software decoding and forbid a standalone HWND fallback. */
+    p->api.libvlc_media_add_option_flag(media, ":avcodec-hw=none", libvlc_media_option_trusted);
+    p->api.libvlc_media_add_option_flag(media,
+        p->output == SW_OUTPUT_HEADLESS ? ":vout=dummy" :
+        p->output == SW_OUTPUT_APPKIT ? ":vout=macosx" : ":vout=direct3d11", libvlc_media_option_trusted);
+    if (p->output == SW_OUTPUT_HWND)
+        p->api.libvlc_media_add_option_flag(media, ":window=embed-hwnd", libvlc_media_option_trusted);
     p->api.libvlc_media_player_set_media(p->player, media);
     p->api.libvlc_media_release(media);
     p->loaded = 1;

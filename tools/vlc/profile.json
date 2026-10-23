@@ -26,6 +26,7 @@
         "modules/packetizer/hevc.c",
         "modules/video_chroma/chain.c",
         "modules/video_chroma/cvpx.c",
+        "modules/video_output/drawable.c",
         "modules/video_output/macosx.m",
         "modules/video_output/opengl/converter_cvpx.c",
         "modules/video_output/vdummy.c",
@@ -19106,6 +19107,7 @@
     "windows-x64": [
       "d3d11va",
       "direct3d11",
+      "drawable",
       "mmdevice",
       "wasapi"
     ],
