@@ -33,9 +33,9 @@ JNIEXPORT jlong JNICALL JNI_METHOD(open)(JNIEnv *env, jclass type, jbyteArray li
     if (!checked(env, code)) return 0;
     return (jlong)(intptr_t)player;
 }
-JNIEXPORT void JNICALL JNI_METHOD(load)(JNIEnv *env, jclass type, jlong player, jlong generation, jbyteArray file) {
-    (void)type; char *path = text(env, file); if (!path) return;
-    checked(env, sw_playback_load((sw_playback *)(intptr_t)player, (uint64_t)generation, path)); free(path);
+JNIEXPORT jint JNICALL JNI_METHOD(load)(JNIEnv *env, jclass type, jlong player, jlong generation, jbyteArray file) {
+    (void)type; char *path = text(env, file); if (!path) return SW_INVALID;
+    int result = sw_playback_load((sw_playback *)(intptr_t)player, (uint64_t)generation, path); free(path); return result;
 }
 JNIEXPORT jlongArray JNICALL JNI_METHOD(observe)(JNIEnv *env, jclass type, jlong player, jlong generation) {
     (void)type; sw_observation value;

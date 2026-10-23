@@ -15,6 +15,7 @@ let package = Package(
             dependencies: [
                 .product(name: "SyncWatchDomain", package: "apple-domain"),
                 .product(name: "SyncWatchPlaybackNative", package: "playback-native"),
-            ])
+            ]),
+        .testTarget(name: "SyncWatchPlaybackTests", dependencies: ["SyncWatchPlayback"]),
     ]
 )

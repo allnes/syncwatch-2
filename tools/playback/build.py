@@ -45,18 +45,23 @@ def build(directory):
     return context, library, executable
 
 
+def runtime_environment(package, output):
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("DYLD_", "LD_", "VLC_"))}
+    if os.name == "nt":
+        env["PATH"] = str(output) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32")
+    if sys.platform == "linux":
+        env["FONTCONFIG_FILE"] = str(package / "share/fonts/fonts.conf")
+        env["FONTCONFIG_PATH"] = str(package / "share/fonts")
+        env["XDG_CACHE_HOME"] = str(output / "font-cache")
+    return env
+
+
 def check(package, output):
     context, library, executable = build(output)
     from fixtures import create
     media = create(output)
     libvlc = package / ("bin/libvlc.dll" if os.name == "nt" else "lib/libvlc.dylib" if sys.platform == "darwin" else "lib/libvlc.so.5")
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("DYLD_", "LD_", "VLC_"))}
-    if os.name == "nt":
-        env["PATH"] = str(output) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32")
-    if context.target == "linux-x64":
-        env["FONTCONFIG_FILE"] = str(package / "share/fonts/fonts.conf")
-        env["FONTCONFIG_PATH"] = str(package / "share/fonts")
-        env["XDG_CACHE_HOME"] = str(output / "font-cache")
+    env = runtime_environment(package, output)
     with (output / "native-proof.json").open("wb") as log, (output / "native-stderr.log").open("wb") as errors:
         subprocess.run([str(executable), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"], str(media.resolve())],
                        stdin=subprocess.DEVNULL, stdout=log, stderr=errors, env=env, timeout=180, check=True)

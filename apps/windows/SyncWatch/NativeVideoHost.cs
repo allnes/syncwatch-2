@@ -8,18 +8,22 @@ namespace SyncWatch;
 internal sealed class NativeVideoHost(Func<Task> release) : HwndHost
 {
     public event Action<nint>? SurfaceCreated;
+    internal nint NativeHandle { get; private set; }
+    internal bool Parked { get; private set; }
+    private readonly TaskCompletionSource destroyed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    internal Task Destroyed => destroyed.Task;
     protected override HandleRef BuildWindowCore(HandleRef parent)
     {
         nint handle = CreateWindowEx(0, "STATIC", "", 0x40000000 | 0x10000000 | 0x02000000 | 0x04000000,
             0, 0, 0, 0, parent.Handle, 0, 0, 0);
         if (handle == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
-        SurfaceCreated?.Invoke(handle);
+        NativeHandle = handle; SurfaceCreated?.Invoke(handle);
         return new(this, handle);
     }
     protected override void DestroyWindowCore(HandleRef window)
     {
         Task stopped = release();
-        if (stopped.IsCompletedSuccessfully) { DestroyWindow(window.Handle); return; }
+        if (stopped.IsCompletedSuccessfully) { DestroyWindow(window.Handle); destroyed.TrySetResult(); return; }
         // Unexpected visual-tree removal must not destroy a drawable still in
         // use by VLC. Park it invisibly until asynchronous native stop completes.
         nint parking = CreateWindowEx(0, "STATIC", "", 0, 0, 0, 0, 0, new nint(-3), 0, 0, 0);
@@ -30,12 +34,13 @@ internal sealed class NativeVideoHost(Func<Task> release) : HwndHost
             DestroyWindow(parking);
             throw new Win32Exception(Marshal.GetLastWin32Error());
         }
+        Parked = true;
         _ = ReleaseParkedAsync(stopped, window.Handle, parking);
     }
     private async Task ReleaseParkedAsync(Task stopped, nint window, nint parking)
     {
         try { await stopped; }
-        finally { DestroyWindow(window); DestroyWindow(parking); }
+        finally { DestroyWindow(window); DestroyWindow(parking); destroyed.TrySetResult(); }
     }
     [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "CreateWindowExW", SetLastError = true)]
     private static extern nint CreateWindowEx(uint extended, string type, string title, uint style,

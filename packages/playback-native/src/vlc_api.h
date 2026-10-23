@@ -3,6 +3,9 @@
 #define SYNCWATCH_VLC_API_H
 /* Compile against the actual pinned public headers; no copied VLC ABI. */
 #include <stdbool.h>
+#ifndef _WIN32
+#include <sys/types.h>
+#endif
 #include "../../../3rdparty/vlc/include/vlc/libvlc.h"
 #include "../../../3rdparty/vlc/include/vlc/libvlc_renderer_discoverer.h"
 #include "../../../3rdparty/vlc/include/vlc/libvlc_media.h"

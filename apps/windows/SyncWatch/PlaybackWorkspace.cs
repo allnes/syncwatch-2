@@ -7,7 +7,7 @@ using SyncWatch.Playback;
 
 namespace SyncWatch;
 
-internal sealed record LocalPlaybackLaunch(string File, string Package, string Bridge)
+internal sealed record LocalPlaybackLaunch(string File, string Package, string Bridge, string? Report, bool DetachProbe)
 {
     public static LocalPlaybackLaunch? Read(string[] arguments)
     {
@@ -15,7 +15,8 @@ internal sealed record LocalPlaybackLaunch(string File, string Package, string B
         string? file = Value("--local-playback");
         return file is null ? null : new(Path.GetFullPath(file),
             Value("--media-package") ?? Path.Combine(AppContext.BaseDirectory, "Media"),
-            Value("--playback-bridge") ?? Path.Combine(AppContext.BaseDirectory, "syncwatch_playback.dll"));
+            Value("--playback-bridge") ?? Path.Combine(AppContext.BaseDirectory, "syncwatch_playback.dll"),
+            Value("--playback-report"), arguments.Contains("--playback-detach-probe"));
     }
 }
 
@@ -32,6 +33,10 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
     private bool attached;
+    internal VLCPlayback Player => player;
+    internal PlaybackScope Scope => scope;
+    internal NativeVideoHost Surface => surface;
+    internal void DetachSurface() => chrome.VideoSurface = null;
 
     public PlaybackWorkspace(LocalPlaybackLaunch launch, string language)
     {
@@ -49,6 +54,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         {
             await player.OpenAsync(launch.Bridge, launch.Package, handle, cancellation.Token);
             await player.LoadAsync(launch.File, scope, cancellation.Token);
+            if (launch.Report is string report) _ = PlaybackAcceptance.RunAsync(this, report, launch.DetachProbe);
             while (!cancellation.IsCancellationRequested)
             {
                 PlaybackObservation value = await player.ObserveAsync(scope, cancellation.Token);
@@ -75,6 +81,12 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
             {
                 presentation = presentation with { EnabledActions = new HashSet<string> { "endWatching" } };
                 chrome.Render(presentation, language);
+                if (launch.Report is string report)
+                {
+                    await player.DisposeAsync();
+                    PlaybackAcceptance.Finish(report, new() { ["success"] = false, ["failure"] = "startup", ["physicalOutputAccepted"] = false });
+                    return;
+                }
                 MessageBox.Show(Window.GetWindow(this), SyncWatchCopy.Text("playbackFailed", language), "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

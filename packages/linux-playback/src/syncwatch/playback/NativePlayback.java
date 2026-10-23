@@ -75,7 +75,10 @@ public final class NativePlayback {
             if (player == 0 || !file.isAbsolute() || !Files.isRegularFile(file)) throw new IllegalArgumentException("local-file");
             if (scope != null && !scope.clientRunId().equals(incoming.clientRunId())) throw new IllegalArgumentException("foreign-run");
             if (scope != null && incoming.generation() <= scope.generation()) throw new IllegalArgumentException("stale");
-            scope = incoming; load(player, incoming.generation(), bytes(file.toString())); return null;
+            int result = load(player, incoming.generation(), bytes(file.toString()));
+            if (result == 0 || result == 4) scope = incoming;
+            if (result != 0) throw new IllegalStateException(result == 1 ? "invalid" : result == 3 ? "stale" : "engine");
+            return null;
         });
     }
     private void check(Scope owner) {
@@ -133,7 +136,7 @@ public final class NativePlayback {
         return value.getBytes(StandardCharsets.UTF_8);
     }
     private static native long open(byte[] library, byte[] revision);
-    private static native void load(long player, long generation, byte[] file);
+    private static native int load(long player, long generation, byte[] file);
     private static native long[] observe(long player, long generation);
     private static native void pause(long player, long generation, boolean paused);
     private static native void seek(long player, long generation, long position);

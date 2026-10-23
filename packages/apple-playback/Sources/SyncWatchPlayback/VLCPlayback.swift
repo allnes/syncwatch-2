@@ -42,8 +42,9 @@ public actor VLCPlayback: PlaybackPort {
             guard incoming.mediaGeneration > scope.mediaGeneration else { throw ContractRejection.staleGeneration }
         }
         let pointer = try native()
-        scope = incoming
-        try check(sw_playback_load(pointer, incoming.mediaGeneration, localFile.path))
+        let result = sw_playback_load(pointer, incoming.mediaGeneration, localFile.path)
+        if result == 0 || result == 4 { scope = incoming }
+        try check(result)
     }
 
     public func observe(_ scope: PlaybackScope) throws -> PlaybackObservation {

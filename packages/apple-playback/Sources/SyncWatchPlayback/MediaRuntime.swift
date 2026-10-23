@@ -1,4 +1,5 @@
 import CryptoKit
+import Darwin
 import Foundation
 
 public enum PlaybackFailure: String, Error, Sendable {
@@ -11,7 +12,11 @@ public struct MediaRuntime: Sendable {
     public let revision: String
 
     public init(package: URL) throws {
-        let root = package.standardizedFileURL.resolvingSymlinksInPath()
+        // Foundation shortens /private/tmp while its enumerator returns that
+        // full spelling. Use a single filesystem spelling for receipt paths.
+        guard package.isFileURL, let canonical = realpath(package.path, nil) else { throw PlaybackFailure.unavailable }
+        defer { free(canonical) }
+        let root = URL(filePath: String(cString: canonical), directoryHint: .isDirectory)
         guard root.isFileURL,
             let report = try JSONSerialization.jsonObject(
                 with: Data(contentsOf: root.appendingPathComponent("build-report.json")))
@@ -44,8 +49,7 @@ public struct MediaRuntime: Sendable {
                 expected.count == 64
             else { throw PlaybackFailure.invalid }
             let file = root.appendingPathComponent(name)
-            guard file.resolvingSymlinksInPath().path == file.path,
-                try file.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true
+            guard try file.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true
             else { throw PlaybackFailure.unavailable }
             let handle = try FileHandle(forReadingFrom: file)
             defer { try? handle.close() }

@@ -37,8 +37,9 @@ public sealed class VLCPlayback : IPlaybackPort
             if (scope.ClientRunId != incoming.ClientRunId) throw new ContractException(ContractRejection.ForeignRun);
             if (incoming.MediaGeneration <= scope.MediaGeneration) throw new ContractException(ContractRejection.StaleGeneration);
         }
-        scope = incoming;
-        Native.Check(Native.Load(player, incoming.MediaGeneration, Path.GetFullPath(localFile)));
+        int result = Native.Load(player, incoming.MediaGeneration, Path.GetFullPath(localFile));
+        if (result is 0 or 4) scope = incoming;
+        Native.Check(result);
         return true;
     }, cancellation);
     public Task<PlaybackObservation> ObserveAsync(PlaybackScope owner, CancellationToken cancellation = default) => Submit(() =>

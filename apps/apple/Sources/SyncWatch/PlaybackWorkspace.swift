@@ -8,6 +8,7 @@ import SyncWatchPlayback
 struct LocalPlaybackLaunch {
     let file: URL
     let package: URL
+    let report: URL?
     static func read(_ arguments: [String] = CommandLine.arguments) -> Self? {
         guard let index = arguments.firstIndex(of: "--local-playback"), index + 1 < arguments.count else { return nil }
         let package: URL
@@ -16,7 +17,10 @@ struct LocalPlaybackLaunch {
         } else {
             package = Bundle.main.bundleURL.appendingPathComponent("Contents/Frameworks/Media")
         }
-        return Self(file: URL(filePath: arguments[index + 1]), package: package)
+        let report = arguments.firstIndex(of: "--playback-report").flatMap { i in
+            i + 1 < arguments.count ? URL(filePath: arguments[i + 1]) : nil
+        }
+        return Self(file: URL(filePath: arguments[index + 1]), package: package, report: report)
     }
 }
 
@@ -27,8 +31,8 @@ struct LocalPlaybackLaunch {
     private(set) var scope = PlaybackScope.fresh()
     private let launch: LocalPlaybackLaunch
     private var polling: Task<Void, Never>?
-    private var view: NSView?
-    private var window: NSWindow?
+    private(set) var view: NSView?
+    private(set) var window: NSWindow?
     private var closing = false
     private var closed = false
 
@@ -48,6 +52,9 @@ struct LocalPlaybackLaunch {
                 try await player.open(package: launch.package, appKitSurfaceAddress: address)
                 try Task.checkCancellation()
                 try await player.load(launch.file, scope: scope)
+                if let report = launch.report {
+                    Task { await PlaybackAcceptance.run(controller: self, report: report) }
+                }
                 while !Task.isCancelled {
                     let observation = try await player.observe(scope)
                     guard !closing else { break }
@@ -57,6 +64,10 @@ struct LocalPlaybackLaunch {
             } catch is CancellationError {
             } catch {
                 if !closing {
+                    if let report = launch.report {
+                        await PlaybackAcceptance.fail(controller: self, report: report, error: error)
+                        return
+                    }
                     failed = true
                     presentation.enabledActions = ["endWatching"]
                 }
