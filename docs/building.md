@@ -63,7 +63,7 @@ dotnet run --project packages/design/tests/windows --no-build --no-restore --con
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
-Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
+The macOS and Windows native test entry points consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
 
 The shells consume the committed resources in `packages/design/generated/`. Native builds need no Node runtime. After changing design inputs, use the [native resource generation commands](design-generator.md#native-resource-generation) and include the resulting resources in the change.
 

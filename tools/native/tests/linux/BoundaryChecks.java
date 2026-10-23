@@ -21,6 +21,8 @@ public final class BoundaryChecks {
         reject(() -> new NativePlayback.Observation(scope, 0, 0, null, 1, 0, false, false, false, false, 0, 0, 0, null, false));
         reject(() -> new NativePlayback.Observation(scope, 0, 11, 10L, 1, 2, true, true, false, false, 0, 0, 0, null, false));
         reject(() -> new NativePlayback.Observation(scope, 0, 0, null, Double.NaN, 2, true, true, false, false, 0, 0, 0, null, false));
+        reject(() -> Json.write(Double.NaN));
+        reject(() -> Json.write(Double.POSITIVE_INFINITY));
         Map<String, Object> value = Map.of("text", "Unicode \ud83c\udfac", "paused", true, "counter", 9007199254740991L);
         if (!Json.object(Json.parse(Json.write(value))).equals(value)) throw new IllegalStateException("JSON roundtrip");
         for (String bad : List.of("{\"v\":1,\"v\":2}", "{\"v\":1,\"\\u0076\":2}", "[1,]", "[NaN]", "\"\\ud800\"", "01")) {

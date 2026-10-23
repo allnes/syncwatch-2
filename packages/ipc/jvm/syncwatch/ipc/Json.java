@@ -83,7 +83,8 @@ public final class Json {
     }
     public static String write(Object value) {
         if (value == null) return "null";
-        if (value instanceof Boolean || value instanceof Number) return value.toString();
+        if (value instanceof Boolean) return value.toString();
+        if (value instanceof Number number) { if (!Double.isFinite(number.doubleValue())) throw bad(); return value.toString(); }
         if (value instanceof String text) {
             StringBuilder result = new StringBuilder("\"");
             for (int i = 0; i < text.length(); i++) {
