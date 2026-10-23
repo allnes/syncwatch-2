@@ -2951,7 +2951,8 @@
           ],
           "requires": [
             "3rdparty/dav1d",
-            "3rdparty/zlib"
+            "3rdparty/zlib",
+            "3rdparty/winpthreads"
           ],
           "unusedSubmodules": {}
         },
@@ -3333,6 +3334,26 @@
           ],
           "requires": [],
           "unusedSubmodules": {}
+        },
+        "3rdparty/winpthreads": {
+          "revision": "63ebe6cdb3ec4d5c586b7f0f0c03dd502e44c296",
+          "license": "MIT AND BSD-3-Clause; original ZPL-2.1 and GNU build-tool grants retained",
+          "notices": [
+            "AUTHORS",
+            "COPYING",
+            "mingw-w64-libraries/winpthreads/COPYING",
+            "mingw-w64-libraries/winpthreads/build-aux/ltmain.sh",
+            "mingw-w64-libraries/winpthreads/configure",
+            "mingw-w64-libraries/winpthreads/src/libgcc/dll_dependency.S",
+            "mingw-w64-libraries/winpthreads/src/libgcc/dll_math.c"
+          ],
+          "exports": [
+            "AUTHORS",
+            "COPYING",
+            "mingw-w64-libraries/winpthreads"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
         }
       },
       "inputs": [
@@ -3355,7 +3376,8 @@
         "3rdparty/libsamplerate",
         "3rdparty/meson",
         "3rdparty/zlib",
-        "3rdparty/python-idna-unicode-data"
+        "3rdparty/python-idna-unicode-data",
+        "3rdparty/winpthreads"
       ],
       "targets": {
         "macos-arm64": {

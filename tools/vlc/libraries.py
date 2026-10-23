@@ -54,6 +54,17 @@ def zlib(context, sources):
 
 
 def build(context, sources):
+    if context.target == "windows-x64":
+        # GCC's POSIX thread ABI is also used by the codec/runtime libraries.
+        # Build its provider from the separately pinned source, never copy the
+        # developer SDK's prebuilt winpthread DLL into the application payload.
+        build = context.work / "winpthreads-build"
+        build.mkdir()
+        context.run("winpthreads-configure", [shell_path(sources["winpthreads"] / "mingw-w64-libraries/winpthreads/configure"),
+            "--prefix=" + shell_path(context.prefix), "--host=x86_64-w64-mingw32", "--build=x86_64-pc-msys",
+            "--enable-shared", "--disable-static"], cwd=build, shell=True)
+        context.run("winpthreads-build", ["make", "-j4"], cwd=build, shell=True)
+        context.run("winpthreads-install", ["make", "install"], cwd=build, shell=True)
     zlib(context, sources)
     cmake(context, "libsamplerate", sources["libsamplerate"], ["-DBUILD_SHARED_LIBS=ON",
         "-DBUILD_TESTING=OFF", "-DLIBSAMPLERATE_EXAMPLES=OFF", "-DLIBSAMPLERATE_INSTALL=ON"])

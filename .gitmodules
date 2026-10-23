@@ -259,3 +259,6 @@
 [submodule "3rdparty/libsamplerate"]
 	path = 3rdparty/libsamplerate
 	url = https://github.com/libsndfile/libsamplerate.git
+[submodule "winpthreads"]
+	path = 3rdparty/winpthreads
+	url = https://github.com/mingw-w64/mingw-w64.git
