@@ -14,11 +14,22 @@
         "COPYING.LIB",
         "modules/audio_filter/resampler/bandlimited.c",
         "modules/audio_filter/resampler/bandlimited.h",
+        "modules/audio_output/adummy.c",
+        "modules/audio_output/auhal.c",
+        "modules/audio_output/coreaudio_common.c",
+        "modules/audio_output/coreaudio_common.h",
+        "modules/audio_output/mmdevice.c",
+        "modules/audio_output/mmdevice.h",
+        "modules/audio_output/wasapi.c",
         "modules/codec/videotoolbox.m",
         "modules/packetizer/h264.c",
         "modules/packetizer/hevc.c",
         "modules/video_chroma/chain.c",
         "modules/video_chroma/cvpx.c",
+        "modules/video_output/macosx.m",
+        "modules/video_output/opengl/converter_cvpx.c",
+        "modules/video_output/vdummy.c",
+        "modules/video_output/win32/direct3d11.c",
         "src/misc/md5.c"
       ],
       "exports": [
@@ -19050,6 +19061,7 @@
   },
   "plugins": [
     "adjust",
+    "adummy",
     "amem",
     "araw",
     "audio_format",
@@ -19078,17 +19090,24 @@
     "swscale",
     "trivial_channel_mixer",
     "ugly_resampler",
+    "vdummy",
     "vmem"
   ],
   "physicalOutputAccepted": false,
   "applicationIntegrationReady": false,
   "platformPlugins": {
     "macos-arm64": [
+      "auhal",
       "cvpx",
-      "videotoolbox"
+      "glconv_cvpx",
+      "videotoolbox",
+      "vout_macosx"
     ],
     "windows-x64": [
-      "d3d11va"
+      "d3d11va",
+      "direct3d11",
+      "mmdevice",
+      "wasapi"
     ],
     "linux-x64": []
   },
