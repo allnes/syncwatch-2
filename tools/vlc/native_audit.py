@@ -15,7 +15,7 @@ WINDOWS_LIBRARIES = {n.casefold() for n in ["advapi32.dll", "bcrypt.dll", "comct
     "api-ms-win-core-synch-l1-2-0.dll",
     "d3d11.dll", "dwrite.dll", "dxgi.dll", "gdi32.dll", "imm32.dll", "iphlpapi.dll", "kernel32.dll",
     "msvcrt.dll", "ntdll.dll", "ole32.dll", "oleaut32.dll", "psapi.dll", "rpcrt4.dll", "secur32.dll",
-    "setupapi.dll", "shell32.dll", "shlwapi.dll", "ucrtbase.dll", "user32.dll", "version.dll", "winmm.dll", "ws2_32.dll"]}
+    "setupapi.dll", "shell32.dll", "shlwapi.dll", "ucrtbase.dll", "user32.dll", "usp10.dll", "version.dll", "winmm.dll", "ws2_32.dll"]}
 
 
 def imports(context, path):
