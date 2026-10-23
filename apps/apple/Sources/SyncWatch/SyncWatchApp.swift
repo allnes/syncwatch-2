@@ -9,7 +9,9 @@ struct SyncWatchApp: App {
 
     var body: some Scene {
         Window("SyncWatch", id: "main") {
-            if CommandLine.arguments.contains("--selection-menu-gallery") {
+            if let playback = LocalPlaybackLaunch.read() {
+                PlaybackWorkspace(launch: playback)
+            } else if CommandLine.arguments.contains("--selection-menu-gallery") {
                 SelectionMenuGallery()
             } else if CommandLine.arguments.contains("--call-gallery") {
                 CallGallery()

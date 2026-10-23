@@ -34,8 +34,12 @@ def main() -> None:
     ).splitlines()
     run("swift", "format", "lint", "--strict", "--configuration", ".swift-format", *sources)
     environment = os.environ.copy()
+    # The first-party C interop target compiles against the pinned public headers.
+    # Runtime libraries remain the separately source-built media SDK.
+    run("git", "submodule", "update", "--init", "--checkout", "--depth=1", "--", "3rdparty/vlc")
     environment["SYNCWATCH_CONTRACT_FIXTURES"] = str(ROOT / "contracts/fixtures/acceptance.json")
     run("swift", "test", "--package-path", "packages/apple-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
+    run("swift", "test", "--package-path", "packages/apple-playback", "-Xswiftc", "-warnings-as-errors", env=environment)
     shutil.rmtree(ROOT / "artifacts/design/apple", ignore_errors=True)
     environment["SYNCWATCH_DESIGN_SCREENSHOTS"] = str(ROOT / "artifacts/design/apple")
     run("swift", "test", "--package-path", "packages/design", "-Xswiftc", "-warnings-as-errors", env=environment)

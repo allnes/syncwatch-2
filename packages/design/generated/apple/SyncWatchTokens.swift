@@ -561,6 +561,7 @@ public enum SyncWatchCopy {
             "selectionFixtureLong":
                 "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
             "galleryKind": "Menu",
+            "playbackFailed": "Could not open this movie.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -756,6 +757,7 @@ public enum SyncWatchCopy {
             "selectionFixtureLabel": "Пример меню выбора",
             "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
             "galleryKind": "Меню",
+            "playbackFailed": "Не удалось открыть фильм.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {

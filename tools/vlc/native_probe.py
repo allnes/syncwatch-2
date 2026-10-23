@@ -12,7 +12,6 @@ from source_profile import ROOT, profile_data
 def environment(package, target):
     env = {k: v for k, v in os.environ.items() if not k.startswith(("DYLD_", "LD_", "VLC_"))}
     libraries = package / ("bin" if target == "windows-x64" else "lib")
-    env["VLC_PLUGIN_PATH"] = str(libraries / "vlc/plugins")
     if target == "windows-x64":
         env["PATH"] = str(libraries) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32")
     elif target == "linux-x64":

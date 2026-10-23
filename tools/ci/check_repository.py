@@ -351,7 +351,16 @@ def check_native_manifests(root: Path) -> None:
         require(section is not None and len(section) == 1 and section[0].tag == "clear", "native restore must use no registry sources")
     solution = ET.parse(root / "SyncWatch.slnx").getroot()
     projects = solution.findall(".//Project")
-    require(len(projects) == 4, "native solution must include the shell, domain, and both executable test suites")
+    required_projects = {
+        "apps/windows/SyncWatch/SyncWatch.csproj",
+        "packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj",
+        "packages/windows-domain/SyncWatch.Domain.Tests/SyncWatch.Domain.Tests.csproj",
+        "packages/design/tests/windows/SyncWatch.Design.Tests.csproj",
+    }
+    project_paths = {project.attrib["Path"] for project in projects}
+    require(required_projects <= project_paths and len(project_paths) == len(projects),
+            "native solution must include the shell, domain, and both executable test suites without duplicates")
+    resolved_projects = {(root / name).resolve() for name in project_paths}
     for project in projects:
         path = (root / project.attrib["Path"]).resolve()
         require(path.is_relative_to(root.resolve()) and path.is_file(), "native project must be a repository file")
@@ -362,6 +371,7 @@ def check_native_manifests(root: Path) -> None:
         for reference in content.findall(".//ProjectReference"):
             target = (path.parent / reference.attrib["Include"]).resolve()
             require(target.is_relative_to(root.resolve()) and target.is_file(), "native project reference must stay local")
+            require(target in resolved_projects, "native project references must be covered by the solution policy")
 
 
 def check_server_manifests(root: Path) -> None:

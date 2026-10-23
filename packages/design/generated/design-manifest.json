@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "bdad4bfedd3b6c22ef808ca5d8dff047157967ce67fbff371079d183de977f68",
+  "sourceDigest": "9b26e3a2c0e434d6a75a28946cf09fa4baf195840c1d9e8487719d18a39c6617",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "176ffb4f8795a0330d8b03883426b358b5d06a40a57fdb798544bf55548f81b9",
-    "copy.json": "d9201e03964b5e0db06b142a4b0e9806e4e7676f67f4f90e91dc54d8e70117f9",
+    "copy.json": "600277295c718d39308f8a2fc28dc675e11ada224b556472145d907b948c7a5a",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
@@ -280,7 +280,8 @@
         "selectionUnavailable": "Selection unavailable",
         "selectionFixtureLabel": "Selection menu fixture",
         "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
-        "galleryKind": "Menu"
+        "galleryKind": "Menu",
+        "playbackFailed": "Could not open this movie."
       },
       "ru": {
         "brand": "SyncWatch",
@@ -475,7 +476,8 @@
         "selectionUnavailable": "Выбор недоступен",
         "selectionFixtureLabel": "Пример меню выбора",
         "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
-        "galleryKind": "Меню"
+        "galleryKind": "Меню",
+        "playbackFailed": "Не удалось открыть фильм."
       }
     },
     "gallery": {
