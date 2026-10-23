@@ -33,7 +33,8 @@
         "player.result",
         "bridge.result",
         "bridge.error",
-        "bridge.stopped"
+        "bridge.stopped",
+        "bridge.ping"
       ]
     },
     "clientRunId": {
@@ -663,6 +664,30 @@
             "durationMs",
             "fileSizeBytes"
           ],
+          "additionalProperties": false
+        },
+        "id": {
+          "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/commandId"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "not": {
+        "required": [
+          "replyTo"
+        ]
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "bridge.ping"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {},
+          "required": [],
           "additionalProperties": false
         },
         "id": {

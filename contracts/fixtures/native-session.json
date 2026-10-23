@@ -1,0 +1,152 @@
+[
+  {
+    "name": "player.setPaused",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": true
+  },
+  {
+    "name": "player.setPosition",
+    "json": "{\"v\":1,\"type\":\"player.setPosition\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"positionMs\":604800000}}",
+    "accepted": true
+  },
+  {
+    "name": "player.setSpeed",
+    "json": "{\"v\":1,\"type\":\"player.setSpeed\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"rate\":1.01}}",
+    "accepted": true
+  },
+  {
+    "name": "player.openFile",
+    "json": "{\"v\":1,\"type\":\"player.openFile\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"mediaHandle\":\"selected-media\"}}",
+    "accepted": true
+  },
+  {
+    "name": "bridge.ready",
+    "json": "{\"v\":1,\"type\":\"bridge.ready\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"payload\":{\"syncplayRevision\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"replyTo\":\"cmd-1\"}",
+    "accepted": true
+  },
+  {
+    "name": "bridge.result",
+    "json": "{\"v\":1,\"type\":\"bridge.result\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"payload\":{\"status\":\"applied\"},\"replyTo\":\"cmd-1\"}",
+    "accepted": true
+  },
+  {
+    "name": "bridge.error",
+    "json": "{\"v\":1,\"type\":\"bridge.error\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"payload\":{\"code\":\"unavailable\",\"message\":\"unavailable\",\"retryable\":false},\"replyTo\":\"cmd-1\"}",
+    "accepted": true
+  },
+  {
+    "name": "bridge.stopped",
+    "json": "{\"v\":1,\"type\":\"bridge.stopped\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"payload\":{},\"replyTo\":\"cmd-1\"}",
+    "accepted": true
+  },
+  {
+    "name": "sync.connection",
+    "json": "{\"v\":1,\"type\":\"sync.connection\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"event-1\",\"payload\":{\"state\":\"connected\"}}",
+    "accepted": true
+  },
+  {
+    "name": "sync.readiness",
+    "json": "{\"v\":1,\"type\":\"sync.readiness\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"event-1\",\"payload\":{\"ready\":true}}",
+    "accepted": true
+  },
+  {
+    "name": "sync.participants",
+    "json": "{\"v\":1,\"type\":\"sync.participants\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"event-1\",\"payload\":{\"participants\":[{\"username\":\"\\u042e\\u043d\\u0438\\u043a\\u043e\\u0434 \\ud83c\\udfac\",\"ready\":false}]}}",
+    "accepted": true
+  },
+  {
+    "name": "foreign-run",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"foreign\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "stale-generation",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":1,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "future-generation",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":3,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "boolean-version",
+    "json": "{\"v\":true,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "unknown-field",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true},\"extra\":1}",
+    "accepted": false
+  },
+  {
+    "name": "negative-watermark",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":-1,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "unsafe-counter",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":9007199254740992,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "leading-zero-id",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-01\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "zero-id",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-0\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "wrong-direction",
+    "json": "{\"v\":1,\"type\":\"sync.connect\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "boolean-pause-number",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":1}}",
+    "accepted": false
+  },
+  {
+    "name": "extra-payload",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true,\"extra\":0}}",
+    "accepted": false
+  },
+  {
+    "name": "seek-overflow",
+    "json": "{\"v\":1,\"type\":\"player.setPosition\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"positionMs\":604800001}}",
+    "accepted": false
+  },
+  {
+    "name": "fractional-seek",
+    "json": "{\"v\":1,\"type\":\"player.setPosition\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"positionMs\":1.1}}",
+    "accepted": false
+  },
+  {
+    "name": "bad-rate",
+    "json": "{\"v\":1,\"type\":\"player.setSpeed\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"rate\":4.01}}",
+    "accepted": false
+  },
+  {
+    "name": "unknown-handle-shape",
+    "json": "{\"v\":1,\"type\":\"player.openFile\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"mediaHandle\":\"../private\"}}",
+    "accepted": false
+  },
+  {
+    "name": "duplicate-top",
+    "json": "{\"v\":1,\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "escaped-duplicate",
+    "json": "{\"v\":1,\"\\u0076\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true}}",
+    "accepted": false
+  },
+  {
+    "name": "duplicate-payload",
+    "json": "{\"v\":1,\"type\":\"player.setPaused\",\"clientRunId\":\"session-test\",\"mediaGeneration\":2,\"id\":\"cmd-1\",\"afterUserAction\":0,\"payload\":{\"paused\":true,\"paused\":false}}",
+    "accepted": false
+  }
+]

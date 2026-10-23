@@ -101,6 +101,8 @@ class Controller:
                     raise ContractError("invalidState")
                 self.engine = self.engine_factory(self)
                 self.reply(value, "bridge.ready", {"syncplayRevision": self.revision})
+            elif kind == "bridge.ping":
+                self.reply(value)
             elif kind == "bridge.shutdown":
                 self.closing = True
                 self.close_deadline = self.clock() + self.timeout

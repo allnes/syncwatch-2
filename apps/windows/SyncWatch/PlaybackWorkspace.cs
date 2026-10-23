@@ -4,10 +4,11 @@ using System.Windows.Controls;
 using SyncWatch.Design;
 using SyncWatch.Domain;
 using SyncWatch.Playback;
+using SyncWatch.Synchronization;
 
 namespace SyncWatch;
 
-internal sealed record LocalPlaybackLaunch(string File, string Package, string Bridge, string? Report, bool DetachProbe)
+internal sealed record LocalPlaybackLaunch(string File, string Package, string Bridge, string? Report, bool DetachProbe, string? SyncConfiguration)
 {
     public static LocalPlaybackLaunch? Read(string[] arguments)
     {
@@ -16,7 +17,7 @@ internal sealed record LocalPlaybackLaunch(string File, string Package, string B
         return file is null ? null : new(Path.GetFullPath(file),
             Value("--media-package") ?? Path.Combine(AppContext.BaseDirectory, "Media"),
             Value("--playback-bridge") ?? Path.Combine(AppContext.BaseDirectory, "syncwatch_playback.dll"),
-            Value("--playback-report"), arguments.Contains("--playback-detach-probe"));
+            Value("--playback-report"), arguments.Contains("--playback-detach-probe"), Value("--sync-config"));
     }
 }
 
@@ -32,6 +33,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private readonly CancellationTokenSource cancellation = new();
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
+    private PlaybackSession? synchronization;
     private bool attached;
     private bool fullscreen;
     private WindowState savedWindowState;
@@ -60,17 +62,25 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     {
         try
         {
+            DevelopmentSyncOptions? options = launch.SyncConfiguration is string configuration
+                ? await Task.Run(() => DevelopmentSyncOptions.Read(configuration), cancellation.Token) : null;
+            if (options is not null && launch.Report is not null) throw new IOException("acceptance-mode");
             await player.OpenAsync(launch.Bridge, launch.Package, handle, cancellation.Token);
             await player.LoadAsync(launch.File, scope, cancellation.Token);
             if (launch.Report is string report) _ = PlaybackAcceptance.RunAsync(this, report, launch.DetachProbe);
             while (!cancellation.IsCancellationRequested)
             {
-                PlaybackObservation value = await player.ObserveAsync(scope, cancellation.Token);
+                PlaybackObservation value = synchronization is null
+                    ? await player.ObserveAsync(scope, cancellation.Token) : await synchronization.StepAsync(cancellation.Token);
+                if (options is not null && synchronization is null && value.Status == PlaybackStatus.Ready && value.DurationMs is not null)
+                    synchronization = await PlaybackSession.StartAsync(player, scope, options.Executable, options.Runtime, options.Revision,
+                        Path.GetFileName(launch.File), new FileInfo(launch.File).Length, options.Endpoint, cancellation.Token);
                 if (cancellation.IsCancellationRequested) break;
                 if (value.Status == PlaybackStatus.Failed) throw new PlaybackException("media");
                 HashSet<string> enabled = ["endWatching", "toggleFullscreen", "playPause"];
                 if (value.Seekable) enabled.UnionWith(["seek", "skip"]);
                 if (value.Volume is not null) enabled.UnionWith(["setMovieVolume", "muteMovie"]);
+                if (value.Status != PlaybackStatus.Ready || options is not null && synchronization?.Connected != true) enabled.ExceptWith(["playPause", "seek", "skip"]);
                 presentation = presentation with
                 {
                     State = value.Ended ? PlayerVisualState.Ended : value.Buffering ? PlayerVisualState.Buffering : value.Status != PlaybackStatus.Ready ? PlayerVisualState.Loading : value.Paused ? PlayerVisualState.Paused : PlayerVisualState.Playing,
@@ -126,8 +136,14 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         {
             switch (action)
             {
-                case "playPause": await player.SetPausedAsync(presentation.Playing, scope, cancellation.Token); break;
-                case "seek" when value is double seek: await player.SeekAsync(checked((long)seek), scope, cancellation.Token); break;
+                case "playPause":
+                    if (synchronization is not null) synchronization.Request(LocalPlaybackAction.Pause, presentation.Playing ? 1 : 0);
+                    else if (launch.SyncConfiguration is null) await player.SetPausedAsync(presentation.Playing, scope, cancellation.Token);
+                    break;
+                case "seek" when value is double seek:
+                    if (synchronization is not null) synchronization.Request(LocalPlaybackAction.Seek, checked((long)seek));
+                    else if (launch.SyncConfiguration is null) await player.SeekAsync(checked((long)seek), scope, cancellation.Token);
+                    break;
                 case "setMovieVolume" when value is double volume: await player.SetVolumeAsync(volume, presentation.Muted, scope, cancellation.Token); break;
                 case "muteMovie": await player.SetVolumeAsync(presentation.Volume, !presentation.Muted, scope, cancellation.Token); break;
             }
@@ -140,6 +156,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         cancellation.Cancel();
         presentation = presentation with { EnabledActions = new HashSet<string>() };
         chrome.Render(presentation, language);
+        if (synchronization is not null) await synchronization.DisposeAsync();
         await player.DisposeAsync();
         if (polling is not null) await polling;
     }

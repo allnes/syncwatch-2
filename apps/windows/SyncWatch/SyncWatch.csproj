@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="../../../packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
         <ProjectReference Include="../../../packages/windows-playback/SyncWatch.Playback/SyncWatch.Playback.csproj" />
+        <ProjectReference Include="../../../packages/windows-sync/SyncWatch.Synchronization/SyncWatch.Synchronization.csproj" />
         <Compile Include="../../../packages/design/generated/windows/SyncWatchTokens.g.cs" Link="Design/SyncWatchTokens.g.cs" />
         <Page Include="../../../packages/design/generated/windows/SyncWatchTheme.g.xaml" Link="Design/SyncWatchTheme.g.xaml" />
         <Compile Include="../../../packages/design/windows/LibraryWorkspace.cs" Link="Design/LibraryWorkspace.cs" />

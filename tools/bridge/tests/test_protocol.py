@@ -57,6 +57,17 @@ class ProtocolTests(unittest.TestCase):
             self.receive(value)
         self.assertEqual(caught.exception.code, code)
 
+    def test_ping_requires_hello_and_replays_without_engine_work(self):
+        self.rejection("invalidState", self.command("bridge.ping", number=2))
+        self.receive(self.command())
+        ping = self.command("bridge.ping", number=2)
+        self.receive(ping)
+        first = self.sent[-1]
+        self.receive(ping)
+        self.assertEqual(self.sent[-1], first)
+        self.assertEqual(json.loads(first)["type"], "bridge.result")
+        self.assertEqual(self.controller.engine.actions, [])
+
     def test_partial_and_coalesced_frames(self):
         frames = Frames(8)
         self.assertEqual(list(frames.feed(b'{"x"')), [])

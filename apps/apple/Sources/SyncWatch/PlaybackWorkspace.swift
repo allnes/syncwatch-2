@@ -3,12 +3,14 @@ import SwiftUI
 import SyncWatchDesign
 import SyncWatchDomain
 import SyncWatchPlayback
+import SyncWatchSynchronization
 
 /// Explicit local development entry; room/watch capabilities remain with their coordinator.
 struct LocalPlaybackLaunch {
     let file: URL
     let package: URL
     let report: URL?
+    let syncConfiguration: URL?
     static func read(_ arguments: [String] = CommandLine.arguments) -> Self? {
         guard let index = arguments.firstIndex(of: "--local-playback"), index + 1 < arguments.count else { return nil }
         let package: URL
@@ -20,7 +22,11 @@ struct LocalPlaybackLaunch {
         let report = arguments.firstIndex(of: "--playback-report").flatMap { i in
             i + 1 < arguments.count ? URL(filePath: arguments[i + 1]) : nil
         }
-        return Self(file: URL(filePath: arguments[index + 1]), package: package, report: report)
+        let sync = arguments.firstIndex(of: "--sync-config").flatMap { i in
+            i + 1 < arguments.count ? URL(filePath: arguments[i + 1]) : nil
+        }
+        return Self(
+            file: URL(filePath: arguments[index + 1]), package: package, report: report, syncConfiguration: sync)
     }
 }
 
@@ -31,6 +37,8 @@ struct LocalPlaybackLaunch {
     private(set) var scope = PlaybackScope.fresh()
     private let launch: LocalPlaybackLaunch
     private var polling: Task<Void, Never>?
+    private var synchronization: PlaybackSession?
+    private var syncConnected = false
     private(set) var view: NSView?
     private(set) var window: NSWindow?
     private var closing = false
@@ -47,6 +55,13 @@ struct LocalPlaybackLaunch {
         window = view.window
         polling = Task { [self] in
             do {
+                let options: DevelopmentSyncOptions?
+                if let configuration = launch.syncConfiguration {
+                    guard launch.report == nil else { throw ContractRejection.malformed }
+                    options = try await Task.detached { try DevelopmentSyncOptions(configuration: configuration) }.value
+                } else {
+                    options = nil
+                }
                 scope = try scope.replacingMedia()
                 let address = UInt(bitPattern: Unmanaged.passUnretained(view).toOpaque())
                 try await player.open(package: launch.package, appKitSurfaceAddress: address)
@@ -56,7 +71,22 @@ struct LocalPlaybackLaunch {
                     Task { await PlaybackAcceptance.run(controller: self, report: report) }
                 }
                 while !Task.isCancelled {
-                    let observation = try await player.observe(scope)
+                    var observation: PlaybackObservation
+                    if let synchronization {
+                        observation = try await synchronization.step()
+                        syncConnected = await synchronization.connected
+                    } else {
+                        observation = try await player.observe(scope)
+                        if let options, observation.status == .ready, observation.durationMs != nil {
+                            let size = try launch.file.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+                            synchronization = try await PlaybackSession.start(
+                                player: player, scope: scope,
+                                executable: options.executable, runtime: options.runtime,
+                                helperRevision: options.revision,
+                                mediaName: launch.file.lastPathComponent, fileSize: UInt64(size),
+                                endpoint: options.endpoint)
+                        }
+                    }
                     guard !closing else { break }
                     apply(observation)
                     try await Task.sleep(for: .milliseconds(100))
@@ -91,6 +121,9 @@ struct LocalPlaybackLaunch {
         presentation.enabledActions = ["endWatching", "toggleFullscreen", "playPause"]
         if value.volume != nil { presentation.enabledActions.formUnion(["setMovieVolume", "muteMovie"]) }
         if value.seekable { presentation.enabledActions.formUnion(["seek", "skip"]) }
+        if value.status != .ready || (launch.syncConfiguration != nil && !syncConnected) {
+            presentation.enabledActions.subtract(["playPause", "seek", "skip"])
+        }
     }
     func action(_ action: String, value: Double?) {
         guard !closing else { return }
@@ -116,10 +149,19 @@ struct LocalPlaybackLaunch {
         Task {
             do {
                 switch action {
-                case "playPause": try await player.setPaused(paused, scope: scope)
+                case "playPause":
+                    if let synchronization {
+                        _ = await synchronization.request(.pause(paused))
+                    } else if launch.syncConfiguration == nil {
+                        try await player.setPaused(paused, scope: scope)
+                    }
                 case "seek":
                     if let value, value.isFinite, value >= 0, value <= Double(WatchSession.maximumPositionMs) {
-                        try await player.seek(to: Int64(value), scope: scope)
+                        if let synchronization {
+                            _ = await synchronization.request(.seek(Int64(value)))
+                        } else if launch.syncConfiguration == nil {
+                            try await player.seek(to: Int64(value), scope: scope)
+                        }
                     }
                 case "setMovieVolume": if let value { try await player.setVolume(value, muted: muted, scope: scope) }
                 case "muteMovie": try await player.setVolume(volume, muted: !muted, scope: scope)
@@ -142,6 +184,7 @@ struct LocalPlaybackLaunch {
         closing = true
         presentation.enabledActions = []
         polling?.cancel()
+        await synchronization?.close()
         await player.close()
         await polling?.value
         polling = nil

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+    <ProjectReference Include="../../windows-bridge/SyncWatch.Bridge/SyncWatch.Bridge.csproj" />
+  </ItemGroup>
+</Project>

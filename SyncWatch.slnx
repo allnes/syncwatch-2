@@ -5,4 +5,7 @@
     <Project Path="packages/windows-playback/SyncWatch.Playback.Probe/SyncWatch.Playback.Probe.csproj" />
     <Project Path="packages/windows-domain/SyncWatch.Domain.Tests/SyncWatch.Domain.Tests.csproj" />
     <Project Path="packages/design/tests/windows/SyncWatch.Design.Tests.csproj" />
+    <Project Path="packages/windows-sync/SyncWatch.Synchronization/SyncWatch.Synchronization.csproj" />
+    <Project Path="packages/windows-sync/SyncWatch.Synchronization.Tests/SyncWatch.Synchronization.Tests.csproj" />
+    <Project Path="packages/windows-bridge/SyncWatch.Bridge/SyncWatch.Bridge.csproj" />
 </Solution>

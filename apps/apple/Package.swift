@@ -9,6 +9,7 @@ let package = Package(
         .package(path: "../../packages/apple-domain"),
         .package(path: "../../packages/design"),
         .package(path: "../../packages/apple-playback"),
+        .package(path: "../../packages/apple-sync"),
     ],
     targets: [
         .executableTarget(
@@ -17,6 +18,7 @@ let package = Package(
                 .product(name: "SyncWatchDomain", package: "apple-domain"),
                 .product(name: "SyncWatchDesign", package: "design"),
                 .product(name: "SyncWatchPlayback", package: "apple-playback"),
+                .product(name: "SyncWatchSynchronization", package: "apple-sync"),
             ]
         ),
         .testTarget(name: "SyncWatchTests", dependencies: ["SyncWatch"]),
