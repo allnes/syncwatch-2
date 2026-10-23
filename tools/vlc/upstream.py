@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import shlex
 
 from build_context import shell_path
 from configuration import vlc_files
@@ -45,8 +46,14 @@ def build(context, sources, profile):
         flags.append("--disable-alsa")
     # VLC 3 uses the C11 atomic initialization API, removed by C23. Modern GCC
     # defaults to C23; select the upstream language contract explicitly.
+    environment = {"CFLAGS": context.env["CFLAGS"] + " -std=gnu11"}
+    if context.target == "windows-x64":
+        # Libtool records an explicit -lstdc++ in its C++ postdeps, which
+        # bypasses GCC's -static-libstdc++ driver choice. Resolve the standard
+        # support symbols first with the measured compiler archive in LIBS.
+        environment["LIBS"] = shlex.quote(shell_path(context.compiler_runtime()["libstdc++.a"]))
     context.run("vlc-configure", [shell_path(source / "configure"), *flags], cwd=build, shell=True,
-                env={"CFLAGS": context.env["CFLAGS"] + " -std=gnu11"})
+                env=environment)
     for name in ["compat", "src", "lib"]:
         context.run("vlc-" + name, ["make", "-j4", "-C", name, "all"], cwd=build, shell=True)
     if context.target == "windows-x64":

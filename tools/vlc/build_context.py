@@ -41,11 +41,13 @@ class BuildContext:
         self.prefix.mkdir(exist_ok=True)
         self.commands = {}
         self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(epoch), PYTHONDONTWRITEBYTECODE="1",
-                        CONFIG_SITE="/dev/null", GCRYPT_CONFIG="false")
+                        CONFIG_SITE="/dev/null", GCRYPT_CONFIG="false",
+                        GIT_CEILING_DIRECTORIES=str(work.resolve()))
         paths = []
         if self.target == "windows-x64":
             root = Path(os.environ.get("SYNCWATCH_VLC_MSYS_ROOT",
                         Path(__file__).resolve().parents[2] / ".local/vlc-sdk/windows/msys64")).resolve()
+            self.msys = root
             paths.extend([root / "ucrt64/bin", root / "usr/bin"])
             self.shell = str(root / "usr/bin/bash.exe")
             self.env.update(MSYSTEM="UCRT64", MSYS2_PATH_TYPE="minimal", CHERE_INVOKING="1")
@@ -112,6 +114,12 @@ class BuildContext:
             self.env["AC_MACRODIR"] = str(root / "usr/share/autoconf")
 
     def tool(self, name):
+        if self.target == "windows-x64":
+            script = self.msys / "usr/bin" / name
+            # Native Windows discovery uses PATHEXT. GNU SDK shell scripts
+            # deliberately have no .exe/.cmd suffix and execute through Bash.
+            if script.is_file():
+                return str(script)
         path = shutil.which(name, path=self.env["PATH"])
         if not path:
             raise ValueError("Missing native media developer tool: " + name)
@@ -131,6 +139,18 @@ class BuildContext:
                 raise ValueError("The native Autotools SDK requires autotools-dev: " + name)
             files[name] = path
         return files
+
+    def compiler_runtime(self):
+        if self.target != "windows-x64":
+            return {}
+        result = {}
+        for name in ["libstdc++.a", "libgcc.a", "libgcc_eh.a"]:
+            path = Path(subprocess.check_output([self.tool(self.env["CXX"]), "-print-file-name=" + name],
+                                               env=self.env, text=True).strip())
+            if not path.is_absolute() or not path.is_file():
+                raise ValueError("Missing static compiler support archive: " + name)
+            result[name] = path
+        return result
 
     def run(self, label, args, cwd=None, shell=False, env=None, timeout=3600):
         if label in self.commands:
@@ -186,4 +206,5 @@ class BuildContext:
                                                                      env=self.env, text=True).strip()
         return {"target": self.target, "tools": tools, "sdkPackaged": False,
                 "platformSdk": platform_sdk,
+                "compilerSupport": {name: checksum(path) for name, path in self.compiler_runtime().items()},
                 "gnuConfig": {name: checksum(path) for name, path in self.auxiliary_files().items()}}
