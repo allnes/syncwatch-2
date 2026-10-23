@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
     expected_height = (unsigned)strtoul(argv[4], &end, 10);
     REQUIRE(*end == '\0' && expected_height > 0 && expected_height <= 8192, "invalid fixture height");
     REQUIRE(owned_library(argv[2]), "loaded library is not the owned relocated artifact");
+    REQUIRE(load_owned_dependencies(), "cannot load the owned native dependency closure");
     for (unsigned i = 0; i < sizeof(base_options) / sizeof(base_options[0]); ++i) options[option_count++] = base_options[i];
     options[option_count++] = hardware_mode ? "--codec=videotoolbox" : "--codec=avcodec,rawvideo,araw";
     if (hardware_mode) {
@@ -125,5 +126,6 @@ cleanup:
     if (player) libvlc_media_player_release(player);
     if (media) libvlc_media_release(media);
     if (instance) libvlc_release(instance);
+    release_owned_dependencies();
     return result;
 }

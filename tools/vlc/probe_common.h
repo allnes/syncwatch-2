@@ -17,12 +17,11 @@
 #ifndef SW_VLC_REVISION
 #error "The native media probe requires its exact source revision"
 #endif
+#include "owned_libraries.h"
 #ifdef _WIN32
-#include <windows.h>
 static inline void delay(void) { Sleep(10); }
 static inline uint64_t milliseconds(void) { return GetTickCount64(); }
 #else
-#include <dlfcn.h>
 #include <time.h>
 static inline void delay(void) { const struct timespec t = {0, 10000000}; nanosleep(&t, NULL); }
 static inline uint64_t milliseconds(void) {
@@ -31,27 +30,6 @@ static inline uint64_t milliseconds(void) {
 }
 #endif
 
-static inline int owned_library(const char *expected) {
-#ifdef _WIN32
-    HMODULE module;
-    char actual[32768], canonical[32768];
-    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-            /* The public Windows header has no dllimport attribute. Use the
-             * implementation's static inline version data, rather than its import thunk. */
-            libvlc_get_version(), &module) ||
-            !GetModuleFileNameA(module, actual, sizeof(actual)) || !_fullpath(canonical, expected, sizeof(canonical))) return 0;
-    for (char *p = actual; *p; ++p) if (*p == '/') *p = '\\';
-    for (char *p = canonical; *p; ++p) if (*p == '/') *p = '\\';
-    return _stricmp(actual, canonical) == 0;
-#else
-    Dl_info info;
-    if (!dladdr(libvlc_get_version(), &info)) return 0;
-    char *actual = realpath(info.dli_fname, NULL), *canonical = realpath(expected, NULL);
-    int matches = actual && canonical && strcmp(actual, canonical) == 0;
-    free(actual); free(canonical);
-    return matches;
-#endif
-}
 
 enum { WIDTH = 320, HEIGHT = 180, PITCH = WIDTH * 4 };
 struct observations {

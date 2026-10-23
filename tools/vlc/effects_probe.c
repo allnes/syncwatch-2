@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
     REQUIRE(adjust || normalize || tempo || subtitle || external, "unknown effect case");
     REQUIRE(argc == ((subtitle || external) ? 5 : 4), "external media URI is required");
     REQUIRE(owned_library(argv[3]), "unowned native library");
+    REQUIRE(load_owned_dependencies(), "cannot load the owned native dependency closure");
     if (adjust) {
         options[count++] = "--video-filter=adjust";
         options[count++] = "--brightness=1.5";
@@ -109,5 +110,6 @@ cleanup:
     if (player) { libvlc_media_player_stop(player); libvlc_media_player_release(player); }
     if (media) libvlc_media_release(media);
     if (instance) libvlc_release(instance);
+    release_owned_dependencies();
     return result;
 }

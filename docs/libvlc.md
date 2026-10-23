@@ -25,6 +25,8 @@ FFmpeg uses dynamic libraries with GPL, version3 and nonfree components disabled
 
 Fresh native consumers check authored I420/PCM, H.264/AAC, 1080p H.264/AAC and 4K HEVC/AAC fixtures. They observe metadata, decoded frames, resampled PCM and its known tone, pause stability, forward and backward seek pixels, stop, reload and release. Separate effect cases check actual brightness changes, normalization amplitude, pitch preservation during time stretching, replacement by an external audio tone and rendered SRT/ASS subtitle pixels. These are memory-callback observations; they establish no physical display, speaker, GPU-surface or application acceptance.
 
+On Windows, the consumer loads the verified owned shared-library closure before initializing VLC. Its dependency search permits only the owned DLL directory and System32, and it rejects a loaded library with a foreign path. Handles remain owned until all players and the VLC instance are released. This is required because VLC's plugin loader restricts dependency discovery to System32; a developer SDK or working-directory search must not provide missing application libraries.
+
 VideoToolbox/CVPX modules are selected on macOS, and D3D11VA on Windows. Hardware availability and playback controls need separate qualification. H.264 VideoToolbox backward seeking is unqualified; software decoding remains the accepted consumer path. Linux currently has a headless software decoder profile. Native Linux surfaces and the full Compose runtime remain separate prerequisites.
 
 ## Corresponding sources and declared changes
