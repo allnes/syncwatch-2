@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from source_profile import selected_plugins
 
 
 def library(path):
@@ -27,7 +28,7 @@ def assemble(context, build, source, profile, destination):
             for path in directory.iterdir():
                 if path.is_file() and library(path):
                     copy_library(path, libraries)
-    for name in profile["plugins"]:
+    for name in selected_plugins(profile, context.target):
         matches = [p for p in (build / "modules/.libs").glob("lib" + name + "_plugin.*") if library(p)]
         if len(matches) != 1:
             raise ValueError("Missing or ambiguous selected VLC plugin: " + name)

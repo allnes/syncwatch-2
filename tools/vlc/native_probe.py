@@ -40,11 +40,12 @@ def verify(context, package):
     results = {}
     for name, (fixture, metadata) in fixtures.items():
         output = directory / (name + "-proof.log")
-        with output.open("wb") as log:
+        errors = directory / (name + "-stderr.log")
+        with output.open("wb") as log, errors.open("wb") as diagnostics:
             process = subprocess.run([str(executable), str(fixture), str(actual), str(metadata["width"]), str(metadata["height"])], env=env,
-                stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, timeout=60)
+                stdin=subprocess.DEVNULL, stdout=log, stderr=diagnostics, timeout=60)
         if process.returncode:
-            raise ValueError("Relocated media probe failed:\n" + output.read_text(errors="replace"))
+            raise ValueError("Relocated media probe failed:\n" + output.read_text(errors="replace") + errors.read_text(errors="replace"))
         result = json.loads(output.read_text())
         expected = ["metadata", "decodeVideo", "decodeAudio", "play", "pause", "seekPixels", "resume", "stop", "reload", "release"]
         if (result.get("cases") != expected or result.get("ownedLibraryLoaded") is not True or

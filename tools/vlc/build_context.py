@@ -64,6 +64,7 @@ class BuildContext:
             path = self.tool(name)
             self.env[key] = shell_path(path) if self.target == "windows-x64" else path
         prefix = self.prefix.as_posix()
+        self.env["PATH"] = str(self.prefix / "bin") + os.pathsep + self.env["PATH"]
         self.env.update(PKG_CONFIG_PATH=prefix + "/lib/pkgconfig",
                         PKG_CONFIG_LIBDIR=prefix + "/lib/pkgconfig",
                         CFLAGS="-O2 -g0", CXXFLAGS="-O2 -g0", CPPFLAGS="-I" + prefix + "/include",
@@ -76,6 +77,12 @@ class BuildContext:
             self.env["LDFLAGS"] += " -Wl,-rpath,@loader_path -Wl,-rpath,@loader_path/../../.."
         elif self.target == "windows-x64":
             self.env["LDFLAGS"] += " -static-libgcc -static-libstdc++"
+            # The UCRT compiler also produces native build tools. The POSIX
+            # shell triplet must not make configure search for an MSYS C ABI.
+            self.env["BUILDCC"] = self.env["CC"]
+        else:
+            self.env["LD_LIBRARY_PATH"] = prefix + "/lib"
+            self.env["LDFLAGS"] += " -Wl,-rpath-link," + prefix + "/lib"
         for name, relative in [("gettext_datadir", "usr/share/gettext"), ("BISON_PKGDATADIR", "usr/share/bison")]:
             root = self.env.get("SYNCWATCH_VLC_EXTRA_TOOLS_ROOT")
             if root:
@@ -84,7 +91,11 @@ class BuildContext:
         root = self.env.get("SYNCWATCH_VLC_AUTOTOOLS_ROOT")
         if root:
             root = Path(root)
-            self.env["ACLOCAL_PATH"] = os.pathsep.join(str(p) for p in [root / "usr/share/aclocal", root / "usr/share/libtool/m4"])
+            macros = [root / "usr/share/aclocal", root / "usr/share/libtool/m4", Path("/usr/share/aclocal")]
+            extra = self.env.get("SYNCWATCH_VLC_EXTRA_TOOLS_ROOT")
+            if extra:
+                macros.insert(0, Path(extra) / "usr/share/aclocal")
+            self.env["ACLOCAL_PATH"] = os.pathsep.join(str(p) for p in macros)
             perl = [str(p) for p in (root / "usr/share").glob("automake-*")]
             if perl:
                 self.env["PERL5LIB"] = os.pathsep.join(perl + [str(root / "usr/share/autoconf")])
@@ -100,6 +111,21 @@ class BuildContext:
         if not path:
             raise ValueError("Missing native media developer tool: " + name)
         return path
+
+    def auxiliary_files(self):
+        if self.target != "linux-x64":
+            return {}
+        roots = [Path("/usr/share/misc")]
+        for variable in ["SYNCWATCH_VLC_AUTOTOOLS_ROOT", "SYNCWATCH_VLC_EXTRA_TOOLS_ROOT"]:
+            if self.env.get(variable):
+                roots.insert(0, Path(self.env[variable]) / "usr/share/misc")
+        files = {}
+        for name in ["config.guess", "config.sub"]:
+            path = next((root / name for root in roots if (root / name).is_file()), None)
+            if path is None:
+                raise ValueError("The native Autotools SDK requires autotools-dev: " + name)
+            files[name] = path
+        return files
 
     def run(self, label, args, cwd=None, shell=False, env=None, timeout=3600):
         if label in self.commands:
@@ -128,4 +154,5 @@ class BuildContext:
             result = subprocess.check_output(command, env=self.env, stderr=subprocess.STDOUT, timeout=30)
             tools[name] = {"sha256": checksum(path), "version": result.decode(errors="replace").splitlines()[0]}
         tools["buildPython"] = {"sha256": checksum(sys.executable), "version": sys.version.split()[0]}
-        return {"target": self.target, "tools": tools, "sdkPackaged": False}
+        return {"target": self.target, "tools": tools, "sdkPackaged": False,
+                "gnuConfig": {name: checksum(path) for name, path in self.auxiliary_files().items()}}

@@ -50,7 +50,7 @@ def zlib(context, sources):
         shutil.copy2(source, context.prefix / "include" / source.name)
     (lib / "pkgconfig/zlib.pc").write_text("prefix=" + context.prefix.as_posix() +
         "\nlibdir=${prefix}/lib\nincludedir=${prefix}/include\nName: zlib\nDescription: owned source-built zlib\n"
-        "Version: 1.3.2\nLibs: -L${libdir} -lz\nCflags: -I${includedir}\n")
+        "Version: 1.3.2\nLibs: -L${libdir} -lz\nCflags: -I${includedir}\n", encoding="utf-8", newline="\n")
 
 
 def build(context, sources):

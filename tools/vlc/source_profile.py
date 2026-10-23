@@ -28,6 +28,10 @@ def snapshots(directory, profile):
             for name, source in profile["sources"].items()}
 
 
+def selected_plugins(profile, target):
+    return sorted(set(profile["plugins"] + profile.get("platformPlugins", {}).get(target, [])))
+
+
 def materialize(directory, files, source, epoch):
     for name, data in files.items():
         path = directory / name

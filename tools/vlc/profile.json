@@ -14,6 +14,11 @@
         "COPYING.LIB",
         "modules/audio_filter/resampler/bandlimited.c",
         "modules/audio_filter/resampler/bandlimited.h",
+        "modules/codec/videotoolbox.m",
+        "modules/packetizer/h264.c",
+        "modules/packetizer/hevc.c",
+        "modules/video_chroma/chain.c",
+        "modules/video_chroma/cvpx.c",
         "src/misc/md5.c"
       ],
       "exports": [
@@ -18718,6 +18723,7 @@
     "blend",
     "cache_block",
     "cache_read",
+    "chain",
     "console_logger",
     "filesystem",
     "float_mixer",
@@ -18725,6 +18731,8 @@
     "integer_mixer",
     "libass",
     "normvol",
+    "packetizer_h264",
+    "packetizer_hevc",
     "prefetch",
     "rawvideo",
     "samplerate",
@@ -18738,5 +18746,15 @@
     "vmem"
   ],
   "physicalOutputAccepted": false,
-  "applicationIntegrationReady": false
+  "applicationIntegrationReady": false,
+  "platformPlugins": {
+    "macos-arm64": [
+      "cvpx",
+      "videotoolbox"
+    ],
+    "windows-x64": [
+      "d3d11va"
+    ],
+    "linux-x64": []
+  }
 }
