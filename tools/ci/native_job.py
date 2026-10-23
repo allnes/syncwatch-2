@@ -194,7 +194,7 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
         "sourceHead": os.environ.get("CI_HEAD_COMMIT", commit),
         "sourceTree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip(),
         "platform": target, "architecture": architecture, "validation": "success" if success else "failure",
-        "validationScope": "source-and-jvm-boundary" if target == "linux" else "native-build-and-design",
+        "validationScope": "kotlin-domain-and-jvm-boundary" if target == "linux" else "native-build-and-design",
         "applicationBuilt": success and target != "linux", "guiAccepted": False, "physicalOutputAccepted": False,
         "runId": os.environ.get("GITHUB_RUN_ID"), "runAttempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "runner": {key: os.environ.get(key) for key in ("ImageOS", "ImageVersion", "RUNNER_OS", "RUNNER_ARCH")},
@@ -247,8 +247,14 @@ def main() -> int:
             sys.path.insert(0, str(ROOT / "tools/jvm"))
             from jdk import home
             versions["javac"] = subprocess.check_output([str(home() / "bin/javac"), "--version"], text=True).strip()
+            report.execute("Provision exact developer Kotlin compiler", lambda: subprocess.run(
+                [sys.executable, "tools/jvm/kotlin.py", "--provision"], cwd=ROOT, env=environment, check=True))
+            versions["kotlin"] = json.loads((ROOT / "tools/jvm/kotlin_toolchain.json").read_text())["version"]
+            report.execute("Build and verify owned Kotlin runtime and shared domain", lambda: subprocess.run(
+                [sys.executable, "tools/dependencies/build.py", "build", "--component", "kotlin-stdlib", "--platform", "linux-x64"],
+                cwd=ROOT, env=environment, check=True))
             command = [sys.executable, "tools/native/check_linux.py"]
-        stage = "Linux source and JVM checks (application unavailable)" if args.target == "linux" else "Native formatting, domain tests, and application build"
+        stage = "Linux Kotlin domain and JVM checks (desktop application unavailable)" if args.target == "linux" else "Native formatting, domain tests, and application build"
         report.execute(stage, lambda: subprocess.run(command, cwd=ROOT, env=environment, check=True))
         report.execute("Verify unchanged tracked source", lambda: subprocess.run(["git", "diff", "--exit-code"], cwd=ROOT, check=True))
         success = True

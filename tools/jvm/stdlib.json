@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "profile": "jvm8-consolidated-module9-v1",
+  "version": "2.3.20",
+  "compilerArguments": [
+    "-jvm-target",
+    "1.8",
+    "-language-version",
+    "2.3",
+    "-api-version",
+    "2.3",
+    "-module-name",
+    "kotlin-stdlib",
+    "-Xjdk-release=8",
+    "-jvm-default=enable",
+    "-Xallow-kotlin-package",
+    "-Xexpect-actual-classes",
+    "-Xmultifile-parts-inherit",
+    "-Xuse-14-inline-classes-mangling-scheme",
+    "-Xno-new-java-annotation-targets",
+    "-Xoutput-builtins-metadata",
+    "-Xstdlib-compilation",
+    "-Xdont-warn-on-error-suppression",
+    "-Xcontext-parameters",
+    "-Xreturn-value-checker=full",
+    "-Xmulti-platform",
+    "-opt-in=kotlin.ExperimentalMultiplatform",
+    "-opt-in=kotlin.contracts.ExperimentalContracts"
+  ],
+  "expectedJars": {
+    "kotlin-stdlib-2.3.20-syncwatch.jar": "f728b81c6ad961a91a7b38d0564e3698a176c9df6ffd392c49e8fd0ce8f8f6fb"
+  }
+}

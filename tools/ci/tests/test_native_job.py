@@ -74,7 +74,7 @@ class NativeJobChecks(unittest.TestCase):
         with zipfile.ZipFile(archive) as package:
             manifest = json.loads(package.read("build-manifest.json"))
             self.assertEqual(manifest["validation"], "success")
-            self.assertEqual(manifest["validationScope"], "source-and-jvm-boundary")
+            self.assertEqual(manifest["validationScope"], "kotlin-domain-and-jvm-boundary")
             self.assertFalse(manifest["applicationBuilt"])
             self.assertFalse(manifest["guiAccepted"])
             self.assertFalse(manifest["physicalOutputAccepted"])

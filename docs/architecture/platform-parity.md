@@ -8,9 +8,9 @@ The [platform registry](../../tools/native/platforms.json) records implementatio
 
 | Feature | macOS | Windows | Linux |
 |---|---|---|---|
-| Watch domain and local preferences | Native implementation and shared corpus | Native implementation and shared corpus | Kotlin implementation and shared corpus; registered build qualification pending |
+| Watch domain and local preferences | Native implementation and shared corpus | Native implementation and shared corpus | Kotlin implementation and registered source-built runtime; same corpus required on all three hosts |
 | Library, settings and component galleries | Compiled native components | Compiled native components | Compose components and application entry source; application build pending |
 | VLC local controls and native video | AppKit surface | Owned HWND surface | Source-built native/JNI boundary; desktop surface pending |
 | Owned Syncplay helper transport | Executed Swift pipes | Executed C# pipes | Kotlin transport source; full application integration pending |
 
-Linux application readiness is explicitly false in [its build manifest](../../apps/linux/application.json). The required Linux CI lane executes source and JVM boundary checks and retains `applicationBuilt: false` and `guiAccepted: false`. It cannot qualify a completed product feature. The source-closed Kotlin/Compose/Skiko/Skia/native/font graph, actual desktop window, shared render matrix and native video lifetime must be completed before Linux GUI acceptance.
+Linux application readiness is explicitly false in [its build manifest](../../apps/linux/application.json). The required Linux CI lane compiles the Kotlin domain and executes the shared corpus and JVM boundary checks and retains `applicationBuilt: false` and `guiAccepted: false`. It cannot qualify a completed product feature. The remaining Compose/Skiko/Skia/native/font source graph, actual desktop window, shared render matrix and native video lifetime must be completed before Linux GUI acceptance.
