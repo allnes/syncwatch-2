@@ -83,6 +83,8 @@ Components may use [explicit source exports](architecture/dependencies.md#comple
 
 The [bootstrap standard-library component](python-stdlib.md) packages pinned encoding sources into an unchanged, deterministic ZIP on all three targets. Its native SDK fixture verifies the owned package and initializes the C startup API with that ZIP as its only module search path. This remains a prerequisite: the pinned native interpreter, complete standard library and Syncplay/TLS runtime are not available yet.
 
+The [native libVLC SDK](libvlc.md) registers the `libvlc` source component for macOS arm64, Windows x64 and Linux x64. Its developer tools are provisioned explicitly before the offline build. Cold and restored payloads undergo source/license, native import and fresh media-consumer verification. The application playback adapters and physical output are separate acceptance work.
+
 ## Source and contract validation
 
 Repository checks require Git, Python 3.12 or newer, and Node.js 22 or newer. Contract validation imports only the pinned validator source:

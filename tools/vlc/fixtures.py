@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 import struct
+import wave
 
 WIDTH, HEIGHT, FPS, SECONDS, RATE = 320, 180, 25, 4, 48000
 
@@ -61,6 +62,28 @@ def create(directory):
     path = directory / "owned-i420-pcm.avi"
     path.write_bytes(avi())
     return path
+
+
+def external_tracks(directory):
+    audio = directory / "external-880hz.wav"
+    samples = bytearray()
+    for position in range(RATE * SECONDS):
+        value = round(3000 * math.sin(2 * math.pi * 880 * position / RATE))
+        samples.extend(struct.pack("<hh", value, value))
+    with wave.open(str(audio), "wb") as stream:
+        stream.setparams((2, 2, RATE, RATE * SECONDS, "NONE", "not compressed"))
+        stream.writeframes(samples)
+    srt = directory / "external.srt"
+    srt.write_bytes(b"1\n00:00:00,000 --> 00:00:03,900\nSYNCWATCH\n")
+    ass = directory / "external.ass"
+    ass.write_bytes(("[Script Info]\nScriptType: v4.00+\nPlayResX: 320\nPlayResY: 180\n\n"
+        "[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+        "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, "
+        "Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
+        "Style: Default,Arial,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1\n\n"
+        "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
+        "Dialogue: 0,0:00:00.00,0:00:03.90,Default,,0,0,0,,SYNCWATCH\n").encode())
+    return {"external-audio": audio, "srt": srt, "ass": ass}
 
 
 def encoded(directory):

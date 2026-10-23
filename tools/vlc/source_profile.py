@@ -20,6 +20,12 @@ def profile_data():
                 not set(source["notices"]) <= set(source["files"]) or
                 not set(source["executables"]) <= set(source["files"])):
             raise ValueError("Media source/grant inventory is incomplete")
+    component = json.loads((ROOT / "tools/dependencies/components.json").read_bytes())["components"]["libvlc"]
+    expected = {source["path"]: {key: source[key] for key in
+                ["revision", "license", "notices", "exports", "requires", "unusedSubmodules"]}
+                for source in profile["sources"].values()}
+    if component.get("status") != "ready" or component.get("sources") != expected:
+        raise ValueError("Registered media source graph differs from the reviewed build profile")
     return profile
 
 

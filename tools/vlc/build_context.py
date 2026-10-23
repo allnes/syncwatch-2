@@ -44,7 +44,8 @@ class BuildContext:
                         CONFIG_SITE="/dev/null", GCRYPT_CONFIG="false")
         paths = []
         if self.target == "windows-x64":
-            root = Path(os.environ["SYNCWATCH_VLC_MSYS_ROOT"]).resolve()
+            root = Path(os.environ.get("SYNCWATCH_VLC_MSYS_ROOT",
+                        Path(__file__).resolve().parents[2] / ".local/vlc-sdk/windows/msys64")).resolve()
             paths.extend([root / "ucrt64/bin", root / "usr/bin"])
             self.shell = str(root / "usr/bin/bash.exe")
             self.env.update(MSYSTEM="UCRT64", MSYS2_PATH_TYPE="minimal", CHERE_INVOKING="1")
@@ -54,7 +55,8 @@ class BuildContext:
                     root = Path(self.env[name]).resolve()
                     paths.append(root / "usr/bin")
             if self.target == "macos-arm64":
-                paths.extend([Path("/opt/homebrew/opt/gettext/bin"), Path("/opt/homebrew/bin")])
+                paths.extend(Path("/opt/homebrew/opt") / name / "bin" for name in ["m4", "bison", "flex", "gettext"])
+                paths.append(Path("/opt/homebrew/bin"))
             self.shell = "/bin/sh"
         self.env["PATH"] = os.pathsep.join(str(p) for p in paths) + os.pathsep + self.env["PATH"]
         for name, key in [("m4", "M4"), ("autoconf", "AUTOCONF"), ("automake", "AUTOMAKE"),
@@ -77,6 +79,9 @@ class BuildContext:
             self.env["LDFLAGS"] += " -Wl,-rpath,@loader_path -Wl,-rpath,@loader_path/../../.."
         elif self.target == "windows-x64":
             self.env["LDFLAGS"] += " -static-libgcc -static-libstdc++"
+            # Make configure see the same API floor as the modern MinGW SDK.
+            # Otherwise its preprocessor-only probe misses libsynchronization.
+            self.env["CPPFLAGS"] += " -D_WIN32_WINNT=0x0A00"
             # The UCRT compiler also produces native build tools. The POSIX
             # shell triplet must not make configure search for an MSYS C ABI.
             self.env["BUILDCC"] = self.env["CC"]
@@ -139,14 +144,25 @@ class BuildContext:
         with output.open("wb") as log:
             process = subprocess.run(args, cwd=directory, env=environment, stdin=subprocess.DEVNULL,
                                      stdout=log, stderr=subprocess.STDOUT, timeout=timeout)
-        self.commands[label] = {"args": args, "logSha256": checksum(output), "exitCode": process.returncode}
+        self.commands[label] = {"args": args, "logSha256": checksum(output), "exitCode": process.returncode,
+                                "configuration": {key: environment[key] for key in
+                                    ["CC", "CXX", "CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "SOURCE_DATE_EPOCH"]}}
         (self.work / "commands.json").write_text(json.dumps(self.commands, indent=2) + "\n")
         if process.returncode:
             raise ValueError(label + " failed:\n" + output.read_bytes()[-12000:].decode("utf-8", errors="replace"))
 
     def sdk(self):
         tools = {}
-        for name in [self.env["CC"], self.env["CXX"], "make", "autoconf", "automake", "libtoolize" if self.target != "macos-arm64" else "glibtoolize", "pkg-config", "ninja", "cmake", "bison", "flex"]:
+        names = [self.env["CC"], self.env["CXX"], "make", "autoconf", "automake",
+                 "libtoolize" if self.target != "macos-arm64" else "glibtoolize", "pkg-config", "ninja",
+                 "cmake", "bison", "flex", "git", "m4", "gperf"]
+        if self.target != "macos-arm64":
+            names.append("nasm")
+        if self.target == "linux-x64":
+            names.extend(["readelf", "patchelf"])
+        elif self.target == "windows-x64":
+            names.append("objdump")
+        for name in names:
             path = self.tool(name)
             command = [path, "--version"]
             if self.target == "windows-x64":
@@ -154,5 +170,20 @@ class BuildContext:
             result = subprocess.check_output(command, env=self.env, stderr=subprocess.STDOUT, timeout=30)
             tools[name] = {"sha256": checksum(path), "version": result.decode(errors="replace").splitlines()[0]}
         tools["buildPython"] = {"sha256": checksum(sys.executable), "version": sys.version.split()[0]}
+        platform_sdk = {}
+        if self.target == "macos-arm64":
+            # /usr/bin compiler commands are SDK-selection shims. Measure the
+            # actual compiler and SDK metadata, as well as those entry points.
+            compiler = subprocess.check_output(["xcrun", "--find", "clang"], text=True).strip()
+            root = Path(subprocess.check_output(["xcrun", "--show-sdk-path"], text=True).strip())
+            platform_sdk = {"compilerSha256": checksum(compiler),
+                            "settingsSha256": checksum(root / "SDKSettings.json"),
+                            "version": subprocess.check_output(["xcrun", "--show-sdk-version"], text=True).strip()}
+            for name in ["otool", "install_name_tool", "codesign"]:
+                platform_sdk[name] = checksum(self.tool(name))
+        else:
+            platform_sdk["compilerTarget"] = subprocess.check_output([self.tool(self.env["CC"]), "-dumpmachine"],
+                                                                     env=self.env, text=True).strip()
         return {"target": self.target, "tools": tools, "sdkPackaged": False,
+                "platformSdk": platform_sdk,
                 "gnuConfig": {name: checksum(path) for name, path in self.auxiliary_files().items()}}

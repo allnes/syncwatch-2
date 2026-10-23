@@ -4009,7 +4009,18 @@
         "test/vlc-demux-libfuzzer.c": "7e0e8a8875e83f07c20249a7c634dd2618dd1ab9d857ee5fde5b2db8e75d3140",
         "test/vlc-demux-run.c": "71eba0def85dd2fdaa1e2ff9ec77fd433e4ec7f170ca6f3bc04949bc21c8c8bc"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/ffmpeg",
+        "3rdparty/freetype",
+        "3rdparty/harfbuzz",
+        "3rdparty/fribidi",
+        "3rdparty/libass",
+        "3rdparty/libsamplerate",
+        "3rdparty/fontconfig",
+        "3rdparty/libiconv",
+        "3rdparty/meson"
+      ]
     },
     "ffmpeg": {
       "path": "3rdparty/ffmpeg",
@@ -14220,7 +14231,11 @@
         "tools/zmqsend.c": "1507e2171291f25c80f0a1d17aea1c5f4d05defb5c186a150ad54416459df741",
         "tools/zmqshell.py": "9bfdb50c8cbccae499ea2399ee14f508b307f1dfb238c837b4384d861df93b50"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/dav1d",
+        "3rdparty/zlib"
+      ]
     },
     "freetype": {
       "path": "3rdparty/freetype",
@@ -14944,7 +14959,10 @@
       },
       "unusedSubmodules": {
         "subprojects/dlg": "Upstream debug logging is disabled; the dlg subproject is not compiled or packaged."
-      }
+      },
+      "requires": [
+        "3rdparty/zlib"
+      ]
     },
     "harfbuzz": {
       "path": "3rdparty/harfbuzz",
@@ -15590,7 +15608,12 @@
         "src/wasm/sample/rust/hello-wasm/Cargo.toml": "a394b86b691dd815776ce7803cb6e75617b03323a29d8237fd184278c4802792",
         "src/wasm/sample/rust/hello-wasm/src/lib.rs": "64a3d6cafd69afcb3e72e1530802630b8746b6108df83d4ec3329f68ef85116d"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/freetype",
+        "3rdparty/meson",
+        "3rdparty/python-idna-unicode-data"
+      ]
     },
     "fribidi": {
       "path": "3rdparty/fribidi",
@@ -15734,7 +15757,11 @@
         "meson.build": "8471c054a954ff84eadf84974721034517b13aed3edbea8a7e33872fed062a0a",
         "meson_options.txt": "4f43276ba0e983d3a2d9ffc0afd49eaa3097f1bfc64a36a6cf621f1e5a4bf356"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/meson",
+        "3rdparty/python-idna-unicode-data"
+      ]
     },
     "libass": {
       "path": "3rdparty/libass",
@@ -15863,7 +15890,13 @@
         "meson.build": "f7e7f35f7f68d9c03b640335a5155fd6d31c468eaf334e01fcd13490caa43ad4",
         "meson_options.txt": "e8ecbd72a259974e04fca2e6aad07bbddc9fcb0383eedc3ee9c4c93683770d01"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/freetype",
+        "3rdparty/harfbuzz",
+        "3rdparty/fribidi",
+        "3rdparty/meson"
+      ]
     },
     "fontconfig": {
       "path": "3rdparty/fontconfig",
@@ -16504,7 +16537,13 @@
         "subprojects/libxml2.wrap": "cca98b0f08c877547ba761ea498b85d1b55e47326c7e9d9c22f941619d8be0eb",
         "subprojects/zlib.wrap": "37e68040d898c9eb43e4747ac4baa5585c76f89b5da0cbb095fe26c231278297"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/expat",
+        "3rdparty/freetype",
+        "3rdparty/meson",
+        "3rdparty/python-idna-unicode-data"
+      ]
     },
     "expat": {
       "path": "3rdparty/expat",
@@ -16722,7 +16761,8 @@
         "expat/xmlwf/xmlwf_helpgen.sh": "8abc9b59ccd8f072de24556c016e095ec2ed9f5c1f86fc00d5d33c41d90115a5",
         "pull_request_template.md": "5c31286c9cea8aeaad09719eb61619bfbfc8fd8c92cb6c83aa880b9463ef1702"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     },
     "libiconv": {
       "path": "3rdparty/libiconv",
@@ -17888,7 +17928,8 @@
         "source/woe32dll/export.h": "02088295e5cedfcfc3646feaefb7426704307ac7ad0e525645eb737a534f613a",
         "source/woe32dll/iconv-exports.c": "f6ac6f4643000bc11afdc272248304ddd467f58ed494804845eb6f99bd82415d"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     },
     "dav1d": {
       "path": "3rdparty/dav1d",
@@ -18203,7 +18244,10 @@
         "tools/input/section5.c": "f7ad44bd58cef6ebf0a7321e583facb123900c9d69438a313283f95fbe321f3d",
         "tools/meson.build": "1c6b131567d95b9f20a01d5b6e6c23ad746ab3062ccd46b026b2b51601c64796"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": [
+        "3rdparty/meson"
+      ]
     },
     "libsamplerate": {
       "path": "3rdparty/libsamplerate",
@@ -18285,7 +18329,8 @@
         "src/src_sinc.c": "8e59137d758dae5027410af7f81010e7a9c33892070091866510f0f8b638237e",
         "src/src_zoh.c": "c089678c9e6463896507a8d476fc4a33641c46fbe94aa8243acf725d4c203adb"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     },
     "meson": {
       "path": "3rdparty/meson",
@@ -18572,7 +18617,8 @@
         "mesonbuild/wrap/wrap.py": "becba07540f6aa890a771d80074b625c23b2a8c40fcb4e6862fb66726ea2813b",
         "mesonbuild/wrap/wraptool.py": "2d239fadda60c7ad55a9aee00c7248b36bbb482fe2ecfac32acc2684de989b0f"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     },
     "zlib": {
       "exports": [
@@ -18650,7 +18696,8 @@
       "path": "3rdparty/zlib",
       "revision": "da607da739fa6047df13e66a2af6b8bec7c2a498",
       "executables": [],
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     },
     "python-idna-unicode-data": {
       "path": "3rdparty/python-idna-unicode-data",
@@ -18710,7 +18757,8 @@
         "unicodetools/data/ucd/18.0.0/Scripts.txt": "0071fd81b6aeae25f6e8bce8efec3066a6476a91b49bdb2f52dc76e817862a6a",
         "unicodetools/data/ucd/18.0.0/UnicodeData.txt": "0736451de439ae7baf1425136617da495e09ee5afbe6e394374db7009ea08950"
       },
-      "unusedSubmodules": {}
+      "unusedSubmodules": {},
+      "requires": []
     }
   },
   "plugins": [

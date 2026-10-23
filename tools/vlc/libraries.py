@@ -90,7 +90,8 @@ def build(context, sources):
     build.mkdir()
     flags = ["--prefix=" + shell_path(context.prefix), "--disable-autodetect", "--disable-programs", "--disable-doc",
         "--disable-network", "--disable-avdevice", "--disable-avfilter", "--disable-encoders", "--disable-muxers",
-        "--disable-gpl", "--disable-nonfree", "--disable-version3", "--disable-static", "--enable-shared",
+        "--disable-gpl", "--disable-nonfree", "--disable-version3", "--disable-debug", "--disable-static", "--enable-shared",
+        "--cc=" + context.env["CC"], "--cxx=" + context.env["CXX"],
         "--enable-zlib", "--enable-libdav1d", "--extra-cflags=" + context.env["CPPFLAGS"] + " " + context.env["CFLAGS"],
         "--extra-ldflags=" + context.env["LDFLAGS"]]
     if context.target == "macos-arm64":
