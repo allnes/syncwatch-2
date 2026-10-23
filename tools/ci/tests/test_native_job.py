@@ -64,6 +64,29 @@ class NativeJobChecks(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "architecture"):
                 native_job.check_host("macos")
 
+    def test_linux_boundary_archive_cannot_claim_application_or_gui(self):
+        self.initialize_repository()
+        source = self.root / "artifacts/linux-boundary/report.json"
+        source.parent.mkdir(parents=True)
+        source.write_text('{"jvmBoundaryAccepted":true,"applicationBuilt":false,"guiAccepted":false}\n')
+        directory = self.root / "artifacts/native/linux"
+        archive = native_job.prepare_archive(self.root, directory, "linux", "x64", {"javac": "pinned"}, self.report(), True)
+        with zipfile.ZipFile(archive) as package:
+            manifest = json.loads(package.read("build-manifest.json"))
+            self.assertEqual(manifest["validation"], "success")
+            self.assertEqual(manifest["validationScope"], "source-and-jvm-boundary")
+            self.assertFalse(manifest["applicationBuilt"])
+            self.assertFalse(manifest["guiAccepted"])
+            self.assertFalse(manifest["physicalOutputAccepted"])
+            self.assertEqual(set(package.namelist()), {"build-manifest.json", "validation.xml", "linux-boundary.json"})
+
+    def test_linux_host_is_required_for_linux_lane(self):
+        with patch("native_job.platform.system", return_value="Linux"), patch("native_job.platform.machine", return_value="x86_64"):
+            self.assertEqual(native_job.check_host("linux"), "x64")
+        with patch("native_job.platform.system", return_value="Windows"), patch("native_job.platform.machine", return_value="AMD64"):
+            with self.assertRaisesRegex(ValueError, "architecture"):
+                native_job.check_host("linux")
+
     def test_sdk_archive_cannot_escape_its_destination(self):
         for member in ("../outside", "/absolute", "C:/outside", "nested\\outside", "nested\x00outside"):
             with self.subTest(member=member):

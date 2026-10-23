@@ -165,3 +165,7 @@ The [Unicode type-table component](python-unicode.md) reproduces the pinned CPyt
 The [SipHash component](python-siphash.md) retains the separately pinned origin and original CPython modifications, validates original known answers and executes the selected raw functions on all three C SDK targets. Its provenance payload does not provide an interpreter, complete Python hashing or Syncplay runtime.
 
 The [hashtable component](python-hashtable.md) retains the separately pinned cfuhash provenance and verifies the original CPython hashtable with an independent dictionary corpus and allocation-failure injection on all three native C SDK targets. Its source/provenance package does not enable an interpreter, embedding ABI or Syncplay runtime.
+
+## Linux client boundary
+
+The Kotlin/Compose entry and Kotlin domain live in `apps/linux` and `packages/linux-domain`. Run `python3 tools/jvm/jdk.py --provision` followed by `python3 tools/native/check_linux.py` for the required source/JVM lane. This is not a Compose application build: the report preserves `kotlinDomainCompiled: false`, `applicationBuilt: false` and `guiAccepted: false`. The registered compiler/stdlib/Compose/native/font source graph and actual desktop/video acceptance remain required. See [platform parity](architecture/platform-parity.md) and the [Linux application manifest](../apps/linux/application.json).

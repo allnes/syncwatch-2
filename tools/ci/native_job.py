@@ -54,7 +54,8 @@ class Report:
 
 
 def check_host(target: str) -> str:
-    expected = {"macos": ("Darwin", {"arm64"}), "windows": ("Windows", {"AMD64", "x86_64"})}
+    expected = {"macos": ("Darwin", {"arm64"}), "windows": ("Windows", {"AMD64", "x86_64"}),
+                "linux": ("Linux", {"x86_64"})}
     system, architectures = expected[target]
     if platform.system() != system or platform.machine() not in architectures:
         raise ValueError("Native runner OS or architecture does not match the declared lane")
@@ -177,13 +178,15 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
     if success:
         if target == "macos":
             macos_candidate(root, payload / "SyncWatch.app.tar")
-        else:
+        elif target == "windows":
             source = root / "apps/windows/SyncWatch/bin/Debug/net10.0-windows"
             candidate = payload / "SyncWatch"
             candidate.mkdir()
             for name in ("SyncWatch.exe", "SyncWatch.dll", "SyncWatch.Domain.dll", "SyncWatch.deps.json", "SyncWatch.runtimeconfig.json"):
                 shutil.copy2(source / name, candidate / name)
-    if success:
+    if success and target == "linux":
+        shutil.copy2(root / "artifacts/linux-boundary/report.json", payload / "linux-boundary.json")
+    if success and target != "linux":
         retain_design_images(root, payload, target)
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     manifest = {
@@ -191,6 +194,8 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
         "sourceHead": os.environ.get("CI_HEAD_COMMIT", commit),
         "sourceTree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip(),
         "platform": target, "architecture": architecture, "validation": "success" if success else "failure",
+        "validationScope": "source-and-jvm-boundary" if target == "linux" else "native-build-and-design",
+        "applicationBuilt": success and target != "linux", "guiAccepted": False, "physicalOutputAccepted": False,
         "runId": os.environ.get("GITHUB_RUN_ID"), "runAttempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "runner": {key: os.environ.get(key) for key in ("ImageOS", "ImageVersion", "RUNNER_OS", "RUNNER_ARCH")},
         "toolchains": versions,
@@ -207,7 +212,7 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", choices=("macos", "windows"))
+    parser.add_argument("target", choices=("macos", "windows", "linux"))
     args = parser.parse_args()
     specification = json.loads((ROOT / "tools/native/toolchains.json").read_text(encoding="utf-8"))[args.target]
     directory = ROOT / "artifacts/native" / args.target
@@ -231,12 +236,20 @@ def main() -> int:
                     raise ValueError("Selected Xcode differs from the native CI pin")
             report.execute("Select Apple toolchain", select_toolchain)
             command = [sys.executable, "tools/native/check_macos.py"]
-        else:
+        elif args.target == "windows":
             temporary = Path(os.environ["RUNNER_TEMP"])
             dotnet = report.execute("Provision exact .NET SDK", lambda: ensure_dotnet(specification, temporary))
             versions["dotnet"] = subprocess.check_output([str(dotnet), "--version"], cwd=ROOT, text=True).strip()
             command = ["pwsh", "-NoProfile", "-File", "tools/native/check_windows.ps1", "-DotNet", str(dotnet)]
-        report.execute("Native formatting, domain tests, and application build", lambda: subprocess.run(command, cwd=ROOT, env=environment, check=True))
+        else:
+            report.execute("Provision exact developer JDK", lambda: subprocess.run(
+                [sys.executable, "tools/jvm/jdk.py", "--provision"], cwd=ROOT, env=environment, check=True))
+            sys.path.insert(0, str(ROOT / "tools/jvm"))
+            from jdk import home
+            versions["javac"] = subprocess.check_output([str(home() / "bin/javac"), "--version"], text=True).strip()
+            command = [sys.executable, "tools/native/check_linux.py"]
+        stage = "Linux source and JVM checks (application unavailable)" if args.target == "linux" else "Native formatting, domain tests, and application build"
+        report.execute(stage, lambda: subprocess.run(command, cwd=ROOT, env=environment, check=True))
         report.execute("Verify unchanged tracked source", lambda: subprocess.run(["git", "diff", "--exit-code"], cwd=ROOT, check=True))
         success = True
     except Exception:

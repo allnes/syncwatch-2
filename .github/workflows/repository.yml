@@ -309,6 +309,7 @@
         "contracts",
         "macos",
         "windows",
+        "linux",
         "metadata",
         "dependency-plan",
         "dependencies"
@@ -327,7 +328,7 @@
           "env": {
             "CI_NEEDS_JSON": "${{ toJSON(needs) }}"
           },
-          "run": "python3 tools/ci/required_status.py repository tests contracts macos windows metadata dependency-plan dependencies"
+          "run": "python3 tools/ci/required_status.py repository tests contracts macos windows linux metadata dependency-plan dependencies"
         }
       ]
     },
@@ -415,6 +416,38 @@
           ]
         }
       }
+    },
+    "linux": {
+      "name": "Linux source and JVM boundaries",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 30,
+      "steps": [
+        {
+          "name": "Check out the exact workflow revision",
+          "env": {
+            "CI_SOURCE_URL": "${{ github.server_url }}/${{ github.repository }}.git",
+            "CI_COMMIT": "${{ github.sha }}"
+          },
+          "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
+        },
+        {
+          "name": "Validate Linux source and executable JVM boundaries",
+          "env": {
+            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
+          },
+          "run": "python3 tools/ci/native_job.py linux"
+        },
+        {
+          "name": "Retain Linux validation scope and reports",
+          "if": "${{ always() }}",
+          "timeout-minutes": 5,
+          "uses": "./.github/actions/upload-native",
+          "with": {
+            "archive": "artifacts/native/linux/artifact.zip",
+            "name": "syncwatch-linux-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          }
+        }
+      ]
     }
   }
 }

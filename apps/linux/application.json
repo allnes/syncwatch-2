@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "platform": "linux",
+  "language": "Kotlin/JVM",
+  "ui": "Compose Multiplatform Desktop",
+  "mainClass": "syncwatch.MainKt",
+  "sources": [
+    "apps/linux/src",
+    "packages/linux-domain/src",
+    "packages/ipc/jvm",
+    "packages/design/generated/linux",
+    "packages/design/linux",
+    "packages/linux-bridge",
+    "packages/linux-playback/src"
+  ],
+  "applicationBuildReady": false,
+  "requiredSourceComponents": [
+    "kotlin-stdlib",
+    "compose-desktop",
+    "skiko-linux",
+    "libvlc"
+  ],
+  "blockedCapabilities": [
+    "source-closed Kotlin standard library and compiler toolchain",
+    "source-closed Compose, Skiko, Skia and selected native/font graph",
+    "native video window on X11 and Wayland",
+    "compiled desktop galleries and application acceptance"
+  ]
+}

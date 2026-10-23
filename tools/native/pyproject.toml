@@ -8,3 +8,4 @@ dependencies = []
 [tool.syncwatch]
 macos-check-command = "python3 tools/native/check_macos.py"
 windows-check-command = "powershell -NoProfile -File tools/native/check_windows.ps1"
+linux-check-command = "python3 tools/native/check_linux.py"
