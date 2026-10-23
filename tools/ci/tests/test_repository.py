@@ -88,7 +88,7 @@ class RepositoryChecks(unittest.TestCase):
         )
 
     def copy_design(self):
-        for member in ("apple", "windows", "linux"):
+        for member in ("macos", "windows", "linux"):
             (self.root / "packages/design" / member).mkdir(parents=True, exist_ok=True)
         for source in (REPOSITORY / "packages/design").rglob("*.json"):
             self.write(str(source.relative_to(REPOSITORY)), source.read_text(encoding="utf-8"))
@@ -298,7 +298,7 @@ class WorkflowChecks(unittest.TestCase):
             self.validate(remove)
 
     def test_native_startup_cannot_be_omitted_on_any_platform(self):
-        for job in ("tests", "apple", "windows"):
+        for job in ("tests", "macos", "windows"):
             with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Native CPython startup"):
                 self.validate(lambda data: data["jobs"][job].update({"steps": [
                     step for step in data["jobs"][job]["steps"] if "native_probe.py" not in step.get("run", "")
@@ -312,7 +312,7 @@ class WorkflowChecks(unittest.TestCase):
                 ]}))
 
     def test_native_package_verification_cannot_be_omitted(self):
-        for job in ("tests", "apple", "windows"):
+        for job in ("tests", "macos", "windows"):
             with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Native Python package verification"):
                 self.validate(lambda data: data["jobs"][job].update({"steps": [
                     step for step in data["jobs"][job]["steps"] if "tools/python-package/package_probe.py" not in step.get("run", "")
@@ -323,7 +323,7 @@ class WorkflowChecks(unittest.TestCase):
             self.validate(lambda data: data["on"].pop("pull_request"))
 
     def test_owned_stdlib_native_fixture_cannot_be_omitted(self):
-        for job in ("tests", "apple", "windows"):
+        for job in ("tests", "macos", "windows"):
             with self.subTest(job=job), self.assertRaisesRegex(ValidationError, "Owned bootstrap stdlib"):
                 self.validate(lambda data: data["jobs"][job].update({"steps": [
                     step for step in data["jobs"][job]["steps"] if "tools/python-stdlib/stdlib_probe.py" not in step.get("run", "")
@@ -382,7 +382,7 @@ class WorkflowChecks(unittest.TestCase):
 
     def test_native_lanes_cannot_use_unspecified_runner_images(self):
         with self.assertRaisesRegex(ValidationError, "declared runner"):
-            self.validate(lambda data: data["jobs"]["apple"].update({"runs-on": "macos-latest"}))
+            self.validate(lambda data: data["jobs"]["macos"].update({"runs-on": "macos-latest"}))
 
     def test_native_checks_cannot_be_removed(self):
         with self.assertRaisesRegex(ValidationError, "real native checks"):
@@ -415,11 +415,11 @@ class WorkflowChecks(unittest.TestCase):
 
     def test_remote_actions_cannot_replace_local_artifact_action(self):
         with self.assertRaisesRegex(ValidationError, "repository-owned action"):
-            self.validate(lambda data: data["jobs"]["apple"]["steps"][-1].update({"uses": "external/action@main"}))
+            self.validate(lambda data: data["jobs"]["macos"]["steps"][-1].update({"uses": "external/action@main"}))
 
     def test_failure_report_upload_cannot_be_success_only(self):
         with self.assertRaisesRegex(ValidationError, "failure reports"):
-            self.validate(lambda data: data["jobs"]["apple"]["steps"][-1].pop("if"))
+            self.validate(lambda data: data["jobs"]["macos"]["steps"][-1].pop("if"))
 
     def test_artifact_identity_cannot_omit_commit(self):
         with self.assertRaisesRegex(ValidationError, "identify platform"):

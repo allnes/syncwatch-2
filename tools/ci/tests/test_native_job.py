@@ -37,7 +37,7 @@ class NativeJobChecks(unittest.TestCase):
         return report
 
     def design_matrix(self):
-        source = self.root / "artifacts/design/apple"
+        source = self.root / "artifacts/design/macos"
         source.mkdir(parents=True)
         repository = Path(__file__).resolve().parents[3]
         for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
@@ -62,7 +62,30 @@ class NativeJobChecks(unittest.TestCase):
     def test_wrong_runner_architecture_is_rejected(self):
         with patch("native_job.platform.system", return_value="Darwin"), patch("native_job.platform.machine", return_value="x86_64"):
             with self.assertRaisesRegex(ValueError, "architecture"):
-                native_job.check_host("apple")
+                native_job.check_host("macos")
+
+    def test_linux_boundary_archive_cannot_claim_application_or_gui(self):
+        self.initialize_repository()
+        source = self.root / "artifacts/linux-boundary/report.json"
+        source.parent.mkdir(parents=True)
+        source.write_text('{"jvmBoundaryAccepted":true,"applicationBuilt":false,"guiAccepted":false}\n')
+        directory = self.root / "artifacts/native/linux"
+        archive = native_job.prepare_archive(self.root, directory, "linux", "x64", {"javac": "pinned"}, self.report(), True)
+        with zipfile.ZipFile(archive) as package:
+            manifest = json.loads(package.read("build-manifest.json"))
+            self.assertEqual(manifest["validation"], "success")
+            self.assertEqual(manifest["validationScope"], "source-and-jvm-boundary")
+            self.assertFalse(manifest["applicationBuilt"])
+            self.assertFalse(manifest["guiAccepted"])
+            self.assertFalse(manifest["physicalOutputAccepted"])
+            self.assertEqual(set(package.namelist()), {"build-manifest.json", "validation.xml", "linux-boundary.json"})
+
+    def test_linux_host_is_required_for_linux_lane(self):
+        with patch("native_job.platform.system", return_value="Linux"), patch("native_job.platform.machine", return_value="x86_64"):
+            self.assertEqual(native_job.check_host("linux"), "x64")
+        with patch("native_job.platform.system", return_value="Windows"), patch("native_job.platform.machine", return_value="AMD64"):
+            with self.assertRaisesRegex(ValueError, "architecture"):
+                native_job.check_host("linux")
 
     def test_sdk_archive_cannot_escape_its_destination(self):
         for member in ("../outside", "/absolute", "C:/outside", "nested\\outside", "nested\x00outside"):
@@ -110,13 +133,13 @@ class NativeJobChecks(unittest.TestCase):
 
     def test_candidate_archive_identifies_exact_source_and_payload_digests(self):
         self.initialize_repository()
-        bundle = self.root / "artifacts/apple/SyncWatch.app/Contents/MacOS"
+        bundle = self.root / "artifacts/macos/SyncWatch.app/Contents/MacOS"
         bundle.mkdir(parents=True)
         (bundle / "SyncWatch").write_bytes(b"executable fixture")
         (bundle / "SyncWatch").chmod(0o755)
         self.design_matrix()
-        directory = self.root / "artifacts/native/apple"
-        output = native_job.prepare_archive(self.root, directory, "apple", "arm64", {"swift": "6.4"}, self.report(), True)
+        directory = self.root / "artifacts/native/macos"
+        output = native_job.prepare_archive(self.root, directory, "macos", "arm64", {"swift": "6.4"}, self.report(), True)
         with zipfile.ZipFile(output) as archive:
             manifest = json.loads(archive.read("build-manifest.json"))
             expected = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.root, text=True).strip()
@@ -137,7 +160,7 @@ class NativeJobChecks(unittest.TestCase):
         source = self.design_matrix()
         payload = self.root / "payload"
         payload.mkdir()
-        native_job.retain_design_images(self.root, payload, "apple")
+        native_job.retain_design_images(self.root, payload, "macos")
         self.assertEqual(len(list((payload / "design").iterdir())), 352)
         image = next(source.iterdir())
         image.unlink()
@@ -145,7 +168,7 @@ class NativeJobChecks(unittest.TestCase):
         (self.root / "source.txt").write_text("private")
         (self.root / "rejected").mkdir()
         with self.assertRaisesRegex(ValueError, "Unsafe design"):
-            native_job.retain_design_images(self.root, self.root / "rejected", "apple")
+            native_job.retain_design_images(self.root, self.root / "rejected", "macos")
 
     def test_render_matrix_rejects_missing_and_stale_names(self):
         source = self.design_matrix()
@@ -153,14 +176,14 @@ class NativeJobChecks(unittest.TestCase):
         wrong = source / "stale-dark-en-680x420.png"
         image.rename(wrong)
         with self.assertRaisesRegex(ValueError, "differs"):
-            native_job.retain_design_images(self.root, self.root / "out", "apple")
+            native_job.retain_design_images(self.root, self.root / "out", "macos")
         wrong.unlink()
         with self.assertRaisesRegex(ValueError, "differs"):
-            native_job.retain_design_images(self.root, self.root / "out", "apple")
+            native_job.retain_design_images(self.root, self.root / "out", "macos")
 
     def test_missing_entire_matrix_cannot_publish_success(self):
         with self.assertRaisesRegex(ValueError, "Required.*missing"):
-            native_job.retain_design_images(self.root, self.root / "payload", "apple")
+            native_job.retain_design_images(self.root, self.root / "payload", "macos")
 
     def test_failure_archive_contains_reports_without_an_application(self):
         self.initialize_repository()
@@ -170,13 +193,13 @@ class NativeJobChecks(unittest.TestCase):
             self.assertEqual(json.loads(archive.read("build-manifest.json"))["validation"], "failure")
 
     def test_bundle_symlinks_cannot_include_external_files(self):
-        bundle = self.root / "artifacts/apple/SyncWatch.app/Contents/MacOS"
+        bundle = self.root / "artifacts/macos/SyncWatch.app/Contents/MacOS"
         bundle.mkdir(parents=True)
         (bundle / "SyncWatch").write_bytes(b"executable")
         (self.root / "external").write_text("private")
         (bundle / "outside").symlink_to(self.root / "external")
         with self.assertRaisesRegex(ValueError, "symbolic links"):
-            native_job.apple_candidate(self.root, self.root / "candidate.tar")
+            native_job.macos_candidate(self.root, self.root / "candidate.tar")
 
 
 if __name__ == "__main__":

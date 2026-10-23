@@ -14,7 +14,7 @@ const platform = {'darwin': 'macos-arm64', 'linux': 'linux-x64', 'win32': 'windo
 const runtime = process.env.SYNCWATCH_DESIGN_RUNTIME ?? join(root, 'artifacts/dependencies/design-generator', platform, 'payload/runtime');
 const temporary = mkdtempSync(join(tmpdir(), 'syncwatch-native-design-'));
 after(() => rmSync(temporary, {recursive: true, force: true}));
-const files = ['apple/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
+const files = ['macos/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 function generate(design, output, check = false) {
     const result = spawnSync(process.execPath, [join(root, 'tools/design/generate.mjs'), '--runtime', runtime,
         '--design', design, '--output', output, ...(check ? ['--check'] : [])], {

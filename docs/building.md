@@ -21,8 +21,8 @@ Use an Apple Silicon Mac, Xcode 16.3 or newer with its macOS SDK and command-lin
 Run from the repository root:
 
 ```sh
-python3 tools/native/check_apple.py
-open artifacts/apple/SyncWatch.app
+python3 tools/native/check_macos.py
+open artifacts/macos/SyncWatch.app
 ```
 
 The entry point checks formatting, runs domain and native design tests, builds the SwiftUI executable, and assembles an unsigned application bundle with the checked-in Info.plist. SwiftPM uses local packages. Platform frameworks and Swift Testing come from the selected SDK.
@@ -30,9 +30,9 @@ The entry point checks formatting, runs domain and native design tests, builds t
 The underlying build and domain-test commands are:
 
 ```sh
-SYNCWATCH_CONTRACT_FIXTURES="$PWD/contracts/fixtures/acceptance.json" swift test --package-path packages/apple-domain -Xswiftc -warnings-as-errors
+SYNCWATCH_CONTRACT_FIXTURES="$PWD/contracts/fixtures/acceptance.json" swift test --package-path packages/macos-domain -Xswiftc -warnings-as-errors
 swift test --package-path packages/design -Xswiftc -warnings-as-errors
-swift build --package-path apps/apple -Xswiftc -warnings-as-errors
+swift build --package-path apps/macos -Xswiftc -warnings-as-errors
 ```
 
 ## Windows
@@ -63,7 +63,7 @@ dotnet run --project packages/design/tests/windows --no-build --no-restore --con
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
-Both native test entry points also consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
+The macOS and Windows native test entry points consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
 
 The shells consume the committed resources in `packages/design/generated/`. Native builds need no Node runtime. After changing design inputs, use the [native resource generation commands](design-generator.md#native-resource-generation) and include the resulting resources in the change.
 
@@ -103,14 +103,14 @@ A successful shell build or source check does not establish functioning media, s
 The macOS and Windows shells display the shared Library workspace with unavailable service actions disabled. Launch the fixture gallery to select visual state, theme and language:
 
 ```sh
-artifacts/apple/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
+artifacts/macos/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
 ```
 
 ```powershell
 apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe --design-gallery
 ```
 
-The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/apple/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
+The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/macos/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
 
 
 ## Application settings
@@ -165,3 +165,7 @@ The [Unicode type-table component](python-unicode.md) reproduces the pinned CPyt
 The [SipHash component](python-siphash.md) retains the separately pinned origin and original CPython modifications, validates original known answers and executes the selected raw functions on all three C SDK targets. Its provenance payload does not provide an interpreter, complete Python hashing or Syncplay runtime.
 
 The [hashtable component](python-hashtable.md) retains the separately pinned cfuhash provenance and verifies the original CPython hashtable with an independent dictionary corpus and allocation-failure injection on all three native C SDK targets. Its source/provenance package does not enable an interpreter, embedding ABI or Syncplay runtime.
+
+## Linux client boundary
+
+The Kotlin/Compose entry and Kotlin domain live in `apps/linux` and `packages/linux-domain`. Run `python3 tools/jvm/jdk.py --provision` followed by `python3 tools/native/check_linux.py` for the required source/JVM lane. This is not a Compose application build: the report preserves `kotlinDomainCompiled: false`, `applicationBuilt: false` and `guiAccepted: false`. The registered compiler/stdlib/Compose/native/font source graph and actual desktop/video acceptance remain required. See [platform parity](architecture/platform-parity.md) and the [Linux application manifest](../apps/linux/application.json).

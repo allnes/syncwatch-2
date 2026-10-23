@@ -6,14 +6,14 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [.library(name: "SyncWatchPlayback", targets: ["SyncWatchPlayback"])],
     dependencies: [
-        .package(path: "../apple-domain"),
+        .package(path: "../macos-domain"),
         .package(path: "../playback-native"),
     ],
     targets: [
         .target(
             name: "SyncWatchPlayback",
             dependencies: [
-                .product(name: "SyncWatchDomain", package: "apple-domain"),
+                .product(name: "SyncWatchDomain", package: "macos-domain"),
                 .product(name: "SyncWatchPlaybackNative", package: "playback-native"),
             ]),
         .testTarget(name: "SyncWatchPlaybackTests", dependencies: ["SyncWatchPlayback"]),

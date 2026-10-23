@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "platforms": {
+    "macos": {
+      "application": "apps/macos",
+      "domain": "packages/macos-domain",
+      "design": "packages/design/macos",
+      "generatedDesign": "packages/design/generated/macos",
+      "playback": "packages/macos-playback",
+      "bridge": "packages/macos-bridge"
+    },
+    "windows": {
+      "application": "apps/windows",
+      "domain": "packages/windows-domain",
+      "design": "packages/design/windows",
+      "generatedDesign": "packages/design/generated/windows",
+      "playback": "packages/windows-playback",
+      "bridge": "packages/windows-bridge"
+    },
+    "linux": {
+      "application": "apps/linux",
+      "domain": "packages/linux-domain",
+      "design": "packages/design/linux",
+      "generatedDesign": "packages/design/generated/linux",
+      "playback": "packages/linux-playback",
+      "bridge": "packages/linux-bridge"
+    }
+  },
+  "featureSlices": {
+    "watch-domain-and-local-preferences": {
+      "complete": false,
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "research-tested" }
+    },
+    "library-and-settings-application": {
+      "complete": false,
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "source-only" }
+    },
+    "shared-component-galleries": {
+      "complete": false,
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "source-only" }
+    },
+    "native-video-and-local-controls": {
+      "complete": false,
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-boundary-tested" }
+    },
+    "application-syncplay-transport": {
+      "complete": false,
+      "validation": { "macos": "native-boundary-tested", "windows": "native-boundary-tested", "linux": "source-only" }
+    }
+  }
+}

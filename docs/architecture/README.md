@@ -6,9 +6,9 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 
 | Area | Decision |
 |---|---|
-| Product platforms | macOS, Windows 11 x64, and planned Linux x64 |
-| Apple client | Swift, SwiftUI, and AppKit for video surfaces and window management |
-| Linux client (planned) | Kotlin/JVM with Compose Multiplatform Desktop; source/license closure precedes the application build |
+| Product platforms | macOS, Windows 11 x64, and Linux x64 |
+| macOS client | Swift, SwiftUI, and AppKit for video surfaces and window management |
+| Linux client | Kotlin/JVM with Compose Multiplatform Desktop; source/license closure precedes the application build |
 | Windows client | C#, WPF, and .NET 10 LTS, with a small libVLC P/Invoke adapter |
 | Shared design | Platform-neutral JSON tokens and component contracts in `packages/design`; Apache 2.0 Style Dictionary generates native resources |
 | Playback | Embedded libVLC with SyncWatch controls |
@@ -16,7 +16,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | Calling | Google Meet in a separate application-owned window; browser-host integration is not implemented |
 | Room metadata | A C# / ASP.NET Core service over HTTPS/WSS for catalog and watch-session metadata |
 | External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
-| Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, reproducible dependencies, integration checks, and trusted release candidates |
+| Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, required Linux source/JVM checks, reproducible dependencies, integration checks, and trusted release candidates |
 
 The Windows SDK selection is pinned in [global.json](../../global.json) and the [toolchain manifest](../../tools/native/toolchains.json). See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
 
@@ -27,8 +27,8 @@ flowchart TB
     D[SyncWatch Design JSON] --> G[Style Dictionary build tool]
     G --> A[SwiftUI / AppKit client]
     G --> W[C# / WPF client]
-    G -. Planned Kotlin resources .-> L[Kotlin / Compose Desktop Linux client]
-    L -. Planned .-> CL[Linux coordinators and native adapters]
+    G --> L[Kotlin / Compose Desktop Linux client]
+    L -. Source / build pending .-> CL[Linux coordinators and native adapters]
     CL -. Local movie .-> FL[Linux libVLC surface]
     CL -. Versioned local IPC .-> SL[Syncplay headless bridge]
     SL -. Syncplay protocol and TLS .-> SS
@@ -71,7 +71,7 @@ Each device reads its own movie file. Only play, pause, seek, and movie/playlist
 | ConnectionSupervisor | Independent recovery of playback synchronization, metadata, and call channels |
 | Design renderer | Displays state and emits user actions; contains no networking or media engine logic |
 
-Swift and C# implement the [shared contracts](contracts.md) and use the same acceptance fixtures. The planned Kotlin Linux implementation will consume that same corpus and protocol, including local watch generations and preference persistence. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while each application uses its selected desktop stack.
+Swift and C# implement the [shared contracts](contracts.md) and use the same acceptance fixtures. The Kotlin Linux domain consumes that same corpus and protocol, including local watch generations and preference persistence. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while each application uses its selected desktop stack.
 
 ## Native video integration
 
@@ -109,12 +109,13 @@ Synchronization loss pauses playback and resets the rate to 1.0. Commands from a
 Native shells, local domain modules, the room metadata service, the design package, documentation, contracts, validation tooling, workflows, and pinned submodules exist. Media/provider services and full product workflows in the layout below remain planned:
 
 ```text
-apps/apple/                 # Swift application and native platform adapters
+apps/macos/                 # Swift application and native platform adapters
 apps/windows/               # C# WPF application and native platform adapters
-apps/linux/                 # Planned Kotlin/JVM / Compose Desktop application and adapters
+apps/linux/                 # Kotlin/Compose entry; registered application build pending
 packages/design/            # Platform-neutral design data and component contracts
-packages/apple-domain/      # Swift domain and use cases, independent of SwiftUI
+packages/macos-domain/      # Swift domain and use cases, independent of SwiftUI
 packages/windows-domain/    # C# domain and use cases, independent of WPF
+packages/linux-domain/      # Kotlin domain and atomic local persistence
 contracts/                  # JSON schemas and shared acceptance fixtures
 services/syncplay-bridge/   # Headless Python entry point and player/UI adapters
 services/room-metadata/     # C# ASP.NET Core metadata service
@@ -134,11 +135,11 @@ Dependencies point from UI to application to domain. Filesystem, VLC, Syncplay, 
 
 ## Linux client
 
-The Linux client is planned in Kotlin/JVM with [Compose Multiplatform Desktop](https://github.com/JetBrains/compose-multiplatform#desktop). It runs on the JVM and uses Compose for its desktop UI. The existing JSON design source and wire contracts remain shared; macOS keeps SwiftUI/AppKit and Windows keeps C#/WPF.
+The Linux client is implemented in Kotlin/JVM source with [Compose Multiplatform Desktop](https://github.com/JetBrains/compose-multiplatform#desktop). It runs on the JVM and uses Compose for its desktop UI. The existing JSON design source and wire contracts remain shared; macOS keeps SwiftUI/AppKit and Windows keeps C#/WPF.
 
 Compose's JetBrains-owned code uses [Apache 2.0](https://github.com/JetBrains/compose-multiplatform/blob/master/license/README.md). The selected dependency graph still needs pinned source revisions and a complete license inventory before use. That inventory must cover the selected Compose/AndroidX modules, Kotlin standard library, Skiko/Skia rendering graph, transitive and embedded code, and any bundled fonts. Declare the compiler, JDK and build-tool versions separately; a packaged Java runtime also needs its own source, notice and distribution review. Neither a toolchain exception nor Compose's top-level license clears those artifacts. See [dependency policy](dependencies.md) and [licenses and distribution](../licenses.md).
 
-Linux needs its own Kotlin domain implementation, compiled Compose renderer, VLC surface, helper/metadata adapters, and owned Meet host. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
+Linux has a Kotlin domain, a Compose entry and shared renderer source. Its qualified Compose build, VLC desktop surface, helper/metadata application adapters and owned Meet host remain incomplete. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
 
 ## Local data and permissions
 
@@ -151,11 +152,11 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | Component | Current limitation |
 |---|---|
 | Google Meet | Browser hosts, account access, media, native call controls, and capture shutdown are not implemented |
-| VLC | Native video rendering, Windows overlays, timeline previews, track adapters and applying player preferences to VLC are not implemented |
+| VLC | macOS/Windows native surfaces and local development controls are implemented; Linux has a native/JNI boundary. Linux desktop video, overlays, timeline previews and complete player preferences remain incomplete |
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
 | Syncplay bridge | Source-built headless runtime and development helper/native pipe adapters are present; actual VLC, authenticated installation and application provider activation remain incomplete; Kotlin transport is source-only |
 | Shared design | Swift/WPF Library/Settings/core Player/PlayerSettings and galleries consume one declarative component tree through primitive adapters; native appearance preferences persist locally; Kotlin data and Compose Library/Settings/Player/PlayerSettings source are present with the Linux build still unavailable; call components and remaining player overlays remain planned |
-| Linux client | Kotlin/Compose Desktop is selected; dependency closure, toolchain, shell, domain implementation, application CI, playback, and calling are not implemented |
+| Linux client | Kotlin/Compose entry, domain and shared design source are present; source/JVM CI is required. Registered Kotlin/Compose build, native video window, GUI and calling remain incomplete |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.
 
@@ -170,3 +171,5 @@ These limitations distinguish the application architecture from the functionalit
 - [Room service API and ownership](room-service.md).
 - [Google Meet integration](google-meet.md).
 - [External dependencies](dependencies.md).
+
+[Platform parity](platform-parity.md) defines the required three-client completion gate and current implementation matrix.
