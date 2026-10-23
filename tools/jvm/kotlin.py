@@ -11,7 +11,7 @@ import urllib.request
 import zipfile
 
 import jdk
-from build_support import digest, java_environment, tools
+from build_support import digest, jar_bytes, java_environment, tools
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -124,12 +124,37 @@ def argument_file(arguments, path):
 
 
 def java(arguments, directory, jdk_home):
-    # The Windows native launcher decodes @files using the host ANSI code page.
-    # Keep the short VM command on the Unicode process API; tools read long UTF-8
-    # argument lists themselves. Do not change a workstation's locale or code page.
-    return subprocess.check_output([tools(jdk_home)["java"], "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",
-                                    "-Dstderr.encoding=UTF-8", *map(str, arguments)], cwd=directory,
-                                   env=java_environment(), stderr=subprocess.STDOUT, text=True, encoding="utf-8")
+    # The Windows native launcher decodes @files and classpaths through its code
+    # page. A standard JAR manifest carries file URIs without losing Unicode.
+    # Keep its launch path relative/ASCII and preserve the caller's working directory.
+    with tempfile.TemporaryDirectory(prefix=".syncwatch-java-", dir=directory) as temporary:
+        command = list(map(str, arguments))
+        for flag in ("-cp", "-classpath", "--class-path"):
+            if flag not in command:
+                continue
+            index = command.index(flag) + 1
+            uris = []
+            for name in command[index].split(os.pathsep):
+                if "*" in name:
+                    raise ValueError("Java tool classpaths must list exact inputs")
+                path = (directory / name).resolve()
+                uris.append(path.as_uri() + ("/" if path.is_dir() else ""))
+            line = ("Class-Path: " + " ".join(uris)).encode("ascii")
+            folded = line[:70] + b"\r\n"
+            for start in range(70, len(line), 69):
+                folded += b" " + line[start:start + 69] + b"\r\n"
+            manifest = b"Manifest-Version: 1.0\r\n" + folded + b"\r\n"
+            jar = Path(temporary) / "classpath.jar"
+            jar.write_bytes(jar_bytes({"META-INF/MANIFEST.MF": manifest}))
+            command[index] = jar.relative_to(directory).as_posix()
+            break
+        try:
+            return subprocess.check_output([tools(jdk_home)["java"], "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",
+                                            "-Dstderr.encoding=UTF-8", *command], cwd=directory,
+                                           env=java_environment(), stderr=subprocess.STDOUT, text=True, encoding="utf-8")
+        except subprocess.CalledProcessError as error:
+            print(error.output)
+            raise
 
 
 def compile(arguments, directory, jdk_home, compiler_home=None):
@@ -145,16 +170,12 @@ def compile(arguments, directory, jdk_home, compiler_home=None):
                 if Path(name).resolve().is_relative_to(compiler_home.resolve()):
                     raise ValueError("Compiler SDK JARs must not enter the application classpath")
     explicit = [a for a in arguments if a not in {"-no-stdlib", "-no-reflect"}]
-    with tempfile.TemporaryDirectory(prefix="kotlin-args-") as temporary:
+    with tempfile.TemporaryDirectory(prefix=".syncwatch-kotlin-args-", dir=directory) as temporary:
         path = Path(temporary) / "arguments.txt"
         argument_file(["-no-stdlib", "-no-reflect", *explicit], path)
         command = ["-Xmx3g", "-Djava.awt.headless=true", "-cp",
-                   str(compiler_home / spec["compilerFiles"][0]), spec["compilerEntry"], "@" + str(path)]
-        try:
-            return java(command, directory, jdk_home)
-        except subprocess.CalledProcessError as error:
-            print(error.output)
-            raise
+                   str(compiler_home / spec["compilerFiles"][0]), spec["compilerEntry"], "@" + path.relative_to(directory).as_posix()]
+        return java(command, directory, jdk_home)
 
 
 def main():

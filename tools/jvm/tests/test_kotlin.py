@@ -3,6 +3,7 @@
 import copy
 from contextlib import nullcontext
 import io
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -122,13 +123,33 @@ class KotlinSdkTests(unittest.TestCase):
         def execute(command, directory, home):
             self.assertLess(len(" ".join(command)), 4096)
             self.assertTrue(command[-1].startswith("@"))
-            data = Path(command[-1][1:]).read_text(encoding="utf-8")
+            self.assertTrue(command[-1].isascii())
+            data = (directory / command[-1][1:]).read_text(encoding="utf-8")
             self.assertIn("Кино 映画", data)
             self.assertIn("source-2399.kt", data)
             self.assertIn('"-no-stdlib"', data)
             return "compiler fixture"
         with patch.object(kotlin, "java", side_effect=execute):
             self.assertEqual(kotlin.compile(sources, self.root, self.root, self.root), "compiler fixture")
+
+    def test_launcher_classpath_uses_folded_ascii_file_uris_without_losing_paths(self):
+        directory = self.root / "Кино 映画"
+        directory.mkdir()
+        paths = [directory, self.root / ("library " + "x" * 120 + ".jar")]
+        def execute(command, **options):
+            relative = command[command.index("-cp") + 1]
+            self.assertTrue(relative.isascii())
+            self.assertFalse(Path(relative).is_absolute())
+            with zipfile.ZipFile(directory / relative) as archive:
+                manifest = archive.read("META-INF/MANIFEST.MF")
+            self.assertTrue(all(len(line) <= 70 for line in manifest.split(b"\r\n")))
+            unfolded = manifest.replace(b"\r\n ", b"").decode("ascii")
+            expected = "Class-Path: " + paths[0].resolve().as_uri() + "/ " + paths[1].resolve().as_uri() + "\r\n"
+            self.assertIn(expected, unfolded)
+            self.assertEqual(options["cwd"], directory)
+            return "runtime fixture"
+        with patch.object(kotlin.subprocess, "check_output", side_effect=execute):
+            self.assertEqual(kotlin.java(["-cp", os.pathsep.join(map(str, paths)), "Fixture"], directory, self.root), "runtime fixture")
 
 
 if __name__ == "__main__":

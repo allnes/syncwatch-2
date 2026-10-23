@@ -51,7 +51,7 @@ def metadata(profile):
 def javac(arguments, work, home):
     path = work / "javac-arguments.txt"
     kotlin.argument_file(arguments, path)
-    return run([tools(home)["javac"], "@" + str(path)], work)
+    return run([tools(home)["javac"], "@" + path.name], work)
 
 
 def assemble(originals, source_profile, profile, annotation_jar, home, compiler):
