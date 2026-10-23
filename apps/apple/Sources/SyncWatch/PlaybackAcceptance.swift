@@ -115,7 +115,7 @@ import SyncWatchDomain
         guard (0..<image.pixelsWide).contains(x), (0..<image.pixelsHigh).contains(y),
             let color = image.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB)
         else { throw Failure.pixels }
-        return (color.redComponent + color.greenComponent + color.blueComponent) / 3 * 255
+        return Double(color.redComponent + color.greenComponent + color.blueComponent) / 3 * 255
     }
     private static func finish(_ report: URL, _ value: [String: Any]) {
         do {
