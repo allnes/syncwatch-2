@@ -19,7 +19,7 @@ def run(*arguments: str, **options) -> None:
 def main() -> None:
     if platform.system() != "Darwin" or platform.machine() != "arm64":
         raise SystemExit("The initial macOS acceptance lane requires macOS arm64")
-    toolchain = json.loads((ROOT / "tools/native/toolchains.json").read_text())["apple"]
+    toolchain = json.loads((ROOT / "tools/native/toolchains.json").read_text())["macos"]
     for arguments, expression, minimum in (
         (("swift", "--version"), r"Swift version (\d+)\.(\d+)", toolchain["minimumSwiftCompiler"]),
         (("xcodebuild", "-version"), r"Xcode (\d+)\.(\d+)", toolchain["minimumXcode"]),
@@ -38,22 +38,22 @@ def main() -> None:
     # Runtime libraries remain the separately source-built media SDK.
     run("git", "submodule", "update", "--init", "--checkout", "--depth=1", "--", "3rdparty/vlc")
     environment["SYNCWATCH_CONTRACT_FIXTURES"] = str(ROOT / "contracts/fixtures/acceptance.json")
-    run("swift", "test", "--package-path", "packages/apple-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
-    run("swift", "test", "--package-path", "packages/apple-playback", "-Xswiftc", "-warnings-as-errors", env=environment)
-    shutil.rmtree(ROOT / "artifacts/design/apple", ignore_errors=True)
-    environment["SYNCWATCH_DESIGN_SCREENSHOTS"] = str(ROOT / "artifacts/design/apple")
+    run("swift", "test", "--package-path", "packages/macos-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
+    run("swift", "test", "--package-path", "packages/macos-playback", "-Xswiftc", "-warnings-as-errors", env=environment)
+    shutil.rmtree(ROOT / "artifacts/design/macos", ignore_errors=True)
+    environment["SYNCWATCH_DESIGN_SCREENSHOTS"] = str(ROOT / "artifacts/design/macos")
     run("swift", "test", "--package-path", "packages/design", "-Xswiftc", "-warnings-as-errors", env=environment)
-    run("swift", "test", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors")
-    run("swift", "build", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors")
+    run("swift", "test", "--package-path", "apps/macos", "-Xswiftc", "-warnings-as-errors")
+    run("swift", "build", "--package-path", "apps/macos", "-Xswiftc", "-warnings-as-errors")
     binary_directory = subprocess.check_output(
-        ["swift", "build", "--package-path", "apps/apple", "--show-bin-path"], cwd=ROOT, text=True,
+        ["swift", "build", "--package-path", "apps/macos", "--show-bin-path"], cwd=ROOT, text=True,
     ).strip()
-    bundle = ROOT / "artifacts/apple/SyncWatch.app/Contents"
+    bundle = ROOT / "artifacts/macos/SyncWatch.app/Contents"
     (bundle / "MacOS").mkdir(parents=True, exist_ok=True)
     shutil.copy2(Path(binary_directory) / "SyncWatch", bundle / "MacOS/SyncWatch")
-    shutil.copy2(ROOT / "apps/apple/Resources/Info.plist", bundle / "Info.plist")
+    shutil.copy2(ROOT / "apps/macos/Resources/Info.plist", bundle / "Info.plist")
     run("plutil", "-lint", str(bundle / "Info.plist"))
-    print("Built artifacts/apple/SyncWatch.app; interactive launch/close is a separate acceptance step")
+    print("Built artifacts/macos/SyncWatch.app; interactive launch/close is a separate acceptance step")
 
 
 if __name__ == "__main__":

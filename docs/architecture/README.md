@@ -7,7 +7,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | Area | Decision |
 |---|---|
 | Product platforms | macOS, Windows 11 x64, and planned Linux x64 |
-| Apple client | Swift, SwiftUI, and AppKit for video surfaces and window management |
+| macOS client | Swift, SwiftUI, and AppKit for video surfaces and window management |
 | Linux client (planned) | Kotlin/JVM with Compose Multiplatform Desktop; source/license closure precedes the application build |
 | Windows client | C#, WPF, and .NET 10 LTS, with a small libVLC P/Invoke adapter |
 | Shared design | Platform-neutral JSON tokens and component contracts in `packages/design`; Apache 2.0 Style Dictionary generates native resources |
@@ -109,11 +109,11 @@ Synchronization loss pauses playback and resets the rate to 1.0. Commands from a
 Native shells, local domain modules, the room metadata service, the design package, documentation, contracts, validation tooling, workflows, and pinned submodules exist. Media/provider services and full product workflows in the layout below remain planned:
 
 ```text
-apps/apple/                 # Swift application and native platform adapters
+apps/macos/                 # Swift application and native platform adapters
 apps/windows/               # C# WPF application and native platform adapters
 apps/linux/                 # Planned Kotlin/JVM / Compose Desktop application and adapters
 packages/design/            # Platform-neutral design data and component contracts
-packages/apple-domain/      # Swift domain and use cases, independent of SwiftUI
+packages/macos-domain/      # Swift domain and use cases, independent of SwiftUI
 packages/windows-domain/    # C# domain and use cases, independent of WPF
 contracts/                  # JSON schemas and shared acceptance fixtures
 services/syncplay-bridge/   # Headless Python entry point and player/UI adapters

@@ -28,7 +28,7 @@ flowchart LR
 | `packages/design/player.json` | Player states/actions and first-party normalized icons |
 | `packages/design/player-settings.json` | Player settings sections, fields, bounds, steps, choices, swatches, units and defaults |
 | `packages/design/settings.json` | Settings sections, field IDs/kinds/options/defaults and validation bounds |
-| `packages/design/apple/`, `windows/`, `linux/` | Native Library/Settings/Player presentation and reusable components |
+| `packages/design/macos/`, `windows/`, `linux/` | Native Library/Settings/Player presentation and reusable components |
 | `packages/design/components.json` | Library, player, settings, and call window structures, states, and actions |
 | `packages/design/package.json` | Design package identity, version, license, and packaged assets |
 

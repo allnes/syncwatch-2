@@ -54,11 +54,11 @@ class Report:
 
 
 def check_host(target: str) -> str:
-    expected = {"apple": ("Darwin", {"arm64"}), "windows": ("Windows", {"AMD64", "x86_64"})}
+    expected = {"macos": ("Darwin", {"arm64"}), "windows": ("Windows", {"AMD64", "x86_64"})}
     system, architectures = expected[target]
     if platform.system() != system or platform.machine() not in architectures:
         raise ValueError("Native runner OS or architecture does not match the declared lane")
-    return "arm64" if target == "apple" else "x64"
+    return "arm64" if target == "macos" else "x64"
 
 
 def extract_sdk(archive: Path, destination: Path) -> None:
@@ -112,8 +112,8 @@ def ensure_dotnet(specification: dict, temporary: Path, root: Path = ROOT) -> Pa
     return executable
 
 
-def apple_candidate(root: Path, output: Path) -> None:
-    bundle = root / "artifacts/apple/SyncWatch.app"
+def macos_candidate(root: Path, output: Path) -> None:
+    bundle = root / "artifacts/macos/SyncWatch.app"
     if not (bundle / "Contents/MacOS/SyncWatch").is_file():
         raise ValueError("Native application bundle was not built")
     with tarfile.open(output, "w") as archive:
@@ -175,8 +175,8 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
     payload.mkdir(parents=True, exist_ok=True)
     report.write(payload / "validation.xml")
     if success:
-        if target == "apple":
-            apple_candidate(root, payload / "SyncWatch.app.tar")
+        if target == "macos":
+            macos_candidate(root, payload / "SyncWatch.app.tar")
         else:
             source = root / "apps/windows/SyncWatch/bin/Debug/net10.0-windows"
             candidate = payload / "SyncWatch"
@@ -207,7 +207,7 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", choices=("apple", "windows"))
+    parser.add_argument("target", choices=("macos", "windows"))
     args = parser.parse_args()
     specification = json.loads((ROOT / "tools/native/toolchains.json").read_text(encoding="utf-8"))[args.target]
     directory = ROOT / "artifacts/native" / args.target
@@ -221,7 +221,7 @@ def main() -> int:
     environment = os.environ.copy()
     try:
         architecture = report.execute("Verify runner architecture", lambda: check_host(args.target))
-        if args.target == "apple":
+        if args.target == "macos":
             def select_toolchain():
                 if environment.get("GITHUB_ACTIONS") == "true":
                     environment["DEVELOPER_DIR"] = f"/Applications/Xcode_{specification['ciXcodeVersion']}.app/Contents/Developer"
@@ -230,7 +230,7 @@ def main() -> int:
                 if environment.get("GITHUB_ACTIONS") == "true" and versions["xcode"].splitlines()[0] != f"Xcode {specification['ciXcodeVersion']}":
                     raise ValueError("Selected Xcode differs from the native CI pin")
             report.execute("Select Apple toolchain", select_toolchain)
-            command = [sys.executable, "tools/native/check_apple.py"]
+            command = [sys.executable, "tools/native/check_macos.py"]
         else:
             temporary = Path(os.environ["RUNNER_TEMP"])
             dotnet = report.execute("Provision exact .NET SDK", lambda: ensure_dotnet(specification, temporary))

@@ -21,8 +21,8 @@ Use an Apple Silicon Mac, Xcode 16.3 or newer with its macOS SDK and command-lin
 Run from the repository root:
 
 ```sh
-python3 tools/native/check_apple.py
-open artifacts/apple/SyncWatch.app
+python3 tools/native/check_macos.py
+open artifacts/macos/SyncWatch.app
 ```
 
 The entry point checks formatting, runs domain and native design tests, builds the SwiftUI executable, and assembles an unsigned application bundle with the checked-in Info.plist. SwiftPM uses local packages. Platform frameworks and Swift Testing come from the selected SDK.
@@ -30,9 +30,9 @@ The entry point checks formatting, runs domain and native design tests, builds t
 The underlying build and domain-test commands are:
 
 ```sh
-SYNCWATCH_CONTRACT_FIXTURES="$PWD/contracts/fixtures/acceptance.json" swift test --package-path packages/apple-domain -Xswiftc -warnings-as-errors
+SYNCWATCH_CONTRACT_FIXTURES="$PWD/contracts/fixtures/acceptance.json" swift test --package-path packages/macos-domain -Xswiftc -warnings-as-errors
 swift test --package-path packages/design -Xswiftc -warnings-as-errors
-swift build --package-path apps/apple -Xswiftc -warnings-as-errors
+swift build --package-path apps/macos -Xswiftc -warnings-as-errors
 ```
 
 ## Windows
@@ -103,14 +103,14 @@ A successful shell build or source check does not establish functioning media, s
 The macOS and Windows shells display the shared Library workspace with unavailable service actions disabled. Launch the fixture gallery to select visual state, theme and language:
 
 ```sh
-artifacts/apple/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
+artifacts/macos/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
 ```
 
 ```powershell
 apps/windows/SyncWatch/bin/Debug/net10.0-windows/SyncWatch.exe --design-gallery
 ```
 
-The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/apple/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
+The gallery uses synthetic media entries and emits presentation actions only. It does not scan folders, start VLC, synchronize playback or call Google Meet. Native checks save the state/theme/language/viewport matrix under `artifacts/design/macos/` or `artifacts/design/windows/`; CI includes it in the corresponding native artifact. The Kotlin data and Compose renderer source are present in `packages/design/`, but a Linux application build remains blocked on dependency/compiler/native/license closure.
 
 
 ## Application settings

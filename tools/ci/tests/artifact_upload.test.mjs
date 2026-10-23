@@ -16,7 +16,7 @@ async function fixture(t) {
     t.after(() => rm(directory, {recursive:true, force:true}));
     const archive = join(directory, 'artifact.zip');
     await writeFile(archive, Buffer.from([0x50, 0x4b, 0x03, 0x04, 1, 2, 3]));
-    return {archive, workspace:directory, name:'syncwatch-apple-test', token, resultsUrl:'https://results.example.invalid'};
+    return {archive, workspace:directory, name:'syncwatch-macos-test', token, resultsUrl:'https://results.example.invalid'};
 }
 
 function transport(calls, fail = '') {

@@ -88,7 +88,7 @@ const formats = {
     }, null, 2) + '\n',
     'syncwatch/kotlin': ({dictionary}) => kotlin(normalized(dictionary), themes, copy) + kotlinSettings(settings) + kotlinPlayer(player) + kotlinPlayerSettings(playerSettings) + kotlinCall(call) + kotlinSelectionMenu(selectionMenu) + kotlinLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
 };
-const destinations = ['apple/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
+const destinations = ['macos/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 const dictionary = await createDictionary({tokens, usesDtcg: false, log: {verbosity: 'silent', warnings: 'error'}, hooks: {formats}, platforms: {
     native: {transforms: ['name/camel'], files: Object.keys(formats).map((format, i) => ({format, destination: destinations[i]}))},
 }});

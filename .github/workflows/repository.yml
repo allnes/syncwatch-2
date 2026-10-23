@@ -178,7 +178,7 @@
         }
       ]
     },
-    "apple": {
+    "macos": {
       "name": "Native macOS arm64",
       "runs-on": "macos-15",
       "timeout-minutes": 30,
@@ -196,7 +196,7 @@
           "env": {
             "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
           },
-          "run": "python3 tools/ci/native_job.py apple"
+          "run": "python3 tools/ci/native_job.py macos"
         },
         {
           "name": "Native Python package verification fixture",
@@ -216,8 +216,8 @@
           "timeout-minutes": 5,
           "uses": "./.github/actions/upload-native",
           "with": {
-            "archive": "artifacts/native/apple/artifact.zip",
-            "name": "syncwatch-apple-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
+            "archive": "artifacts/native/macos/artifact.zip",
+            "name": "syncwatch-macos-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
           }
         }
       ]
@@ -307,7 +307,7 @@
         "repository",
         "tests",
         "contracts",
-        "apple",
+        "macos",
         "windows",
         "metadata",
         "dependency-plan",
@@ -327,7 +327,7 @@
           "env": {
             "CI_NEEDS_JSON": "${{ toJSON(needs) }}"
           },
-          "run": "python3 tools/ci/required_status.py repository tests contracts apple windows metadata dependency-plan dependencies"
+          "run": "python3 tools/ci/required_status.py repository tests contracts macos windows metadata dependency-plan dependencies"
         }
       ]
     },

@@ -2,7 +2,7 @@
 
 The development helper embeds the source-built CPython/Syncplay/TLS runtime in a dedicated process. The application owns that process and its inherited stdin/stdout pipes. It is a provider integration boundary, independent of shared design and window rendering. A controlled player can be attached before the native VLC provider is available.
 
-`packages/ipc` owns strict schema validation, incremental framing and bounded command replay. The contract checker and helper use the same implementation. `packages/syncplay-helper` owns isolated native startup, pipe threads, one reactor/controller and the upstream-engine adapter. Syncplay retains all synchronization decisions. Native transports live in `packages/apple-bridge`, `packages/windows-bridge` and `packages/linux-bridge`; they contain no layout or playback policy.
+`packages/ipc` owns strict schema validation, incremental framing and bounded command replay. The contract checker and helper use the same implementation. `packages/syncplay-helper` owns isolated native startup, pipe threads, one reactor/controller and the upstream-engine adapter. Syncplay retains all synchronization decisions. Native transports live in `packages/macos-bridge`, `packages/windows-bridge` and `packages/linux-bridge`; they contain no layout or playback policy.
 
 The helper requires `bridge.hello` before work, fixes the process run and media generation, correlates results, rejects contradictory command reuse and retains completed results without executing duplicates. Each direction has an independent command sequence. Queues, frames and pending corrections are bounded. A full queue, an invalid stream, a missing acknowledgement or EOF terminates the owned scope. Native process owners enforce a bounded shutdown and terminate a helper that fails to exit. A failed provider must pause/release its native player through the application resource owner.
 
@@ -17,7 +17,7 @@ Build and exercise a previously source-built engine payload:
 ```sh
 python3 tools/bridge/check.py --runtime artifacts/dependencies/syncplay-runtime/macos-arm64/payload --output artifacts/helper/macos-arm64
 python3 -m unittest discover -s tools/bridge/tests -v
-swift run --package-path packages/apple-bridge BridgeProbe /absolute/helper/bin/syncwatch-helper /absolute/helper
+swift run --package-path packages/macos-bridge BridgeProbe /absolute/helper/bin/syncwatch-helper /absolute/helper
 dotnet run --project packages/windows-bridge/SyncWatch.Bridge.Probe -- /absolute/helper/bin/syncwatch-helper /absolute/helper
 ```
 

@@ -1,5 +1,5 @@
 {
-  "apple": {
+  "macos": {
     "minimumSwiftCompiler": "6.1",
     "swiftLanguageVersion": "6",
     "minimumXcode": "16.3",

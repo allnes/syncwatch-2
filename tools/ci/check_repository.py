@@ -216,10 +216,10 @@ def check_workflows(root: Path) -> None:
     require(events["workflow_dispatch"] == {"inputs": {"cold": {"description": "Rebuild dependencies without reading caches", "type": "boolean", "default": True}}}, "manual builds must support explicit cold validation")
     require(workflow.get("concurrency", {}).get("cancel-in-progress") is True, "superseded checks must cancel")
     jobs = workflow.get("jobs", {})
-    selected = ["repository", "tests", "contracts", "apple", "windows", "metadata", "dependency-plan", "dependencies"]
+    selected = ["repository", "tests", "contracts", "macos", "windows", "metadata", "dependency-plan", "dependencies"]
     require(set(jobs) == {*selected, "required"}, "unexpected repository job set")
     runners = {name: "ubuntu-24.04" for name in ("repository", "tests", "contracts", "required", "metadata", "dependency-plan")}
-    runners.update({"apple": "macos-15", "windows": "windows-2025"})
+    runners.update({"macos": "macos-15", "windows": "windows-2025"})
     runners["metadata"] = "${{ matrix.runner }}"
     require(jobs["metadata"].get("strategy") == {"fail-fast": False, "matrix": {"include": [
         {"runner": "ubuntu-24.04", "target": "linux-x64", "python": "python3"},
@@ -237,13 +237,13 @@ def check_workflows(root: Path) -> None:
             require(not any(key in job for key in ("continue-on-error", "permissions", "secrets", "environment")), "dependency failures must propagate without privileged overrides")
             continue
         require(job.get("runs-on") == runners[name], f"{name}: use the declared runner image")
-        maximum = 30 if name in {"apple", "windows"} else 15
+        maximum = 30 if name in {"macos", "windows"} else 15
         require(type(job.get("timeout-minutes")) is int and 0 < job["timeout-minutes"] <= maximum, f"{name}: require a bounded timeout")
         require(not job.get("continue-on-error"), f"{name}: failures must propagate")
         require("permissions" not in job and "secrets" not in job and "environment" not in job, f"{name}: no privileged job overrides")
         for step in job.get("steps", []):
             if "uses" in step:
-                require(name in {"apple", "windows"} and step["uses"] == "./.github/actions/upload-native", "use only the declared repository-owned action")
+                require(name in {"macos", "windows"} and step["uses"] == "./.github/actions/upload-native", "use only the declared repository-owned action")
             require(not step.get("continue-on-error"), "step failures must propagate")
     commands = {step.get("run") for step in jobs["contracts"].get("steps", [])}
     require(
@@ -254,7 +254,7 @@ def check_workflows(root: Path) -> None:
         }.issubset(commands),
         "contract job must initialize pinned sources and execute its checks and tests",
     )
-    for name, python in (("apple", "python3"), ("windows", "python")):
+    for name, python in (("macos", "python3"), ("windows", "python")):
         steps = jobs[name].get("steps", [])
         require(any(step.get("run") == f"{python} tools/ci/native_job.py {name}" for step in steps), "native jobs must execute real native checks")
         uploads = [step for step in steps if "uses" in step]
@@ -279,7 +279,7 @@ def check_workflows(root: Path) -> None:
         require(f"{python} tools/dependencies/build.py prepare --component hacl-hash --platform {target}\n"
                 f"{python} -m unittest discover -s tools/hashing/tests -v" in commands,
                 "Native hash regressions must prepare pinned sources and execute on Linux and Windows")
-    for name, python in (("tests", "python3"), ("apple", "python3"), ("windows", "python")):
+    for name, python in (("tests", "python3"), ("macos", "python3"), ("windows", "python")):
         commands = {step.get("run") for step in jobs[name]["steps"]}
         require(f"{python} tools/python-runtime/generate_policy.py --check\n"
                 f"{python} tools/python-runtime/native_probe.py --report artifacts/python-startup/native-sdk.json" in commands,

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "9b26e3a2c0e434d6a75a28946cf09fa4baf195840c1d9e8487719d18a39c6617",
+  "sourceDigest": "aea99832c07aa8b9f4f29b73f9e0bd370df092b4bbb82bba18f54f846d08129a",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "176ffb4f8795a0330d8b03883426b358b5d06a40a57fdb798544bf55548f81b9",
+    "components.json": "538a1c22c83e507b2a631377d52d914d55897862d2c20bbd6f5d0f5e5591ee87",
     "copy.json": "600277295c718d39308f8a2fc28dc675e11ada224b556472145d907b948c7a5a",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
@@ -14,13 +14,13 @@
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
     "layouts.json": "750a5928f269af2d436f5254acbf0e274800b6789c40bc8798639c83c9e6ee97",
-    "package.json": "50a4f888922c6eeb0bc6d5b5845465cb329006b73935a5dc94ef8c1b8998b41b"
+    "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "525499ee1e99c89a998a095dcc977fbd5b37ee9b3d0e77478761086dfd323e0d",
+  "generatorRevision": "baf7439fad7916c091dd1984bbb1d4521f3527176836214c5fce71045c297595",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
-      "tools/design/generate.mjs": "d93f83acfccf0dc12dad1ee022b7d1776f00f93607b24996c541eedd0a5dcdd9",
+      "tools/design/generate.mjs": "f6c70ddbbe5648ca7f48019937bbec0b37aa4e6bffc8d63461ff458fac5567d5",
       "tools/design/native-formats.mjs": "f416c0ef1276f03daafcd76f8af9a8efe93300b42e080d89c4c7012eeec64dbe",
       "tools/design/build.mjs": "b9f4f752fc321806560924ad54eea770c9bdf4dd4e679722e799dffec44bb8a1",
       "tools/design/runtime.mjs": "56e560ec8e889a5950e6fed809a606358806ed0d541642df2e20482d7f1846ea",

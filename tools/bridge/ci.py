@@ -38,7 +38,7 @@ def verify(dotnet=None):
     check(ROOT / "artifacts/dependencies/syncplay-runtime" / selected / "payload", directory)
     binary = directory / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
     if selected == "macos-arm64":
-        command = ["swift", "run", "--package-path", "packages/apple-bridge", "-Xswiftc", "-warnings-as-errors",
+        command = ["swift", "run", "--package-path", "packages/macos-bridge", "-Xswiftc", "-warnings-as-errors",
                    "BridgeProbe", str(binary), str(directory)]
     else:
         executable = dotnet or json.loads((ROOT / "artifacts/bridge-sdk.json").read_text(encoding="utf-8"))["dotnet"]

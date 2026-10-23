@@ -16,7 +16,7 @@ class DesignIsolationTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
-        for target in ("apple", "windows", "linux"):
+        for target in ("macos", "windows", "linux"):
             (root / "packages/design" / target).mkdir(parents=True)
         file = root / "packages/design" / platform / name
         file.parent.mkdir(parents=True, exist_ok=True)
@@ -25,7 +25,7 @@ class DesignIsolationTests(unittest.TestCase):
 
     def test_native_screen_construction_is_rejected_on_each_platform(self):
         for platform, name, source in [
-            ("apple", "AnotherScreen.swift", "HStack { Text(value) }.padding(2)"),
+            ("macos", "AnotherScreen.swift", "HStack { Text(value) }.padding(2)"),
             ("windows", "AnotherScreen.cs", "var panel = new Grid(); panel.Width = 300;"),
             ("linux", "AnotherScreen.kt", "Row { BasicText(value) }.padding(2.dp)"),
         ]:
@@ -33,12 +33,12 @@ class DesignIsolationTests(unittest.TestCase):
                 self.assertTrue(isolation.check(self.fixture(platform, name, source)))
 
     def test_observations_and_domain_numbers_remain_allowed(self):
-        root = self.fixture("apple", "Bindings.swift", 'let positionMs = 1000; let view = DesignSurface("Player", context: model)')
+        root = self.fixture("macos", "Bindings.swift", 'let positionMs = 1000; let view = DesignSurface("Player", context: model)')
         self.assertEqual(isolation.check(root), [])
 
     def test_trailing_closure_layout_without_modifiers_is_rejected(self):
         for platform, name, source in [
-            ("apple", "Bindings.swift", 'HStack { DesignSurface("Player") }'),
+            ("macos", "Bindings.swift", 'HStack { DesignSurface("Player") }'),
             ("linux", "Bindings.kt", 'Row { DesignSurface("Player") }'),
         ]:
             with self.subTest(platform=platform):
@@ -46,7 +46,7 @@ class DesignIsolationTests(unittest.TestCase):
 
     def test_component_subdirectories_cannot_bypass_isolation_or_impersonate_the_adapter(self):
         for platform, name, source in [
-            ("apple", "selection/Bindings.swift", "HStack { Text(value) }.padding(2)"),
+            ("macos", "selection/Bindings.swift", "HStack { Text(value) }.padding(2)"),
             ("windows", "selection/DesignSurface.cs", "var control = new Button();"),
             ("linux", "selection/DesignSurface.kt", "Row { BasicText(value) }.padding(2.dp)"),
         ]:

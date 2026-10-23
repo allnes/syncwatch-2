@@ -10,7 +10,7 @@
     "components.json",
     "generated",
     "copy.json",
-    "apple",
+    "macos",
     "windows",
     "linux",
     "settings.json",

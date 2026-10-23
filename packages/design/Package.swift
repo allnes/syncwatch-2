@@ -14,7 +14,7 @@ let package = Package(
                 "copy.json", "settings.json", "player.json", "player-settings.json", "package.json", "windows", "linux",
                 "generated/design-manifest.json",
             ],
-            sources: ["generated/apple", "apple"]),
-        .testTarget(name: "SyncWatchDesignTests", dependencies: ["SyncWatchDesign"], path: "tests/apple"),
+            sources: ["generated/macos", "macos"]),
+        .testTarget(name: "SyncWatchDesignTests", dependencies: ["SyncWatchDesign"], path: "tests/macos"),
     ]
 )

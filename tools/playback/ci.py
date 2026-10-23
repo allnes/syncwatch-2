@@ -52,7 +52,7 @@ def candidate(package, output, bridge, binary_directory):
         if selected == "macos-arm64":
             prefix = "SyncWatch.app/Contents/"
             write(archive, binary_directory / "SyncWatch", prefix + "MacOS/SyncWatch")
-            write(archive, ROOT / "apps/apple/Resources/Info.plist", prefix + "Info.plist")
+            write(archive, ROOT / "apps/macos/Resources/Info.plist", prefix + "Info.plist")
             media_prefix = prefix + "Frameworks/Media/"
         elif selected == "windows-x64":
             for path in sorted(binary_directory.rglob("*")):
@@ -104,8 +104,8 @@ def verify(dotnet=None, gui=False, package=None):
         env = runtime_environment(package, output / "native")
         binary_directory = None
         if selected == "macos-arm64":
-            run(["swift", "build", "--package-path", "apps/apple", "-Xswiftc", "-warnings-as-errors"], output, "app-build", env)
-            binary_directory = Path(subprocess.check_output(["swift", "build", "--package-path", "apps/apple", "--show-bin-path"], cwd=ROOT, text=True).strip())
+            run(["swift", "build", "--package-path", "apps/macos", "-Xswiftc", "-warnings-as-errors"], output, "app-build", env)
+            binary_directory = Path(subprocess.check_output(["swift", "build", "--package-path", "apps/macos", "--show-bin-path"], cwd=ROOT, text=True).strip())
         elif selected == "windows-x64":
             dotnet = dotnet or json.loads((ROOT / "artifacts/playback-sdk.json").read_bytes())["dotnet"]
             consumer_check(package, output / "consumers", dotnet=dotnet)

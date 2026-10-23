@@ -1,6 +1,6 @@
 {
   "contractVersion": 1,
-  "units": "logical points on Apple; device-independent pixels on Windows and Compose",
+  "units": "logical points on macOS; device-independent pixels on Windows and Compose",
   "status": "Library, Settings, Player, PlayerSettings and Call render from one declarative document through SwiftUI/WPF primitive adapters and matching source-only Compose. Provider integration remains unavailable.",
   "components": {
     "LibraryLayout": {
