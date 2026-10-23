@@ -451,6 +451,18 @@ class DependencyBuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "offline controls"):
             build.registry(self.root)
 
+    def test_measured_media_sdk_paths_survive_without_ambient_flags_or_credentials(self):
+        paths = {"SYNCWATCH_VLC_MSYS_ROOT": "/private/toolchain/msys64",
+                 "SYNCWATCH_VLC_EXTRA_TOOLS_ROOT": "/private/toolchain/tools",
+                 "SYNCWATCH_VLC_AUTOTOOLS_ROOT": "/private/toolchain/autotools"}
+        with patch.dict(os.environ, {**paths, "CFLAGS": "unmeasured compiler override",
+                                     "GITHUB_TOKEN": "credential-fixture"}):
+            environment = build.build_environment({"environment": {}})
+        self.assertEqual({name: environment[name] for name in paths}, paths)
+        self.assertNotIn("CFLAGS", environment)
+        self.assertNotIn("GITHUB_TOKEN", environment)
+        self.assertEqual(environment["PIP_NO_INDEX"], "1")
+
     def test_hosted_build_cannot_identify_modified_inputs_as_a_clean_commit(self):
         self.recipe.write_text(self.recipe.read_text() + "# Uncommitted change\n")
         with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):

@@ -32,6 +32,9 @@ async function main() {
     if (component === 'syncplay-runtime' && !runCommand([python, 'tools/syncplay-runtime/provision_sdks.py'])) {
         throw new Error('Headless engine developer SDK provisioning failed');
     }
+    if (component === 'libvlc' && !runCommand([python, 'tools/vlc/provision_sdks.py'])) {
+        throw new Error('Native media developer SDK provisioning failed');
+    }
     if (!run('prepare')) throw new Error('Dependency preparation failed');
     const prepared = JSON.parse(await readFile(resolve(directory, 'request.json'), 'utf8'));
     const present = await access(prepared.cacheFile).then(() => true, () => false);

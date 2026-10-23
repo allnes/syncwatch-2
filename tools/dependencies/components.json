@@ -2825,9 +2825,679 @@
       }
     },
     "libvlc": {
-      "status": "unavailable",
-      "reason": "Selected VLC modules and contrib source graph are not resolved",
-      "plannedIn": "PR10"
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/vlc"
+      ],
+      "sources": {
+        "3rdparty/vlc": {
+          "revision": "6de05adcbaf2e8b85fe86aad4169393098628119",
+          "license": "LGPL-2.1-or-later (selected core and plugins); complete original source grants retained",
+          "notices": [
+            "AUTHORS",
+            "COPYING",
+            "COPYING.LIB",
+            "modules/audio_filter/resampler/bandlimited.c",
+            "modules/audio_filter/resampler/bandlimited.h",
+            "modules/codec/videotoolbox.m",
+            "modules/packetizer/h264.c",
+            "modules/packetizer/hevc.c",
+            "modules/video_chroma/chain.c",
+            "modules/video_chroma/cvpx.c",
+            "src/misc/md5.c"
+          ],
+          "exports": [
+            "AUTHORS",
+            "COPYING",
+            "COPYING.LIB",
+            "INSTALL",
+            "Makefile.am",
+            "NEWS",
+            "README",
+            "THANKS",
+            "autotools",
+            "bin",
+            "bootstrap",
+            "compat",
+            "configure.ac",
+            "doc",
+            "extras",
+            "include",
+            "lib",
+            "m4",
+            "make-alias",
+            "modules",
+            "po",
+            "share/.gitignore",
+            "share/Info.plist.in",
+            "share/Makefile.am",
+            "share/hrtfs",
+            "share/icons",
+            "share/lua",
+            "share/org.videolan.vlc.appdata.xml.in.in",
+            "share/profiles",
+            "share/skins2",
+            "share/solid",
+            "share/utils",
+            "share/vlc-openbd.desktop.in",
+            "share/vlc-opencda.desktop.in",
+            "share/vlc-opendvd.desktop.in",
+            "share/vlc-openvcd.desktop.in",
+            "share/vlc.desktop.in",
+            "share/vlc.desktop.mimetypes",
+            "share/vlc512x512.png",
+            "src",
+            "test"
+          ],
+          "requires": [
+            "3rdparty/ffmpeg",
+            "3rdparty/freetype",
+            "3rdparty/harfbuzz",
+            "3rdparty/fribidi",
+            "3rdparty/libass",
+            "3rdparty/libsamplerate",
+            "3rdparty/fontconfig",
+            "3rdparty/libiconv",
+            "3rdparty/meson"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/ffmpeg": {
+          "revision": "38b88335f99e76ed89ff3c93f877fdefce736c13",
+          "license": "LGPL-2.1-or-later AND embedded MIT/BSD/IJG notices; GPL/version3/nonfree disabled",
+          "notices": [
+            "COPYING.GPLv2",
+            "COPYING.GPLv3",
+            "COPYING.LGPLv2.1",
+            "COPYING.LGPLv3",
+            "CREDITS",
+            "LICENSE.md",
+            "libavcodec/jfdctfst.c",
+            "libavcodec/jfdctint_template.c",
+            "libavcodec/jrevdct.c"
+          ],
+          "exports": [
+            "CONTRIBUTING.md",
+            "COPYING.GPLv2",
+            "COPYING.GPLv3",
+            "COPYING.LGPLv2.1",
+            "COPYING.LGPLv3",
+            "CREDITS",
+            "Changelog",
+            "FUNDING.json",
+            "INSTALL.md",
+            "LICENSE.md",
+            "MAINTAINERS",
+            "Makefile",
+            "README.md",
+            "RELEASE",
+            "RELEASE_NOTES",
+            "compat",
+            "configure",
+            "doc",
+            "ffbuild",
+            "fftools",
+            "libavcodec",
+            "libavdevice",
+            "libavfilter",
+            "libavformat",
+            "libavutil",
+            "libswresample",
+            "libswscale",
+            "presets",
+            "tests",
+            "tools"
+          ],
+          "requires": [
+            "3rdparty/dav1d",
+            "3rdparty/zlib",
+            "3rdparty/winpthreads"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/freetype": {
+          "revision": "0a0221a1347e2f1e07c395263540026e9a0aa7c7",
+          "license": "FTL AND MIT AND Zlib AND HarfBuzz Old MIT",
+          "notices": [
+            "LICENSE.TXT",
+            "docs/FTL.TXT",
+            "docs/GPLv2.TXT",
+            "src/autofit/ft-hb-decls.h",
+            "src/autofit/ft-hb-ft.c",
+            "src/autofit/ft-hb-types.h",
+            "src/autofit/hb-script-list.h",
+            "src/bdf/README",
+            "src/gzip/zlib.h",
+            "src/pcf/README"
+          ],
+          "exports": [
+            "CMakeLists.txt",
+            "LICENSE.TXT",
+            "README",
+            "builds",
+            "docs/FTL.TXT",
+            "docs/GPLv2.TXT",
+            "include",
+            "modules.cfg",
+            "src"
+          ],
+          "requires": [
+            "3rdparty/zlib"
+          ],
+          "unusedSubmodules": {
+            "subprojects/dlg": "Upstream debug logging is disabled; the dlg subproject is not compiled or packaged."
+          }
+        },
+        "3rdparty/harfbuzz": {
+          "revision": "56feae4035bdd48f62ba2b8d8c16232d4d89b3a4",
+          "license": "HarfBuzz Old MIT AND MIT (Microsoft USE data) AND Unicode-3.0",
+          "notices": [
+            "COPYING",
+            "src/ms-use/COPYING"
+          ],
+          "exports": [
+            "AUTHORS",
+            "BUILD.md",
+            "CMakeLists.txt",
+            "CONFIG.md",
+            "COPYING",
+            "NEWS",
+            "README.md",
+            "README.mingw.md",
+            "README.python.md",
+            "RELEASING.md",
+            "SECURITY.md",
+            "TESTING.md",
+            "THANKS",
+            "harfbuzz.doap",
+            "meson.build",
+            "meson_options.txt",
+            "replace-enum-strings.cmake",
+            "src"
+          ],
+          "requires": [
+            "3rdparty/freetype",
+            "3rdparty/meson",
+            "3rdparty/python-idna-unicode-data"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/fribidi": {
+          "revision": "b93119f5fdc7ea47672cc304c1455ffa6dfe7536",
+          "license": "LGPL-2.1-or-later AND Unicode-3.0",
+          "notices": [
+            "AUTHORS",
+            "COPYING"
+          ],
+          "exports": [
+            "AUTHORS",
+            "COPYING",
+            "ChangeLog.old",
+            "HISTORY",
+            "Makefile.am",
+            "NEWS",
+            "README",
+            "README.md",
+            "THANKS",
+            "TODO",
+            "USERS",
+            "autogen.sh",
+            "bin",
+            "configure.ac",
+            "doc",
+            "fribidi.pc.in",
+            "gen.tab",
+            "git.mk",
+            "lib",
+            "m4",
+            "meson.build",
+            "meson_options.txt"
+          ],
+          "requires": [
+            "3rdparty/meson",
+            "3rdparty/python-idna-unicode-data"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/libass": {
+          "revision": "4a05d8127f525943ebf45fdc6497c9e665947f0d",
+          "license": "ISC",
+          "notices": [
+            "COPYING"
+          ],
+          "exports": [
+            "COPYING",
+            "Changelog",
+            "MAINTAINERS",
+            "Makefile.am",
+            "Makefile_util.am",
+            "README.md",
+            "RELEASEVERSION",
+            "autogen.sh",
+            "configure.ac",
+            "gen_defs.py",
+            "legacy_arabic_cmap",
+            "libass",
+            "libass.pc.in",
+            "ltnasm.sh",
+            "m4",
+            "meson.build",
+            "meson_options.txt"
+          ],
+          "requires": [
+            "3rdparty/freetype",
+            "3rdparty/harfbuzz",
+            "3rdparty/fribidi",
+            "3rdparty/meson"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/fontconfig": {
+          "revision": "0f236723a3c26bd9745e32ba2b3ee21e5f809295",
+          "license": "Fontconfig MIT/HPND-style AND embedded Old MIT AND Unicode-3.0",
+          "notices": [
+            "AUTHORS",
+            "COPYING"
+          ],
+          "exports": [
+            "AUTHORS",
+            "COPYING",
+            "INSTALL",
+            "Makefile.am",
+            "NEWS",
+            "README.md",
+            "Tools.mk",
+            "autogen.sh",
+            "build-aux",
+            "conf.d",
+            "config-fixups.h",
+            "configure.ac",
+            "fc-cache",
+            "fc-case",
+            "fc-cat",
+            "fc-conflist",
+            "fc-const",
+            "fc-genconf",
+            "fc-genericfamily",
+            "fc-lang",
+            "fc-list",
+            "fc-match",
+            "fc-pattern",
+            "fc-query",
+            "fc-scan",
+            "fc-validate",
+            "fontconfig",
+            "fontconfig-zip.in",
+            "fontconfig.pc.in",
+            "fonts.conf.in",
+            "fonts.dtd",
+            "git.mk",
+            "its",
+            "local.conf",
+            "m4",
+            "meson-cc-tests",
+            "meson-config.h.in",
+            "meson.build",
+            "meson.options",
+            "new-version.sh",
+            "src",
+            "subprojects"
+          ],
+          "requires": [
+            "3rdparty/expat",
+            "3rdparty/freetype",
+            "3rdparty/meson",
+            "3rdparty/python-idna-unicode-data"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/expat": {
+          "revision": "a76b1174c1ea52abb639a4c69d52b630a8a106a2",
+          "license": "MIT",
+          "notices": [
+            "COPYING",
+            "expat/COPYING"
+          ],
+          "exports": [
+            "Brewfile",
+            "CONTRIBUTING.md",
+            "COPYING",
+            "SECURITY.md",
+            "expat",
+            "pull_request_template.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/libiconv": {
+          "revision": "8f55a0aa6532f30f947261d90e72b200f350a5df",
+          "license": "LGPL-2.1-or-later library; GPL build/CLI sources retained separately",
+          "notices": [
+            "source/COPYING",
+            "source/COPYING.LIB",
+            "source/libcharset/COPYING.LIB"
+          ],
+          "exports": [
+            "libiconv.diff",
+            "source"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/dav1d": {
+          "revision": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
+          "license": "BSD-2-Clause",
+          "notices": [
+            "COPYING"
+          ],
+          "exports": [
+            "COPYING",
+            "NEWS",
+            "README.md",
+            "doc/meson.build",
+            "examples/meson.build",
+            "include",
+            "meson.build",
+            "meson_options.txt",
+            "src",
+            "tests/meson.build",
+            "tools/input",
+            "tools/meson.build"
+          ],
+          "requires": [
+            "3rdparty/meson"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/libsamplerate": {
+          "revision": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
+          "license": "BSD-2-Clause",
+          "notices": [
+            "AUTHORS",
+            "COPYING"
+          ],
+          "exports": [
+            "AUTHORS",
+            "CMakeLists.txt",
+            "COPYING",
+            "README.md",
+            "Win32/libsamplerate-0.def",
+            "cmake",
+            "config.h.cmake",
+            "docs",
+            "include",
+            "samplerate.pc.in",
+            "src/CMakeLists.txt",
+            "src/Version_script.in",
+            "src/common.h",
+            "src/fastest_coeffs.h",
+            "src/high_qual_coeffs.h",
+            "src/mid_qual_coeffs.h",
+            "src/samplerate.c",
+            "src/src_linear.c",
+            "src/src_sinc.c",
+            "src/src_zoh.c"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/meson": {
+          "revision": "70598bb7825f0f804fb31ec2795de5e79e7692a0",
+          "license": "Apache-2.0; original embedded build-tool notices retained",
+          "notices": [
+            "COPYING"
+          ],
+          "exports": [
+            "COPYING",
+            "data",
+            "meson.py",
+            "mesonbuild"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/zlib": {
+          "revision": "da607da739fa6047df13e66a2af6b8bec7c2a498",
+          "license": "Zlib",
+          "notices": [
+            "LICENSE",
+            "README",
+            "zlib.h"
+          ],
+          "exports": [
+            "CMakeLists.txt",
+            "LICENSE",
+            "README",
+            "adler32.c",
+            "compress.c",
+            "contrib/CMakeLists.txt",
+            "crc32.c",
+            "crc32.h",
+            "deflate.c",
+            "deflate.h",
+            "gzclose.c",
+            "gzguts.h",
+            "gzlib.c",
+            "gzread.c",
+            "gzwrite.c",
+            "infback.c",
+            "inffast.c",
+            "inffast.h",
+            "inffixed.h",
+            "inflate.c",
+            "inflate.h",
+            "inftrees.c",
+            "inftrees.h",
+            "trees.c",
+            "trees.h",
+            "uncompr.c",
+            "zconf.h",
+            "zlib.h",
+            "zlib.pc.cmakein",
+            "zutil.c",
+            "zutil.h"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/python-idna-unicode-data": {
+          "revision": "578f6c0516f5f268292ebda50b51848407a06478",
+          "license": "Unicode-3.0",
+          "notices": [
+            "LICENSE"
+          ],
+          "exports": [
+            "LICENSE",
+            "unicodetools/data/ucd/17.0.0/ArabicShaping.txt",
+            "unicodetools/data/ucd/17.0.0/BidiBrackets.txt",
+            "unicodetools/data/ucd/17.0.0/BidiMirroring.txt",
+            "unicodetools/data/ucd/17.0.0/Blocks.txt",
+            "unicodetools/data/ucd/17.0.0/CaseFolding.txt",
+            "unicodetools/data/ucd/17.0.0/DerivedCoreProperties.txt",
+            "unicodetools/data/ucd/17.0.0/IndicPositionalCategory.txt",
+            "unicodetools/data/ucd/17.0.0/IndicSyllabicCategory.txt",
+            "unicodetools/data/ucd/17.0.0/ReadMe.txt",
+            "unicodetools/data/ucd/17.0.0/Scripts.txt",
+            "unicodetools/data/ucd/17.0.0/UnicodeData.txt",
+            "unicodetools/data/ucd/18.0.0/ArabicShaping.txt",
+            "unicodetools/data/ucd/18.0.0/BidiBrackets.txt",
+            "unicodetools/data/ucd/18.0.0/BidiMirroring.txt",
+            "unicodetools/data/ucd/18.0.0/Blocks.txt",
+            "unicodetools/data/ucd/18.0.0/CaseFolding.txt",
+            "unicodetools/data/ucd/18.0.0/DerivedCoreProperties.txt",
+            "unicodetools/data/ucd/18.0.0/IndicPositionalCategory.txt",
+            "unicodetools/data/ucd/18.0.0/IndicSyllabicCategory.txt",
+            "unicodetools/data/ucd/18.0.0/ReadMe.txt",
+            "unicodetools/data/ucd/18.0.0/Scripts.txt",
+            "unicodetools/data/ucd/18.0.0/UnicodeData.txt"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/winpthreads": {
+          "revision": "63ebe6cdb3ec4d5c586b7f0f0c03dd502e44c296",
+          "license": "MIT AND BSD-3-Clause; original ZPL-2.1 and GNU build-tool grants retained",
+          "notices": [
+            "AUTHORS",
+            "COPYING",
+            "mingw-w64-libraries/winpthreads/COPYING",
+            "mingw-w64-libraries/winpthreads/build-aux/ltmain.sh",
+            "mingw-w64-libraries/winpthreads/configure",
+            "mingw-w64-libraries/winpthreads/src/libgcc/dll_dependency.S",
+            "mingw-w64-libraries/winpthreads/src/libgcc/dll_math.c"
+          ],
+          "exports": [
+            "AUTHORS",
+            "COPYING",
+            "mingw-w64-libraries/winpthreads"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/vlc",
+        "tools/compression",
+        "LICENSE"
+      ],
+      "watch": [
+        "tools/vlc",
+        "3rdparty/vlc",
+        "3rdparty/ffmpeg",
+        "3rdparty/freetype",
+        "3rdparty/harfbuzz",
+        "3rdparty/fribidi",
+        "3rdparty/libass",
+        "3rdparty/fontconfig",
+        "3rdparty/expat",
+        "3rdparty/libiconv",
+        "3rdparty/dav1d",
+        "3rdparty/libsamplerate",
+        "3rdparty/meson",
+        "3rdparty/zlib",
+        "3rdparty/python-idna-unicode-data",
+        "3rdparty/winpthreads"
+      ],
+      "targets": {
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/vlc/runtime.py",
+                "sdk"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1"
+          },
+          "flags": {
+            "profile": "native-decoder-v1",
+            "version": "3.0.24"
+          },
+          "command": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 14400
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/vlc/runtime.py",
+                "sdk"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1"
+          },
+          "flags": {
+            "profile": "native-decoder-v1",
+            "version": "3.0.24"
+          },
+          "command": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 14400
+        },
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "native-sdk": {
+              "command": [
+                "{python}",
+                "tools/vlc/runtime.py",
+                "sdk"
+              ],
+              "pattern": "^\\{[^\\n]+\\}$"
+            }
+          },
+          "environment": {
+            "ZERO_AR_DATE": "1"
+          },
+          "flags": {
+            "profile": "native-decoder-v1",
+            "version": "3.0.24"
+          },
+          "command": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/vlc/runtime.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 14400
+        }
+      }
     },
     "linux-compose-ui": {
       "status": "unavailable",

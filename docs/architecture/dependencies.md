@@ -77,9 +77,9 @@ The [Kotlin stdlib source package](../kotlin-stdlib-sources.md) has a complete s
 
 | Component | Required source graph | Status |
 |---|---|---|
-| Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including `certifi` and `pem` | [Pinned candidate graph](../syncplay-runtime.md); aggregate native build and real engine acceptance under development |
+| Headless Syncplay bridge | CPython, Twisted TLS, and the platform-specific transitive graph, including `certifi` and `pem` | [Registered headless runtime](../syncplay-runtime.md) and bridge; native player and application wiring remain separate integrations |
 | Design generator | Selected native Node source profile and transitive dependencies | Source graph and offline build are available for JSON/custom native formatters; browser/ZIP/CLI/web-format features are excluded |
-| VLC build | Selected codecs, demuxers, filters, and other contrib libraries | Module selection and source graph are pending; implicit contrib downloads must be replaced with pinned sources |
+| VLC build | Selected codecs, demuxers, filters, and other contrib libraries | [Registered native decoder SDK](../libvlc.md), pinned source graph and offline build/verification for three targets; native surfaces and hardware qualification remain separate |
 | Windows Meet host | Open-source candidate: CEF, CefSharp, matching Chromium sources, and their dependencies | Browser-host compatibility and source closure are unresolved |
 | Linux Compose UI | Selected Compose/AndroidX modules, Kotlin standard library, Skiko/Skia, enabled transitives and embedded code, plus any bundled fonts | Source graph, license inventory and offline build are pending; compiler/JDK/build-tool versions and any packaged runtime must be declared and reviewed separately |
 | Linux Meet host | Application-owned browser with complete upstream and transitive sources | Host selection, source closure and actual Meet capabilities are unresolved |
