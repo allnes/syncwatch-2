@@ -12,6 +12,7 @@ MAC_FRAMEWORKS = {"AppKit", "ApplicationServices", "Foundation", "CoreFoundation
 LINUX_LIBRARIES = {"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2", "librt.so.1",
                    "libgcc_s.so.1", "libstdc++.so.6", "ld-linux-x86-64.so.2"}
 WINDOWS_LIBRARIES = {n.casefold() for n in ["advapi32.dll", "bcrypt.dll", "comctl32.dll", "crypt32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
     "d3d11.dll", "dwrite.dll", "dxgi.dll", "gdi32.dll", "imm32.dll", "iphlpapi.dll", "kernel32.dll",
     "msvcrt.dll", "ntdll.dll", "ole32.dll", "oleaut32.dll", "psapi.dll", "rpcrt4.dll", "secur32.dll",
     "setupapi.dll", "shell32.dll", "shlwapi.dll", "ucrtbase.dll", "user32.dll", "version.dll", "winmm.dll", "ws2_32.dll"]}
