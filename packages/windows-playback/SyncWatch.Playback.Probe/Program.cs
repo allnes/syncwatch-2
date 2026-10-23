@@ -74,7 +74,13 @@ for (int iteration = 0; iteration < 3; iteration++)
 }
 Console.WriteLine(JsonSerializer.Serialize(new
 {
-    success = true, ordinaryUtf8Paths = true, nativeClock = true,
-    generationTransaction = true, cancellation = true, tracks = true, repeatedClose = true,
-    guiAccepted = false, physicalOutputAccepted = false,
+    success = true,
+    ordinaryUtf8Paths = true,
+    nativeClock = true,
+    generationTransaction = true,
+    cancellation = true,
+    tracks = true,
+    repeatedClose = true,
+    guiAccepted = false,
+    physicalOutputAccepted = false,
 }));

@@ -51,6 +51,19 @@ async function main() {
     process.env.INPUT_NAME = `syncwatch-dependency-${component}-${platform}-${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
     await upload();
     if (!succeeded) throw new Error('Dependency build failed');
+    if (component === 'libvlc') {
+        // Decoder SDK acceptance and application consumers have separate reports.
+        const provisioned = runCommand([python, 'tools/playback/ci.py', 'provision']);
+        const accepted = provisioned && runCommand([python, 'tools/playback/ci.py', 'check']);
+        const playbackArchive = resolve(root, 'artifacts/playback', platform + '.zip');
+        if (await access(playbackArchive).then(() => true, () => false)) {
+            process.env.INPUT_ARCHIVE = playbackArchive;
+            process.env.INPUT_NAME = `syncwatch-playback-${platform}-${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
+            await upload();
+        }
+        process.env.INPUT_ARCHIVE = resolve(directory, 'artifact.zip');
+        if (!accepted) throw new Error('Native playback consumer acceptance failed');
+    }
     if (component === 'syncplay-runtime') {
         if (!runCommand([python, 'tools/bridge/ci.py', 'provision'])
             || !runCommand([python, 'tools/bridge/ci.py', 'check'])) {

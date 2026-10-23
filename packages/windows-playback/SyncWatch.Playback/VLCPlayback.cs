@@ -47,11 +47,20 @@ public sealed class VLCPlayback : IPlaybackPort
         Check(owner); Native.Check(Native.Observe(player, owner.MediaGeneration, out var value));
         var observation = new PlaybackObservation
         {
-            Scope = owner, Sequence = value.Sequence, Status = (PlaybackStatus)value.Status,
-            PositionMs = value.PositionMs, DurationMs = value.DurationMs < 0 ? null : value.DurationMs,
-            Paused = value.Paused != 0, Rate = value.Rate, Seekable = value.Seekable != 0,
-            Buffering = value.Buffering != 0, Ended = value.Ended != 0, Width = value.Width, Height = value.Height,
-            VideoOutputs = value.VideoOutputs, Volume = value.Volume < 0 ? null : Math.Min(100, value.Volume) / 100d,
+            Scope = owner,
+            Sequence = value.Sequence,
+            Status = (PlaybackStatus)value.Status,
+            PositionMs = value.PositionMs,
+            DurationMs = value.DurationMs < 0 ? null : value.DurationMs,
+            Paused = value.Paused != 0,
+            Rate = value.Rate,
+            Seekable = value.Seekable != 0,
+            Buffering = value.Buffering != 0,
+            Ended = value.Ended != 0,
+            Width = value.Width,
+            Height = value.Height,
+            VideoOutputs = value.VideoOutputs,
+            Volume = value.Volume < 0 ? null : Math.Min(100, value.Volume) / 100d,
             Muted = value.Muted != 0,
         };
         if (value.Generation != owner.MediaGeneration) throw new ContractException(ContractRejection.StaleGeneration);

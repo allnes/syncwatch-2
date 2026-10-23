@@ -26,7 +26,7 @@ def verify_package(package):
     for path in package.rglob("*"):
         if path.is_symlink():
             raise ValueError("Media receipt cannot contain symbolic links")
-        if path.is_file() and path.name != "build-report.json":
+        if path.is_file() and path.relative_to(package).as_posix() != "build-report.json":
             with path.open("rb") as stream:
                 files[path.relative_to(package).as_posix()] = hashlib.file_digest(stream, "sha256").hexdigest()
     if files != report["files"]:
@@ -62,11 +62,9 @@ def check(package, output, dotnet=None, jdk_root=None):
             raise ValueError("The JVM development boundary currently targets Linux")
         sys.path.insert(0, str(ROOT / "tools/jvm"))
         from jdk import home
-        from build_support import java_environment
         jdk = home(jdk_root)
-        env = java_environment() | env
-        for key in ("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "JDK_JAVAC_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"):
-            env.pop(key, None)
+        ambient = {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "JDK_JAVAC_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH"}
+        env = {key: value for key, value in env.items() if key.upper() not in ambient}
         jni = output / "syncwatch_playback_jni.so"
         context.run("playback-jni", [context.tool(context.env["CC"]), "-std=c11", "-shared", "-fPIC",
                     "-O2", "-g0", "-Wall", "-Wextra", "-Werror", "-I" + str(jdk / "include"),

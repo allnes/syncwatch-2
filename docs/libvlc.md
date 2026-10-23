@@ -1,6 +1,6 @@
 # Native libVLC SDK
 
-The `libvlc` component builds VLC 3.0.24 and its selected codec, audio, text and font dependencies from the exact Git submodules registered in `3rdparty/`. It targets native macOS arm64, Windows x64 and Linux x64. This is a decoder SDK; the application playback adapters and native video/audio surfaces are separate integrations.
+The `libvlc` component builds VLC 3.0.24 and its selected codec, audio, text and font dependencies from the exact Git submodules registered in `3rdparty/`. It targets native macOS arm64, Windows x64 and Linux x64. This is a decoder SDK consumed by the separate [native playback adapters](playback.md). Native output modules are selected for AppKit and Windows; physical output remains separately unqualified.
 
 ## Build and revalidate
 
@@ -26,6 +26,8 @@ Linux retains Fontconfig's original default alias, matching, hinting and fallbac
 FFmpeg uses dynamic libraries with GPL, version3 and nonfree components disabled. The actual libraries must report the expected license, version and configuration through their own APIs. FreeType uses its FreeType License choice. The full original grants and embedded notices are retained, including license alternatives for excluded original sources.
 
 Fresh native consumers check authored I420/PCM, H.264/AAC, 1080p H.264/AAC and 4K HEVC/AAC fixtures. They observe metadata, decoded frames, resampled PCM and its known tone, pause stability, forward and backward seek pixels, stop, reload and release. Separate effect cases check actual brightness changes, normalization amplitude, pitch preservation during time stretching, replacement by an external audio tone and rendered SRT/ASS subtitle pixels. These are memory-callback observations; they establish no physical display, speaker, GPU-surface or application acceptance.
+
+Windows plugins reside under `bin/plugins`; Darwin/Linux plugins reside under `lib/vlc/plugins`, matching each native loader's default discovery. No `VLC_PLUGIN_PATH` environment override is required.
 
 On Windows, the consumer loads the verified owned shared-library closure before initializing VLC. Its dependency search permits only the owned DLL directory and System32, and it rejects a loaded library with a foreign path. Handles remain owned until all players and the VLC instance are released. This is required because VLC's plugin loader restricts dependency discovery to System32; a developer SDK or working-directory search must not provide missing application libraries.
 

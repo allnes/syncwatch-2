@@ -36,7 +36,11 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     internal VLCPlayback Player => player;
     internal PlaybackScope Scope => scope;
     internal NativeVideoHost Surface => surface;
-    internal void DetachSurface() => chrome.VideoSurface = null;
+    internal void DetachSurface()
+    {
+        chrome.VideoSurface = null;
+        chrome.Render(presentation, language);
+    }
 
     public PlaybackWorkspace(LocalPlaybackLaunch launch, string language)
     {
@@ -66,8 +70,11 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                 presentation = presentation with
                 {
                     State = value.Ended ? PlayerVisualState.Ended : value.Buffering ? PlayerVisualState.Buffering : value.Status != PlaybackStatus.Ready ? PlayerVisualState.Loading : value.Paused ? PlayerVisualState.Paused : PlayerVisualState.Playing,
-                    PositionMs = value.PositionMs, DurationMs = value.DurationMs ?? 0,
-                    Volume = value.Volume ?? presentation.Volume, Muted = value.Muted, EnabledActions = enabled,
+                    PositionMs = value.PositionMs,
+                    DurationMs = value.DurationMs ?? 0,
+                    Volume = value.Volume ?? presentation.Volume,
+                    Muted = value.Muted,
+                    EnabledActions = enabled,
                 };
                 chrome.Render(presentation, language);
                 await Task.Delay(100, cancellation.Token);
