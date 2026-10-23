@@ -31,6 +31,13 @@ def check(root: Path) -> None:
             raise ValueError(f"{name}: every feature needs three explicit validation states")
         if feature["complete"] and set(feature["validation"].values()) != {"native-tested"}:
             raise ValueError(f"{name}: source, research and native boundary checks cannot complete a three-client feature")
+    application = json.loads((root / "apps/linux/application.json").read_text(encoding="utf-8"))
+    components = json.loads((root / "tools/dependencies/components.json").read_text(encoding="utf-8"))["components"]
+    required = application.get("requiredSourceComponents", [])
+    if not required or not set(required) <= set(components):
+        raise ValueError("Linux application prerequisites must name registered source components")
+    if application.get("applicationBuildReady") and any(components[name]["status"] != "ready" for name in required):
+        raise ValueError("Unavailable source components cannot qualify a Linux application build")
     workflow = json.loads((root / ".github/workflows/repository.yml").read_text(encoding="utf-8"))
     jobs = workflow["jobs"]
     for platform in PLATFORMS:

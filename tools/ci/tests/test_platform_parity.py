@@ -16,7 +16,7 @@ class PlatformParityTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
-        for name in ("tools/native/platforms.json", ".github/workflows/repository.yml"):
+        for name in ("tools/native/platforms.json", ".github/workflows/repository.yml", "apps/linux/application.json", "tools/dependencies/components.json"):
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)
@@ -62,6 +62,22 @@ class PlatformParityTests(unittest.TestCase):
         workflow["jobs"]["required"]["needs"].remove("linux")
         path.write_text(json.dumps(workflow))
         with self.assertRaisesRegex(ValueError, "required client CI"):
+            check(self.root)
+
+    def test_unknown_application_component_is_rejected(self):
+        path = self.root / "apps/linux/application.json"
+        application = json.loads(path.read_text())
+        application["requiredSourceComponents"].append("invented-component")
+        path.write_text(json.dumps(application))
+        with self.assertRaisesRegex(ValueError, "registered source components"):
+            check(self.root)
+
+    def test_unavailable_graph_cannot_claim_build_readiness(self):
+        path = self.root / "apps/linux/application.json"
+        application = json.loads(path.read_text())
+        application["applicationBuildReady"] = True
+        path.write_text(json.dumps(application))
+        with self.assertRaisesRegex(ValueError, "Unavailable source components"):
             check(self.root)
 
     def test_apple_paths_do_not_replace_macos(self):

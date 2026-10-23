@@ -15,9 +15,8 @@
   ],
   "applicationBuildReady": false,
   "requiredSourceComponents": [
-    "kotlin-stdlib",
-    "compose-desktop",
-    "skiko-linux",
+    "kotlin-stdlib-sources",
+    "linux-compose-ui",
     "libvlc"
   ],
   "blockedCapabilities": [
