@@ -164,6 +164,87 @@
           "color": "black"
         }
       ]
+    },
+    {
+      "name": "transparency-from-document",
+      "root": {
+        "id": "probeRoot",
+        "kind": "row",
+        "props": {
+          "width": "100",
+          "height": "60",
+          "gap": "10",
+          "align": "leading",
+          "background": "@color.subtitle.cyan"
+        },
+        "children": [
+          {
+            "id": "a",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "transparent"
+            },
+            "children": []
+          },
+          {
+            "id": "b",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "#FF000000",
+              "backgroundOpacity": "0.5"
+            },
+            "children": []
+          },
+          {
+            "id": "c",
+            "kind": "overlay",
+            "props": {
+              "width": "20",
+              "height": "20",
+              "background": "@color.subtitle.warm"
+            },
+            "children": []
+          },
+          {
+            "id": "d",
+            "kind": "overlay",
+            "props": {
+              "width": "10",
+              "height": "20",
+              "background": "@color.shared.videoSurface"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 100,
+      "height": 60,
+      "probes": [
+        {
+          "x": 5,
+          "y": 30,
+          "color": "cyan"
+        },
+        {
+          "x": 35,
+          "y": 30,
+          "color": "cyan"
+        },
+        {
+          "x": 65,
+          "y": 30,
+          "color": "yellow"
+        },
+        {
+          "x": 95,
+          "y": 30,
+          "color": "black"
+        }
+      ]
     }
   ]
 }

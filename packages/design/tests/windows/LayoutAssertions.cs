@@ -31,7 +31,7 @@ internal static class LayoutAssertions
             }
             count++;
         }
-        Check(count == 3, "shared axis/order/spacing corpus");
+        Check(count == 4, "shared axis/order/spacing/transparency corpus");
         var editor = new SettingsEditor(editableFields: ["username"], canSave: true);
         var dialog = new SettingsDialog(editor, section: "connection"); Layout(dialog, 680, 420);
         var input = Find<TextBox>(dialog).Single(e => AutomationProperties.GetAutomationId(e) == "settings.field.username");

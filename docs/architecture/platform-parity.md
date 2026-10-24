@@ -9,13 +9,14 @@ The [platform registry](../../tools/native/platforms.json) records implementatio
 | Feature | macOS | Windows | Linux |
 |---|---|---|---|
 | Watch domain and local preferences | Native implementation and shared corpus | Native implementation and shared corpus | Compiled Kotlin domain, source-built runtime and the same shared corpus |
-| Library, settings and component galleries | Compiled native components | Compiled native components | Compose components and application entry source; application build pending |
+| Library and settings application | Compiled native components | Compiled native components | Kotlin entry/preferences source; registered application build pending |
+| Shared component galleries | Native renders and shared pixel probes | Native renders and shared pixel probes | Offscreen Compose/Skia research renders and shared pixel probes; registered source/runtime closure pending |
 | VLC local controls and native video | AppKit surface | Owned HWND surface | Source-built native/JNI boundary; desktop surface pending |
 | Owned Syncplay helper transport | Executed Swift pipes | Executed C# pipes | Kotlin transport source; full application integration pending |
 
 The watch domain and local-preferences slice is qualified across the three native clients. Its [Kotlin runtime build](../kotlin-stdlib.md) compiles and executes the domain corpus on each supported developer host, including restored-cache verification.
 
-Linux application readiness is explicitly false in [its build manifest](../../apps/linux/application.json). The required Linux CI lane compiles the Kotlin domain and executes the shared corpus and JVM boundary checks and retains `applicationBuilt: false` and `guiAccepted: false`. UI and video slices remain unqualified. The remaining Compose/Skiko/Skia/native/font source graph, actual desktop window, shared render matrix and native video lifetime must be completed before Linux GUI acceptance.
+Linux application readiness is explicitly false in [its build manifest](../../apps/linux/application.json). The required Linux CI lane compiles the Kotlin domain and executes the shared corpus and JVM boundary checks and retains `applicationBuilt: false` and `guiAccepted: false`. The [Linux design assertions](../../packages/design/tests/linux/README.md) cover presentation behavior, offscreen component images and the common geometry/transparency corpus. These research renders do not qualify a product distribution or a desktop window. The complete registered Compose/Skiko/Skia/native/font/runtime graph, required render CI, actual desktop window and native video lifetime remain necessary before Linux GUI acceptance.
 
 The [source-built Compose runtime](../compose-runtime.md) supplies composition and retained-state semantics for that Linux UI work. Its compiler-transformed headless consumer and cold/cache checks run on all three developer targets. It does not change the application/gallery/video qualification above or introduce platform-specific design values.
 

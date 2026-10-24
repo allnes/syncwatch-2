@@ -140,20 +140,32 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
         val stops=n.text("gradient").split('|').zip(n.text("gradientOffsets").split('|')).map{DesignContext.number(it.second).toFloat() to designColor(it.first,theme)}.toTypedArray()
         drawRect(androidx.compose.ui.graphics.Brush.linearGradient(*stops,start=point(n.text("gradientStart")),end=point(n.text("gradientEnd"))))
     }
-    else if(n.text("background").isNotEmpty()) m=m.background(designColor(n.text("background"),theme).copy(alpha=(if(n.props.containsKey("backgroundOpacity")) n.number("backgroundOpacity") else 1.0).toFloat()),shape)
+    else if(n.text("background").isNotEmpty()) {
+        val fill=designColor(n.text("background"),theme)
+        val opacity=(if(n.props.containsKey("backgroundOpacity")) n.number("backgroundOpacity") else 1.0).toFloat().coerceIn(0f,1f)
+        m=m.background(fill.copy(alpha=fill.alpha*opacity),shape)
+    }
     if(n.number("borderWidth")>0) m=m.border(n.number("borderWidth").dp,designColor(n.text("border"),theme),shape)
     return m.padding(horizontal=(n.number("padding")+n.number("paddingX")).dp,vertical=(n.number("padding")+n.number("paddingY")).dp)
 }
 @Composable fun DesignSurface(component: String, context: DesignContext=DesignContext(), language: String="en", theme: SyncWatchTheme=SyncWatchTheme.dark,
     modifier: Modifier=Modifier, slots: Map<String,@Composable BoxScope.() -> Unit> = emptyMap(), onEvent:(DesignEvent)->Unit={}) {
     val source=SyncWatchLayouts.components[component] ?: return
+    DesignNodeSurface(source,context,language,theme,modifier,slots,onEvent)
+}
+
+// Render a supplied document root through the same primitive adapter as registered components.
+// Internal visibility permits the shared geometry corpus without another layout implementation.
+@Composable internal fun DesignNodeSurface(source: DesignNode, context: DesignContext=DesignContext(), language: String="en",
+    theme: SyncWatchTheme=SyncWatchTheme.dark, modifier: Modifier=Modifier,
+    slots: Map<String,@Composable BoxScope.() -> Unit> = emptyMap(), onEvent:(DesignEvent)->Unit={}) {
     var frame=modifier
     for(key in listOf("width","height","minWidth","minHeight")) source.props[key]?.takeIf { it!="fill" }?.let {
         val n=DesignContext.number(context.resolve(it,language)).dp
         frame=when(key){"width"->frame.width(n);"height"->frame.height(n);"minWidth"->frame.widthIn(min=n);else->frame.heightIn(min=n)}
     }
     BoxWithConstraints(frame) {
-        DesignTree.resolve(component,context,language,maxWidth.value.toDouble(),maxHeight.value.toDouble())?.let { RenderDesignNode(it,theme,slots,onEvent) }
+        DesignTree.resolve(source,context,language,maxWidth.value.toDouble(),maxHeight.value.toDouble())?.let { RenderDesignNode(it,theme,slots,onEvent) }
     }
 }
 @Composable private fun RenderDesignNode(n:DesignElement,theme:SyncWatchTheme,slots:Map<String,@Composable BoxScope.()->Unit>,onEvent:(DesignEvent)->Unit,modifier:Modifier=Modifier) {
