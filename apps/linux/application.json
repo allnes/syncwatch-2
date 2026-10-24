@@ -15,12 +15,11 @@
   ],
   "applicationBuildReady": false,
   "requiredSourceComponents": [
-    "kotlin-stdlib-sources",
+    "kotlin-stdlib",
     "linux-compose-ui",
     "libvlc"
   ],
   "blockedCapabilities": [
-    "source-closed Kotlin standard library and compiler toolchain",
     "source-closed Compose, Skiko, Skia and selected native/font graph",
     "native video window on X11 and Wayland",
     "compiled desktop galleries and application acceptance"

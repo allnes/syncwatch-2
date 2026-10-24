@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "profile": "jvm8-consolidated-module9-v1",
+  "version": "2.3.20",
+  "compilerArguments": [
+    "-jvm-target",
+    "1.8",
+    "-language-version",
+    "2.3",
+    "-api-version",
+    "2.3",
+    "-module-name",
+    "kotlin-stdlib",
+    "-Xjdk-release=8",
+    "-jvm-default=enable",
+    "-Xallow-kotlin-package",
+    "-Xexpect-actual-classes",
+    "-Xmultifile-parts-inherit",
+    "-Xuse-14-inline-classes-mangling-scheme",
+    "-Xno-new-java-annotation-targets",
+    "-Xoutput-builtins-metadata",
+    "-Xstdlib-compilation",
+    "-Xdont-warn-on-error-suppression",
+    "-Xcontext-parameters",
+    "-Xreturn-value-checker=full",
+    "-Xmulti-platform",
+    "-opt-in=kotlin.ExperimentalMultiplatform",
+    "-opt-in=kotlin.contracts.ExperimentalContracts"
+  ],
+  "expectedJars": {
+    "macos-arm64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "fdac30b9c3ebb6a1b1e7490bd0e506bb9e918f5309e83736a8f8262fa7af110e"
+    },
+    "linux-x64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "35ed83f766f90ac211640a07f9745cf2b881dc4a5a99550cb0ceb5b6cde0065e"
+    },
+    "windows-x64": {
+      "kotlin-stdlib-2.3.20-syncwatch.jar": "35ed83f766f90ac211640a07f9745cf2b881dc4a5a99550cb0ceb5b6cde0065e"
+    }
+  }
+}

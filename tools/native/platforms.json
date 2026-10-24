@@ -28,8 +28,8 @@
   },
   "featureSlices": {
     "watch-domain-and-local-preferences": {
-      "complete": false,
-      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "research-tested" }
+      "complete": true,
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-tested" }
     },
     "library-and-settings-application": {
       "complete": false,

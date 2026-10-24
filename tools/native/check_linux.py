@@ -1,4 +1,4 @@
-"""Compile and run the Linux JVM value boundary; do not qualify an unavailable Compose application."""
+"""Run Linux Kotlin domain and JVM boundaries; desktop acceptance remains separate."""
 
 import json
 from pathlib import Path
@@ -28,14 +28,19 @@ def main():
     for command in [
         [str(jdk / "bin/javac"), "-encoding", "UTF-8", "-Xlint:all", "-Werror", "-d", str(classes), *map(str, sources)],
         [str(jdk / "bin/java"), "-cp", str(classes), "BoundaryChecks"],
+        [sys.executable, "tools/native/check_kotlin_domain.py"],
         [sys.executable, "tools/ci/check_platform_parity.py"],
     ]:
         subprocess.run(command, cwd=ROOT, env=environment, check=True)
-    report = {"jvmBoundaryAccepted": True, "kotlinDomainCompiled": False, "applicationBuilt": False,
+    domain = json.loads((ROOT / "artifacts/kotlin-domain/linux-x64/report.json").read_text())
+    if domain["hostTarget"] != "linux-x64" or not domain["sharedDomainAccepted"] or not domain["kotlinDomainCompiled"]:
+        raise ValueError("Linux needs its actual compiled Kotlin domain proof")
+    report = {"jvmBoundaryAccepted": True, "kotlinDomainCompiled": True, "sharedDomainAccepted": True, "applicationBuilt": False,
               "guiAccepted": False, "physicalOutputAccepted": False,
+              "domain": domain,
               "blocked": json.loads((ROOT / "apps/linux/application.json").read_text())["blockedCapabilities"]}
     (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
-    print("Linux source/JVM checks passed; Kotlin/Compose application build and GUI acceptance remain incomplete")
+    print("Linux Kotlin domain/JVM checks passed; Compose application build and GUI acceptance remain incomplete")
 
 
 if __name__ == "__main__":

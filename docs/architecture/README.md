@@ -16,7 +16,7 @@ SyncWatch is a native desktop product for synchronized local movie viewing and v
 | Calling | Google Meet in a separate application-owned window; browser-host integration is not implemented |
 | Room metadata | A C# / ASP.NET Core service over HTTPS/WSS for catalog and watch-session metadata |
 | External libraries | Pinned source submodules under `3rdparty/`, including the complete transitive graph before component builds |
-| Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, required Linux source/JVM checks, reproducible dependencies, integration checks, and trusted release candidates |
+| Continuous integration | GitHub Actions for repository checks, native macOS/Windows builds, required Linux Kotlin-domain/JVM checks, reproducible dependencies, integration checks, and trusted release candidates |
 
 The Windows SDK selection is pinned in [global.json](../../global.json) and the [toolchain manifest](../../tools/native/toolchains.json). See the [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core). Additional Apple platforms require explicit decisions about process hosting, video surfaces, and call windows; macOS support does not imply iOS or tvOS support.
 
@@ -139,7 +139,7 @@ The Linux client is implemented in Kotlin/JVM source with [Compose Multiplatform
 
 Compose's JetBrains-owned code uses [Apache 2.0](https://github.com/JetBrains/compose-multiplatform/blob/master/license/README.md). The selected dependency graph still needs pinned source revisions and a complete license inventory before use. That inventory must cover the selected Compose/AndroidX modules, Kotlin standard library, Skiko/Skia rendering graph, transitive and embedded code, and any bundled fonts. Declare the compiler, JDK and build-tool versions separately; a packaged Java runtime also needs its own source, notice and distribution review. Neither a toolchain exception nor Compose's top-level license clears those artifacts. See [dependency policy](dependencies.md) and [licenses and distribution](../licenses.md).
 
-Linux has a Kotlin domain, a Compose entry and shared renderer source. Its qualified Compose build, VLC desktop surface, helper/metadata application adapters and owned Meet host remain incomplete. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
+Linux has a compiled Kotlin domain with the shared corpus and a registered source-built runtime, plus a Compose entry and shared renderer source. Its qualified Compose build, VLC desktop surface, helper/metadata application adapters and owned Meet host remain incomplete. X11 and Wayland require separate rendering, fullscreen, input, DPI, capture, and window-ownership checks, including any XWayland dependency. Google Meet remains the call provider. Compose does not select or verify a browser host; any candidate needs its own complete source/license graph and real Meet capability checks before adoption.
 
 ## Local data and permissions
 
@@ -156,7 +156,7 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | Dependencies | Complete transitive sources and offline builds for the product engines are unresolved |
 | Syncplay bridge | Source-built headless runtime and development helper/native pipe adapters are present; actual VLC, authenticated installation and application provider activation remain incomplete; Kotlin transport is source-only |
 | Shared design | Swift/WPF Library/Settings/core Player/PlayerSettings and galleries consume one declarative component tree through primitive adapters; native appearance preferences persist locally; Kotlin data and Compose Library/Settings/Player/PlayerSettings source are present with the Linux build still unavailable; call components and remaining player overlays remain planned |
-| Linux client | Kotlin/Compose entry, domain and shared design source are present; source/JVM CI is required. Registered Kotlin/Compose build, native video window, GUI and calling remain incomplete |
+| Linux client | Kotlin domain and source-built runtime pass the shared corpus in required CI; Compose entry and shared design source are present. Compose application build, native video window, GUI and calling remain incomplete |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.
 
