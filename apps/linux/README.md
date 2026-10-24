@@ -14,3 +14,9 @@ python3 tools/native/check_linux.py
 ```
 
 These commands compile the Kotlin domain against the source-built standard library, execute the shared domain corpus, and check Java value/ownership boundaries and repository parity declarations. It does not compile or launch this Compose entry. Linux application acceptance requires the complete source build and a real desktop session; a remote desktop connection alone does not supply either.
+
+The [source-built concurrency component](../../docs/jvm-concurrency.md) supplies Atomicfu and coroutines as additional Compose prerequisites. Its three-target source build and runtime consumers remain separate from application/GUI acceptance:
+
+```sh
+python3 tools/dependencies/build.py build --component kotlinx-concurrency --platform linux-x64
+```

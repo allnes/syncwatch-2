@@ -16,6 +16,7 @@
   "applicationBuildReady": false,
   "requiredSourceComponents": [
     "kotlin-stdlib",
+    "kotlinx-concurrency",
     "linux-compose-ui",
     "libvlc"
   ],
