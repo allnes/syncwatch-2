@@ -188,7 +188,13 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
         "text"->{
             val density=LocalDensity.current.density
             val move=if(n.text("moveAction").isNotEmpty()) Modifier.pointerInput(n.text("moveAction"),density){awaitEachGesture {val down=awaitFirstDown();var total=Offset.Zero;drag(down.id){change->total+=change.position-change.previousPosition;change.consume();currentEvent(DesignEvent(n.text("moveAction"),"${total.x/density},${total.y/density}"))};currentEvent(DesignEvent(n.text("moveAction")))}} else Modifier
-            BasicText(n.text("text"),frame.then(move),style=textStyle(n,theme).copy(textAlign=if(n.text("align")=="center") TextAlign.Center else TextAlign.Start),maxLines=if(n.props.containsKey("lines")) n.number("lines").toInt() else Int.MAX_VALUE,overflow=TextOverflow.Ellipsis)
+            // BasicText fills its requested frame but lays its paragraph at the top.
+            // Keep the frame on a generic container so document alignment places
+            // the intrinsic paragraph, matching the native adapters.
+            val alignment=when(n.text("align")) { "top"->Alignment.TopStart; "leading"->Alignment.CenterStart; "trailing"->Alignment.CenterEnd; else->Alignment.Center }
+            Box(frame.then(move),contentAlignment=alignment) {
+                BasicText(n.text("text"),style=textStyle(n,theme).copy(textAlign=if(n.text("align")=="center") TextAlign.Center else TextAlign.Start),maxLines=if(n.props.containsKey("lines")) n.number("lines").toInt() else Int.MAX_VALUE,overflow=TextOverflow.Ellipsis)
+            }
         }
         "icon"->Canvas(frame){for(p in SyncWatchLayouts.assets[n.text("name")].orEmpty()){val path=Path();for(i in p.indices step 2){val x=p[i]/SyncWatchLayouts.coordinateSize*size.width;val y=p[i+1]/SyncWatchLayouts.coordinateSize*size.height;if(i==0)path.moveTo(x,y)else path.lineTo(x,y)};path.close();drawPath(path,designColor(n.text("foreground"),theme))}}
         "button"->Box(modifier.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){

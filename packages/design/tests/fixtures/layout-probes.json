@@ -245,6 +245,105 @@
           "color": "black"
         }
       ]
+    },
+    {
+      "name": "filled-text-center",
+      "root": {
+        "id": "probeRoot",
+        "kind": "overlay",
+        "props": {
+          "width": "100",
+          "height": "60",
+          "background": "@color.shared.videoSurface"
+        },
+        "children": [
+          {
+            "id": "text",
+            "kind": "text",
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "align": "center",
+              "text": "TEST",
+              "fontSize": "14",
+              "foreground": "@color.subtitle.cyan"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 100,
+      "height": 60,
+      "probes": [],
+      "inkRegions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 14,
+          "present": false
+        },
+        {
+          "x": 0,
+          "y": 20,
+          "width": 100,
+          "height": 20,
+          "present": true
+        },
+        {
+          "x": 0,
+          "y": 46,
+          "width": 100,
+          "height": 14,
+          "present": false
+        }
+      ]
+    },
+    {
+      "name": "filled-text-top",
+      "root": {
+        "id": "probeRoot",
+        "kind": "overlay",
+        "props": {
+          "width": "100",
+          "height": "60",
+          "background": "@color.shared.videoSurface"
+        },
+        "children": [
+          {
+            "id": "text",
+            "kind": "text",
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "align": "top",
+              "text": "TEST",
+              "fontSize": "14",
+              "foreground": "@color.subtitle.cyan"
+            },
+            "children": []
+          }
+        ]
+      },
+      "width": 100,
+      "height": 60,
+      "probes": [],
+      "inkRegions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 20,
+          "present": true
+        },
+        {
+          "x": 0,
+          "y": 24,
+          "width": 100,
+          "height": 36,
+          "present": false
+        }
+      ]
     }
   ]
 }

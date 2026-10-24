@@ -29,9 +29,18 @@ internal static class LayoutAssertions
                 bitmap.CopyPixels(new Int32Rect(probe.GetProperty("x").GetInt32(), probe.GetProperty("y").GetInt32(), 1, 1), pixel, 4, 0);
                 Check(probe.GetProperty("color").GetString() switch { "cyan" => pixel[0] > pixel[2] + 51, "yellow" => pixel[2] > pixel[0] + 51, _ => pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0 }, item.GetProperty("name").GetString() + " at " + probe.GetProperty("x") + "," + probe.GetProperty("y") + ": expected " + probe.GetProperty("color") + ", BGRA=" + string.Join(',', pixel));
             }
+            if (item.TryGetProperty("inkRegions", out var regions))
+                foreach (var region in regions.EnumerateArray())
+                {
+                    int x = region.GetProperty("x").GetInt32(), y = region.GetProperty("y").GetInt32();
+                    int w = region.GetProperty("width").GetInt32(), h = region.GetProperty("height").GetInt32();
+                    var pixels = new byte[w * h * 4]; bitmap.CopyPixels(new Int32Rect(x, y, w, h), pixels, w * 4, 0);
+                    bool found = Enumerable.Range(0, w * h).Any(i => pixels[i * 4] > pixels[i * 4 + 2] + 51);
+                    Check(found == region.GetProperty("present").GetBoolean(), item.GetProperty("name").GetString() + ": paragraph ink in " + x + "," + y);
+                }
             count++;
         }
-        Check(count == 4, "shared axis/order/spacing/transparency corpus");
+        Check(count == 6, "shared axis/order/spacing/transparency/text alignment corpus");
         var editor = new SettingsEditor(editableFields: ["username"], canSave: true);
         var dialog = new SettingsDialog(editor, section: "connection"); Layout(dialog, 680, 420);
         var input = Find<TextBox>(dialog).Single(e => AutomationProperties.GetAutomationId(e) == "settings.field.username");

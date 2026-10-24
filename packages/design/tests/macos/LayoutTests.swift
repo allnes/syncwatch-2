@@ -11,11 +11,19 @@ private struct LayoutProbeCases: Decodable {
             let y: Int
             let color: String
         }
+        struct InkRegion: Decodable {
+            let x: Int
+            let y: Int
+            let width: Int
+            let height: Int
+            let present: Bool
+        }
         let name: String
         let root: DesignNode
         let width: Int
         let height: Int
         let probes: [Probe]
+        let inkRegions: [InkRegion]?
     }
     let cases: [Case]
 }
@@ -26,7 +34,7 @@ private struct LayoutProbeCases: Decodable {
     let path = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("fixtures/layout-probes.json")
     let fixture = try JSONDecoder().decode(LayoutProbeCases.self, from: Data(contentsOf: path))
-    #expect(fixture.cases.count == 4)
+    #expect(fixture.cases.count == 6)
     for item in fixture.cases {
         let frame = NSRect(x: 0, y: 0, width: item.width, height: item.height)
         let host = NSHostingView(rootView: DesignSurface(testingNode: item.root))
@@ -49,6 +57,17 @@ private struct LayoutProbeCases: Decodable {
             case "yellow": #expect(c.redComponent > c.blueComponent + 0.2, "\(item.name)")
             default: #expect(c.redComponent < 0.01 && c.greenComponent < 0.01 && c.blueComponent < 0.01, "\(item.name)")
             }
+        }
+        for region in item.inkRegions ?? [] {
+            var found = false
+            for y in region.y..<(region.y + region.height) {
+                for x in region.x..<(region.x + region.width) {
+                    let c = try #require(
+                        bitmap.colorAt(x: Int(Double(x) * scale), y: Int(Double(y) * scale))?.usingColorSpace(.sRGB))
+                    if c.blueComponent > c.redComponent + 0.2 { found = true }
+                }
+            }
+            #expect(found == region.present, "\(item.name): paragraph ink in \(region.x),\(region.y)")
         }
     }
 }

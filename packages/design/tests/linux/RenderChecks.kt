@@ -34,7 +34,7 @@ fun main(arguments: Array<String>) {
     var emitted = 0
     val records = mutableListOf<String>()
     SwingUtilities.invokeAndWait {
-        fun render(name: String, width: Int, height: Int, probes: List<Map<String, Any?>> = emptyList(), content: @Composable () -> Unit) {
+        fun render(name: String, width: Int, height: Int, probes: List<Map<String, Any?>> = emptyList(), inkRegions: List<Map<String, Any?>> = emptyList(), content: @Composable () -> Unit) {
             val owner = CompositionStateOwner(canBeSaved = { saveable(it) })
             owner.resume()
             try {
@@ -48,7 +48,9 @@ fun main(arguments: Array<String>) {
                             check(bitmap.width == width && bitmap.height == height)
                             val colors = hashSetOf<Int>()
                             for (y in 0 until height step 8) for (x in 0 until width step 8) colors += bitmap.getRGB(x, y)
-                            check(colors.size > 2) { "Empty or unrendered component: $name" }
+                            // Text-only fixtures may contain just background and ink
+                            // on this sampling grid; their positive ink region is checked below.
+                            check(colors.size > 2 || inkRegions.any { it["present"] == true }) { "Empty or unrendered component: $name" }
                             for (probe in probes) {
                                 val x = (probe["x"] as Number).toInt()
                                 val y = (probe["y"] as Number).toInt()
@@ -64,6 +66,15 @@ fun main(arguments: Array<String>) {
                                 }
                                 check(matches) { "Shared geometry probe failed: $name at $x,$y" }
                             }
+                            for (region in inkRegions) {
+                                val x = (region["x"] as Number).toInt(); val y = (region["y"] as Number).toInt()
+                                val w = (region["width"] as Number).toInt(); val h = (region["height"] as Number).toInt()
+                                val found = (y until y+h).any { py -> (x until x+w).any { px ->
+                                    val pixel = bitmap.getRGB(px,py)
+                                    (pixel and 255) > ((pixel ushr 16) and 255) + 51
+                                } }
+                                check(found == region["present"]) { "Shared paragraph ink probe failed: $name at $x,$y" }
+                            }
                             check(emitted == 0) { "Rendering emitted a user action: $name" }
                             Files.write(destination.resolve("$name.png"), bytes)
                             records += "$name.png\t${sha(bytes)}\t${bitmap.width}\t${bitmap.height}\t${colors.size}"
@@ -78,12 +89,13 @@ fun main(arguments: Array<String>) {
             (record["children"] as List<*>).map { node(Json.`object`(it)) },
         )
         val layoutCases = Json.`object`(Json.parse(Files.readString(fixtures.resolve("layout-probes.json"))))["cases"] as List<*>
-        check(layoutCases.size == 4)
+        check(layoutCases.size == 6)
         for (item in layoutCases) {
             val fixture = Json.`object`(item)
             val root = node(Json.`object`(fixture["root"]))
             val probes = (fixture["probes"] as List<*>).map { Json.`object`(it) }
-            render("layout-${fixture["name"]}", (fixture["width"] as Number).toInt(), (fixture["height"] as Number).toInt(), probes) {
+            val inkRegions = (fixture["inkRegions"] as? List<*>).orEmpty().map { Json.`object`(it) }
+            render("layout-${fixture["name"]}", (fixture["width"] as Number).toInt(), (fixture["height"] as Number).toInt(), probes, inkRegions) {
                 DesignNodeSurface(root)
             }
         }
