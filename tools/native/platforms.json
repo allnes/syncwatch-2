@@ -37,7 +37,7 @@
     },
     "shared-component-galleries": {
       "complete": false,
-      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "source-only" }
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "research-tested" }
     },
     "native-video-and-local-controls": {
       "complete": false,

@@ -26,7 +26,7 @@ private struct LayoutProbeCases: Decodable {
     let path = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("fixtures/layout-probes.json")
     let fixture = try JSONDecoder().decode(LayoutProbeCases.self, from: Data(contentsOf: path))
-    #expect(fixture.cases.count == 3)
+    #expect(fixture.cases.count == 4)
     for item in fixture.cases {
         let frame = NSRect(x: 0, y: 0, width: item.width, height: item.height)
         let host = NSHostingView(rootView: DesignSurface(testingNode: item.root))
