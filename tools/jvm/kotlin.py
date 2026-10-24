@@ -160,17 +160,20 @@ def java(arguments, directory, jdk_home):
 def plugin_specification(spec):
     policy = json.loads((ROOT / "tools/jvm/compiler_plugins.json").read_text())
     source = json.loads((ROOT / "tools/jvm/stdlib_sources.json").read_text())["sources"]["kotlin-stdlib"]
+    reviewed = {"compose": ("compose-compiler-plugin.jar", "/plugins/compose"),
+                "serialization": ("kotlinx-serialization-compiler-plugin.jar", "/plugins/kotlinx-serialization")}
     if (set(policy) != {"schemaVersion", "compilerVersion", "plugins"} or policy["schemaVersion"] != 1
-            or policy["compilerVersion"] != spec["version"] or set(policy["plugins"]) != {"compose"}):
+            or policy["compilerVersion"] != spec["version"] or set(policy["plugins"]) != set(reviewed)):
         raise ValueError("Compiler plugin policy differs from the verified SDK version")
-    compose = policy["plugins"]["compose"]
-    if (set(compose) != {"file", "sha256", "scope", "sourcePath", "sourceRevision"}
-            or compose["file"] != "kotlinc/lib/compose-compiler-plugin.jar"
-            or compose["sha256"] != spec["files"].get(compose["file"])
-            or compose["scope"] != "compiler-process-only"
-            or compose["sourcePath"] != source["path"] + "/plugins/compose"
-            or compose["sourceRevision"] != source["revision"]):
-        raise ValueError("Compose compiler plugin is outside its reviewed SDK/source scope")
+    for name, (filename, source_path) in reviewed.items():
+        plugin = policy["plugins"][name]
+        if (set(plugin) != {"file", "sha256", "scope", "sourcePath", "sourceRevision"}
+                or plugin["file"] != "kotlinc/lib/" + filename
+                or plugin["sha256"] != spec["files"].get(plugin["file"])
+                or plugin["scope"] != "compiler-process-only"
+                or plugin["sourcePath"] != source["path"] + source_path
+                or plugin["sourceRevision"] != source["revision"]):
+            raise ValueError(name + " compiler plugin is outside its reviewed SDK/source scope")
     return policy["plugins"]
 
 

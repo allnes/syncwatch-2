@@ -8,6 +8,13 @@
       "scope": "compiler-process-only",
       "sourcePath": "3rdparty/kotlin-stdlib/plugins/compose",
       "sourceRevision": "d57eb4a26ed01ab03cf195da686c8047032ff16f"
+    },
+    "serialization": {
+      "file": "kotlinc/lib/kotlinx-serialization-compiler-plugin.jar",
+      "sha256": "2c8c84a9902d04541828c77c1ddf953c8ea67a1d77d9aeefa8a063187165b2a5",
+      "scope": "compiler-process-only",
+      "sourcePath": "3rdparty/kotlin-stdlib/plugins/kotlinx-serialization",
+      "sourceRevision": "d57eb4a26ed01ab03cf195da686c8047032ff16f"
     }
   }
 }

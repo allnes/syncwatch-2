@@ -109,40 +109,47 @@ class KotlinSdkTests(unittest.TestCase):
                     kotlin.compile(arguments, self.root, self.root, self.root)
                 execute.assert_not_called()
 
-    def test_named_compose_plugin_uses_only_its_exact_sdk_file(self):
+    def test_named_plugins_use_only_their_exact_sdk_files(self):
         policy = kotlin.plugin_specification(kotlin.specification())
-        data = b"Reviewed fixture compiler plugin, never executed"
-        path = self.root / policy["compose"]["file"]
-        path.parent.mkdir(parents=True)
-        path.write_bytes(data)
-        policy["compose"]["sha256"] = digest(data)
+        for name in policy:
+            data = ("Reviewed fixture compiler plugin " + name).encode()
+            path = self.root / policy[name]["file"]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+            policy[name]["sha256"] = digest(data)
         with patch.object(kotlin, "plugin_specification", return_value=policy):
             self.assertEqual(kotlin.plugin_arguments((), self.root, self.spec), [])
-            self.assertEqual(kotlin.plugin_arguments(("compose",), self.root, self.spec), ["-Xplugin=" + str(path)])
-            for names in [("unreviewed",), ("compose", "compose"), "compose"]:
+            expected = ["-Xplugin=" + str(self.root / policy[n]["file"]) for n in sorted(policy)]
+            self.assertEqual(kotlin.plugin_arguments(tuple(policy), self.root, self.spec), expected)
+            for names in [("unreviewed",), ("compose", "compose"), "serialization"]:
                 with self.subTest(names=names), self.assertRaises(ValueError):
                     kotlin.plugin_arguments(names, self.root, self.spec)
-            path.write_bytes(data + b"tampered")
-            with self.assertRaisesRegex(ValueError, "exact SDK inventory"):
-                kotlin.plugin_arguments(("compose",), self.root, self.spec)
-            path.unlink()
-            with self.assertRaisesRegex(ValueError, "exact SDK inventory"):
-                kotlin.plugin_arguments(("compose",), self.root, self.spec)
+            for name in policy:
+                path = self.root / policy[name]["file"]
+                data = path.read_bytes()
+                path.write_bytes(data + b"tampered")
+                with self.subTest(plugin=name), self.assertRaisesRegex(ValueError, "exact SDK inventory"):
+                    kotlin.plugin_arguments((name,), self.root, self.spec)
+                path.unlink()
+                with self.assertRaisesRegex(ValueError, "exact SDK inventory"):
+                    kotlin.plugin_arguments((name,), self.root, self.spec)
+                path.write_bytes(data)
 
-    def test_compose_plugin_requires_the_sdk_source_revision_and_build_only_scope(self):
+    def test_plugins_require_the_sdk_source_revision_and_build_only_scope(self):
         import json
         spec = kotlin.specification()
         original = (kotlin.ROOT / "tools/jvm/compiler_plugins.json").read_text()
-        for key, value in [("scope", "runtime"), ("sourceRevision", "0" * 40),
-                           ("sourcePath", "3rdparty/unreviewed"), ("sha256", "0" * 64)]:
-            changed = json.loads(original)
-            changed["plugins"]["compose"][key] = value
-            original_read = Path.read_text
-            def read(path, *args, **kwargs):
-                return json.dumps(changed) if path.name == "compiler_plugins.json" else original_read(path, *args, **kwargs)
-            with self.subTest(key=key), patch.object(Path, "read_text", read):
-                with self.assertRaisesRegex(ValueError, "reviewed SDK/source scope"):
-                    kotlin.plugin_specification(spec)
+        for name in json.loads(original)["plugins"]:
+            for key, value in [("scope", "runtime"), ("sourceRevision", "0" * 40),
+                               ("sourcePath", "3rdparty/unreviewed"), ("sha256", "0" * 64)]:
+                changed = json.loads(original)
+                changed["plugins"][name][key] = value
+                original_read = Path.read_text
+                def read(path, *args, **kwargs):
+                    return json.dumps(changed) if path.name == "compiler_plugins.json" else original_read(path, *args, **kwargs)
+                with self.subTest(plugin=name, key=key), patch.object(Path, "read_text", read):
+                    with self.assertRaisesRegex(ValueError, "reviewed SDK/source scope"):
+                        kotlin.plugin_specification(spec)
 
     def test_argfiles_quote_paths_and_reject_record_injection(self):
         path = self.root / "arguments.txt"

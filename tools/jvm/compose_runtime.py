@@ -158,6 +158,37 @@ def probe(payload, profile, home, compiler):
         print(output.strip())
 
 
+def original_sources(directory, archive=False):
+    """Load the complete reviewed parent graph for independent child consumers."""
+    profile = profile_data()
+    files = concurrency.read_sources(directory, profile, archive=archive)
+    parent_files = concurrency.read_sources(directory, concurrency.profile_data(), archive=archive)
+    _runtime_profile, source_profile = stdlib.profile_data()
+    runtime_sources = {name: stdlib_sources.source_files(directory / (name + ".tar" if archive else source["path"]), source)
+                       for name, source in source_profile["sources"].items()}
+    annotation_profile, _sdk = annotations.profile_data()
+    annotation_files = annotations.source_files(directory / ("jvm-annotations.tar" if archive else annotation_profile["sourcePath"]), annotation_profile)
+    return files | parent_files | runtime_sources | {"jvm-annotations": annotation_files}
+
+
+def original_notices(component, all_sources):
+    sources = json.loads((ROOT / "tools/dependencies/components.json").read_text())["components"][component]["sources"]
+    return {"notices/" + path.rsplit("/", 1)[1] + "/" + notice: all_sources[path.rsplit("/", 1)[1]][notice]
+            for path, definition in sources.items() for notice in definition["notices"]}
+
+
+def verify_runtime(payload, all_sources):
+    """Recheck every owned layer without requiring a second component workspace."""
+    profile, parent = profile_data(), concurrency.profile_data()
+    runtime_profile, source_profile = stdlib.profile_data()
+    annotation_profile, sdk = annotations.profile_data()
+    verify(payload, {n: all_sources[n] for n in profile["sources"]}, profile, original_notices(COMPONENT, all_sources))
+    concurrency.verify(payload / "parent", {n: all_sources[n] for n in parent["sources"]}, parent,
+                       original_notices(concurrency.COMPONENT, all_sources))
+    stdlib.verify(payload / "parent/runtime", {n: all_sources[n] for n in source_profile["sources"]}, source_profile,
+                  runtime_profile, all_sources["jvm-annotations"], annotation_profile, sdk["version"])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=("build", "verify"))
@@ -167,20 +198,10 @@ def main():
     home, compiler = jdk.home(), kotlin.home()
     archive = args.operation == "verify"
     directory = ROOT / "artifacts/dependencies" / COMPONENT / (args.platform or jdk.current_target()) if archive else Path(os.environ["SYNCWATCH_DEPENDENCY_SOURCES"])
-    files = concurrency.read_sources(directory, profile, archive=archive)
+    all_sources = original_sources(directory, archive=archive)
+    files = {name: all_sources[name] for name in profile["sources"]}
     parent_profile = concurrency.profile_data()
-    parent_files = concurrency.read_sources(directory, parent_profile, archive=archive)
-    runtime_profile, source_profile = stdlib.profile_data()
-    runtime_sources = {name: stdlib_sources.source_files(directory / (name + ".tar" if archive else source["path"]), source)
-                       for name, source in source_profile["sources"].items()}
-    annotation_profile, sdk = annotations.profile_data()
-    annotation_files = annotations.source_files(directory / ("jvm-annotations.tar" if archive else annotation_profile["sourcePath"]), annotation_profile)
-    all_sources = files | parent_files | runtime_sources | {"jvm-annotations": annotation_files}
-    registry = json.loads((ROOT / "tools/dependencies/components.json").read_text())["components"]
-    def notices_for(component):
-        return {"notices/" + path.rsplit("/", 1)[1] + "/" + notice: all_sources[path.rsplit("/", 1)[1]][notice]
-                for path, definition in registry[component]["sources"].items() for notice in definition["notices"]}
-    notices = notices_for(COMPONENT)
+    notices = original_notices(COMPONENT, all_sources)
     if args.operation == "build":
         if json.loads(os.environ["SYNCWATCH_DEPENDENCY_FLAGS"]) != {"profile": profile["profile"]}:
             raise ValueError("Unknown Compose runtime source profile")
@@ -198,9 +219,7 @@ def main():
             path.write_bytes(data)
     else:
         payload = directory / "payload"
-    verify(payload, files, profile, notices)
-    concurrency.verify(payload / "parent", parent_files, parent_profile, notices_for(concurrency.COMPONENT))
-    stdlib.verify(payload / "parent/runtime", runtime_sources, source_profile, runtime_profile, annotation_files, annotation_profile, sdk["version"])
+    verify_runtime(payload, all_sources)
     if args.operation == "verify":
         probe(payload, profile, home, compiler)
 
