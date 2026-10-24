@@ -7,6 +7,7 @@ import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.rememberDialogState
 import java.nio.file.Path
 import syncwatch.design.*
 import syncwatch.domain.*
@@ -42,7 +43,8 @@ fun main(arguments: Array<String>) = application {
         if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
     }
     if (settingsOpen) {
-        DialogWindow(onCloseRequest = { settingsOpen = false }, title = SyncWatchCopy.text("openSettings", language)) {
+        DialogWindow(onCloseRequest = { settingsOpen = false }, title = SyncWatchCopy.text("openSettings", language),
+            state = rememberDialogState(width = SyncWatchTokens.layoutSettingsWidth.dp, height = SyncWatchTokens.layoutSettingsHeight.dp)) {
             SettingsDialog(editor, { editor = it }, language = language, theme = theme,
                 onSave = { values -> preferences.save(values).also { if (it) state = preferences.state } },
                 onClose = { settingsOpen = false })

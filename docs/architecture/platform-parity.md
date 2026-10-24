@@ -4,6 +4,8 @@ SyncWatch has three required desktop clients: macOS, Windows and Linux. First-pa
 
 Each feature slice covers application ownership, domain behavior, persistence, shared design consumption, native providers and validation on every applicable client. A slice is complete only after all three implementations and their required native acceptance pass. Source-only renderers, developer compiler experiments, JNI tests and successful server builds do not establish an application or GUI result.
 
+The [desktop acceptance matrix](../testing/desktop-acceptance.md) requires visible native windows on all three targets and all six directed sender/observer combinations for synchronization.
+
 The [platform registry](../../tools/native/platforms.json) records implementation directories and per-feature validation. Repository validation requires all three module sets, rejects empty implementation directories, requires all three CI lanes in the aggregate, and rejects a completed feature with source, research or native-boundary-only validation. These checks validate structure and declarations; source review and actual acceptance remain required.
 
 | Feature | macOS | Windows | Linux |
