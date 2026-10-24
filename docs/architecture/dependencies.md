@@ -14,6 +14,10 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 | `3rdparty/jbr-api` | `v1.9.0` / `bf95b3ebdadbb81c193fdf45b8947fb20163d5dc` | Optional JBR service interfaces in the planned desktop graph | Apache 2.0; full license, original headers and build-source change notice |
 | `3rdparty/kotlin-stdlib` | `v2.3.20` / `d57eb4a26ed01ab03cf195da686c8047032ff16f` | Selected JVM stdlib source package and generator references | Apache-2.0, BSD-3-Clause and BSL-1.0 for the selected files; full original notices |
 | `3rdparty/unicode-data` | `release-20210720-u13` / `84a95001ba850554e65234dde62cbdb0ad41105a` | Two Unicode 13.0.0 files verified against the published release for titlecase provenance | Unicode-DFS-2016; full original permission notice and data attribution |
+| `3rdparty/jspecify` | `v1.0.0` / `b2a10e14bb81c1b7cb6e488c112fe55cb2218d7d` | JVM nullness annotations and original module descriptor | Apache-2.0; original license and source headers |
+| `3rdparty/androidx-annotation` | `1.9.1` / `87b88ad088cc9b18d4ab75611fc8b74e8b01c24a` | Selected common/JVM AndroidX annotations | Apache-2.0; original license and source headers |
+| `3rdparty/androidx-collection` | `1.5.0` / `fb376ee6d05727045f41e320bd36923eb385c5f8` | Common/JVM collections and original Java bridge | Apache-2.0; original license and source headers |
+| `3rdparty/androidx-compose-runtime` | `1.12.1` / `5e0747401bf56b243e3b5141ae080dc9bc61d29c` | Runtime annotations, composition and retained values | Apache-2.0; original AndroidX and embedded immutable-collection headers |
 | `3rdparty/retry-decorator` | `a26fe27039f45f3e83cfcad7046e1761ae056498` | Provenance and full BSD notice for the retry function already embedded in Syncplay | BSD 3-Clause; original LICENSE and README |
 | `3rdparty/zlib` | `v1.3.2` / `da607da739fa6047df13e66a2af6b8bec7c2a498` | Static native compression prerequisite for the planned CPython runtime | Zlib; original LICENSE, README and public-header notice |
 | `3rdparty/cpython` | `v3.12.15` / `e848e4b09ca4bc67c0041c9ce7526dae471d4c36` | Selected native embedding core, owned stdlib, startup sources and references | Complete PSF/historical and selected embedded-source grants |
@@ -87,6 +91,8 @@ The [Kotlin stdlib source package](../kotlin-stdlib-sources.md) has a complete s
 This table describes the known areas of incomplete dependency closure. It is not a complete software bill of materials or a claim that offline builds are ready.
 
 The [JVM concurrency build](../jvm-concurrency.md) adds source-built Atomicfu and coroutines to the owned Kotlin runtime. Original Android and Animal Sniffer annotation declarations are pinned source submodules used for compilation only. The untransformed JVM profile preserves source-set ownership and rebuilds the debug-agent resource from original source. This component does not close the Compose, Skiko, Skia, native or font graph and does not qualify a Linux application.
+
+The [Compose runtime build](../compose-runtime.md) adds six source-built annotation, collection, composition and retained-value modules. The matching Kotlin SDK Compose plugin is an explicitly named, digest-verified compiler-process input; it is never a target library. Original source bytes, source-set ownership and complete notices are retained. Runtime-saveable, saved-state/lifecycle support, the remaining UI/native/font graph and actual application acceptance remain required.
 
 ## Closed browser SDKs
 

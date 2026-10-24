@@ -64,7 +64,9 @@ def digest(path):
 
 
 def git(root, *arguments):
-    return subprocess.check_output(["git", *arguments], cwd=root)
+    # Checkout already enables this option. Reads must use the same filesystem
+    # semantics or Git for Windows reports unchanged long source paths as modified.
+    return subprocess.check_output(["git", "-c", "core.longpaths=true", *arguments], cwd=root)
 
 
 def member(value):
