@@ -185,14 +185,16 @@ def probe(payload, home, compiler):
         work.mkdir()
         classes = work / "classes"
         classes.mkdir()
-        # Keep the native Windows launcher's agent argument ASCII, as for tool
-        # argfiles. Runtime classpaths still name the verified original payload.
-        (work / "debug-agent.jar").write_bytes((payload / BINARIES["kotlinx-coroutines"]).read_bytes())
+        # The Windows instrumentation loader expands relative agent paths against
+        # the Unicode cwd before adding them to the system loader. Stage outside
+        # that cwd and pass an absolute path; ordinary classes retain their URIs.
+        agent = Path(temporary).resolve() / "debug-agent.jar"
+        agent.write_bytes((payload / BINARIES["kotlinx-coroutines"]).read_bytes())
         kotlin.compile(["-classpath", os.pathsep.join(map(str, paths)), "-jvm-target", "1.8", "-Werror", "-d", str(classes),
                         str(ROOT / "tools/jvm/tests/ConcurrencyConsumer.kt")], work, home, compiler)
         for mode, launch in [
             ("ordinary", ["-cp", os.pathsep.join(map(str, [classes, *paths]))]),
-            ("agent", ["-javaagent:debug-agent.jar", "-cp", os.pathsep.join(map(str, [classes, *paths]))]),
+            ("agent", ["-javaagent:" + str(agent), "-cp", os.pathsep.join(map(str, [classes, *paths]))]),
             ("modules", ["--module-path", os.pathsep.join(map(str, paths)), "--add-modules", "kotlinx.coroutines.core,org.jetbrains.annotations", "-cp", str(classes)])
         ]:
             output = kotlin.java([*launch, "ConcurrencyConsumerKt", *map(str, paths), mode], work, home)
