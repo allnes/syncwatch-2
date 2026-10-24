@@ -17,6 +17,7 @@
   "requiredSourceComponents": [
     "kotlin-stdlib",
     "kotlinx-concurrency",
+    "compose-runtime",
     "linux-compose-ui",
     "libvlc"
   ],

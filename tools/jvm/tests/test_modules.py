@@ -43,6 +43,27 @@ class FragmentTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "existing"):
             fragment_arguments(self.sources, edges)
 
+    def test_common_only_library_requires_explicit_empty_platform_permission(self):
+        sources = {"common": self.sources["common"], "jvm": []}
+        with self.assertRaisesRegex(ValueError, "JVM leaf"):
+            fragment_arguments(sources, [("jvm", "common")])
+        flags, files = fragment_arguments(sources, [("jvm", "common")], allow_empty_platform=True)
+        self.assertEqual(len(files), 1)
+        self.assertIn("-Xfragment-refines=jvm:common", flags)
+        with self.assertRaises(ValueError):
+            fragment_arguments({"common": [], "jvm": []}, [("jvm", "common")], allow_empty_platform=True)
+
+    def test_java_interop_sources_belong_only_to_the_platform_leaf(self):
+        java = self.root / "Original.java"
+        java.write_text("class Original {}\n")
+        self.sources["jvm"].append(java)
+        _, files = fragment_arguments(self.sources, [("jvm", "concurrent"), ("concurrent", "common")])
+        self.assertIn(str(java.resolve()), files)
+        self.sources["jvm"].remove(java)
+        self.sources["common"].append(java)
+        with self.assertRaisesRegex(ValueError, "JVM-leaf"):
+            fragment_arguments(self.sources, [("jvm", "concurrent"), ("concurrent", "common")])
+
 
 if __name__ == "__main__":
     unittest.main()

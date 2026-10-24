@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "compilerVersion": "2.3.20",
+  "plugins": {
+    "compose": {
+      "file": "kotlinc/lib/compose-compiler-plugin.jar",
+      "sha256": "7e71ea5bee642b4febc43d9bc9c209c65a205ea1b420359a3a337b0c9c3fc877",
+      "scope": "compiler-process-only",
+      "sourcePath": "3rdparty/kotlin-stdlib/plugins/compose",
+      "sourceRevision": "d57eb4a26ed01ab03cf195da686c8047032ff16f"
+    }
+  }
+}

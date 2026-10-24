@@ -274,3 +274,15 @@
 [submodule "3rdparty/animal-sniffer-annotations"]
 	path = 3rdparty/animal-sniffer-annotations
 	url = https://github.com/mojohaus/animal-sniffer.git
+[submodule "3rdparty/jspecify"]
+	path = 3rdparty/jspecify
+	url = https://github.com/jspecify/jspecify.git
+[submodule "3rdparty/androidx-annotation"]
+	path = 3rdparty/androidx-annotation
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-collection"]
+	path = 3rdparty/androidx-collection
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-compose-runtime"]
+	path = 3rdparty/androidx-compose-runtime
+	url = https://github.com/androidx/androidx.git

@@ -26,11 +26,13 @@ async function main() {
         return result.status === 0;
     }
     const run = operation => runCommand([python, 'tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])]);
-    if (['jvm-annotations', 'jbr-api', 'kotlin-stdlib', 'kotlinx-concurrency'].includes(component) && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
-        throw new Error('Pinned developer JDK provisioning failed');
-    }
-    if (['kotlin-stdlib', 'kotlinx-concurrency'].includes(component) && !runCommand([python, 'tools/jvm/kotlin.py', '--provision'])) {
-        throw new Error('Pinned developer Kotlin SDK provisioning failed');
+    const registry = JSON.parse(await readFile(resolve(root, 'tools/dependencies/components.json'), 'utf8'));
+    const target = registry.components[component]?.targets[platform];
+    if (!target) throw new Error('Unregistered dependency target');
+    for (const sdk of ['jdk', 'kotlin']) {
+        if (Object.hasOwn(target.toolchains, sdk) && !runCommand([python, `tools/jvm/${sdk}.py`, '--provision'])) {
+            throw new Error(`Pinned developer ${sdk} provisioning failed`);
+        }
     }
     if (component === 'syncplay-runtime' && !runCommand([python, 'tools/syncplay-runtime/provision_sdks.py'])) {
         throw new Error('Headless engine developer SDK provisioning failed');

@@ -157,12 +157,48 @@ def java(arguments, directory, jdk_home):
             raise
 
 
-def compile(arguments, directory, jdk_home, compiler_home=None):
+def plugin_specification(spec):
+    policy = json.loads((ROOT / "tools/jvm/compiler_plugins.json").read_text())
+    source = json.loads((ROOT / "tools/jvm/stdlib_sources.json").read_text())["sources"]["kotlin-stdlib"]
+    if (set(policy) != {"schemaVersion", "compilerVersion", "plugins"} or policy["schemaVersion"] != 1
+            or policy["compilerVersion"] != spec["version"] or set(policy["plugins"]) != {"compose"}):
+        raise ValueError("Compiler plugin policy differs from the verified SDK version")
+    compose = policy["plugins"]["compose"]
+    if (set(compose) != {"file", "sha256", "scope", "sourcePath", "sourceRevision"}
+            or compose["file"] != "kotlinc/lib/compose-compiler-plugin.jar"
+            or compose["sha256"] != spec["files"].get(compose["file"])
+            or compose["scope"] != "compiler-process-only"
+            or compose["sourcePath"] != source["path"] + "/plugins/compose"
+            or compose["sourceRevision"] != source["revision"]):
+        raise ValueError("Compose compiler plugin is outside its reviewed SDK/source scope")
+    return policy["plugins"]
+
+
+def plugin_arguments(names, compiler_home, spec):
+    if not names:
+        return []
+    if isinstance(names, str) or len(set(names)) != len(names):
+        raise ValueError("Compiler plugins require distinct explicit policy names")
+    policy = plugin_specification(spec)
+    if not set(names) <= policy.keys():
+        raise ValueError("Unknown compiler plugin; raw plugin paths are not accepted")
+    result = []
+    for name in sorted(names):
+        path = compiler_home / policy[name]["file"]
+        if not path.is_file() or path.is_symlink() or digest(path.read_bytes()) != policy[name]["sha256"]:
+            raise ValueError("Compiler plugin differs from the exact SDK inventory")
+        if "," in str(path):
+            raise ValueError("Compiler plugin path cannot contain a plugin-list separator")
+        result.append("-Xplugin=" + str(path))
+    return result
+
+
+def compile(arguments, directory, jdk_home, compiler_home=None, plugins=()):
     compiler_home = compiler_home or home()
     spec = specification()
     for index, argument in enumerate(arguments):
         flag, separator, value = str(argument).partition("=")
-        if flag in {"-include-runtime", "-kotlin-home", "-Xplugin", "-Xcompiler-plugin"}:
+        if flag in {"-include-runtime", "-kotlin-home", "-Xplugin", "-Xcompiler-plugin", "-P"}:
             raise ValueError("Compiler SDK runtimes and optional plugins are not application build inputs")
         if flag in {"-classpath", "-cp"}:
             value = value if separator else arguments[index + 1]
@@ -172,7 +208,7 @@ def compile(arguments, directory, jdk_home, compiler_home=None):
     explicit = [a for a in arguments if a not in {"-no-stdlib", "-no-reflect"}]
     with tempfile.TemporaryDirectory(prefix=".syncwatch-kotlin-args-", dir=directory) as temporary:
         path = Path(temporary) / "arguments.txt"
-        argument_file(["-no-stdlib", "-no-reflect", *explicit], path)
+        argument_file(["-no-stdlib", "-no-reflect", *plugin_arguments(plugins, compiler_home, spec), *explicit], path)
         command = ["-Xmx3g", "-Djava.awt.headless=true", "-cp",
                    str(compiler_home / spec["compilerFiles"][0]), spec["compilerEntry"], "@" + path.relative_to(directory).as_posix()]
         return java(command, directory, jdk_home)
