@@ -11,13 +11,15 @@
     "packages/design/generated/linux",
     "packages/design/linux",
     "packages/linux-bridge",
-    "packages/linux-playback/src"
+    "packages/linux-playback/src",
+    "packages/linux-state/src"
   ],
   "applicationBuildReady": false,
   "requiredSourceComponents": [
     "kotlin-stdlib",
     "kotlinx-concurrency",
     "compose-runtime",
+    "compose-state",
     "linux-compose-ui",
     "libvlc"
   ],

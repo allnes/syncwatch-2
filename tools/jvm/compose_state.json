@@ -1,0 +1,851 @@
+{
+  "schemaVersion": 1,
+  "profile": "desktop-state-jvm8-v1",
+  "compilerVersion": "2.3.20",
+  "languageVersion": "2.3",
+  "sources": {
+    "androidx-arch-core": {
+      "path": "3rdparty/androidx-arch-core",
+      "revision": "d00300b06c00dbf348f871980400948cdf7b10dc",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "arch/core/core-common/build.gradle"
+      ],
+      "requires": [
+        "3rdparty/androidx-annotation"
+      ],
+      "files": {
+        "LICENSE.txt": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
+        "arch/core/core-common/build.gradle": "9707dcae44bf65f3cd4ea0825d2c9ee5bb0203687a11877ffafe0f31ef97b588",
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java": "8d53462b6ff7f2b2f1cf58957fc663f94da4df09a777070e2473e6278497fcdb",
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/SafeIterableMap.java": "b515f3b2057d32dd530beea898896aaf21b7f3eb6dc086e82a8ebb3582e86040",
+        "arch/core/core-common/src/main/java/androidx/arch/core/util/Function.java": "36414a393fedc874802900da4f6a61ba651caa5872bd27a7a9aa4338f3352dfd"
+      },
+      "repositoryLicensedFiles": [],
+      "exports": [
+        "LICENSE.txt",
+        "arch/core/core-common/build.gradle",
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java",
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/SafeIterableMap.java",
+        "arch/core/core-common/src/main/java/androidx/arch/core/util/Function.java"
+      ]
+    },
+    "androidx-lifecycle": {
+      "path": "3rdparty/androidx-lifecycle",
+      "revision": "a01f1a6c29523dd9b046b7f2a383d7d24559e316",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "lifecycle/lifecycle-common/build.gradle",
+        "lifecycle/lifecycle-runtime/build.gradle",
+        "lifecycle/lifecycle-runtime-compose/build.gradle",
+        "gradle/libs.versions.toml"
+      ],
+      "requires": [
+        "3rdparty/androidx-arch-core",
+        "3rdparty/androidx-compose-runtime",
+        "3rdparty/kotlinx-coroutines-swing"
+      ],
+      "files": {
+        "LICENSE.txt": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
+        "gradle/libs.versions.toml": "c200f44ed498ae2287d1ebd33f7f88061fcd9fb19535de75aa331ef8b095d8b2",
+        "lifecycle/lifecycle-common/build.gradle": "0ac1a10dfdbe42af9415624cfd90dd92ca84d63a4695952c7cd88b67374297f0",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserver.kt": "b464e9694cec6f21a593ffc27b9f4f68bf3f8eb7606738a65eaacb2d77cf77fa",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserverAdapter.kt": "df5fe835190142af8dd4ebc28e25545d782ae244c5c0374ad9805b3534c8cda3",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycle.kt": "34de83ab38e5cc9cc48ee83833897756a4fdb1d7cd29a44a28ea4acb787232c6",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleEventObserver.kt": "b013f28bd2b61442f81605c96552c904b7c9756d3925bf10a5f31a7d35bee5a7",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleObserver.kt": "c4132d6f08b43a6a71cdd1b54820bc76d875e21052be1ffe325e821116682397",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwner.kt": "6969067a2d0441c6800089485b65ebe7d9d7640c535b3414ac18de7f6ec4c9fb",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwnerFactory.kt": "bce8c04e5c0bb45ef40a3c8e05cb4bc0989266bfff92ea0084a29fbf91af016b",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycling.kt": "cfabd1c3430266faa4dad2b14d958a93976fbfdf4f3c43a840dcc16408f64b42",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ClassesInfoCache.java": "6746dcc241743970ddb04a2c6b8cd897f05af15b0099f36705d577e193ab51e6",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/GenericLifecycleObserver.java": "a0977c46131d37844bc9d9f4b2d146aa11335431c0842610025363938b5d34cd",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/OnLifecycleEvent.java": "029542c50f81286f6442805140c883622e950cc6db056ab6a5e62defd262c197",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ReflectiveGenericLifecycleObserver.java": "c1c6dbff2d113fe6c6487de0d5fdf882b6511ff93fd8c8d7f1f22672a1002677",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/CompositeGeneratedAdaptersObserver.jvm.kt": "7429437eae2aa8e663bc74d1cfa69e460155a7389dfea86af9011bc4a0b4f885",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/DispatchQueue.jvm.kt": "2a53df7bcf1270893034d10a1cff1d6afcf8b969dd77afc6ba3d0f82aaa89264",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/GeneratedAdapter.jvm.kt": "254abaea3a71e5dd5eccf195fa0b21727ae58d0be011d99d340a67540b95183e",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycle.jvm.kt": "ba5aea6c8cecbf5b3935055b99059f2ac8fb101f38fc2b8b7da2a2eee425649e",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/LifecycleController.jvm.kt": "909a71dedbd24f531a3b70289347fea0ac3df354b7d1f90c4252e649f286cfbf",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycling.jvm.kt": "5fdebbabb05fb19760ef93b028cb462171346b3c9a56eb6b1b3addfd51d139b9",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/MethodCallsLogger.jvm.kt": "afb3358ffa120ac8d3c1f394320418c4465347d1e505a3bc4ead463465d9843c",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/PausingDispatcher.jvm.kt": "662cf522b54b663d345ea786375aa6836104efa46710dceaf0466e8fdf9971cc",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/SingleGeneratedAdapterObserver.jvm.kt": "7e2d725d009250b7f44e0390b14f9ceb6ff941ad5511206fbf5838ef5ff8b5cd",
+        "lifecycle/lifecycle-runtime-compose/build.gradle": "a3fa84d4e746f338e8936c6efd0dce1079e2e66970bf5d4f505de7b1a3cfc6c6",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/DropUnlessLifecycle.kt": "f85ab060e0fceea89b2f62ec794e261fe0e30d18fa7445c8b421f36b61bcd810",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/FlowExt.kt": "7e5117b7c2a3db20f0770b82576796d92778ee6c905684ebf95de708e31e0a12",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleEffect.kt": "d6d2c9d82a564cda2f5e90918ffcd6be31a37257f77aaa55868a133a7ace5f47",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleExt.kt": "c3686df6e072f0cc31dffbbbe27b1d97d01d261d108cb025d9534d25ce8af00b",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LocalLifecycleOwner.kt": "fd738270cae0aa14a167a211e83c9ba9e24a2fce3cd7952cda65e7b26a040b4f",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/RememberLifecycleOwner.kt": "aba259b58653ace888505d1705f2c181b52262bed57ad54eb6ee84167b11a861",
+        "lifecycle/lifecycle-runtime/build.gradle": "8aa3293e44c2368b8a380b643829a437f5704127e2ada58eaffd01321e86fd25",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FastSafeIterableMap.kt": "7ed5a04f00935684e0715cf9621d44b7c5109a2820a1edd311d80803e81d01c4",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FlowExt.kt": "0a3ba23e39d4284ff6f75b9e53a4ca8986824325eeb8e8e6a3c9f9bbab6720a7",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/LifecycleRegistry.kt": "49a47147ea507a22cf5ca8bc9f4086e5cb89bfcf0603a7b40f0d890e3490174e",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/RepeatOnLifecycle.kt": "a971b08b848e88fccd9773a04445a1685dfd5b3d82ab39127ba69bab28590aae",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WeakReference.kt": "6f02aeedcb68daa1b2070a058925e158afbcfdda24e42a221f7d0b9973d5fbc6",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WithLifecycleState.kt": "05ec6138ed04526205e1e516ad0deac3390a3fc84e678e96514a7faf0bc87d4c",
+        "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/LifecycleRegistry.desktop.kt": "7eb8e96604df406edcc441d55c89307f22f6b6808644183106389cc86b364f86",
+        "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/MainDispatcherChecker.desktop.kt": "fe591a02b892ccad9008530f05cbefa2c07d49d283075703ac6c214e93fb6948",
+        "lifecycle/lifecycle-runtime/src/jvmAndAndroidMain/kotlin/androidx/lifecycle/WeakReference.jvmAndAndroid.kt": "0390f64a2289011a3285b0cf47357cfa9ca0e57fe0fbb0ff1447977f09b9b41d"
+      },
+      "repositoryLicensedFiles": [],
+      "exports": [
+        "LICENSE.txt",
+        "gradle/libs.versions.toml",
+        "lifecycle/lifecycle-common/build.gradle",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserver.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserverAdapter.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycle.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleEventObserver.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleObserver.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwner.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwnerFactory.kt",
+        "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycling.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ClassesInfoCache.java",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/GenericLifecycleObserver.java",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/OnLifecycleEvent.java",
+        "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ReflectiveGenericLifecycleObserver.java",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/CompositeGeneratedAdaptersObserver.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/DispatchQueue.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/GeneratedAdapter.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycle.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/LifecycleController.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycling.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/MethodCallsLogger.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/PausingDispatcher.jvm.kt",
+        "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/SingleGeneratedAdapterObserver.jvm.kt",
+        "lifecycle/lifecycle-runtime-compose/build.gradle",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/DropUnlessLifecycle.kt",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/FlowExt.kt",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleEffect.kt",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleExt.kt",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LocalLifecycleOwner.kt",
+        "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/RememberLifecycleOwner.kt",
+        "lifecycle/lifecycle-runtime/build.gradle",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FastSafeIterableMap.kt",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FlowExt.kt",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/LifecycleRegistry.kt",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/RepeatOnLifecycle.kt",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WeakReference.kt",
+        "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WithLifecycleState.kt",
+        "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/LifecycleRegistry.desktop.kt",
+        "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/MainDispatcherChecker.desktop.kt",
+        "lifecycle/lifecycle-runtime/src/jvmAndAndroidMain/kotlin/androidx/lifecycle/WeakReference.jvmAndAndroid.kt"
+      ]
+    },
+    "androidx-savedstate": {
+      "path": "3rdparty/androidx-savedstate",
+      "revision": "56090e32a2b7028588a6dd0c73d706c6dd8dd1ee",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "savedstate/savedstate/build.gradle",
+        "savedstate/savedstate-compose/build.gradle",
+        "gradle/libs.versions.toml"
+      ],
+      "requires": [
+        "3rdparty/androidx-lifecycle",
+        "3rdparty/kotlinx-serialization",
+        "3rdparty/androidx-compose-runtime"
+      ],
+      "files": {
+        "LICENSE.txt": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
+        "gradle/libs.versions.toml": "6b2907fa1e6354d4d07e49ce464a1dd3a5659272b96b3454d3ea59061d7b3494",
+        "savedstate/savedstate-compose/build.gradle": "65a1a0510afc3ce156996671fefa07439dbea683c02bf9803aa6fb2803d0460d",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.kt": "26a634ab165d2aae999c956e4c3c2547e48b065797690ca8a593127dddd68f47",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/MutableStateSerializer.kt": "f4f186d60465b97ea65f424dfb48ebe8fbf38e21cd9566369d6973686db57fd7",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateListSerializer.kt": "f97150917d7f0a56613f06e72979d0f63551973a9b1c23f1c4d68c164b544180",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateMapSerializer.kt": "4533eb16eca4184ba3ef1d5e4dc3fc1ae9794b802576ce28131ae2f68388a25c",
+        "savedstate/savedstate-compose/src/nonAndroidMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.nonAndroid.kt": "de6cd5b28abe95e8302c11403975fab13fc5695afadca7d6b5a3ed73f046879d",
+        "savedstate/savedstate/build.gradle": "1315f46a859d044d3ee871b61ea900fe5ec4606f46763b71856b3ac5d90a7947",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedState.kt": "c2c8f979d5c392cd983fa8551b65430bd4600bddd0735495b31564c5571037ad",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateReader.kt": "860ce41c5dd7a0a25afc0bc33fffe53c874a08519544b10422cc743739379c1f",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistry.kt": "cf9b0d3c6a6cf9bee7d1539c10e22867dba906c75f0e653675d03f9e29dd3a18",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryController.kt": "fc7da4a39392d428138668987ccfd46c66bb54f6683de13dffd5eea1cd68bc65",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryOwner.kt": "aa712047ea88d1544cae4e96761ebcf0bf36885d393d20e1929408e0d9549579",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateWriter.kt": "b540428561a299fdeb656dc8cff96f8af66c272fbf7716dd2bcd7abccc28e2ae",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/CanonicalName.kt": "d58987e00b7a0fe67d7ca413e525fb3e85cb069b2c7e7c81e5582f9ffcfaeb31",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SavedStateRegistryImpl.kt": "dd6083112c47523edef7f36b12dd5d0abfeb33435d35e5c4c2a439207aa203d6",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SynchronizedObject.kt": "8db089eeac62b1a2b0285d94c969e4ba502e859bb8af82fc938a57e7a7534901",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/ClassDiscriminatorMode.kt": "1aecad362ecebf85c5a147e15d78b6baf82971014650a307583b8607f2df0990",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateCodecUtils.kt": "d458f2e581cb9a395cea4986fd218c6cfc15ce02d8ee48a0ff9c5f81c33a8807",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.kt": "9a60f0571fd482ab48340ae562596563d1d1c0f0f7c3b1d9a38e0f2d8a345290",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.kt": "e006dce7399dca1376e76e24bb94c4cf5cdbbe43cac803b6c3306399bf6c2fe1",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.kt": "0ac4fb555b47aab6d3a723889cb8fcc701e06f8729d04e7024d03a41419245f2",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateRegistryOwnerDelegate.kt": "a752633365978c7f438100f14a438effa7081522dfe7a75cf900f504a74ea8fd",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/BuiltInSerializer.kt": "207a0481bed38e4aaffea180cf4d553d2cb6f311327b239f2944a2dd6f45b783",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/MutableStateFlowSerializer.kt": "1ff036945788f30b28576756f40e9fff5d07528d513ea252f7b599987b88ac91",
+        "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/CanonicalName.jvm.kt": "8cc3572cfcd90ef1e0cc9f27e08e4d803e1b275250637a959905b4edf66367f0",
+        "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/SynchronizedObject.jvm.kt": "2f3a520202249ff4c777c9bc2366fa6271f7c4628e3bcd05c4fa5c61bbe5b97b",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedState.nonAndroid.kt": "f8a7983fbddb49c0c245bbfc978cc8d534888b22e4ae379bad6a8b3be932caf0",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateReader.nonAndroid.kt": "48e9742dd2b68e33ebb908ad9404b6738b7dd1f6200ec327360e1bcb8bf52fb9",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistry.nonAndroid.kt": "f14ec4e1f19391f61af19170889c2232cd1465983d78aa40c14964e576710ffb",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistryController.nonAndroid.kt": "b1f70080692113a3ff6bf7cd43f38d48756a8a8c1552308db2b5a9b6ae69a265",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateWriter.nonAndroid.kt": "65527cf0ebe6be768c1b0f639b76fdf563476477f75783c2a6156188b6b79e77",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.nonAndroid.kt": "f03ceeb6aed4c9527504970a68fca6a2b31f588c8f68b5b235eb59299a900a96",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.nonAndroid.kt": "069585544639449464a6b07189d69251bd4284a0f27aafeb0bd8313e1d993284",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.nonAndroid.kt": "72663793c82cb8be50a3285a5ce9b70ab93b877d5031e6572b905ba2115388c3"
+      },
+      "repositoryLicensedFiles": [],
+      "exports": [
+        "LICENSE.txt",
+        "gradle/libs.versions.toml",
+        "savedstate/savedstate-compose/build.gradle",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.kt",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/MutableStateSerializer.kt",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateListSerializer.kt",
+        "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateMapSerializer.kt",
+        "savedstate/savedstate-compose/src/nonAndroidMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.nonAndroid.kt",
+        "savedstate/savedstate/build.gradle",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedState.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateReader.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistry.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryController.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryOwner.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateWriter.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/CanonicalName.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SavedStateRegistryImpl.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SynchronizedObject.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/ClassDiscriminatorMode.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateCodecUtils.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateRegistryOwnerDelegate.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/BuiltInSerializer.kt",
+        "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/MutableStateFlowSerializer.kt",
+        "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/CanonicalName.jvm.kt",
+        "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/SynchronizedObject.jvm.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedState.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateReader.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistry.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistryController.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateWriter.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.nonAndroid.kt",
+        "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.nonAndroid.kt"
+      ]
+    },
+    "androidx-compose-saveable": {
+      "path": "3rdparty/androidx-compose-saveable",
+      "revision": "5e0747401bf56b243e3b5141ae080dc9bc61d29c",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "compose/runtime/runtime-saveable/build.gradle",
+        "gradle/libs.versions.toml"
+      ],
+      "requires": [
+        "3rdparty/androidx-compose-runtime",
+        "3rdparty/androidx-lifecycle",
+        "3rdparty/androidx-savedstate"
+      ],
+      "files": {
+        "LICENSE.txt": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
+        "compose/runtime/runtime-saveable/build.gradle": "cd33f84c12fad6f6d35a31008865706ea9f4f5bad0fd610babcc2a8bad7ca016",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/ListSaver.kt": "3876181a1892c4738c973679ee22d4887532cb97a1911f882addbea2b90191fb",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/MapSaver.kt": "327363fbfb8516a8660e1fac70728b417d8afc62dbbb6a0f4fe60b20635fbe2d",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSaveable.kt": "a16db463c4c1f2a33c73299869ffb9cfdfd6e42d5affa3667623c976de0fb189",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSerializable.kt": "f8096f55de5feb1c965da02d4eb2e6453194970bb113cea53bf5e7150cc015eb",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateHolder.kt": "b0edd2d8154f69ed93c6d75286f3584e77234088747cbe09b64d68a5f74a25e3",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistry.kt": "121d9c95b8d39160e6ab59c1d4035b54b2d859609475e2b9a3300cbe656efe9a",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistryWrapper.kt": "e1849c976eca573c41a41faed9c5ffddeda620afb939aaff4d6f9446055f9fcb",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/Saver.kt": "23a3055c4443e2b60fe4beef318f6a6ce36ecbaf3bd60da90f0b6a03519dcbe0",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/serialization/SerializableSaver.kt": "1ee1f62ea0c1fa8eb1d9bea1dbee829b3c5cb714dd716ce7df714c42cb4c016f",
+        "gradle/libs.versions.toml": "a1bd5fbe66992065f8c1512a5e7388d7be3f780b6e1f6805c8533d41a12578b1"
+      },
+      "repositoryLicensedFiles": [],
+      "exports": [
+        "LICENSE.txt",
+        "compose/runtime/runtime-saveable/build.gradle",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/ListSaver.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/MapSaver.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSaveable.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSerializable.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateHolder.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistry.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistryWrapper.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/Saver.kt",
+        "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/serialization/SerializableSaver.kt",
+        "gradle/libs.versions.toml"
+      ]
+    },
+    "kotlinx-serialization": {
+      "path": "3rdparty/kotlinx-serialization",
+      "revision": "d4d066d72a9f92f06c640be5a36a22f75d0d7659",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "license/LICENSE.txt",
+        "license/NOTICE.txt",
+        "README.md",
+        "core/build.gradle.kts",
+        "build.gradle.kts",
+        "gradle.properties"
+      ],
+      "requires": [
+        "3rdparty/kotlin-stdlib"
+      ],
+      "files": {
+        "LICENSE.txt": "c5accbbd8546e94c34aed24afe689a617627d18eed5a6c48277e48db57c23851",
+        "README.md": "63b08c674227d372acb083a6ce96b32aa67f1878189aec3de62b24001b870452",
+        "build.gradle.kts": "942648bd346954e7d1cf9e9d7627663dcba04fc6ab0d6214d0a7cbe4e6579b77",
+        "core/build.gradle.kts": "4316e74257a847cddd2190a19a80602e122ec4f122fee3c4ebb2101f5526d009",
+        "core/commonMain/src/kotlinx/serialization/Annotations.kt": "227926fd61a9fc6d79525abd325726602992492c23e510cc79fdfc01c2cec27e",
+        "core/commonMain/src/kotlinx/serialization/ContextualSerializer.kt": "360b03b6644c90e874301209de5c84993d294c18c3c3808e1940f6b89e3a392a",
+        "core/commonMain/src/kotlinx/serialization/KSerializer.kt": "b68b995a76572057d2d999ff50efdb8f9178a9f2ec5358217a18b5a4947a654e",
+        "core/commonMain/src/kotlinx/serialization/PolymorphicSerializer.kt": "97d97557a58530ade408a9dd0c25ac2ce4aa7bf076851274eb20d1aa52234c9c",
+        "core/commonMain/src/kotlinx/serialization/SealedSerializer.kt": "9d3dc8a6c35ac467a7cc6dfc2ae45bc24f3330358acbf3a531519eb615c30a35",
+        "core/commonMain/src/kotlinx/serialization/SerialFormat.kt": "19d862c06e531e93f2fc5683f92cd121adfc91174fa480747494ecab53cfd0fe",
+        "core/commonMain/src/kotlinx/serialization/SerializationExceptions.kt": "32e90b4826519919d460e0fb86e225bddba3c1d92d5d2fa3bb25c7215348b7e7",
+        "core/commonMain/src/kotlinx/serialization/Serializers.kt": "e5c5a9dfe5e26a8068c8c4d48dd83b4f9be937e150e57192e19abd253f69fad6",
+        "core/commonMain/src/kotlinx/serialization/SerializersCache.kt": "c8eec6d46fb31ab544f7149b359a18dc4aa9f641c2491f8fe43cbf16cc648227",
+        "core/commonMain/src/kotlinx/serialization/builtins/BuiltinSerializers.kt": "201e68d05041ebf0583107b6fabefb7d9d6d23397a7e376bf5b488b11005b38d",
+        "core/commonMain/src/kotlinx/serialization/builtins/LongAsStringSerializer.kt": "cddf8a8f1653d1b7bee000d32144bf25319cbd2f1e0d8a9458fe7a07bb767ad7",
+        "core/commonMain/src/kotlinx/serialization/descriptors/ContextAware.kt": "55c64c400d1ae672ecc8d3dabb155d966f08549c06559c7c5a1a701ff913802e",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptor.kt": "1f7b6099fa1f4aa5eac421abcccb2aa1fd7ab515720f34a3273dcdf711e3ef93",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptors.kt": "d3c3a8e16f7b3fb844d0cc91e459f0da529a678abf7a746e12f6b4b69fa1991a",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialKinds.kt": "430bbbd66e67bbe0d58d9c48ebcfad057d601bcccd924e585d54793a684ca52a",
+        "core/commonMain/src/kotlinx/serialization/encoding/AbstractDecoder.kt": "05772f417c6eb63c66c358479c5ebc3a508775f5a50cbdf46cfff893b0d0fcdd",
+        "core/commonMain/src/kotlinx/serialization/encoding/AbstractEncoder.kt": "ce5f4191942c08cd8c5f0ca85f52e78e32275566b394ed5ae54ebece505d372f",
+        "core/commonMain/src/kotlinx/serialization/encoding/ChunkedDecoder.kt": "72abed4f61247933563d7804cd8745a55b5875f19ff89e1708f4580b5bbfc249",
+        "core/commonMain/src/kotlinx/serialization/encoding/Decoding.kt": "1165415f9b5b1752126e6ca3e27897b08c9da1bb66943d15a5a1e2686f98e72f",
+        "core/commonMain/src/kotlinx/serialization/encoding/Encoding.kt": "d853ffcacdc032e9456245ae54b3eacacc45a388c03e51a5377e1c17579dc84f",
+        "core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt": "d339cd8f36c4d0bb1865fdad72be4c467fdc601a13c3137964fd682a5038ec34",
+        "core/commonMain/src/kotlinx/serialization/internal/BuiltInSerializers.kt": "969188495123bbcf329125bc86670823e0eb12c9681173295086506e15364368",
+        "core/commonMain/src/kotlinx/serialization/internal/CachedNames.kt": "221de558cb5be8773298fc18045d19c1358958ce99df5d61544628b9cd4bddc0",
+        "core/commonMain/src/kotlinx/serialization/internal/CollectionDescriptors.kt": "90c632156ba7402bce0f71cec670c8b2a4321d5c326aead7b105b35c43bb2b63",
+        "core/commonMain/src/kotlinx/serialization/internal/CollectionSerializers.kt": "95600b5a7fff6d7eb038a2f3d312a72be013273790791b7e4b4c5465c24d88c4",
+        "core/commonMain/src/kotlinx/serialization/internal/ElementMarker.kt": "d1bf5dadedd0bc5d1963751b7e510596dcb7ec1be8f4644e6c8ab8dc6f4739bb",
+        "core/commonMain/src/kotlinx/serialization/internal/Enums.kt": "e05a59c12feee35d58d6e21fb505cec03d57a92fffa78b1ded7dd0d107be7506",
+        "core/commonMain/src/kotlinx/serialization/internal/InlineClassDescriptor.kt": "59de75eebdba5b097c018c224df91d9b8785c6d900f33a6316154f464c4ba918",
+        "core/commonMain/src/kotlinx/serialization/internal/JsonInternalDependencies.kt": "dacc066496cffbf60b46b3940198ddfa755c72f950c597c7d9a6489337053790",
+        "core/commonMain/src/kotlinx/serialization/internal/NamedCompanion.kt": "cc05ade9016f985ae23938272c975f12e2ae3684f0b178de91a41732a065d296",
+        "core/commonMain/src/kotlinx/serialization/internal/NoOpEncoder.kt": "bc3bb9e83cb2330f70d5dfd3d4dd6ebdcedf4b7c037ad4cdbf3f9dc116b616ee",
+        "core/commonMain/src/kotlinx/serialization/internal/NothingSerialDescriptor.kt": "6026873cdd2f98ab5e1aef67205d45a806a33a1e825651c870c5e7e4b4d2de99",
+        "core/commonMain/src/kotlinx/serialization/internal/NullableSerializer.kt": "5f966fef24ca15852edc486a0afe916f666c179ec2da4f164ba12cc92531c6f8",
+        "core/commonMain/src/kotlinx/serialization/internal/ObjectSerializer.kt": "40e659537ffb65fb214021261f18b211b697b778ec4fb70ff9c5c2b6eca2e6ca",
+        "core/commonMain/src/kotlinx/serialization/internal/Platform.common.kt": "276892d5cbe5225a80e905319701ca01fe6e197cc95927303a2388e2fa875e35",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginExceptions.kt": "ba27f5d52688b25a25dee572b8b129022b4925c72a7658f121d0164db0b12f97",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginGeneratedSerialDescriptor.kt": "0e6d39ea007d5e80044de0d19d1bc6e28092129eb7bed232c2fce78925be2cea",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginHelperInterfaces.kt": "85a332a3f70d4176c0303158c54ee27b83f8972e9b3c3d792cb81849f66a1c07",
+        "core/commonMain/src/kotlinx/serialization/internal/PrimitiveArraysSerializers.kt": "64b4bb76a6fe5e46a27d9164ee5e3b3ad3d9946eb99024b6324b4fedf28cc151",
+        "core/commonMain/src/kotlinx/serialization/internal/Primitives.kt": "8c9d6c0dc155e13c7dad6c44c3479a49c6481b8fedd01c2597b73ec8c38db4d6",
+        "core/commonMain/src/kotlinx/serialization/internal/SerializationConstructorMarker.kt": "4a0bf6e68e840704abd14aee6b05923f822ede5968e63658f9c8ceec48acf7e1",
+        "core/commonMain/src/kotlinx/serialization/internal/Tagged.kt": "053d50ba5484a12eb4a546d0c00bcc18c8b237f86ffc083dd67f3ec20be25ab5",
+        "core/commonMain/src/kotlinx/serialization/internal/Tuples.kt": "ef15fce102ef23c2dc0ddbb3e8c828b5ffca82999780f78241ebdc6b41ad4fc5",
+        "core/commonMain/src/kotlinx/serialization/internal/ValueClasses.kt": "6843ab93b6cad260d0e8706906ff725e37f0e7f528f2940274c7af4ec22de7ef",
+        "core/commonMain/src/kotlinx/serialization/modules/PolymorphicModuleBuilder.kt": "bfb2623c19283edb20dee984ae845bf618364c5727daac5b26c288c865a90abe",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModule.kt": "60ed047438e85f5cce58e5d4a182622fcfae4e1ffcccf04751eb69990075f053",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleBuilders.kt": "f8502a9cd9a401c6497af0a2cb5416137179dbd2cdddb47a48ee91e5a7820642",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleCollector.kt": "7af3eb81c57daf95b563d9f722ca524e987b7dc0ae7fc3c5a97be3ac61a22d04",
+        "core/jvmMain/src/kotlinx/serialization/SerializersJvm.kt": "8795efe9ac9f9f4f2f298d6ee958d25bbe281654075024365cc43a552f2750c8",
+        "core/jvmMain/src/kotlinx/serialization/internal/Caching.kt": "a241a8b6e0c10b7fe1a37d63e4231c99991a5e66ca6b5dbe441662a0f51fb5bf",
+        "core/jvmMain/src/kotlinx/serialization/internal/Platform.kt": "5a546e1ea663b7a9e1cb5d4672a2de41d4303aee599d580eca53b4326ed0a311",
+        "core/jvmMain/src/kotlinx/serialization/internal/SuppressAnimalSniffer.kt": "5f5c266ca635bf92e558893272910a9c43f9933a88b4966536d4db281b97f7b5",
+        "core/jvmMainModule/src/module-info.java": "bb7f959cac7fef4b7ebcbad5d70f1b8604b489b4bb94920a101b3f02ec967a76",
+        "gradle.properties": "9aa8597e0ba02c064df24d3c978f24735f64c649fcf74e394d19e96fc56c783a",
+        "license/LICENSE.txt": "0eec219eba99cd8da85c3c781732a515fba284c55e9531739f11762c80a754b4",
+        "license/NOTICE.txt": "ec77bba5c852830abfdefcdefbf4a22577ff4df79ec323a898d5100ca1d6f8d6",
+        "rules/common.pro": "f970250b0ddf835e76aabd4786f35cc8532308a2d590ba911bfdacaffb139a94",
+        "rules/r8.pro": "1ff0530c42c00c48e3dd326673731fc792679d9e898e728b8cda00bbb4a93145"
+      },
+      "repositoryLicensedFiles": [
+        "core/commonMain/src/kotlinx/serialization/encoding/ChunkedDecoder.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/JsonInternalDependencies.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginExceptions.kt",
+        "core/jvmMainModule/src/module-info.java"
+      ],
+      "exports": [
+        "LICENSE.txt",
+        "README.md",
+        "build.gradle.kts",
+        "core/build.gradle.kts",
+        "core/commonMain/src/kotlinx/serialization/Annotations.kt",
+        "core/commonMain/src/kotlinx/serialization/ContextualSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/KSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/PolymorphicSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/SealedSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/SerialFormat.kt",
+        "core/commonMain/src/kotlinx/serialization/SerializationExceptions.kt",
+        "core/commonMain/src/kotlinx/serialization/Serializers.kt",
+        "core/commonMain/src/kotlinx/serialization/SerializersCache.kt",
+        "core/commonMain/src/kotlinx/serialization/builtins/BuiltinSerializers.kt",
+        "core/commonMain/src/kotlinx/serialization/builtins/LongAsStringSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/descriptors/ContextAware.kt",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptor.kt",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptors.kt",
+        "core/commonMain/src/kotlinx/serialization/descriptors/SerialKinds.kt",
+        "core/commonMain/src/kotlinx/serialization/encoding/AbstractDecoder.kt",
+        "core/commonMain/src/kotlinx/serialization/encoding/AbstractEncoder.kt",
+        "core/commonMain/src/kotlinx/serialization/encoding/ChunkedDecoder.kt",
+        "core/commonMain/src/kotlinx/serialization/encoding/Decoding.kt",
+        "core/commonMain/src/kotlinx/serialization/encoding/Encoding.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/BuiltInSerializers.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/CachedNames.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/CollectionDescriptors.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/CollectionSerializers.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/ElementMarker.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/Enums.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/InlineClassDescriptor.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/JsonInternalDependencies.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/NamedCompanion.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/NoOpEncoder.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/NothingSerialDescriptor.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/NullableSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/ObjectSerializer.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/Platform.common.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginExceptions.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginGeneratedSerialDescriptor.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/PluginHelperInterfaces.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/PrimitiveArraysSerializers.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/Primitives.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/SerializationConstructorMarker.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/Tagged.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/Tuples.kt",
+        "core/commonMain/src/kotlinx/serialization/internal/ValueClasses.kt",
+        "core/commonMain/src/kotlinx/serialization/modules/PolymorphicModuleBuilder.kt",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModule.kt",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleBuilders.kt",
+        "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleCollector.kt",
+        "core/jvmMain/src/kotlinx/serialization/SerializersJvm.kt",
+        "core/jvmMain/src/kotlinx/serialization/internal/Caching.kt",
+        "core/jvmMain/src/kotlinx/serialization/internal/Platform.kt",
+        "core/jvmMain/src/kotlinx/serialization/internal/SuppressAnimalSniffer.kt",
+        "core/jvmMainModule/src/module-info.java",
+        "gradle.properties",
+        "license/LICENSE.txt",
+        "license/NOTICE.txt",
+        "rules/common.pro",
+        "rules/r8.pro"
+      ]
+    },
+    "kotlinx-coroutines-swing": {
+      "path": "3rdparty/kotlinx-coroutines-swing",
+      "revision": "8564f65764d3d05893cec026c6e94250e2b23874",
+      "license": "Apache-2.0",
+      "notices": [
+        "LICENSE.txt",
+        "license/NOTICE.txt",
+        "README.md",
+        "gradle.properties",
+        "ui/kotlinx-coroutines-swing/build.gradle.kts"
+      ],
+      "requires": [
+        "3rdparty/kotlinx-coroutines"
+      ],
+      "files": {
+        "LICENSE.txt": "b1febe6399dffb10d19d35e7663ab16300c93cb0476a94115df1cc0097a8ffd8",
+        "README.md": "015f7c1c5d9ebf3202d252786ac22960f80762f033f1001bff372b6d67db8b27",
+        "gradle.properties": "e55fdf805e4497379f385149f5dc8ae4a4daaa4653067ae99c40a9533f030134",
+        "license/NOTICE.txt": "1ab6de67ef738bffae63f9aa6a8798a35e87341c83ea28d09c8dc8ca6993232a",
+        "ui/kotlinx-coroutines-swing/build.gradle.kts": "f499f5a1851b75d2404c28a043ec31f205cdc3470d1bcfe4bedd77406ccd7770",
+        "ui/kotlinx-coroutines-swing/resources/META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory": "494a44476939d5a1d94571099130229be23ba63cd3076552c6f1aa37964bd2eb",
+        "ui/kotlinx-coroutines-swing/src/SwingDispatcher.kt": "553b5888acd62dd404e79be5d023b54a1968e03e96d3aa66685107d8523f6d62",
+        "ui/kotlinx-coroutines-swing/src/module-info.java": "6399dd16eb3b51d47ad08e1b16e1c669cd78e1a08231a52903c2740f92c86a80"
+      },
+      "repositoryLicensedFiles": [
+        "ui/kotlinx-coroutines-swing/src/SwingDispatcher.kt",
+        "ui/kotlinx-coroutines-swing/src/module-info.java"
+      ],
+      "exports": [
+        "LICENSE.txt",
+        "README.md",
+        "gradle.properties",
+        "license/NOTICE.txt",
+        "ui/kotlinx-coroutines-swing/build.gradle.kts",
+        "ui/kotlinx-coroutines-swing/resources/META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory",
+        "ui/kotlinx-coroutines-swing/src/SwingDispatcher.kt",
+        "ui/kotlinx-coroutines-swing/src/module-info.java"
+      ]
+    }
+  },
+  "modules": [
+    {
+      "name": "arch-core-common",
+      "source": "androidx-arch-core",
+      "version": "2.2.0",
+      "binary": "arch-core-common-2.2.0-syncwatch.jar",
+      "java": [
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java",
+        "arch/core/core-common/src/main/java/androidx/arch/core/internal/SafeIterableMap.java",
+        "arch/core/core-common/src/main/java/androidx/arch/core/util/Function.java"
+      ]
+    },
+    {
+      "name": "kotlinx-serialization-core",
+      "source": "kotlinx-serialization",
+      "version": "1.7.3",
+      "binary": "kotlinx-serialization-core-1.7.3-syncwatch.jar",
+      "fragments": {
+        "jvm": [
+          "core/jvmMain/src/kotlinx/serialization/SerializersJvm.kt",
+          "core/jvmMain/src/kotlinx/serialization/internal/Caching.kt",
+          "core/jvmMain/src/kotlinx/serialization/internal/Platform.kt",
+          "core/jvmMain/src/kotlinx/serialization/internal/SuppressAnimalSniffer.kt"
+        ],
+        "common": [
+          "core/commonMain/src/kotlinx/serialization/Annotations.kt",
+          "core/commonMain/src/kotlinx/serialization/ContextualSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/KSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/PolymorphicSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/SealedSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/SerialFormat.kt",
+          "core/commonMain/src/kotlinx/serialization/SerializationExceptions.kt",
+          "core/commonMain/src/kotlinx/serialization/Serializers.kt",
+          "core/commonMain/src/kotlinx/serialization/SerializersCache.kt",
+          "core/commonMain/src/kotlinx/serialization/builtins/BuiltinSerializers.kt",
+          "core/commonMain/src/kotlinx/serialization/builtins/LongAsStringSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/descriptors/ContextAware.kt",
+          "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptor.kt",
+          "core/commonMain/src/kotlinx/serialization/descriptors/SerialDescriptors.kt",
+          "core/commonMain/src/kotlinx/serialization/descriptors/SerialKinds.kt",
+          "core/commonMain/src/kotlinx/serialization/encoding/AbstractDecoder.kt",
+          "core/commonMain/src/kotlinx/serialization/encoding/AbstractEncoder.kt",
+          "core/commonMain/src/kotlinx/serialization/encoding/ChunkedDecoder.kt",
+          "core/commonMain/src/kotlinx/serialization/encoding/Decoding.kt",
+          "core/commonMain/src/kotlinx/serialization/encoding/Encoding.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/BuiltInSerializers.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/CachedNames.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/CollectionDescriptors.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/CollectionSerializers.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/ElementMarker.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/Enums.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/InlineClassDescriptor.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/JsonInternalDependencies.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/NamedCompanion.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/NoOpEncoder.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/NothingSerialDescriptor.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/NullableSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/ObjectSerializer.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/Platform.common.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/PluginExceptions.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/PluginGeneratedSerialDescriptor.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/PluginHelperInterfaces.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/PrimitiveArraysSerializers.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/Primitives.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/SerializationConstructorMarker.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/Tagged.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/Tuples.kt",
+          "core/commonMain/src/kotlinx/serialization/internal/ValueClasses.kt",
+          "core/commonMain/src/kotlinx/serialization/modules/PolymorphicModuleBuilder.kt",
+          "core/commonMain/src/kotlinx/serialization/modules/SerializersModule.kt",
+          "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleBuilders.kt",
+          "core/commonMain/src/kotlinx/serialization/modules/SerializersModuleCollector.kt"
+        ]
+      },
+      "refines": [
+        [
+          "jvm",
+          "common"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [],
+      "languageVersion": "2.3",
+      "module": {
+        "name": "kotlinx.serialization.core",
+        "path": "core/jvmMainModule/src/module-info.java"
+      },
+      "resources": {
+        "META-INF/proguard/kotlinx-serialization-common.pro": "rules/common.pro",
+        "META-INF/com.android.tools/proguard/kotlinx-serialization-common.pro": "rules/common.pro",
+        "META-INF/com.android.tools/r8/kotlinx-serialization-common.pro": "rules/common.pro",
+        "META-INF/com.android.tools/r8/kotlinx-serialization-r8.pro": "rules/r8.pro"
+      },
+      "manifest": {
+        "Implementation-Version": "1.7.3",
+        "Require-Kotlin-Version": "2.0.0-RC1"
+      }
+    },
+    {
+      "name": "kotlinx-coroutines-swing",
+      "source": "kotlinx-coroutines-swing",
+      "version": "1.11.0",
+      "binary": "kotlinx-coroutines-swing-1.11.0-syncwatch.jar",
+      "fragments": {
+        "jvm": [
+          "ui/kotlinx-coroutines-swing/src/SwingDispatcher.kt"
+        ]
+      },
+      "refines": [],
+      "allowEmptyPlatform": false,
+      "plugins": [],
+      "languageVersion": "2.2",
+      "module": {
+        "name": "kotlinx.coroutines.swing",
+        "path": "ui/kotlinx-coroutines-swing/src/module-info.java"
+      },
+      "resources": {
+        "META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory": "ui/kotlinx-coroutines-swing/resources/META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory"
+      }
+    },
+    {
+      "name": "lifecycle-common",
+      "source": "androidx-lifecycle",
+      "version": "2.11.0",
+      "binary": "lifecycle-common-2.11.0-syncwatch.jar",
+      "fragments": {
+        "jvm": [
+          "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ClassesInfoCache.java",
+          "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/GenericLifecycleObserver.java",
+          "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/OnLifecycleEvent.java",
+          "lifecycle/lifecycle-common/src/jvmMain/java/androidx/lifecycle/ReflectiveGenericLifecycleObserver.java",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/CompositeGeneratedAdaptersObserver.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/DispatchQueue.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/GeneratedAdapter.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycle.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/LifecycleController.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/Lifecycling.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/MethodCallsLogger.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/PausingDispatcher.jvm.kt",
+          "lifecycle/lifecycle-common/src/jvmMain/kotlin/androidx/lifecycle/SingleGeneratedAdapterObserver.jvm.kt"
+        ],
+        "common": [
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserver.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/DefaultLifecycleObserverAdapter.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycle.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleEventObserver.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleObserver.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwner.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/LifecycleOwnerFactory.kt",
+          "lifecycle/lifecycle-common/src/commonMain/kotlin/androidx/lifecycle/Lifecycling.kt"
+        ]
+      },
+      "refines": [
+        [
+          "jvm",
+          "common"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [],
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "lifecycle-runtime",
+      "source": "androidx-lifecycle",
+      "version": "2.11.0",
+      "binary": "lifecycle-runtime-2.11.0-syncwatch.jar",
+      "fragments": {
+        "desktop": [
+          "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/LifecycleRegistry.desktop.kt",
+          "lifecycle/lifecycle-runtime/src/desktopMain/kotlin/androidx/lifecycle/MainDispatcherChecker.desktop.kt"
+        ],
+        "jvm-and-android": [
+          "lifecycle/lifecycle-runtime/src/jvmAndAndroidMain/kotlin/androidx/lifecycle/WeakReference.jvmAndAndroid.kt"
+        ],
+        "common": [
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FastSafeIterableMap.kt",
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/FlowExt.kt",
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/LifecycleRegistry.kt",
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/RepeatOnLifecycle.kt",
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WeakReference.kt",
+          "lifecycle/lifecycle-runtime/src/commonMain/kotlin/androidx/lifecycle/WithLifecycleState.kt"
+        ]
+      },
+      "refines": [
+        [
+          "jvm-and-android",
+          "common"
+        ],
+        [
+          "desktop",
+          "jvm-and-android"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [],
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "lifecycle-runtime-compose",
+      "source": "androidx-lifecycle",
+      "version": "2.11.0",
+      "binary": "lifecycle-runtime-compose-2.11.0-syncwatch.jar",
+      "fragments": {
+        "common": [
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/DropUnlessLifecycle.kt",
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/FlowExt.kt",
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleEffect.kt",
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LifecycleExt.kt",
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/LocalLifecycleOwner.kt",
+          "lifecycle/lifecycle-runtime-compose/src/commonMain/kotlin/androidx/lifecycle/compose/RememberLifecycleOwner.kt"
+        ],
+        "jvm": []
+      },
+      "refines": [
+        [
+          "jvm",
+          "common"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [
+        "compose"
+      ],
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "savedstate",
+      "source": "androidx-savedstate",
+      "version": "1.4.0",
+      "binary": "savedstate-1.4.0-syncwatch.jar",
+      "fragments": {
+        "jvm": [
+          "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/CanonicalName.jvm.kt",
+          "savedstate/savedstate/src/jvmMain/kotlin/androidx/savedstate/internal/SynchronizedObject.jvm.kt"
+        ],
+        "common": [
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedState.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateReader.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistry.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryController.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateRegistryOwner.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/SavedStateWriter.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/CanonicalName.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SavedStateRegistryImpl.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/internal/SynchronizedObject.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/ClassDiscriminatorMode.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateCodecUtils.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/SavedStateRegistryOwnerDelegate.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/BuiltInSerializer.kt",
+          "savedstate/savedstate/src/commonMain/kotlin/androidx/savedstate/serialization/serializers/MutableStateFlowSerializer.kt"
+        ],
+        "non-android": [
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedState.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateReader.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistry.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateRegistryController.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/SavedStateWriter.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateConfiguration.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateDecoder.nonAndroid.kt",
+          "savedstate/savedstate/src/nonAndroidMain/kotlin/androidx/savedstate/serialization/SavedStateEncoder.nonAndroid.kt"
+        ],
+        "desktop": []
+      },
+      "refines": [
+        [
+          "jvm",
+          "common"
+        ],
+        [
+          "non-android",
+          "common"
+        ],
+        [
+          "desktop",
+          "jvm"
+        ],
+        [
+          "desktop",
+          "non-android"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [],
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "savedstate-compose",
+      "source": "androidx-savedstate",
+      "version": "1.4.0",
+      "binary": "savedstate-compose-1.4.0-syncwatch.jar",
+      "fragments": {
+        "non-android": [
+          "savedstate/savedstate-compose/src/nonAndroidMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.nonAndroid.kt"
+        ],
+        "common": [
+          "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/LocalSavedStateRegistryOwner.kt",
+          "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/MutableStateSerializer.kt",
+          "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateListSerializer.kt",
+          "savedstate/savedstate-compose/src/commonMain/kotlin/androidx/savedstate/compose/serialization/serializers/SnapshotStateMapSerializer.kt"
+        ]
+      },
+      "refines": [
+        [
+          "non-android",
+          "common"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [
+        "compose"
+      ],
+      "languageVersion": "2.3"
+    },
+    {
+      "name": "runtime-saveable",
+      "source": "androidx-compose-saveable",
+      "version": "1.12.1",
+      "binary": "runtime-saveable-1.12.1-syncwatch.jar",
+      "fragments": {
+        "common": [
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/ListSaver.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/MapSaver.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSaveable.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/RememberSerializable.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateHolder.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistry.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/SaveableStateRegistryWrapper.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/Saver.kt",
+          "compose/runtime/runtime-saveable/src/commonMain/kotlin/androidx/compose/runtime/saveable/serialization/SerializableSaver.kt"
+        ],
+        "jvm": []
+      },
+      "refines": [
+        [
+          "jvm",
+          "common"
+        ]
+      ],
+      "allowEmptyPlatform": true,
+      "plugins": [
+        "compose"
+      ],
+      "languageVersion": "2.3"
+    }
+  ],
+  "expectedJars": {
+    "linux-x64": {
+      "arch-core-common-2.2.0-syncwatch.jar": "91832ab0adc5675aa6cd4758808146382a2cc6b0a82a8f382954c48035c93c52",
+      "kotlinx-serialization-core-1.7.3-syncwatch.jar": "35004658ac2cb5d58514b2302216d5c2f6099bc8d964f1fde9fc64210e20e177",
+      "kotlinx-coroutines-swing-1.11.0-syncwatch.jar": "b6176afa2e409b3861a0a4dafe0ba9c2041af8c1bdcd028c66c4d53a80a3f3d7",
+      "lifecycle-common-2.11.0-syncwatch.jar": "0002c3cc53cfa673a611960fd18f32cc65df0d3b56aa0aaf07b178a53b929590",
+      "lifecycle-runtime-2.11.0-syncwatch.jar": "dc5bed6d6fcf23413deef73a4b33b0b8b8e7619951dd0e3a6133ab398a0b0eae",
+      "lifecycle-runtime-compose-2.11.0-syncwatch.jar": "a41914e0129c8d8527076bf8a942d7c44b8aa00a972751917e7bc5b65112f438",
+      "savedstate-1.4.0-syncwatch.jar": "5406e82f65d0fc28fc0489652987ef34d6ca573c378eab4f5d177bcd2074d3a4",
+      "savedstate-compose-1.4.0-syncwatch.jar": "411f6291a96ec91294ffd712db27f33bbe467bd05d0ab2eae17a16911a850197",
+      "runtime-saveable-1.12.1-syncwatch.jar": "e89d85464ceee711c757d0e20182aea8ba1c4c2529e8337778fcfad362f45fd6"
+    },
+    "macos-arm64": {
+      "arch-core-common-2.2.0-syncwatch.jar": "91832ab0adc5675aa6cd4758808146382a2cc6b0a82a8f382954c48035c93c52",
+      "kotlinx-serialization-core-1.7.3-syncwatch.jar": "35004658ac2cb5d58514b2302216d5c2f6099bc8d964f1fde9fc64210e20e177",
+      "kotlinx-coroutines-swing-1.11.0-syncwatch.jar": "b6176afa2e409b3861a0a4dafe0ba9c2041af8c1bdcd028c66c4d53a80a3f3d7",
+      "lifecycle-common-2.11.0-syncwatch.jar": "0002c3cc53cfa673a611960fd18f32cc65df0d3b56aa0aaf07b178a53b929590",
+      "lifecycle-runtime-2.11.0-syncwatch.jar": "dc5bed6d6fcf23413deef73a4b33b0b8b8e7619951dd0e3a6133ab398a0b0eae",
+      "lifecycle-runtime-compose-2.11.0-syncwatch.jar": "a41914e0129c8d8527076bf8a942d7c44b8aa00a972751917e7bc5b65112f438",
+      "savedstate-1.4.0-syncwatch.jar": "5406e82f65d0fc28fc0489652987ef34d6ca573c378eab4f5d177bcd2074d3a4",
+      "savedstate-compose-1.4.0-syncwatch.jar": "411f6291a96ec91294ffd712db27f33bbe467bd05d0ab2eae17a16911a850197",
+      "runtime-saveable-1.12.1-syncwatch.jar": "e89d85464ceee711c757d0e20182aea8ba1c4c2529e8337778fcfad362f45fd6"
+    },
+    "windows-x64": {
+      "arch-core-common-2.2.0-syncwatch.jar": "91832ab0adc5675aa6cd4758808146382a2cc6b0a82a8f382954c48035c93c52",
+      "kotlinx-serialization-core-1.7.3-syncwatch.jar": "35004658ac2cb5d58514b2302216d5c2f6099bc8d964f1fde9fc64210e20e177",
+      "kotlinx-coroutines-swing-1.11.0-syncwatch.jar": "b6176afa2e409b3861a0a4dafe0ba9c2041af8c1bdcd028c66c4d53a80a3f3d7",
+      "lifecycle-common-2.11.0-syncwatch.jar": "0002c3cc53cfa673a611960fd18f32cc65df0d3b56aa0aaf07b178a53b929590",
+      "lifecycle-runtime-2.11.0-syncwatch.jar": "dc5bed6d6fcf23413deef73a4b33b0b8b8e7619951dd0e3a6133ab398a0b0eae",
+      "lifecycle-runtime-compose-2.11.0-syncwatch.jar": "a41914e0129c8d8527076bf8a942d7c44b8aa00a972751917e7bc5b65112f438",
+      "savedstate-1.4.0-syncwatch.jar": "5406e82f65d0fc28fc0489652987ef34d6ca573c378eab4f5d177bcd2074d3a4",
+      "savedstate-compose-1.4.0-syncwatch.jar": "411f6291a96ec91294ffd712db27f33bbe467bd05d0ab2eae17a16911a850197",
+      "runtime-saveable-1.12.1-syncwatch.jar": "e89d85464ceee711c757d0e20182aea8ba1c4c2529e8337778fcfad362f45fd6"
+    }
+  }
+}

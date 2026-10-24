@@ -13,6 +13,7 @@ SyncWatch lets people watch their local movie files together with synchronized p
 - [Building JBR API](jbr-api.md): optional runtime-service interfaces, source generation and ordinary-JDK fallback checks.
 - [Kotlin stdlib sources](kotlin-stdlib-sources.md): reviewed source package, complete notices and pinned Unicode titlecase provenance.
 - [Compose JVM runtime](compose-runtime.md): source-owned composition, annotations and collections with a compiler-transformed consumer on the three developer targets.
+- [Desktop composition state](compose-state.md): source-owned serialization, saveable state, lifecycle and Swing dispatcher with an event-thread-confined state owner.
 - [Python package verification](python-package.md): shared native inventory, filesystem and startup path boundary.
 - [Native hash library](native-hashing.md): pinned HACL sources, original runtime-header provenance and verified static artifacts.
 - [Licenses and distribution](licenses.md): first-party licensing and third-party notices.

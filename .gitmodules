@@ -286,3 +286,21 @@
 [submodule "3rdparty/androidx-compose-runtime"]
 	path = 3rdparty/androidx-compose-runtime
 	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-arch-core"]
+	path = 3rdparty/androidx-arch-core
+	url = https://android.googlesource.com/platform/frameworks/support
+[submodule "3rdparty/androidx-lifecycle"]
+	path = 3rdparty/androidx-lifecycle
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-savedstate"]
+	path = 3rdparty/androidx-savedstate
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-compose-saveable"]
+	path = 3rdparty/androidx-compose-saveable
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/kotlinx-serialization"]
+	path = 3rdparty/kotlinx-serialization
+	url = https://github.com/Kotlin/kotlinx.serialization.git
+[submodule "3rdparty/kotlinx-coroutines-swing"]
+	path = 3rdparty/kotlinx-coroutines-swing
+	url = https://github.com/Kotlin/kotlinx.coroutines.git
