@@ -86,6 +86,8 @@ The [Kotlin stdlib source package](../kotlin-stdlib-sources.md) has a complete s
 
 This table describes the known areas of incomplete dependency closure. It is not a complete software bill of materials or a claim that offline builds are ready.
 
+The [JVM concurrency build](../jvm-concurrency.md) adds source-built Atomicfu and coroutines to the owned Kotlin runtime. Original Android and Animal Sniffer annotation declarations are pinned source submodules used for compilation only. The untransformed JVM profile preserves source-set ownership and rebuilds the debug-agent resource from original source. This component does not close the Compose, Skiko, Skia, native or font graph and does not qualify a Linux application.
+
 ## Closed browser SDKs
 
 WebView2's closed runtime and SDK cannot be represented by a source submodule; samples are not the library. It is excluded by the source dependency policy. CEF and CefSharp offer source access but do not establish Google authentication compatibility or Meet support by themselves.

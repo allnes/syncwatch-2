@@ -26,10 +26,10 @@ async function main() {
         return result.status === 0;
     }
     const run = operation => runCommand([python, 'tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])]);
-    if (['jvm-annotations', 'jbr-api', 'kotlin-stdlib'].includes(component) && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
+    if (['jvm-annotations', 'jbr-api', 'kotlin-stdlib', 'kotlinx-concurrency'].includes(component) && !runCommand([python, 'tools/jvm/jdk.py', '--provision'])) {
         throw new Error('Pinned developer JDK provisioning failed');
     }
-    if (component === 'kotlin-stdlib' && !runCommand([python, 'tools/jvm/kotlin.py', '--provision'])) {
+    if (['kotlin-stdlib', 'kotlinx-concurrency'].includes(component) && !runCommand([python, 'tools/jvm/kotlin.py', '--provision'])) {
         throw new Error('Pinned developer Kotlin SDK provisioning failed');
     }
     if (component === 'syncplay-runtime' && !runCommand([python, 'tools/syncplay-runtime/provision_sdks.py'])) {

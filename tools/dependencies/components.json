@@ -6095,6 +6095,509 @@
           "timeoutSeconds": 1200
         }
       }
+    },
+    "kotlinx-concurrency": {
+      "status": "ready",
+      "always": true,
+      "roots": [
+        "3rdparty/kotlinx-coroutines"
+      ],
+      "sources": {
+        "3rdparty/kotlin-stdlib": {
+          "revision": "d57eb4a26ed01ab03cf195da686c8047032ff16f",
+          "license": "Apache-2.0 AND BSD-3-Clause AND BSL-1.0",
+          "notices": [
+            "license/COPYRIGHT.txt",
+            "license/LICENSE.txt",
+            "license/NOTICE.txt",
+            "license/README.md",
+            "license/third_party/boost_LICENSE.txt",
+            "license/third_party/guava_license.txt",
+            "license/third_party/gwt_license.txt",
+            "license/third_party/threetenbp_license.txt"
+          ],
+          "exports": [
+            "libraries/stdlib/ReadMe.md",
+            "libraries/stdlib/build.gradle.kts",
+            "libraries/stdlib/common/src",
+            "libraries/stdlib/gradle.properties",
+            "libraries/stdlib/jdk7/src",
+            "libraries/stdlib/jdk8/src",
+            "libraries/stdlib/jvm/builtins",
+            "libraries/stdlib/jvm/compileOnly",
+            "libraries/stdlib/jvm/java9",
+            "libraries/stdlib/jvm/runtime",
+            "libraries/stdlib/jvm/src",
+            "libraries/stdlib/src",
+            "libraries/stdlib/unsigned/src",
+            "libraries/tools/kotlin-stdlib-gen/src/generators/unicode",
+            "license/COPYRIGHT.txt",
+            "license/LICENSE.txt",
+            "license/NOTICE.txt",
+            "license/README.md",
+            "license/third_party/boost_LICENSE.txt",
+            "license/third_party/guava_license.txt",
+            "license/third_party/gwt_license.txt",
+            "license/third_party/threetenbp_license.txt"
+          ],
+          "requires": [
+            "3rdparty/unicode-data"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/unicode-data": {
+          "revision": "84a95001ba850554e65234dde62cbdb0ad41105a",
+          "license": "Unicode-DFS-2016",
+          "notices": [
+            "LICENSE",
+            "README.md"
+          ],
+          "exports": [
+            "LICENSE",
+            "README.md",
+            "unicodetools/data/ucd/13.0.0-Update/SpecialCasing.txt",
+            "unicodetools/data/ucd/13.0.0-Update/UnicodeData.txt"
+          ],
+          "requires": [],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/jvm-annotations": {
+          "revision": "5ed7516e96eebef2a0cedc470d776b7351f52d6b",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE.txt",
+            "README.md"
+          ],
+          "requires": [],
+          "unusedSubmodules": {},
+          "exports": [
+            "LICENSE.txt",
+            "README.md",
+            "build.gradle.kts",
+            "gradle.properties",
+            "src/jvmMain"
+          ]
+        },
+        "3rdparty/kotlinx-atomicfu": {
+          "revision": "1d625ed1f6e88173f2737c48afe86544e8738232",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE.txt",
+            "license/NOTICE.txt",
+            "README.md",
+            "gradle.properties",
+            "atomicfu/build.gradle.kts",
+            "buildSrc/src/main/kotlin/kotlin-base-conventions.gradle.kts"
+          ],
+          "requires": [
+            "3rdparty/kotlin-stdlib"
+          ],
+          "exports": [
+            "LICENSE.txt",
+            "README.md",
+            "atomicfu/build.gradle.kts",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/AtomicFU.common.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/MangledJsNames.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/OptionalJsName.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/Trace.common.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/TraceFormat.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/locks/Synchronized.common.kt",
+            "atomicfu/src/commonMain/kotlin/kotlinx/atomicfu/locks/SynchronousMutex.kt",
+            "atomicfu/src/concurrentMain/kotlin/kotlinx/atomicfu/locks/NativeMutex.kt",
+            "atomicfu/src/concurrentMain/kotlin/kotlinx/atomicfu/locks/ParkingDelegator.kt",
+            "atomicfu/src/concurrentMain/kotlin/kotlinx/atomicfu/locks/ParkingSupport.kt",
+            "atomicfu/src/concurrentMain/kotlin/kotlinx/atomicfu/locks/ThreadParker.kt",
+            "atomicfu/src/jvmMain/java9/module-info.java",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/AtomicFU.kt",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/Trace.kt",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/locks/JvmParkingDelegator.kt",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/locks/ParkingSupport.kt",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/locks/Synchronized.kt",
+            "atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/locks/SynchronousMutex.kt",
+            "buildSrc/src/main/kotlin/kotlin-base-conventions.gradle.kts",
+            "gradle.properties",
+            "license/NOTICE.txt"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/kotlinx-coroutines": {
+          "revision": "8564f65764d3d05893cec026c6e94250e2b23874",
+          "license": "Apache-2.0",
+          "notices": [
+            "LICENSE.txt",
+            "license/NOTICE.txt",
+            "README.md",
+            "gradle.properties",
+            "kotlinx-coroutines-core/build.gradle.kts",
+            "buildSrc/src/main/kotlin/GlobalKotlinCompilerOptions.kt",
+            "buildSrc/src/main/kotlin/configure-compilation-conventions.gradle.kts"
+          ],
+          "requires": [
+            "3rdparty/kotlinx-atomicfu",
+            "3rdparty/android-platform-annotations",
+            "3rdparty/animal-sniffer-annotations",
+            "3rdparty/kotlin-stdlib",
+            "3rdparty/jvm-annotations"
+          ],
+          "exports": [
+            "LICENSE.txt",
+            "README.md",
+            "buildSrc/src/main/kotlin/GlobalKotlinCompilerOptions.kt",
+            "buildSrc/src/main/kotlin/configure-compilation-conventions.gradle.kts",
+            "gradle.properties",
+            "integration-testing/src/debugAgentTest/kotlin/DebugProbes.kt",
+            "kotlinx-coroutines-core/build.gradle.kts",
+            "kotlinx-coroutines-core/common/src/AbstractCoroutine.kt",
+            "kotlinx-coroutines-core/common/src/Annotations.kt",
+            "kotlinx-coroutines-core/common/src/Await.kt",
+            "kotlinx-coroutines-core/common/src/Builders.common.kt",
+            "kotlinx-coroutines-core/common/src/CancellableContinuation.kt",
+            "kotlinx-coroutines-core/common/src/CancellableContinuationImpl.kt",
+            "kotlinx-coroutines-core/common/src/CloseableCoroutineDispatcher.kt",
+            "kotlinx-coroutines-core/common/src/CompletableDeferred.kt",
+            "kotlinx-coroutines-core/common/src/CompletableJob.kt",
+            "kotlinx-coroutines-core/common/src/CompletionHandler.common.kt",
+            "kotlinx-coroutines-core/common/src/CompletionState.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineContext.common.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineDispatcher.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineExceptionHandler.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineName.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineScope.kt",
+            "kotlinx-coroutines-core/common/src/CoroutineStart.kt",
+            "kotlinx-coroutines-core/common/src/Debug.common.kt",
+            "kotlinx-coroutines-core/common/src/Deferred.kt",
+            "kotlinx-coroutines-core/common/src/Delay.kt",
+            "kotlinx-coroutines-core/common/src/Dispatchers.common.kt",
+            "kotlinx-coroutines-core/common/src/EventLoop.common.kt",
+            "kotlinx-coroutines-core/common/src/Exceptions.common.kt",
+            "kotlinx-coroutines-core/common/src/Guidance.kt",
+            "kotlinx-coroutines-core/common/src/Job.kt",
+            "kotlinx-coroutines-core/common/src/JobSupport.kt",
+            "kotlinx-coroutines-core/common/src/MainCoroutineDispatcher.kt",
+            "kotlinx-coroutines-core/common/src/NonCancellable.kt",
+            "kotlinx-coroutines-core/common/src/Runnable.common.kt",
+            "kotlinx-coroutines-core/common/src/SchedulerTask.common.kt",
+            "kotlinx-coroutines-core/common/src/Supervisor.kt",
+            "kotlinx-coroutines-core/common/src/Timeout.kt",
+            "kotlinx-coroutines-core/common/src/Unconfined.kt",
+            "kotlinx-coroutines-core/common/src/Waiter.kt",
+            "kotlinx-coroutines-core/common/src/Yield.kt",
+            "kotlinx-coroutines-core/common/src/channels/Broadcast.kt",
+            "kotlinx-coroutines-core/common/src/channels/BroadcastChannel.kt",
+            "kotlinx-coroutines-core/common/src/channels/BufferOverflow.kt",
+            "kotlinx-coroutines-core/common/src/channels/BufferedChannel.kt",
+            "kotlinx-coroutines-core/common/src/channels/Channel.kt",
+            "kotlinx-coroutines-core/common/src/channels/ChannelCoroutine.kt",
+            "kotlinx-coroutines-core/common/src/channels/Channels.common.kt",
+            "kotlinx-coroutines-core/common/src/channels/ConflatedBufferedChannel.kt",
+            "kotlinx-coroutines-core/common/src/channels/Deprecated.kt",
+            "kotlinx-coroutines-core/common/src/channels/Produce.kt",
+            "kotlinx-coroutines-core/common/src/flow/Builders.kt",
+            "kotlinx-coroutines-core/common/src/flow/Channels.kt",
+            "kotlinx-coroutines-core/common/src/flow/Flow.kt",
+            "kotlinx-coroutines-core/common/src/flow/FlowCollector.kt",
+            "kotlinx-coroutines-core/common/src/flow/Migration.kt",
+            "kotlinx-coroutines-core/common/src/flow/SharedFlow.kt",
+            "kotlinx-coroutines-core/common/src/flow/SharingStarted.kt",
+            "kotlinx-coroutines-core/common/src/flow/StateFlow.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/AbstractSharedFlow.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/ChannelFlow.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/Combine.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/FlowCoroutine.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/FlowExceptions.common.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/Merge.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/NopCollector.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/NullSurrogate.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/SafeCollector.common.kt",
+            "kotlinx-coroutines-core/common/src/flow/internal/SendingCollector.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Context.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Delay.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Distinct.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Emitters.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Errors.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Limit.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Lint.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Merge.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Share.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Transform.kt",
+            "kotlinx-coroutines-core/common/src/flow/operators/Zip.kt",
+            "kotlinx-coroutines-core/common/src/flow/terminal/Collect.kt",
+            "kotlinx-coroutines-core/common/src/flow/terminal/Collection.kt",
+            "kotlinx-coroutines-core/common/src/flow/terminal/Count.kt",
+            "kotlinx-coroutines-core/common/src/flow/terminal/Logic.kt",
+            "kotlinx-coroutines-core/common/src/flow/terminal/Reduce.kt",
+            "kotlinx-coroutines-core/common/src/internal/Concurrent.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/ConcurrentLinkedList.kt",
+            "kotlinx-coroutines-core/common/src/internal/CoroutineExceptionHandlerImpl.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/DispatchedContinuation.kt",
+            "kotlinx-coroutines-core/common/src/internal/DispatchedTask.kt",
+            "kotlinx-coroutines-core/common/src/internal/InlineList.kt",
+            "kotlinx-coroutines-core/common/src/internal/InternalAnnotations.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/LimitedDispatcher.kt",
+            "kotlinx-coroutines-core/common/src/internal/LocalAtomics.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/LockFreeLinkedList.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/LockFreeTaskQueue.kt",
+            "kotlinx-coroutines-core/common/src/internal/MainDispatcherFactory.kt",
+            "kotlinx-coroutines-core/common/src/internal/NamedDispatcher.kt",
+            "kotlinx-coroutines-core/common/src/internal/OnUndeliveredElement.kt",
+            "kotlinx-coroutines-core/common/src/internal/ProbesSupport.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/Scopes.kt",
+            "kotlinx-coroutines-core/common/src/internal/StackTraceRecovery.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/Symbol.kt",
+            "kotlinx-coroutines-core/common/src/internal/Synchronized.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/SystemProps.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/ThreadContext.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/ThreadLocal.common.kt",
+            "kotlinx-coroutines-core/common/src/internal/ThreadSafeHeap.kt",
+            "kotlinx-coroutines-core/common/src/intrinsics/Cancellable.kt",
+            "kotlinx-coroutines-core/common/src/intrinsics/Undispatched.kt",
+            "kotlinx-coroutines-core/common/src/selects/OnTimeout.kt",
+            "kotlinx-coroutines-core/common/src/selects/Select.kt",
+            "kotlinx-coroutines-core/common/src/selects/SelectOld.kt",
+            "kotlinx-coroutines-core/common/src/selects/SelectUnbiased.kt",
+            "kotlinx-coroutines-core/common/src/selects/WhileSelect.kt",
+            "kotlinx-coroutines-core/common/src/sync/Mutex.kt",
+            "kotlinx-coroutines-core/common/src/sync/Semaphore.kt",
+            "kotlinx-coroutines-core/concurrent/src/Builders.concurrent.kt",
+            "kotlinx-coroutines-core/concurrent/src/Dispatchers.kt",
+            "kotlinx-coroutines-core/concurrent/src/MultithreadedDispatchers.common.kt",
+            "kotlinx-coroutines-core/concurrent/src/channels/Channels.kt",
+            "kotlinx-coroutines-core/concurrent/src/internal/LockFreeLinkedList.kt",
+            "kotlinx-coroutines-core/concurrent/src/internal/OnDemandAllocatingPool.kt",
+            "kotlinx-coroutines-core/jvm/resources/META-INF/com.android.tools/proguard/coroutines.pro",
+            "kotlinx-coroutines-core/jvm/resources/META-INF/com.android.tools/r8/coroutines.pro",
+            "kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro",
+            "kotlinx-coroutines-core/jvm/src/AbstractTimeSource.kt",
+            "kotlinx-coroutines-core/jvm/src/Builders.kt",
+            "kotlinx-coroutines-core/jvm/src/CoroutineContext.kt",
+            "kotlinx-coroutines-core/jvm/src/Debug.kt",
+            "kotlinx-coroutines-core/jvm/src/DebugStrings.kt",
+            "kotlinx-coroutines-core/jvm/src/DefaultExecutor.kt",
+            "kotlinx-coroutines-core/jvm/src/Dispatchers.kt",
+            "kotlinx-coroutines-core/jvm/src/EventLoop.kt",
+            "kotlinx-coroutines-core/jvm/src/Exceptions.kt",
+            "kotlinx-coroutines-core/jvm/src/Executors.kt",
+            "kotlinx-coroutines-core/jvm/src/Future.kt",
+            "kotlinx-coroutines-core/jvm/src/GuidanceJvm.kt",
+            "kotlinx-coroutines-core/jvm/src/Interruptible.kt",
+            "kotlinx-coroutines-core/jvm/src/Runnable.kt",
+            "kotlinx-coroutines-core/jvm/src/SchedulerTask.kt",
+            "kotlinx-coroutines-core/jvm/src/ThreadContextElement.kt",
+            "kotlinx-coroutines-core/jvm/src/ThreadPoolDispatcher.kt",
+            "kotlinx-coroutines-core/jvm/src/channels/Actor.kt",
+            "kotlinx-coroutines-core/jvm/src/channels/TickerChannels.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/CoroutineDebugging.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/AgentInstallationType.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/AgentPremain.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/ConcurrentWeakMap.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/DebugCoroutineInfo.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/DebugCoroutineInfoImpl.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/DebugProbes.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/DebugProbesImpl.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/DebuggerInfo.kt",
+            "kotlinx-coroutines-core/jvm/src/debug/internal/StackTraceFrame.kt",
+            "kotlinx-coroutines-core/jvm/src/flow/internal/FlowExceptions.kt",
+            "kotlinx-coroutines-core/jvm/src/flow/internal/SafeCollector.kt",
+            "kotlinx-coroutines-core/jvm/src/future/Future.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/Concurrent.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/CoroutineExceptionHandlerImpl.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/ExceptionsConstructor.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/FastServiceLoader.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/InternalAnnotations.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/LocalAtomics.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/MainDispatchers.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/ProbesSupport.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/ResizableAtomicArray.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/StackTraceRecovery.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/Synchronized.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/SystemProps.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/ThreadContext.kt",
+            "kotlinx-coroutines-core/jvm/src/internal/ThreadLocal.kt",
+            "kotlinx-coroutines-core/jvm/src/module-info.java",
+            "kotlinx-coroutines-core/jvm/src/scheduling/CoroutineScheduler.kt",
+            "kotlinx-coroutines-core/jvm/src/scheduling/Dispatcher.kt",
+            "kotlinx-coroutines-core/jvm/src/scheduling/Tasks.kt",
+            "kotlinx-coroutines-core/jvm/src/scheduling/WorkQueue.kt",
+            "kotlinx-coroutines-core/jvm/src/stream/Stream.kt",
+            "kotlinx-coroutines-core/jvm/src/time/Time.kt",
+            "license/NOTICE.txt"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/android-platform-annotations": {
+          "revision": "4b9a8d75b8796ea07cadd61ceef135c173167c8e",
+          "license": "Apache-2.0",
+          "notices": [
+            "NOTICE",
+            "MODULE_LICENSE_APACHE2"
+          ],
+          "requires": [],
+          "exports": [
+            "MODULE_LICENSE_APACHE2",
+            "NOTICE",
+            "core/java/android/annotation/SuppressLint.java"
+          ],
+          "unusedSubmodules": {}
+        },
+        "3rdparty/animal-sniffer-annotations": {
+          "revision": "585a2965529c2483156f4114cc3af4df9b67bcc1",
+          "license": "MIT",
+          "notices": [
+            "LICENSE",
+            "animal-sniffer-annotations/pom.xml"
+          ],
+          "requires": [],
+          "exports": [
+            "LICENSE",
+            "animal-sniffer-annotations/pom.xml",
+            "animal-sniffer-annotations/src/main/java/org/codehaus/mojo/animal_sniffer/IgnoreJRERequirement.java"
+          ],
+          "unusedSubmodules": {}
+        }
+      },
+      "inputs": [
+        "tools/jvm",
+        "LICENSE",
+        "tools/native/check_kotlin_domain.py",
+        "packages/linux-domain",
+        "packages/ipc/jvm",
+        "contracts/fixtures/local-domain.json"
+      ],
+      "watch": [
+        "tools/jvm",
+        "3rdparty/kotlinx-atomicfu",
+        "3rdparty/kotlinx-coroutines",
+        "3rdparty/android-platform-annotations",
+        "3rdparty/animal-sniffer-annotations"
+      ],
+      "targets": {
+        "linux-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / linux-x64$"
+            },
+            "kotlin": {
+              "command": [
+                "{python}",
+                "tools/jvm/kotlin.py"
+              ],
+              "pattern": "^Kotlin compiler SDK 2\\.3\\.20$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "jvm8-untransformed-module9-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "verify",
+            "--platform",
+            "linux-x64"
+          ],
+          "timeoutSeconds": 900
+        },
+        "macos-arm64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / macos-arm64$"
+            },
+            "kotlin": {
+              "command": [
+                "{python}",
+                "tools/jvm/kotlin.py"
+              ],
+              "pattern": "^Kotlin compiler SDK 2\\.3\\.20$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "jvm8-untransformed-module9-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "verify",
+            "--platform",
+            "macos-arm64"
+          ],
+          "timeoutSeconds": 900
+        },
+        "windows-x64": {
+          "toolchains": {
+            "python": {
+              "command": [
+                "{python}",
+                "--version"
+              ],
+              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
+            },
+            "jdk": {
+              "command": [
+                "{python}",
+                "tools/jvm/jdk.py"
+              ],
+              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / windows-x64$"
+            },
+            "kotlin": {
+              "command": [
+                "{python}",
+                "tools/jvm/kotlin.py"
+              ],
+              "pattern": "^Kotlin compiler SDK 2\\.3\\.20$"
+            }
+          },
+          "environment": {},
+          "flags": {
+            "profile": "jvm8-untransformed-module9-v1"
+          },
+          "command": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "build"
+          ],
+          "verifyCommand": [
+            "{python}",
+            "tools/jvm/concurrency.py",
+            "verify",
+            "--platform",
+            "windows-x64"
+          ],
+          "timeoutSeconds": 900
+        }
+      }
     }
   }
 }
