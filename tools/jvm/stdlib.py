@@ -35,9 +35,10 @@ def profile_data():
 
 def derivative(original):
     before = b"KotlinVersion(2, 3, 255)"
-    if original.count(before) != 1:
+    if original.count(before) != 1 or not original.startswith(b"/*"):
         raise ValueError("KotlinVersion source no longer matches the reviewed version substitution")
-    return original.replace(before, b"KotlinVersion(2, 3, 20)")
+    notice = b"/* SyncWatch modification: set the build version to 2.3.20. Original source retained in the source archive."
+    return notice + original[2:].replace(before, b"KotlinVersion(2, 3, 20)")
 
 
 def metadata(profile):
@@ -45,7 +46,7 @@ def metadata(profile):
         "compilerSdkInventorySha256": digest((ROOT / "tools/jvm/kotlin_toolchain.json").read_bytes()),
         "jdk": json.loads((ROOT / "tools/jvm/toolchains.json").read_text())["version"],
         "sourceSelectionSha256": digest((ROOT / "tools/jvm/stdlib_sources.json").read_bytes()),
-        "modifications": {VERSION_SOURCE: "Build copy: replace KotlinVersion(2, 3, 255) with KotlinVersion(2, 3, 20). Original retained unchanged."}}
+        "modifications": {VERSION_SOURCE: "Build copy: replace KotlinVersion(2, 3, 255) with KotlinVersion(2, 3, 20) and add an inline modification notice. Original retained unchanged."}}
 
 
 def javac(arguments, work, home):
@@ -96,7 +97,8 @@ def support(files, source_profile, profile):
         "The common, JVM, JDK7 and JDK8 declarations are compiled together into one metadata module.\n"
         "This is a modified build profile, not the upstream Gradle artifact or a binary-equivalence claim.\n"
         "The original KotlinVersion source and notices are in the source archive. Its build copy changes\n"
-        "the upstream 2.3.255 placeholder to 2.3.20. No other selected source bytes are modified.\n"
+        "the upstream 2.3.255 placeholder to 2.3.20 and carries an inline modification notice.\n"
+        "No other selected source files are modified.\n"
         "The original JPMS descriptor is compiled for Java 9; Java/Kotlin classes target Java 8.\n").encode()
     return original
 

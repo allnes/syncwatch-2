@@ -14,7 +14,10 @@ from build_support import digest, jar_bytes
 class StdlibTests(unittest.TestCase):
     def test_version_substitution_is_explicit_and_rejects_drift(self):
         original = b"/* original notice */ KotlinVersion(2, 3, 255) // upstream placeholder\n"
-        self.assertEqual(stdlib.derivative(original), original.replace(b"255", b"20"))
+        changed = stdlib.derivative(original)
+        self.assertTrue(changed.startswith(b"/* SyncWatch modification:"))
+        self.assertTrue(changed.endswith(original[2:].replace(b"255", b"20")))
+        self.assertEqual(changed.count(b"\n"), original.count(b"\n"))
         for invalid in [b"KotlinVersion(2, 3, 20)", original + original]:
             with self.assertRaisesRegex(ValueError, "reviewed version substitution"):
                 stdlib.derivative(invalid)
