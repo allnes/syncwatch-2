@@ -395,6 +395,30 @@ class DependencyBuildTests(unittest.TestCase):
             self.prepare()
         self.assertEqual((source / "owner.txt").read_text(), "preserve\n")
 
+    def test_selected_long_paths_remain_clean_after_git_checkout(self):
+        source = self.root / "3rdparty/example"
+        blob = build.git(source, "rev-parse", "HEAD:library.txt").decode().strip()
+        # Legal individual components; the complete Windows path exceeds MAX_PATH.
+        selected = "selected/" + "/".join(["long-source-component" * 2] * 6) + "/original.txt"
+        self.assertGreater(len(str(source / selected)), 260)
+        subprocess.run(["git", "update-index", "--add", "--cacheinfo", "100644", blob, selected], cwd=source, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Selected long source"], cwd=source, check=True)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        self.component["sources"]["3rdparty/example"]["revision"] = revision
+        subprocess.run(["git", "update-index", "--cacheinfo", "160000", revision, "3rdparty/example"], cwd=self.root, check=True)
+        remote = self.root / "long-source.git"
+        subprocess.run(["git", "clone", "--bare", str(source), str(remote)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.remove_source_fixture(source)
+        self.set_exports(["LICENSE", "library.txt", selected])
+        subprocess.run(["git", "submodule", "init", "--", "3rdparty/example"], cwd=self.root, check=True)
+        build.initialize_export_source(self.root, "3rdparty/example", self.component["sources"]["3rdparty/example"], remote.as_uri())
+        self.assertFalse(build.git(source, "status", "--porcelain").strip())
+        entries = build.exported_entries(source, ["LICENSE", "library.txt", selected])
+        archive = self.root / "long-source.tar"
+        build.export_original_blobs(source, archive, entries, revision)
+        with tarfile.open(archive) as package:
+            self.assertEqual(package.extractfile(selected).read(), b"source payload\n")
+
     def test_exported_tree_rejects_case_colliding_files_and_parent_directories(self):
         source = self.root / "3rdparty/example"
         blob = build.git(source, "rev-parse", "HEAD:library.txt").decode().strip()
