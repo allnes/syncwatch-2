@@ -7,10 +7,18 @@ public partial class App : Application
 {
     private ResourceDictionary? selectedTheme;
     internal AppearancePreferences? Preferences { get; private set; }
+    internal MediaConfiguration? Media { get; private set; }
+    internal string StatePath { get; private set; } = AppearancePreferences.DefaultPath;
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        if (!e.Args.Contains("--selection-menu-gallery") && !e.Args.Contains("--call-gallery") && !e.Args.Contains("--design-gallery") && !e.Args.Contains("--settings-gallery") && !e.Args.Contains("--player-gallery") && !e.Args.Contains("--player-settings-gallery")) Preferences = new AppearancePreferences(new Domain.FileLocalStateStore(AppearancePreferences.DefaultPath));
+        if (!e.Args.Contains("--selection-menu-gallery") && !e.Args.Contains("--call-gallery") && !e.Args.Contains("--design-gallery") && !e.Args.Contains("--settings-gallery") && !e.Args.Contains("--player-gallery") && !e.Args.Contains("--player-settings-gallery"))
+        {
+            int index = Array.IndexOf(e.Args, "--state-directory");
+            if (index >= 0 && index + 1 < e.Args.Length) StatePath = System.IO.Path.Combine(System.IO.Path.GetFullPath(e.Args[index + 1]), "local-state.json");
+            Preferences = new AppearancePreferences(new Domain.FileLocalStateStore(StatePath));
+            Media = MediaConfiguration.Read(e.Args);
+        }
         ApplySystemTheme();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         base.OnStartup(e);

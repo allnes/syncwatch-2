@@ -61,13 +61,15 @@ def check(package, output):
     context, library, executable = build(output)
     from fixtures import create
     media = create(output)
+    invalid_media = output / "invalid.avi"
+    invalid_media.write_bytes(b"authored invalid media fixture")
     libvlc = package / ("bin/libvlc.dll" if os.name == "nt" else "lib/libvlc.dylib" if sys.platform == "darwin" else "lib/libvlc.so.5")
     env = runtime_environment(package, output)
     with (output / "native-proof.json").open("wb") as log, (output / "native-stderr.log").open("wb") as errors:
-        subprocess.run([str(executable), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"], str(media.resolve())],
+        subprocess.run([str(executable), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"], str(media.resolve()), str(invalid_media)],
                        stdin=subprocess.DEVNULL, stdout=log, stderr=errors, env=env, timeout=180, check=True)
     proof = json.loads((output / "native-proof.json").read_bytes())
-    assert proof["abiBytes"] == 80 and proof["repeatedRelease"] and proof["physicalOutputAccepted"] is False
+    assert proof["abiBytes"] == 80 and proof["repeatedRelease"] and proof["failedMedia"] and proof["physicalOutputAccepted"] is False
     print(json.dumps(proof, sort_keys=True))
     return library
 

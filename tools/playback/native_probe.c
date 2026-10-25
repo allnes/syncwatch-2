@@ -38,7 +38,7 @@ static sw_observation await_state_at(int line, sw_playback *p, uint64_t generati
 }
 #define await_state(...) await_state_at(__LINE__, __VA_ARGS__)
 int main(int argc, char **argv) {
-    require(argc == 4, "arguments");
+    require(argc == 4 || argc == 5, "arguments");
     sw_playback *player = NULL;
     require(sizeof(sw_observation) == 80, "fixed ABI layout");
     require(sw_playback_open(argv[1], argv[2], SW_OUTPUT_X11, (void *)(uintptr_t)1, &player) == SW_INVALID && !player,
@@ -98,6 +98,39 @@ int main(int argc, char **argv) {
         await_state(player, 1, 1, 0, 300);
         sw_playback_close(player);
     }
-    puts("{\"abiBytes\":80,\"ownedRuntime\":true,\"pausedLoad\":true,\"actualClock\":true,\"nativeEvents\":true,\"tracks\":true,\"generationRejection\":true,\"networkPathRejected\":true,\"repeatedRelease\":true,\"physicalOutputAccepted\":false}");
+    sw_runtime *runtime = NULL;
+    sw_playback *second = NULL;
+    require(sw_runtime_open(argv[1], argv[2], SW_OUTPUT_HEADLESS, &runtime) == SW_OK, "application runtime");
+    require(sw_playback_open_runtime(runtime, (void *)(uintptr_t)1, 0, &player) == SW_INVALID && !player, "runtime surface validation");
+    for (int i = 0; i < 3; i++) {
+        require(sw_playback_open_runtime(runtime, NULL, 0, &player) == SW_OK, "shared runtime player");
+        require(sw_playback_load(player, 1, argv[3]) == SW_OK, "shared runtime load");
+        await_state(player, 1, 1, 0, 300);
+        sw_playback_close(player);
+    }
+    require(sw_playback_open_runtime(runtime, NULL, 0, &player) == SW_OK, "first retained player");
+    require(sw_playback_open_runtime(runtime, NULL, 0, &second) == SW_OK, "second retained player");
+    sw_runtime_close(runtime);
+    require(sw_playback_load(player, 1, argv[3]) == SW_OK, "player outlives runtime handle");
+    require(sw_playback_load(second, 1, argv[3]) == SW_OK, "second player outlives runtime handle");
+    await_state(player, 1, 1, 0, 300); await_state(second, 1, 1, 0, 300);
+    sw_playback_close(player);
+    require(sw_playback_seek(second, 1, 1300) == SW_OK, "peer player survives release");
+    await_state(second, 1, 1, 1100, 1500);
+    sw_playback_close(second);
+    if (argc == 5) {
+        require(sw_playback_open(argv[1], argv[2], 0, NULL, &player) == SW_OK, "failed media owner");
+        int loaded = sw_playback_load(player, 1, argv[4]);
+        require(loaded == SW_OK || loaded == SW_ENGINE, "invalid media submission");
+        int failed = 0;
+        for (int i = 0; i < 500; i++) {
+            value = observation(player, 1);
+            if (value.status == SW_FAILED) { failed = 1; break; }
+            wait_ms(10);
+        }
+        require(failed, "unplayable EOF cannot acknowledge Ready");
+        sw_playback_close(player);
+    }
+    printf("{\"abiBytes\":80,\"ownedRuntime\":true,\"pausedLoad\":true,\"actualClock\":true,\"nativeEvents\":true,\"tracks\":true,\"generationRejection\":true,\"networkPathRejected\":true,\"repeatedRelease\":true,\"sharedRuntime\":true,\"failedMedia\":%s,\"physicalOutputAccepted\":false}\n", argc == 5 ? "true" : "false");
     return 0;
 }

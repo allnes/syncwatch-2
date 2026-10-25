@@ -14,6 +14,7 @@ private fun requireCase(value: Boolean, name: String) { check(value) { name } }
 /** Executes the same language-neutral state and lifecycle corpus as macOS and Windows. */
 fun main(arguments: Array<String>) {
     val corpus = Json.`object`(Json.parse(Files.readString(Path.of(arguments.single()))))
+    actionFenceChecks(Path.of(arguments.single()).parent)
     val directory = Files.createTempDirectory("syncwatch-domain-")
     try {
         val store = FileLocalStateStore(directory.resolve("nested/state.json"))

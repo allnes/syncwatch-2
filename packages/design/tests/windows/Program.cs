@@ -84,6 +84,7 @@ internal static class Program
         }
         VerifyLibrary(application, dictionary);
         LibraryControllerAssertions.Run();
+        WatchPersistenceAssertions.Run();
         SettingsAssertions.Run(application, dictionary);
         PlayerAssertions.Run(application, dictionary);
         PlayerSettingsAssertions.Run(application, dictionary);

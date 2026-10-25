@@ -1962,7 +1962,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1"
+    public static let sourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -3859,6 +3859,7 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.startWatching",
                 "automation": "{namespace}.startWatching",
                 "label": "~startWatching",
+                "when": "= $can.continueWatching false true if",
             ],
             children: [node44])
         let node46 = DesignNode(
@@ -3882,12 +3883,12 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "paddingX": "@layout.panelPadding",
-                "minHeight": "@control.outlinedButtonMinHeight",
+                "minHeight": "@control.filledButtonMinHeight",
                 "radius": "@control.buttonRadius",
                 "border": "theme.border",
                 "borderWidth": "@control.borderWidth",
-                "background": "theme.surfaceRaised",
-                "foreground": "theme.text",
+                "background": "theme.accent",
+                "foreground": "@color.dark.text",
                 "fontSize": "@type.bodySize",
                 "weight": "semibold",
                 "contentAlign": "center",
@@ -3895,6 +3896,7 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.continueWatching",
                 "automation": "{namespace}.continueWatching",
                 "label": "~continueWatching",
+                "when": "$can.continueWatching",
             ],
             children: [node46])
         let node48 = DesignNode(
@@ -3931,6 +3933,7 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.endWatching",
                 "automation": "{namespace}.endWatching",
                 "label": "~endWatching",
+                "when": "$can.endWatching",
             ],
             children: [node48])
         let node50 = DesignNode(

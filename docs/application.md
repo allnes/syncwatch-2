@@ -1,14 +1,14 @@
 # Application behavior
 
-This guide describes the intended SyncWatch interface on macOS and Windows, using the [shared component contracts](../packages/design/components.json). The application is under development: Library, appearance settings, isolated component galleries and an explicit local native playback entry are present. Normal shared watch and call workflows still require coordinator/provider activation; see [native playback](playback.md).
+This guide describes the intended SyncWatch interface on macOS, Windows, and Linux, using the [shared component contracts](../packages/design/components.json). The application is under development: Library, local WatchSession playback, appearance settings, and isolated component galleries are connected. Shared watch and call workflows still require synchronization/provider activation; see [native playback](playback.md).
 
 ## Library and watch session
 
-The main window has a header, a text-focused movie-library column, a selected-movie panel, room status, and recent activity. Use shared dark/light resources, logical outer padding 18, panel gap 14, header height 64, and library-column width 360.
+The main window has a header, a text-focused movie-library column, a selected-movie panel, room status, and recent activity. Layout, dimensions, dark/light appearance, and control composition come from the common design library.
 
 Users choose a local movie folder, scan subfolders, search, rescan, and enable automatic refresh. Distinguish empty, scanning, searching, selected-media, inaccessible-folder, and missing-media states. Show available duration, resolution, audio tracks, and subtitles. Match external audio/subtitle files deterministically.
 
-**Start watching**, **Continue watching**, and **End watching** reflect local session state. Returning to the library retains playback; ending releases local player and preview resources. A new application launch may restore a saved position without silently restarting a watch session. Ending locally does not issue an extra peer playback action.
+**Start watching** is available when the local media runtime is verified. The selected live movie shows **Continue watching** and **End watching** instead. Returning to the library retains playback; ending releases local player and preview resources. A new application launch may restore a saved position without silently restarting a watch session. Ending locally does not issue an extra peer playback action.
 
 Participants identify the selected movie or playlist item through permitted descriptors and content identity, without sharing absolute file paths or movie bytes. Missing or incompatible media is actionable and never implies readiness.
 
@@ -20,7 +20,7 @@ Volume, mute, audio/subtitle selection, subtitle styling, image settings, normal
 
 ## Player and input
 
-The core shared PlayerChrome is implemented in the native component gallery, with matching Compose source. The explicit local playback entry supplies a real native surface and basic playback controls. Normal watch activation, track/playlist/settings menus, complete input policies and video overlays await their integrations.
+The common PlayerChrome receives actual VLC observations and a native surface from the local WatchSession owner on all three platforms. Play/pause, seek, volume, mute, Library navigation, End, and fullscreen use that owner. Shared watch activation, track/playlist/settings menus, complete input policies, and video overlays await their integrations.
 
 Preserve the compact top controls, centered skip-back/play-pause/skip-forward controls, timeline, previous/next media, playlist, audio/subtitle menus, settings, library navigation, and call-window focus. Timeline previews use a separately owned decoder and bounded cache; they must not seek the movie, publish playback actions, or display canceled generations.
 
@@ -65,7 +65,7 @@ The application-settings dialog uses the shared 680 by 420 layout and 150-unit s
 | Call | Input/output devices and supported camera quality; retain the 480p target subject to real provider capability |
 | Connection | Synchronization/room connection and readiness behavior with independent channel states |
 
-Theme and language are implemented in the native application-settings dialog and saved through the local state store, with feedback and validation errors. They apply without restart and survive application restart; Cancel discards unsaved edits. Library, call and connection controls remain disabled until their adapters are available. Other supported configuration changes follow the same local-save boundary as their integrations are implemented. macOS folder grants use security-scoped bookmarks; moved, stale, denied, or corrupt grants need renewed folder access.
+Theme and language are implemented in the native application-settings dialog and saved through the local state store, with feedback and validation errors. They apply without restart and survive application restart; Cancel discards unsaved edits. Library folder selection, access restoration, scanning, search and selection are connected to their local adapters on all three desktops. Local watch actions are enabled by the verified media runtime and current selection. Call and connection actions await their provider owners. Other supported configuration changes follow the same local-save boundary as their integrations are implemented. macOS folder grants use security-scoped bookmarks; moved, stale, denied, or corrupt grants need renewed folder access.
 
 The player-settings dialog uses the shared 680 by 460 layout, 170-unit sidebar, draggable title bar, and section reset actions:
 

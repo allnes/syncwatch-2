@@ -20,6 +20,7 @@
         <Compile Include="../../../../apps/windows/SyncWatch/LibraryController.cs" Link="LibraryController.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/NativeVideoHost.cs" Link="NativeVideoHost.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
+        <Compile Include="../../../../apps/windows/SyncWatch/LocalStatePersistence.cs" Link="LocalStatePersistence.cs" />
         <None Include="../fixtures/player-settings.json" Link="player-settings.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="../fixtures/player-actions.json" Link="player-actions.json" CopyToOutputDirectory="PreserveNewest" />
         <Compile Include="../../windows/DesignData.cs" Link="DesignData.cs" />

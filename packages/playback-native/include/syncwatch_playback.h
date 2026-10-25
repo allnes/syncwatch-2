@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 typedef struct sw_playback sw_playback;
+typedef struct sw_runtime sw_runtime;
 enum sw_result { SW_OK, SW_INVALID, SW_UNAVAILABLE, SW_STALE, SW_ENGINE };
 enum sw_output { SW_OUTPUT_HEADLESS, SW_OUTPUT_APPKIT, SW_OUTPUT_HWND, SW_OUTPUT_X11 };
 enum sw_status { SW_UNLOADED, SW_LOADING, SW_READY, SW_FAILED };
@@ -34,6 +35,14 @@ typedef struct sw_observation {
     int32_t volume;
     int32_t muted;
 } sw_observation;
+
+/* An application runtime owns the verified engine/plugin bank independently of
+ * individual media players. Serialize open/close on its owner; each player
+ * retains it until native close. Releasing a media owner never unloads a bank
+ * that is still in use by the application or another player. */
+SW_PLAYBACK_API int sw_runtime_open(const char *library, const char *revision, int output, sw_runtime **result);
+SW_PLAYBACK_API void sw_runtime_close(sw_runtime *);
+SW_PLAYBACK_API int sw_playback_open_runtime(sw_runtime *, void *surface, uint32_t drawable, sw_playback **result);
 
 /* One serialized worker owns every call, including close. Callbacks never call
  * a client. The caller must retain its NSView/HWND until close returns. The

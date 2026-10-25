@@ -10,10 +10,16 @@
 static const char *const video_outputs[] = {"dummy", "macosx", "direct3d11", "xcb_x11"};
 static const char *const audio_options[] = {"--aout=dummy", "--aout=auhal", "--aout=mmdevice", "--aout=pulse"};
 
-struct sw_playback {
+struct sw_runtime {
     sw_vlc_api api;
     sw_library *library;
     libvlc_instance_t *instance;
+    int output;
+    atomic_uint references;
+};
+struct sw_playback {
+    sw_vlc_api api;
+    sw_runtime *runtime;
     libvlc_media_player_t *player;
     libvlc_event_manager_t *events;
     unsigned attached;
@@ -42,13 +48,10 @@ static int check(sw_playback *p, uint64_t generation) {
     if (generation != p->generation) return SW_STALE;
     return p->loaded ? SW_OK : SW_UNAVAILABLE;
 }
-static int open_output(const char *path, const char *revision, int output, void *surface,
-                       uint32_t drawable, sw_playback **result) {
+int sw_runtime_open(const char *path, const char *revision, int output, sw_runtime **result) {
     if (!result) return SW_INVALID;
     *result = NULL;
-    if (!path || !revision || strlen(revision) != 40 || output < SW_OUTPUT_HEADLESS || output > SW_OUTPUT_X11 ||
-        (output == SW_OUTPUT_HEADLESS ? surface != NULL || drawable != 0 :
-         output == SW_OUTPUT_X11 ? surface != NULL || drawable == 0 : surface == NULL || drawable != 0)) return SW_INVALID;
+    if (!path || !revision || strlen(revision) != 40 || output < SW_OUTPUT_HEADLESS || output > SW_OUTPUT_X11) return SW_INVALID;
     const char *plugins = getenv("VLC_PLUGIN_PATH");
     if (plugins && *plugins) return SW_UNAVAILABLE;
 #ifdef __APPLE__
@@ -58,13 +61,13 @@ static int open_output(const char *path, const char *revision, int output, void 
 #else
     if (output != SW_OUTPUT_HEADLESS && output != SW_OUTPUT_X11) return SW_UNAVAILABLE;
 #endif
-    sw_playback *p = calloc(1, sizeof(*p));
+    sw_runtime *p = calloc(1, sizeof(*p));
     if (!p) return SW_ENGINE;
-    atomic_init(&p->sequence, 0);
+    atomic_init(&p->references, 1);
     p->output = output;
     if (!sw_library_open(path, &p->api, output, &p->library)) { free(p); return SW_UNAVAILABLE; }
     if (strcmp(p->api.libvlc_get_version(), "3.0.24 Vetinari") || strcmp(p->api.libvlc_get_changeset(), revision)) {
-        sw_playback_close(p); return SW_UNAVAILABLE;
+        sw_runtime_close(p); return SW_UNAVAILABLE;
     }
     /* Never silently select hardware paths whose controls are unqualified. */
     char video[32];
@@ -73,9 +76,28 @@ static int open_output(const char *path, const char *revision, int output, void 
         "--avcodec-hw=none", "--no-media-library", "--no-sub-autodetect-file",
         video, audio_options[output]};
     p->instance = p->api.libvlc_new(sizeof(options) / sizeof(options[0]), options);
-    if (!p->instance || !(p->player = p->api.libvlc_media_player_new(p->instance))) {
-        sw_playback_close(p); return SW_ENGINE;
-    }
+    if (!p->instance) { sw_runtime_close(p); return SW_ENGINE; }
+    *result = p;
+    return SW_OK;
+}
+void sw_runtime_close(sw_runtime *p) {
+    if (!p || atomic_fetch_sub_explicit(&p->references, 1, memory_order_acq_rel) != 1) return;
+    if (p->instance) p->api.libvlc_release(p->instance);
+    sw_library_close(p->library);
+    free(p);
+}
+int sw_playback_open_runtime(sw_runtime *runtime, void *surface, uint32_t drawable, sw_playback **result) {
+    if (!result) return SW_INVALID;
+    *result = NULL;
+    if (!runtime || (runtime->output == SW_OUTPUT_HEADLESS ? surface != NULL || drawable != 0 :
+        runtime->output == SW_OUTPUT_X11 ? surface != NULL || drawable == 0 : surface == NULL || drawable != 0)) return SW_INVALID;
+    sw_playback *p = calloc(1, sizeof(*p));
+    if (!p) return SW_ENGINE;
+    atomic_init(&p->sequence, 0);
+    atomic_fetch_add_explicit(&runtime->references, 1, memory_order_relaxed);
+    p->runtime = runtime; p->api = runtime->api; p->output = runtime->output;
+    p->player = p->api.libvlc_media_player_new(runtime->instance);
+    if (!p->player) { sw_playback_close(p); return SW_ENGINE; }
     /* Application controls own user actions; native input must not bypass the port. */
     p->api.libvlc_video_set_key_input(p->player, 0);
     p->api.libvlc_video_set_mouse_input(p->player, 0);
@@ -90,6 +112,20 @@ static int open_output(const char *path, const char *revision, int output, void 
     }
     *result = p;
     return SW_OK;
+}
+static int open_output(const char *path, const char *revision, int output, void *surface,
+                       uint32_t drawable, sw_playback **result) {
+    if (!result) return SW_INVALID;
+    *result = NULL;
+    if (output < SW_OUTPUT_HEADLESS || output > SW_OUTPUT_X11 ||
+        (output == SW_OUTPUT_HEADLESS ? surface != NULL || drawable != 0 :
+         output == SW_OUTPUT_X11 ? surface != NULL || drawable == 0 : surface == NULL || drawable != 0)) return SW_INVALID;
+    sw_runtime *runtime = NULL;
+    int status = sw_runtime_open(path, revision, output, &runtime);
+    if (status != SW_OK) return status;
+    status = sw_playback_open_runtime(runtime, surface, drawable, result);
+    sw_runtime_close(runtime);
+    return status;
 }
 int sw_playback_open(const char *path, const char *revision, int output, void *surface, sw_playback **result) {
     if (output == SW_OUTPUT_X11) {
@@ -116,7 +152,7 @@ int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
     p->generation = generation;
     p->loaded = 0;
     p->failed = 0;
-    libvlc_media_t *media = p->api.libvlc_media_new_path(p->instance, path);
+    libvlc_media_t *media = p->api.libvlc_media_new_path(p->runtime->instance, path);
     if (!media) { p->failed = 1; return SW_ENGINE; }
     p->api.libvlc_media_add_option(media, ":start-paused");
     /* Surface setters reset inherited VLC options. Fixed trusted per-media
@@ -153,6 +189,12 @@ int sw_playback_observe(sw_playback *p, uint64_t generation, sw_observation *res
         result->duration_ms = p->api.libvlc_media_player_get_length(p->player);
         if (result->duration_ms > INT64_C(604800000)) { result->status = SW_FAILED; result->position_ms = 0; result->duration_ms = -1; return SW_OK; }
         if (result->position_ms < 0) result->position_ms = 0;
+        /* Some demuxers report EOF rather than Error for a corrupt/empty local
+         * item. It has no playable timeline; do not acknowledge Ready/resume. */
+        if (state == libvlc_Ended && result->duration_ms <= 0 && result->position_ms == 0) {
+            result->status = SW_FAILED;
+            return SW_OK;
+        }
         if (result->duration_ms >= 0 && result->position_ms > result->duration_ms) result->position_ms = result->duration_ms;
         result->paused = state != libvlc_Playing;
         result->seekable = p->api.libvlc_media_player_is_seekable(p->player);
@@ -246,7 +288,6 @@ void sw_playback_close(sw_playback *p) {
         if (p->api.set_xwindow) p->api.set_xwindow(p->player, 0);
         p->api.libvlc_media_player_release(p->player);
     }
-    if (p->instance) p->api.libvlc_release(p->instance);
-    sw_library_close(p->library);
+    sw_runtime_close(p->runtime);
     free(p);
 }

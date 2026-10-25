@@ -1076,7 +1076,8 @@
                                         "action": "startWatching",
                                         "enabled": "$can.startWatching",
                                         "automation": "{namespace}.startWatching",
-                                        "label": "~startWatching"
+                                        "label": "~startWatching",
+                                        "when": "= $can.continueWatching false true if"
                                       },
                                       "children": [
                                         {
@@ -1094,13 +1095,15 @@
                                       "id": "node47",
                                       "kind": "button",
                                       "styles": [
-                                        "button"
+                                        "button",
+                                        "primary"
                                       ],
                                       "props": {
                                         "action": "continueWatching",
                                         "enabled": "$can.continueWatching",
                                         "automation": "{namespace}.continueWatching",
-                                        "label": "~continueWatching"
+                                        "label": "~continueWatching",
+                                        "when": "$can.continueWatching"
                                       },
                                       "children": [
                                         {
@@ -1124,7 +1127,8 @@
                                         "action": "endWatching",
                                         "enabled": "$can.endWatching",
                                         "automation": "{namespace}.endWatching",
-                                        "label": "~endWatching"
+                                        "label": "~endWatching",
+                                        "when": "$can.endWatching"
                                       },
                                       "children": [
                                         {

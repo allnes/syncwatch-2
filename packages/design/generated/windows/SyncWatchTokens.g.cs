@@ -936,7 +936,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1";
+    public const string SourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1891,6 +1891,7 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.startWatching",
             ["automation"] = "{namespace}.startWatching",
             ["label"] = "~startWatching",
+            ["when"] = "= $can.continueWatching false true if",
         }, [node44]);
         var node46 = new DesignNode("node46", "text", new()
         {
@@ -1910,12 +1911,12 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["paddingX"] = "@layout.panelPadding",
-            ["minHeight"] = "@control.outlinedButtonMinHeight",
+            ["minHeight"] = "@control.filledButtonMinHeight",
             ["radius"] = "@control.buttonRadius",
             ["border"] = "theme.border",
             ["borderWidth"] = "@control.borderWidth",
-            ["background"] = "theme.surfaceRaised",
-            ["foreground"] = "theme.text",
+            ["background"] = "theme.accent",
+            ["foreground"] = "@color.dark.text",
             ["fontSize"] = "@type.bodySize",
             ["weight"] = "semibold",
             ["contentAlign"] = "center",
@@ -1923,6 +1924,7 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.continueWatching",
             ["automation"] = "{namespace}.continueWatching",
             ["label"] = "~continueWatching",
+            ["when"] = "$can.continueWatching",
         }, [node46]);
         var node48 = new DesignNode("node48", "text", new()
         {
@@ -1955,6 +1957,7 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.endWatching",
             ["automation"] = "{namespace}.endWatching",
             ["label"] = "~endWatching",
+            ["when"] = "$can.endWatching",
         }, [node48]);
         var node50 = new DesignNode("node50", "row", new()
         {

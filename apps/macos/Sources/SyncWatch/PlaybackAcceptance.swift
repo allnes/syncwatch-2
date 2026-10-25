@@ -150,6 +150,6 @@ import SyncWatchDomain
             try JSONSerialization.data(withJSONObject: value, options: [.prettyPrinted, .sortedKeys]).write(
                 to: report, options: .atomic)
         } catch { FileHandle.standardError.write(Data("Native playback report failed\n".utf8)) }
-        NSApplication.shared.terminate(nil)
+        ApplicationLifecycle.afterCurrentEvent { NSApplication.shared.terminate(nil) }
     }
 }

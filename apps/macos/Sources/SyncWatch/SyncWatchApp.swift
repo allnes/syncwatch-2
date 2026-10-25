@@ -5,7 +5,7 @@ import SyncWatchDomain
 
 @main
 struct SyncWatchApp: App {
-    private let playbackScope = PlaybackScope.fresh()
+    @NSApplicationDelegateAdaptor(ApplicationLifecycle.self) private var lifecycle
 
     var body: some Scene {
         Window("SyncWatch", id: "main") {
@@ -24,7 +24,7 @@ struct SyncWatchApp: App {
             } else if CommandLine.arguments.contains("--design-gallery") {
                 DesignGallery()
             } else {
-                ApplicationWorkspace()
+                ApplicationWorkspace(lifecycle: lifecycle)
             }
         }
         .defaultSize(width: SyncWatchTokens.layoutGalleryWidth, height: SyncWatchTokens.layoutGalleryHeight)

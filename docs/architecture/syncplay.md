@@ -48,9 +48,11 @@ Only play, pause, seek, and movie/playlist-item selection are shared user playba
 
 The [development helper](../syncplay-bridge.md) implements owned process startup, strict inherited-pipe validation and native transport boundaries. It remains separate from production provider activation and actual VLC acceptance.
 
+The native domain `PlaybackActionFence` tracks issued user actions separately from actual user frames published to the helper. An older correction waits while a new local action is pending and becomes cancellable after the newer actual observation has been sent. Future watermarks and other native scopes are invalid; invalidation rejects queued work. The serialized writer checks publication order before sending and records publication only after successful I/O. Native bindings must recheck the fence before execution and after native awaits. This structure does not implement synchronization timing policy. Native playback ports reject already-cancelled scoped commands before submitting native work; terminal release remains unconditional. A command already executing in VLC requires an actual subsequent observation and an ordering recheck before acknowledgement.
+
 ## Local IPC v1
 
-Use inherited anonymous pipes for `stdin` and `stdout` on both platforms. Frames are newline-delimited UTF-8 JSON. Standard output contains protocol frames only; standard error carries sanitized diagnostics. Serialize writes and read asynchronously away from the UI thread.
+Use inherited anonymous pipes for `stdin` and `stdout` on all three platforms. Frames are newline-delimited UTF-8 JSON. Standard output contains protocol frames only; standard error carries sanitized diagnostics. Serialize writes and read asynchronously away from the UI thread.
 
 Example engine-to-player request:
 

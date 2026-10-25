@@ -13,9 +13,9 @@ internal sealed record LocalPlaybackLaunch(string File, string Package, string B
     {
         string? Value(string flag) { int i = Array.IndexOf(arguments, flag); return i >= 0 && i + 1 < arguments.Length ? arguments[i + 1] : null; }
         string? file = Value("--local-playback");
+        var media = MediaConfiguration.Read(arguments);
         return file is null ? null : new(Path.GetFullPath(file),
-            Value("--media-package") ?? Path.Combine(AppContext.BaseDirectory, "Media"),
-            Value("--playback-bridge") ?? Path.Combine(AppContext.BaseDirectory, "syncwatch_playback.dll"),
+            media.Package, media.Bridge,
             Value("--playback-report"), arguments.Contains("--playback-detach-probe"));
     }
 }
@@ -24,11 +24,19 @@ internal sealed record LocalPlaybackLaunch(string File, string Package, string B
 internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
 {
     private readonly VLCPlayback player = new();
-    private readonly PlaybackScope scope = PlaybackScope.Create().ReplacingMedia();
+    private readonly PlaybackScope scope;
     private readonly PlayerChrome chrome = new();
     private readonly NativeVideoHost surface;
     private readonly LocalPlaybackLaunch launch;
-    private readonly string language;
+    private string language;
+    private readonly long initialPositionMs;
+    private LibraryMediaSelection? selection;
+    private readonly Action<PlaybackScope>? onLoaded;
+    private readonly Action<PlaybackObservation>? onObservation;
+    private readonly Action<string>? onNavigation;
+    private readonly Action? onFailure;
+    private readonly Action? onFullscreen;
+    private HashSet<string> NavigationActions => onNavigation is null ? ["endWatching", "toggleFullscreen"] : ["endWatching", "toggleFullscreen", "showLibrary"];
     private readonly CancellationTokenSource cancellation = new();
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
@@ -46,29 +54,49 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.Render(presentation, language);
     }
 
-    public PlaybackWorkspace(LocalPlaybackLaunch launch, string language)
+    public PlaybackWorkspace(LocalPlaybackLaunch launch, string language, PlaybackScope? scope = null, long positionMs = 0,
+        LibraryMediaSelection? selection = null, Action<PlaybackScope>? onLoaded = null,
+        Action<PlaybackObservation>? onObservation = null, Action<string>? onNavigation = null, Action? onFailure = null,
+        Action? onFullscreen = null)
     {
         this.launch = launch; this.language = language;
+        this.scope = scope ?? PlaybackScope.Create().ReplacingMedia(); initialPositionMs = positionMs;
+        this.selection = selection; this.onLoaded = onLoaded; this.onObservation = onObservation;
+        this.onNavigation = onNavigation; this.onFailure = onFailure;
+        this.onFullscreen = onFullscreen;
         surface = new NativeVideoHost(CloseAsync);
-        surface.SurfaceCreated += handle => { if (!attached) { attached = true; polling = PollAsync(handle); } };
+        surface.SurfaceCreated += handle => { if (!attached && !cancellation.IsCancellationRequested) { attached = true; polling = PollAsync(handle); } };
         chrome.VideoSurface = surface;
         chrome.ActionRequested += Action;
-        presentation = presentation with { Title = Path.GetFileName(launch.File), EnabledActions = new HashSet<string> { "endWatching", "toggleFullscreen" } };
+        presentation = presentation with { Title = Path.GetFileName(launch.File), EnabledActions = NavigationActions };
         chrome.Render(presentation, language); Content = chrome;
     }
+    public void SetLanguage(string value) { language = value; chrome.Render(presentation, language); }
     private async Task PollAsync(nint handle)
     {
         try
         {
             await player.OpenAsync(launch.Bridge, launch.Package, handle, cancellation.Token);
             await player.LoadAsync(launch.File, scope, cancellation.Token);
+            onLoaded?.Invoke(scope);
+            bool resumePending = initialPositionMs > 0;
             if (launch.Report is string report) _ = PlaybackAcceptance.RunAsync(this, report, launch.DetachProbe);
             while (!cancellation.IsCancellationRequested)
             {
                 PlaybackObservation value = await player.ObserveAsync(scope, cancellation.Token);
                 if (cancellation.IsCancellationRequested) break;
                 if (value.Status == PlaybackStatus.Failed) throw new PlaybackException("media");
-                HashSet<string> enabled = ["endWatching", "toggleFullscreen", "playPause"];
+                if (resumePending && value.Status == PlaybackStatus.Ready)
+                {
+                    resumePending = false;
+                    if (value.Seekable)
+                    {
+                        try { await player.SeekAsync(Math.Min(initialPositionMs, value.DurationMs ?? initialPositionMs), scope, cancellation.Token); }
+                        catch (PlaybackException) { /* The next actual observation remains authoritative. */ }
+                        continue;
+                    }
+                }
+                HashSet<string> enabled = NavigationActions; enabled.Add("playPause");
                 if (value.Seekable) enabled.UnionWith(["seek", "skip"]);
                 if (value.Volume is not null) enabled.UnionWith(["setMovieVolume", "muteMovie"]);
                 presentation = presentation with
@@ -81,6 +109,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                     EnabledActions = enabled,
                 };
                 chrome.Render(presentation, language);
+                onObservation?.Invoke(value);
                 await Task.Delay(100, cancellation.Token);
             }
         }
@@ -98,13 +127,15 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                     PlaybackAcceptance.Finish(report, new() { ["success"] = false, ["failure"] = "startup", ["physicalOutputAccepted"] = false });
                     return;
                 }
-                MessageBox.Show(Window.GetWindow(this), SyncWatchCopy.Text("playbackFailed", language), "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (onFailure is not null) onFailure();
+                else MessageBox.Show(Window.GetWindow(this), SyncWatchCopy.Text("playbackFailed", language), "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
     private async void Action(string action, double? value)
     {
         if (cancellation.IsCancellationRequested) return;
+        if ((action is "endWatching" or "showLibrary") && onNavigation is not null) { onNavigation(action); return; }
         if (action == "endWatching")
         {
             Window window = Window.GetWindow(this);
@@ -112,6 +143,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         }
         if (action == "toggleFullscreen")
         {
+            if (onFullscreen is not null) { onFullscreen(); return; }
             Window window = Window.GetWindow(this);
             if (fullscreen) { window.WindowStyle = savedWindowStyle; window.WindowState = savedWindowState; }
             else
@@ -142,6 +174,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.Render(presentation, language);
         await player.DisposeAsync();
         if (polling is not null) await polling;
+        GC.KeepAlive(selection);
+        selection = null;
     }
     public async ValueTask DisposeAsync() => await CloseAsync();
 }

@@ -6,6 +6,9 @@ using SyncWatch.Library;
 
 namespace SyncWatch;
 
+// Local ownership only. A catalog identifier is not proof of identical peer content.
+internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolderAccess Access);
+
 /// <summary>Application state; filesystem, access, persistence and design retain independent owners.</summary>
 internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null) : IDisposable
 {
@@ -13,6 +16,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     private readonly SemaphoreSlim persistence = new(1, 1);
     private CancellationTokenSource? pending;
     private LibraryFolderAccess? grant;
+    private IReadOnlyDictionary<string, LocalMediaFile> catalog = new Dictionary<string, LocalMediaFile>();
     private LibraryPresentation? stable;
     private long generation;
     private bool closed;
@@ -33,9 +37,24 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     });
     public void Choose(string path) => Start(token => Task.Run<LibraryFolderAccess?>(() => LibraryFolderAccess.Selected(path), token));
     public void Rescan() { if (grant is not null) { var owner = grant; Start(_ => Task.FromResult<LibraryFolderAccess?>(owner)); } }
-    public void Select(string id) => Presentation.Dispatch("selectMovie", id, (_, _) => { Presentation = Presentation with { SelectedId = id }; stable = Presentation; Changed?.Invoke(); });
+    public void Select(string id)
+    {
+        dispatcher.VerifyAccess(); if (closed) return;
+        Presentation.Dispatch("selectMovie", id, (_, _) => { Presentation = Presentation with { SelectedId = id }; stable = Presentation; Changed?.Invoke(); });
+    }
+    public LibraryMediaSelection? SelectedMedia()
+    {
+        dispatcher.VerifyAccess();
+        return !closed && Presentation.State == LibraryVisualState.Selected && grant is not null &&
+            Presentation.SelectedId is string id && catalog.TryGetValue(id, out var media) ? new(media, grant) : null;
+    }
     public void ClearError() => ErrorKey = null;
-    public void Dispose() { closed = true; generation++; pending?.Cancel(); grant = null; }
+    public void Dispose()
+    {
+        dispatcher.VerifyAccess(); closed = true; generation++; pending?.Cancel(); grant = null;
+        catalog = new Dictionary<string, LocalMediaFile>();
+        Presentation = Presentation with { EnabledActions = new HashSet<string>() };
+    }
 
     private async Task<T> Storage<T>(Func<T> operation, CancellationToken token)
     {
@@ -64,7 +83,8 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             var rows = files.OrderBy(x => x.Title.ToLowerInvariant(), utf8).ThenBy(x => x.RelativePath, utf8)
                 .Select(x => new LibraryEntry(x.Id, x.Title, x.File)).ToArray();
             string? selected = new[] { previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
-            grant = next; Presentation = new()
+            var nextCatalog = files.ToDictionary(x => x.Id);
+            grant = next; catalog = nextCatalog; Presentation = new()
             {
                 State = rows.Length == 0 ? LibraryVisualState.Empty : LibraryVisualState.Selected,
                 Entries = rows,

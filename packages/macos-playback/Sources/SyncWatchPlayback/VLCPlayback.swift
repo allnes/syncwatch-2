@@ -14,12 +14,61 @@ private final class NativeOwner: @unchecked Sendable {
     }
 }
 
+private final class RuntimeOwner: @unchecked Sendable {
+    var pointer: OpaquePointer?
+    func close() {
+        if let pointer {
+            sw_runtime_close(pointer)
+            self.pointer = nil
+        }
+    }
+}
+
+/// One application owns the plugin bank; ending a movie releases only that movie's player.
+public actor VLCPlaybackRuntime {
+    private let owner = RuntimeOwner()
+    private var closed = false
+    public init() {}
+    public func open(package: URL) throws {
+        guard !closed, owner.pointer == nil else { throw PlaybackFailure.closed }
+        let runtime = try MediaRuntime(package: package)
+        guard sw_runtime_open(runtime.library.path, runtime.revision, 1, &owner.pointer) == 0 else {
+            throw PlaybackFailure.unavailable
+        }
+    }
+    fileprivate func makePlayer(surface: UInt) throws -> NativeOwner {
+        guard !closed, let pointer = owner.pointer else { throw PlaybackFailure.closed }
+        let result = NativeOwner()
+        guard sw_playback_open_runtime(pointer, UnsafeMutableRawPointer(bitPattern: surface), 0, &result.pointer) == 0
+        else { throw PlaybackFailure.engine }
+        return result
+    }
+    public func close() {
+        closed = true
+        owner.close()
+    }
+    deinit {
+        let runtime = owner
+        Task.detached { runtime.close() }
+    }
+}
+
 public actor VLCPlayback: PlaybackPort {
-    private let owner = NativeOwner()
+    private var owner = NativeOwner()
     private var scope: PlaybackScope?
     private var closed = false
 
     public init() {}
+
+    public func open(runtime: VLCPlaybackRuntime, appKitSurfaceAddress: UInt) async throws {
+        guard !closed, owner.pointer == nil else { throw PlaybackFailure.closed }
+        let prepared = try await runtime.makePlayer(surface: appKitSurfaceAddress)
+        guard !closed, owner.pointer == nil else {
+            prepared.close()
+            throw PlaybackFailure.closed
+        }
+        owner = prepared
+    }
 
     /// Call from a coordinator; retain the native view until close completes.
     /// The actor executor performs blocking native work away from the UI actor.
@@ -98,6 +147,9 @@ public actor VLCPlayback: PlaybackPort {
         owner.close()
     }
     private func native(_ incoming: PlaybackScope? = nil) throws -> OpaquePointer {
+        // Check on the actor executor, before any scoped native operation starts.
+        // Terminal close intentionally bypasses this cancellable command path.
+        try Task.checkCancellation()
         guard !closed, let pointer = owner.pointer else { throw PlaybackFailure.closed }
         if let incoming {
             guard let scope else { throw PlaybackFailure.unavailable }

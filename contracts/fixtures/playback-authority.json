@@ -1,0 +1,280 @@
+{
+  "formatVersion": 1,
+  "scope": {
+    "clientRunId": "run-1",
+    "mediaGeneration": 2
+  },
+  "cases": [
+    {
+      "name": "cancel-only-after-actual-user-publication",
+      "steps": [
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "result": "apply"
+        },
+        {
+          "op": "begin",
+          "result": "1"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 1,
+          "result": "true"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "result": "waitForUserObservation"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "result": "true"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "result": "cancelled"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "result": "apply"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 1,
+          "result": "false"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "result": "false"
+        },
+        {
+          "op": "begin",
+          "result": "2"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "result": "waitForUserObservation"
+        },
+        {
+          "op": "publish",
+          "sequence": 2,
+          "status": "loading",
+          "error": "invalidState"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "result": "waitForUserObservation"
+        },
+        {
+          "op": "publish",
+          "sequence": 2,
+          "result": "true"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "result": "cancelled"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 2,
+          "result": "apply"
+        }
+      ]
+    },
+    {
+      "name": "late-completion-cannot-republish-older-user-state",
+      "steps": [
+        {
+          "op": "begin",
+          "result": "1"
+        },
+        {
+          "op": "begin",
+          "result": "2"
+        },
+        {
+          "op": "publish",
+          "sequence": 2,
+          "result": "true"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 1,
+          "result": "false"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "result": "false"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "result": "cancelled"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 2,
+          "result": "apply"
+        }
+      ]
+    },
+    {
+      "name": "scope-identity-never-mutates-the-current-owner",
+      "steps": [
+        {
+          "op": "begin",
+          "ownerRunId": "run-other",
+          "error": "foreignRun"
+        },
+        {
+          "op": "begin",
+          "ownerGeneration": 1,
+          "error": "staleGeneration"
+        },
+        {
+          "op": "begin",
+          "result": "1"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "ownerRunId": "run-other",
+          "error": "foreignRun"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "ownerGeneration": 3,
+          "error": "staleGeneration"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "ownerRunId": "run-other",
+          "error": "foreignRun"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "ownerGeneration": 1,
+          "error": "staleGeneration"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "result": "true"
+        }
+      ]
+    },
+    {
+      "name": "future-and-unissued-sequences-fail-closed",
+      "steps": [
+        {
+          "op": "correction",
+          "afterUserAction": 1,
+          "error": "malformed"
+        },
+        {
+          "op": "publish",
+          "sequence": 0,
+          "error": "malformed"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "error": "malformed"
+        },
+        {
+          "op": "begin",
+          "result": "1"
+        },
+        {
+          "op": "publish",
+          "sequence": 2,
+          "error": "malformed"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 0,
+          "error": "malformed"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 9007199254740992,
+          "error": "malformed"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 9007199254740992,
+          "error": "malformed"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "result": "true"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 2,
+          "error": "malformed"
+        }
+      ]
+    },
+    {
+      "name": "closing-invalidates-waiting-and-new-work",
+      "steps": [
+        {
+          "op": "begin",
+          "result": "1"
+        },
+        {
+          "op": "invalidate",
+          "result": ""
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "result": "unavailable"
+        },
+        {
+          "op": "begin",
+          "error": "invalidState"
+        },
+        {
+          "op": "canPublish",
+          "sequence": 1,
+          "error": "invalidState"
+        },
+        {
+          "op": "publish",
+          "sequence": 1,
+          "error": "invalidState"
+        },
+        {
+          "op": "invalidate",
+          "result": ""
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "result": "unavailable"
+        },
+        {
+          "op": "correction",
+          "afterUserAction": 0,
+          "ownerRunId": "run-other",
+          "error": "foreignRun"
+        }
+      ]
+    }
+  ]
+}

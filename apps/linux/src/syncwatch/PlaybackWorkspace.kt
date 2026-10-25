@@ -31,7 +31,8 @@ internal data class LocalPlaybackLaunch(val file: Path, val packageDirectory: Pa
             fun required(flag: String) = Path.of(requireNotNull(value(flag)) { flag }).toAbsolutePath().normalize()
             val report = value("--playback-report")?.let { Path.of(it).toAbsolutePath().normalize() }
             require(report == null || !java.nio.file.Files.exists(report)) { "playback-report-exists" }
-            return LocalPlaybackLaunch(required("--local-playback"), required("--media-package"), required("--playback-bridge"),
+            val media = MediaConfiguration.read(arguments)
+            return LocalPlaybackLaunch(required("--local-playback"), media.packageDirectory, media.bridge,
                 report, "--playback-detach-probe" in arguments)
         }
     }
@@ -42,19 +43,28 @@ internal class PlaybackController(
     private val launch: LocalPlaybackLaunch,
     display: X11Display,
     parentScope: CoroutineScope,
+    requestedScope: PlaybackScope? = null,
+    private val initialPositionMs: Long = 0,
+    private var selection: LibraryMediaSelection? = null,
+    private val onLoaded: ((PlaybackScope) -> Unit)? = null,
+    private val onObservation: ((PlaybackObservation) -> Unit)? = null,
+    private val onNavigation: ((String) -> Unit)? = null,
+    private val onFailure: (() -> Unit)? = null,
 ) {
     private val ownerJob = SupervisorJob(parentScope.coroutineContext[Job])
     private val work = CoroutineScope(parentScope.coroutineContext + ownerJob)
     internal val player = VLCPlayback()
-    internal val scope = PlaybackScope.fresh().replacingMedia()
+    internal val scope = requestedScope ?: PlaybackScope.fresh().replacingMedia()
     internal val loaded = CompletableDeferred<Unit>()
     internal val acceptanceRequested = launch.report != null
     private var started = false
     private var closing = false
     private var shutdown: CompletableFuture<Void>? = null
+    private val navigationActions get() = if (onNavigation == null) setOf("endWatching", "toggleFullscreen")
+        else setOf("endWatching", "toggleFullscreen", "showLibrary")
     val canvas = X11VideoCanvas(display, ::closeNative)
     var presentation by mutableStateOf(PlayerPresentation(title = launch.file.fileName?.toString().orEmpty(),
-        enabledActions = setOf("endWatching", "toggleFullscreen")))
+        enabledActions = navigationActions))
         private set
     var failed by mutableStateOf(false)
         private set
@@ -68,17 +78,29 @@ internal class PlaybackController(
                 player.open(launch.bridge, launch.packageDirectory, canvas)
                 player.load(launch.file, scope)
                 loaded.complete(Unit)
+                onLoaded?.invoke(scope)
+                var resumePending = initialPositionMs > 0
                 while (isActive && !closing) {
                     val value = player.observe(scope)
                     if (value.status == PlaybackStatus.failed) throw WatchFailure("media")
+                    if (resumePending && value.status == PlaybackStatus.ready) {
+                        resumePending = false
+                        if (value.seekable) {
+                            try { player.seek(minOf(initialPositionMs, value.durationMs ?: initialPositionMs), scope) }
+                            catch (cancelled: CancellationException) { throw cancelled }
+                            catch (_: Exception) { /* The next observation remains authoritative. */ }
+                            continue
+                        }
+                    }
                     apply(value)
+                    onObservation?.invoke(value)
                     delay(100)
                 }
             } catch (_: CancellationException) {
                 loaded.completeExceptionally(CancellationException("closed"))
             } catch (error: Exception) {
                 loaded.completeExceptionally(error)
-                if (!closing) { failed = true; presentation = presentation.copy(enabledActions = setOf("endWatching")) }
+                if (!closing) { failed = true; presentation = presentation.copy(enabledActions = setOf("endWatching")); onFailure?.invoke() }
             }
         }
     }
@@ -91,7 +113,7 @@ internal class PlaybackController(
             value.paused -> PlayerVisualState.paused
             else -> PlayerVisualState.playing
         }
-        val enabled = mutableSetOf("endWatching", "toggleFullscreen", "playPause")
+        val enabled = navigationActions.toMutableSet().apply { add("playPause") }
         if (value.seekable) enabled.addAll(setOf("seek", "skip"))
         if (value.volume != null) enabled.addAll(setOf("setMovieVolume", "muteMovie"))
         presentation = presentation.copy(state = state, positionMs = value.positionMs,
@@ -102,6 +124,10 @@ internal class PlaybackController(
     fun action(action: String, value: Double?, close: () -> Unit, fullscreen: () -> Unit) {
         if (closing) return
         presentation.dispatch(action, value) { accepted, number ->
+            if (accepted in setOf("endWatching", "showLibrary") && onNavigation != null) {
+                onNavigation.invoke(accepted)
+                return@dispatch
+            }
             when (accepted) {
                 "endWatching" -> requestClose(close)
                 "toggleFullscreen" -> fullscreen()
@@ -126,15 +152,22 @@ internal class PlaybackController(
         loaded.completeExceptionally(CancellationException("closed"))
         presentation = presentation.copy(enabledActions = emptySet())
         ownerJob.cancel()
-        return player.closeAsync().also { shutdown = it }.copy()
+        return player.closeAsync().also {
+            shutdown = it
+            it.whenComplete { _, error -> if (error == null) EventQueue.invokeLater {
+                java.lang.ref.Reference.reachabilityFence(selection)
+                selection = null
+            } }
+        }.copy()
     }
 
     fun requestClose(onClosed: () -> Unit) {
-        val release = canvas.releaseAfter(closeNative())
+        val release = closeAndRelease()
         release.whenComplete { _, error -> EventQueue.invokeLater {
             if (error == null) onClosed() else failed = true
         } }
     }
+    fun closeAndRelease(): CompletableFuture<Void> = canvas.releaseAfter(closeNative())
 }
 
 @Composable internal fun PlaybackWorkspace(controller: PlaybackController, onClose: () -> Unit, onFullscreen: () -> Unit) {
@@ -142,12 +175,17 @@ internal class PlaybackController(
     val language = preferences.state.preferences.language
     val dark = when (preferences.state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
-    LaunchedEffect(controller) { controller.start() }
-    PlayerChrome(controller.presentation, language, theme,
-        videoSurface = { NativePlayerSurface(controller.canvas) },
-        onAction = { action, value -> controller.action(action, value, onClose, onFullscreen) })
+    PlaybackPane(controller, language, theme, onClose, onFullscreen)
     LaunchedEffect(controller.failed) {
         if (controller.failed && !controller.acceptanceRequested) javax.swing.JOptionPane.showMessageDialog(null,
             SyncWatchCopy.text("playbackFailed", language), "SyncWatch", javax.swing.JOptionPane.ERROR_MESSAGE)
     }
+}
+
+@Composable internal fun PlaybackPane(controller: PlaybackController, language: String, theme: SyncWatchTheme,
+    onClose: () -> Unit, onFullscreen: () -> Unit) {
+    LaunchedEffect(controller) { controller.start() }
+    PlayerChrome(controller.presentation, language, theme,
+        videoSurface = { NativePlayerSurface(controller.canvas) },
+        onAction = { action, value -> controller.action(action, value, onClose, onFullscreen) })
 }

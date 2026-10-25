@@ -16,6 +16,8 @@ import tarfile
 import tempfile
 import zipfile
 
+from git_objects import read_blobs
+
 
 ROOT = Path(__file__).resolve().parents[2]
 PLATFORMS = {
@@ -187,8 +189,7 @@ def verify_source_export(archive, entries, revision, notices):
 def export_original_blobs(source, archive, entries, revision):
     """Archive exact Git blobs, without checkout/archive EOL or export filters."""
     objects = list(dict.fromkeys(identity for _mode, identity in entries.values()))
-    data = subprocess.check_output(["git", "cat-file", "--batch"], cwd=source,
-                                   input=("\n".join(objects) + "\n").encode())
+    data = read_blobs(source, objects)
     stream = io.BytesIO(data)
     blobs = {}
     for identity in objects:
