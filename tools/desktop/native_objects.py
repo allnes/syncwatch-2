@@ -36,7 +36,7 @@ class Context:
         self.work = work
         self.logs = work / "logs"
         self.logs.mkdir(parents=True)
-        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(profile["sourceDateEpoch"]), GIT_CEILING_DIRECTORIES=str(work),
+        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(profile["sourceDateEpoch"]), GIT_CEILING_DIRECTORIES=str(work), LC_ALL="C",
                         CC="gcc", CXX="g++", **OFFLINE)
         self.env["PATH"] = os.pathsep.join(map(str, [*sdk_paths(self.env), self.env["PATH"]]))
         # Developer SDK inputs cannot inject an undeclared application header/library.

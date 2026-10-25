@@ -45,7 +45,7 @@ class BuildContext:
         self.prefix = work / "prefix"
         self.prefix.mkdir(exist_ok=True)
         self.commands = {}
-        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(epoch), PYTHONDONTWRITEBYTECODE="1",
+        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(epoch), PYTHONDONTWRITEBYTECODE="1", LC_ALL="C",
                         CONFIG_SITE="/dev/null", GCRYPT_CONFIG="false",
                         GIT_CEILING_DIRECTORIES=str(work.resolve()))
         paths = []
@@ -168,7 +168,7 @@ class BuildContext:
                                      stdout=log, stderr=subprocess.STDOUT, timeout=timeout)
         self.commands[label] = {"args": args, "logSha256": checksum(output), "exitCode": process.returncode,
                                 "configuration": {key: environment[key] for key in
-                                    ["CC", "CXX", "CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "SOURCE_DATE_EPOCH"]}}
+                                    ["CC", "CXX", "CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "SOURCE_DATE_EPOCH", "LC_ALL"]}}
         (self.work / "commands.json").write_text(json.dumps(self.commands, indent=2) + "\n")
         if process.returncode:
             raise ValueError(label + " failed:\n" + output.read_bytes()[-12000:].decode("utf-8", errors="replace"))

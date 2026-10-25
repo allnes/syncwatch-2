@@ -13,6 +13,7 @@ import native_sources
 import native_objects
 import header_scope
 import platform_data
+import native_context
 
 
 class NativeProfileTests(unittest.TestCase):
@@ -82,6 +83,21 @@ class NativeProfileTests(unittest.TestCase):
             self.assertNotIn("CPATH", context.env)
             self.assertNotIn("LIBRARY_PATH", context.env)
             self.assertEqual(context.env["GIT_NO_LAZY_FETCH"], "1")
+
+    def test_build_child_receives_owned_locale_despite_an_inherited_utf8_override(self):
+        with tempfile.TemporaryDirectory() as work:
+            with patch.dict(os.environ, {"LC_ALL": "C.UTF-8", "LC_CTYPE": "C.UTF-8"}), \
+                    patch.object(native_context.BuildContext, "tool", return_value=sys.executable):
+                context = native_context.BuildContext(Path(work), 0)
+            context.run("locale-child", [sys.executable, "-c",
+                "import json, locale, os; print(json.dumps({'override': os.environ['LC_ALL'], 'ctype': locale.setlocale(locale.LC_CTYPE)}))"], timeout=30)
+            child = json.loads((context.logs / "locale-child.log").read_text())
+            self.assertEqual(child["override"], "C")
+            # Windows Python retains its native CRT locale; GNU build tools
+            # consume the inherited POSIX environment. POSIX Python also lets
+            # this real child assert the resulting C character classification.
+            if os.name != "nt":
+                self.assertEqual(child["ctype"], "C")
 
     def test_system_x11_and_zlib_headers_are_not_compiler_sdk_inputs(self):
         for path in ("/usr/include/X11/Xlib.h", "/usr/include/zlib.h", "/usr/include/unicode/uchar.h",
