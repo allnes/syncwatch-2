@@ -158,7 +158,7 @@ import SyncWatchLibrary
         .alert(
             SyncWatchCopy.text("brand", language: preferences.state.preferences.language),
             isPresented: Binding(
-                get: { library.errorKey != nil || watch.errorKey != nil },
+                get: { !WatchAcceptance.requested && (library.errorKey != nil || watch.errorKey != nil) },
                 set: {
                     if !$0 {
                         library.errorKey = nil

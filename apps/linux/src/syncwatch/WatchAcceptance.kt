@@ -20,12 +20,19 @@ internal object WatchAcceptance {
         fun value(flag: String) = arguments.indexOf(flag).takeIf { it >= 0 }?.let { arguments.getOrNull(it + 1) }
         val report = value("--watch-check-report")?.let(Path::of)
         val file = value("--watch-check-media")?.let(Path::of)
+        val mode = value("--watch-check-mode") ?: "normal"
         if (report == null || file == null || value("--state-directory") == null || Files.exists(report)) { exit(); return }
         val result = linkedMapOf<String, Any>("success" to false, "guiObserved" to false,
             "physicalOutputAccepted" to false, "applicationBuildReady" to false)
         val watch = workspace.watch; val catalog = workspace.library; val preferences = workspace.preferences
         try {
             result["stage"] = "library"
+            if (mode == "missing-runtime") {
+                check(!watch.runtimeAvailable && watch.errorKey == "playbackFailed" && watch.player == null)
+                check("startWatching" !in watch.libraryPresentation(catalog.presentation).enabledActions)
+                watch.close(); result["missingRuntimeRejected"] = true; result["success"] = true; result.remove("stage")
+                finish(result, catalog, report, exit); return
+            }
             check(watch.runtimeAvailable && watch.player == null && !watch.playerPresented)
             catalog.settled()
             if (catalog.presentation.entries.isEmpty()) { catalog.choose(file.parent); catalog.settled() }
@@ -34,6 +41,19 @@ internal object WatchAcceptance {
             val selection = checkNotNull(catalog.selectedMedia())
             val expected = preferences.state.resumePositionFor(entry.id)
             result["restoredPositionMs"] = expected
+            if (mode != "normal") {
+                result["stage"] = mode; watch.start(selection)
+                if (mode == "load-failure") {
+                    until { watch.phase == WatchPhase.ended && watch.player == null }
+                    check(watch.errorKey == "playbackFailed" && !watch.playerPresented); result["failedLoadReleased"] = true
+                } else if (mode == "close-preparing") {
+                    until { watch.player != null }; check(watch.phase == WatchPhase.preparing)
+                    watch.close(); watch.close(); check(watch.player == null && !watch.playerPresented)
+                    result["closeDuringPreparation"] = true
+                } else error("watch check mode")
+                watch.close(); result["success"] = true; result.remove("stage")
+                finish(result, catalog, report, exit); return
+            }
             result["stage"] = "start"
             watch.start(selection)
             until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }
@@ -91,6 +111,9 @@ internal object WatchAcceptance {
             }
             watch.close()
         }
+        finish(result, catalog, report, exit)
+    }
+    private fun finish(result: Map<String, Any>, catalog: LibraryController, report: Path, exit: () -> Unit) {
         catalog.close()
         Files.writeString(report, Json.write(result) + "\n", StandardOpenOption.CREATE_NEW)
         exit()

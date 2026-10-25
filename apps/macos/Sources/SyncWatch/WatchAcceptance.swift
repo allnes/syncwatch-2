@@ -23,6 +23,7 @@ import SyncWatchDomain
         func value(_ flag: String) -> String? {
             arguments.firstIndex(of: flag).flatMap { $0 + 1 < arguments.count ? arguments[$0 + 1] : nil }
         }
+        let mode = value("--watch-check-mode") ?? "normal"
         guard let path = value("--watch-check-report"), let file = value("--watch-check-media"),
             value("--state-directory") != nil, !FileManager.default.fileExists(atPath: path)
         else {
@@ -39,6 +40,16 @@ import SyncWatchDomain
         }
         do {
             stage("library")
+            if mode == "missing-runtime" {
+                try require(!watch.runtimeAvailable && watch.errorKey == "playbackFailed" && watch.player == nil)
+                try require(!watch.libraryPresentation(library.presentation).enabledActions.contains("startWatching"))
+                await watch.close()
+                result["missingRuntimeRejected"] = true
+                result["success"] = true
+                result.removeValue(forKey: "stage")
+                finish(result, library: library, path: path)
+                return
+            }
             try require(watch.runtimeAvailable && watch.player == nil && !watch.playerPresented)
             await library.settled()
             result["libraryRestoreError"] = library.errorKey ?? ""
@@ -56,6 +67,29 @@ import SyncWatchDomain
             try require(savedSelection == nil || savedSelection == entry.id)
             let expectedResume = preferences.state.resumePosition(for: entry.id)
             result["restoredPositionMs"] = expectedResume
+            if mode != "normal" {
+                stage(mode)
+                watch.start(selection)
+                if mode == "load-failure" {
+                    try await until { watch.phase == .ended && watch.player == nil }
+                    try require(watch.errorKey == "playbackFailed" && !watch.playerPresented)
+                    result["failedLoadReleased"] = true
+                } else if mode == "close-preparing" {
+                    try await until { watch.player != nil }
+                    try require(watch.phase == .preparing)
+                    await watch.close()
+                    await watch.close()
+                    try require(watch.player == nil && !watch.playerPresented)
+                    result["closeDuringPreparation"] = true
+                } else {
+                    throw Failure.condition
+                }
+                await watch.close()
+                result["success"] = true
+                result.removeValue(forKey: "stage")
+                finish(result, library: library, path: path)
+                return
+            }
             stage("start")
             watch.start(selection)
             try await until { watch.player?.view?.window != nil && watch.phase == .active }
@@ -119,6 +153,9 @@ import SyncWatchDomain
             result["failure"] = String(describing: error)
             await watch.close()
         }
+        finish(result, library: library, path: path)
+    }
+    private static func finish(_ result: [String: Any], library: LibraryController, path: String) {
         library.close()
         do {
             try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]).write(

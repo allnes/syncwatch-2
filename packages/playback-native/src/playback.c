@@ -189,6 +189,12 @@ int sw_playback_observe(sw_playback *p, uint64_t generation, sw_observation *res
         result->duration_ms = p->api.libvlc_media_player_get_length(p->player);
         if (result->duration_ms > INT64_C(604800000)) { result->status = SW_FAILED; result->position_ms = 0; result->duration_ms = -1; return SW_OK; }
         if (result->position_ms < 0) result->position_ms = 0;
+        /* Some demuxers report EOF rather than Error for a corrupt/empty local
+         * item. It has no playable timeline; do not acknowledge Ready/resume. */
+        if (state == libvlc_Ended && result->duration_ms <= 0 && result->position_ms == 0) {
+            result->status = SW_FAILED;
+            return SW_OK;
+        }
         if (result->duration_ms >= 0 && result->position_ms > result->duration_ms) result->position_ms = result->duration_ms;
         result->paused = state != libvlc_Playing;
         result->seekable = p->api.libvlc_media_player_is_seekable(p->player);
