@@ -17,6 +17,10 @@ public final class X11Display {
         private final X11Display display;
         private final Canvas canvas;
         private final long drawable;
+        private long owner;
+        private boolean parked;
+        private boolean bound;
+        private boolean released;
 
         private Surface(X11Display display, Canvas canvas, long drawable) {
             this.display = display;
@@ -24,11 +28,28 @@ public final class X11Display {
             this.drawable = drawable;
         }
 
-        long drawable() { return drawable; }
-        void retainUntilClosed() {
+        private Surface(X11Display display, Canvas canvas, long drawable, long owner) {
+            this(display, canvas, drawable);
+            this.owner = owner;
+        }
+
+        synchronized long bindDrawable() {
+            if (bound || released) throw new IllegalStateException("surface-owned-or-closed");
+            bound = true;
+            return drawable;
+        }
+        synchronized void retainUntilClosed() {
+            if (owner != 0) { destroyOwned(owner); owner = 0; }
+            released = true;
             java.lang.ref.Reference.reachabilityFence(canvas);
             java.lang.ref.Reference.reachabilityFence(display);
         }
+        synchronized void resize() { if (owner != 0 && !parked) resizeOwned(owner); }
+        synchronized void park() {
+            if (owner != 0 && !parked) { parkOwned(owner); parked = true; }
+        }
+        /** Development lifecycle observation; no physical pixel/output claim. */
+        public synchronized boolean isParkedAndAlive() { return owner != 0 && isParkedOwned(owner); }
     }
 
     private X11Display(Path library, long nativeLibrary) {
@@ -60,6 +81,21 @@ public final class X11Display {
         return new Surface(this, canvas, id);
     }
 
+    Surface acquireOwned(Canvas canvas) {
+        if (!EventQueue.isDispatchThread() || canvas == null || !canvas.isDisplayable())
+            throw new IllegalStateException("displayable-event-thread-surface");
+        Path jawt = Path.of(System.getProperty("java.home"), "lib", "libjawt.so").toAbsolutePath().normalize();
+        long[] value = createOwned(nativeLibrary, canvas, NativePlayback.bytes(jawt.toString()));
+        if (value.length != 2 || value[0] == 0 || value[1] <= 0 || value[1] > 0xffffffffL)
+            throw new IllegalStateException("owned-x11-drawable");
+        return new Surface(this, canvas, value[1], value[0]);
+    }
+
     private static native long initialize(byte[] library);
     private static native long drawable(long library, Canvas canvas, byte[] jawtLibrary);
+    private static native long[] createOwned(long library, Canvas canvas, byte[] jawtLibrary);
+    private static native void resizeOwned(long owner);
+    private static native void parkOwned(long owner);
+    private static native boolean isParkedOwned(long owner);
+    private static native void destroyOwned(long owner);
 }

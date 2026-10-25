@@ -74,17 +74,20 @@ public final class NativePlayback {
     }
     public CompletableFuture<Void> openVerified(Path bridge, Path library, String revision) {
         return submit(() -> {
-            if (player != 0 || !library.isAbsolute()) throw new IllegalStateException("open");
+            if (player != 0 || videoSurface != null || !library.isAbsolute()) throw new IllegalStateException("open");
             loadBridge(bridge); player = open(bytes(library.toString()), bytes(revision)); return null;
         });
     }
     /** The surface's parent window must remain displayable until closeAsync completes. */
     public CompletableFuture<Void> openX11Verified(Path bridge, Path library, String revision, X11Display.Surface surface) {
         return submit(() -> {
-            if (player != 0 || !library.isAbsolute() || surface == null) throw new IllegalStateException("open");
+            if (player != 0 || videoSurface != null || !library.isAbsolute() || surface == null) throw new IllegalStateException("open");
             loadBridge(bridge);
-            player = openX11(bytes(library.toString()), bytes(revision), surface.drawable());
+            long drawable = surface.bindDrawable();
+            // Keep the surface even if native open fails; terminal release
+            // must also cover resources created before the player instance.
             videoSurface = surface;
+            player = openX11(bytes(library.toString()), bytes(revision), drawable);
             return null;
         });
     }

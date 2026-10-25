@@ -39,9 +39,12 @@ public final class X11SurfaceProbe {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 6 || args.length > 7 || args.length == 7 && !"--lifecycle-check".equals(args[6]))
+        if (args.length < 6 || args.length > 7 || args.length == 7 && !java.util.Set.of(
+                "--lifecycle-check", "--owned-lifecycle-check", "--owned-detach-check").contains(args[6]))
             throw new IllegalArgumentException("bridge, VLC, revision, media, Xlib, report, optional --lifecycle-check");
         boolean lifecycleCheck = args.length == 7;
+        boolean owned = lifecycleCheck && args[6].startsWith("--owned-");
+        boolean detachCheck = lifecycleCheck && args[6].equals("--owned-detach-check");
         Path report = Path.of(args[5]);
         // This must precede the first AWT/Compose toolkit call in the process.
         X11Display display = X11Display.initializeVerified(Path.of(args[0]), Path.of(args[4]));
@@ -53,10 +56,14 @@ public final class X11SurfaceProbe {
         AtomicBoolean closing = new AtomicBoolean();
         AtomicBoolean escape = new AtomicBoolean();
         CompletableFuture<Void> disposed = new CompletableFuture<>();
+        CompletableFuture<Void> detachedRelease = new CompletableFuture<>();
         Runnable close = () -> {
             if (closing.compareAndSet(false, true)) {
                 player.closeAsync().whenComplete((ignored, error) -> EventQueue.invokeLater(() -> {
-                    if (error != null) { disposed.completeExceptionally(error); return; }
+                    if (error != null) {
+                        detachedRelease.completeExceptionally(error); disposed.completeExceptionally(error); return;
+                    }
+                    detachedRelease.complete(null);
                     if (frame.get() != null) frame.get().dispose();
                     disposed.complete(null);
                 }));
@@ -66,12 +73,13 @@ public final class X11SurfaceProbe {
         boolean cancelledStart = false;
         boolean resized = false;
         boolean inputWaitExpired = false;
+        boolean parkedAfterRemoval = false;
         try {
             EventQueue.invokeAndWait(() -> {
                 JFrame window = new JFrame("SyncWatch native output fixture");
                 frame.set(window);
                 window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                Canvas canvas = new Canvas();
+                Canvas canvas = owned ? new X11VideoCanvas(display, () -> detachedRelease) : new Canvas();
                 canvasOwner.set(canvas);
                 canvas.setPreferredSize(new Dimension(640, 360));
                 canvas.addKeyListener(new KeyAdapter() {
@@ -86,13 +94,50 @@ public final class X11SurfaceProbe {
                 window.pack();
                 window.setLocationByPlatform(true);
                 window.setVisible(true);
-                surface.set(display.acquire(canvas));
+                if (!owned) surface.set(display.acquire(canvas));
                 canvas.requestFocusInWindow();
             });
+            if (owned) surface.set(await(((X11VideoCanvas)canvasOwner.get()).surface()));
+            if (owned) {
+                AtomicReference<X11Display.Surface> failedSurface = new AtomicReference<>();
+                EventQueue.invokeAndWait(() -> failedSurface.set(display.acquireOwned(canvasOwner.get())));
+                NativePlayback failed = new NativePlayback();
+                try {
+                    try {
+                        await(failed.openX11Verified(Path.of(args[0]), Path.of(args[1]), "0".repeat(40), failedSurface.get()));
+                        throw new AssertionError("invalid-revision-opened");
+                    } catch (java.util.concurrent.ExecutionException expected) {
+                        if (!(expected.getCause() instanceof IllegalStateException)) throw expected;
+                    }
+                    try {
+                        await(failed.openVerified(Path.of(args[0]), Path.of(args[1]), args[2]));
+                        throw new AssertionError("failed-surface-owner-reopened");
+                    } catch (java.util.concurrent.ExecutionException expected) {
+                        if (!(expected.getCause() instanceof IllegalStateException)
+                                || !"open".equals(expected.getCause().getMessage())) throw expected;
+                    }
+                } finally { await(failed.closeAsync()); }
+                try {
+                    failedSurface.get().bindDrawable();
+                    throw new AssertionError("failed-open-surface-not-released");
+                } catch (IllegalStateException expected) {
+                    if (!"surface-owned-or-closed".equals(expected.getMessage())) throw expected;
+                }
+            }
             await(player.openX11Verified(Path.of(args[0]), Path.of(args[1]), args[2], surface.get()));
             await(player.load(Path.of(args[3]), scope));
             var initial = waitFor(player, scope, v -> v.status() == 2 && v.paused() && v.seekable());
             if (initial.durationMs() == null || initial.durationMs() != 4000) throw new IllegalStateException("duration");
+            NativePlayback duplicate = new NativePlayback();
+            try {
+                try {
+                    await(duplicate.openX11Verified(Path.of(args[0]), Path.of(args[1]), args[2], surface.get()));
+                    throw new IllegalStateException("duplicate-surface-owner");
+                } catch (java.util.concurrent.ExecutionException expected) {
+                    if (!(expected.getCause() instanceof IllegalStateException)
+                            || !"surface-owned-or-closed".equals(expected.getCause().getMessage())) throw expected;
+                }
+            } finally { await(duplicate.closeAsync()); }
             await(player.pause(false, scope));
             waitFor(player, scope, v -> !v.paused() && v.positionMs() >= 450
                     && v.videoOutputs() == 1 && v.width() == 320 && v.height() == 180);
@@ -123,6 +168,17 @@ public final class X11SurfaceProbe {
                 EventQueue.invokeAndWait(() -> changed[0] = canvasOwner.get().getWidth() != originalWidth[0]);
                 if (!changed[0]) throw new IllegalStateException("native-resize");
                 resized = true;
+                if (detachCheck) {
+                    EventQueue.invokeAndWait(() -> {
+                        frame.get().getContentPane().remove(canvasOwner.get());
+                        frame.get().validate();
+                        if (canvasOwner.get().isDisplayable()) throw new IllegalStateException("canvas-detach");
+                    });
+                    if (!surface.get().isParkedAndAlive()) throw new IllegalStateException("parked-drawable");
+                    await(player.seek(500, scope));
+                    waitFor(player, scope, v -> v.paused() && v.videoOutputs() == 1 && v.positionMs() <= 750);
+                    parkedAfterRemoval = true;
+                }
                 EventQueue.invokeLater(close);
             }
             Files.writeString(report, "{\"nativeSurfaceCreated\":true,\"nativeControlsPassed\":true,"
@@ -141,10 +197,25 @@ public final class X11SurfaceProbe {
             EventQueue.invokeLater(close);
             disposed.get(25, TimeUnit.SECONDS);
         }
+        if (owned && surface.get().isParkedAndAlive()) throw new IllegalStateException("unreleased-drawable");
+        NativePlayback staleSurface = new NativePlayback();
+        try {
+            try {
+                await(staleSurface.openX11Verified(Path.of(args[0]), Path.of(args[1]), args[2], surface.get()));
+                throw new IllegalStateException("released-surface-reused");
+            } catch (java.util.concurrent.ExecutionException expected) {
+                if (!(expected.getCause() instanceof IllegalStateException)
+                        || !"surface-owned-or-closed".equals(expected.getCause().getMessage())) throw expected;
+            }
+        } finally { await(staleSurface.closeAsync()); }
         Files.writeString(report, "{\"nativeSurfaceCreated\":true,\"nativeControlsPassed\":" + controls
                 + ",\"closedBeforeDrawableDisposal\":true,\"escapeRequested\":" + escape.get()
                 + ",\"cancelledDuringStartup\":" + cancelledStart
                 + ",\"nativeResizeChecked\":" + resized + ",\"inputWaitExpired\":" + inputWaitExpired
+                + ",\"ownedSurface\":" + owned + ",\"parkedAfterCanvasRemoval\":" + parkedAfterRemoval
+                + ",\"releasedSurfaceReuseRejected\":true"
+                + ",\"duplicateSurfaceOwnerRejected\":true"
+                + ",\"failedOpenOwnershipChecked\":" + owned
                 + ",\"guiObserved\":false,\"applicationIntegrationReady\":false,\"physicalOutputAccepted\":false}\n");
         System.out.println("Native X11 output fixture closed after serialized release");
     }

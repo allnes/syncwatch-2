@@ -70,6 +70,7 @@ def check(package, output, dotnet=None, jdk_root=None):
                     "-O2", "-g0", "-Wall", "-Wextra", "-Werror", "-I" + str(jdk / "include"),
                     "-I" + str(jdk / "include/linux"), "-I" + str(package / "include"),
                     str(ROOT / "packages/linux-playback/native/jni.c"),
+                    str(ROOT / "packages/linux-playback/native/x11.c"),
                     str(bridge), "-ldl", "-Wl,-rpath,$ORIGIN", "-o", str(jni)])
         classes = output / "classes"
         classes.mkdir(exist_ok=True)
