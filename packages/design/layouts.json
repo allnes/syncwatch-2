@@ -1361,7 +1361,7 @@
                 "dialogTitle"
               ],
               "props": {
-                "text": "{~brand} · {~openSettings}",
+                "text": "{~brand} \u00b7 {~openSettings}",
                 "width": "fill",
                 "moveAction": "moveDialog"
               },
@@ -3961,6 +3961,66 @@
             "height": "fill"
           },
           "children": []
+        }
+      ]
+    },
+    "Application": {
+      "id": "applicationRoot",
+      "kind": "overlay",
+      "styles": [],
+      "props": {
+        "width": "fill",
+        "height": "fill",
+        "minWidth": "@layout.minimumWidth",
+        "minHeight": "@layout.minimumHeight",
+        "clip": "true"
+      },
+      "children": [
+        {
+          "id": "applicationLibrary",
+          "kind": "retained",
+          "styles": [],
+          "props": {
+            "width": "fill",
+            "height": "fill",
+            "presented": "$libraryPresented"
+          },
+          "children": [
+            {
+              "id": "applicationLibraryContent",
+              "kind": "slot",
+              "styles": [],
+              "props": {
+                "name": "libraryContent",
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "applicationPlayer",
+          "kind": "retained",
+          "styles": [],
+          "props": {
+            "width": "fill",
+            "height": "fill",
+            "presented": "$playerPresented"
+          },
+          "children": [
+            {
+              "id": "applicationPlayerContent",
+              "kind": "slot",
+              "styles": [],
+              "props": {
+                "name": "playerContent",
+                "width": "fill",
+                "height": "fill"
+              },
+              "children": []
+            }
+          ]
         }
       ]
     }

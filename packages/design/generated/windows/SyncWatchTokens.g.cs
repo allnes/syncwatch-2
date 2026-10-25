@@ -936,7 +936,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83";
+    public const string SourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1132,6 +1132,7 @@ public static class SyncWatchLayouts
         ["callLocalFixture"] = MakecallLocalFixture(),
         ["SelectionMenu"] = MakeSelectionMenu(),
         ["selectionFixture"] = MakeselectionFixture(),
+        ["Application"] = MakeApplication(),
     };
     private static DesignNode MakeLibrary()
     {
@@ -5178,5 +5179,66 @@ public static class SyncWatchLayouts
             ["background"] = "theme.backgroundDeep",
         }, [selectionFixtureSlot]);
         return selectionFixtureRoot;
+    }
+    private static DesignNode MakeApplication()
+    {
+        var applicationLibraryContent = new DesignNode("applicationLibraryContent", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "libraryContent",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var applicationLibrary = new DesignNode("applicationLibrary", "retained", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["presented"] = "$libraryPresented",
+        }, [applicationLibraryContent]);
+        var applicationPlayerContent = new DesignNode("applicationPlayerContent", "slot", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "playerContent",
+            ["width"] = "fill",
+            ["height"] = "fill",
+        }, []);
+        var applicationPlayer = new DesignNode("applicationPlayer", "retained", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["presented"] = "$playerPresented",
+        }, [applicationPlayerContent]);
+        var applicationRoot = new DesignNode("applicationRoot", "overlay", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["height"] = "fill",
+            ["minWidth"] = "@layout.minimumWidth",
+            ["minHeight"] = "@layout.minimumHeight",
+            ["clip"] = "true",
+        }, [applicationLibrary, applicationPlayer]);
+        return applicationRoot;
     }
 }

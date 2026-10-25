@@ -20,7 +20,7 @@ private fun sha(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(
 
 // Foundation savers use lists (for example scroll position + scrolling state).
 // This in-process harness permits a bounded primitive/list tree, not arbitrary objects.
-private fun saveable(value: Any?, depth: Int = 0): Boolean = depth <= 32 && when (value) {
+internal fun saveable(value: Any?, depth: Int = 0): Boolean = depth <= 32 && when (value) {
     null, is String, is Boolean, is Char, is Byte, is Short, is Int, is Long, is Float, is Double -> true
     is List<*> -> value.size <= 1024 && value.all { saveable(it, depth + 1) }
     else -> false
@@ -34,6 +34,7 @@ fun main(arguments: Array<String>) {
     var emitted = 0
     val records = mutableListOf<String>()
     SwingUtilities.invokeAndWait {
+        verifyRetainedRendering()
         fun render(name: String, width: Int, height: Int, probes: List<Map<String, Any?>> = emptyList(), inkRegions: List<Map<String, Any?>> = emptyList(), content: @Composable () -> Unit) {
             val owner = CompositionStateOwner(canBeSaved = { saveable(it) })
             owner.resume()

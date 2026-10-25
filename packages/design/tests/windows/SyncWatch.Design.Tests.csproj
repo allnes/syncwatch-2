@@ -9,6 +9,7 @@
         <Compile Include="../../generated/windows/SyncWatchTokens.g.cs" Link="SyncWatchTokens.g.cs" />
         <Page Include="../../generated/windows/SyncWatchTheme.g.xaml" Link="SyncWatchTheme.g.xaml" />
         <Compile Include="../../windows/LibraryWorkspace.cs" Link="LibraryWorkspace.cs" />
+        <Compile Include="../../windows/ApplicationChrome.cs" Link="ApplicationChrome.cs" />
         <Page Include="../../windows/SyncWatchComponents.xaml" Link="SyncWatchComponents.xaml" />
         <None Include="../../generated/design-manifest.json" Link="design-manifest.json" CopyToOutputDirectory="PreserveNewest" />
         <Compile Include="../../windows/SettingsDialog.cs" Link="SettingsDialog.cs" />
@@ -17,6 +18,7 @@
         <ProjectReference Include="../../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
         <ProjectReference Include="../../../windows-library/SyncWatch.Library/SyncWatch.Library.csproj" />
         <Compile Include="../../../../apps/windows/SyncWatch/LibraryController.cs" Link="LibraryController.cs" />
+        <Compile Include="../../../../apps/windows/SyncWatch/NativeVideoHost.cs" Link="NativeVideoHost.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
         <None Include="../fixtures/player-settings.json" Link="player-settings.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="../fixtures/player-actions.json" Link="player-actions.json" CopyToOutputDirectory="PreserveNewest" />

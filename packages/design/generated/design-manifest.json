@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "e324bf8ccd7688a218c92a52d733dfa6c8a1f97f6bca44ac199adc9c705be398",
+  "sourceDigest": "7b0720940c27e96e75831f66d9ab304b9584a5407c75faef677404b763a2aadf",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -13,10 +13,10 @@
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "750a5928f269af2d436f5254acbf0e274800b6789c40bc8798639c83c9e6ee97",
+    "layouts.json": "b17a8f33d228a1c5bcd44fb731e5243fd7a7510bd1fd5d59ca675013be284f70",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "baf7439fad7916c091dd1984bbb1d4521f3527176836214c5fce71045c297595",
+  "generatorRevision": "006edca67c1ef8f1a2e3490e6d0ddac3452e55e5253b2d93e379df471b039dcc",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -30,7 +30,7 @@
       "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
       "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
-      "tools/design/layout-formats.mjs": "f225c788257b7e771a1f2042a27f8495594be1dbf130f9c8740e129a2f4589cc",
+      "tools/design/layout-formats.mjs": "e29a42b64c9289f7746b8208ab25d809cd4e77dc624a023b587da48cb873618d",
       "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
       "tools/design/selection-menu-formats.mjs": "f5c6334203d99b239f1e2397af158efad317fb7aa9c237f01226e183445b2df3"
     },
@@ -5955,6 +5955,66 @@
               "height": "fill"
             },
             "children": []
+          }
+        ]
+      },
+      "Application": {
+        "id": "applicationRoot",
+        "kind": "overlay",
+        "styles": [],
+        "props": {
+          "width": "fill",
+          "height": "fill",
+          "minWidth": "@layout.minimumWidth",
+          "minHeight": "@layout.minimumHeight",
+          "clip": "true"
+        },
+        "children": [
+          {
+            "id": "applicationLibrary",
+            "kind": "retained",
+            "styles": [],
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "presented": "$libraryPresented"
+            },
+            "children": [
+              {
+                "id": "applicationLibraryContent",
+                "kind": "slot",
+                "styles": [],
+                "props": {
+                  "name": "libraryContent",
+                  "width": "fill",
+                  "height": "fill"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "applicationPlayer",
+            "kind": "retained",
+            "styles": [],
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "presented": "$playerPresented"
+            },
+            "children": [
+              {
+                "id": "applicationPlayerContent",
+                "kind": "slot",
+                "styles": [],
+                "props": {
+                  "name": "playerContent",
+                  "width": "fill",
+                  "height": "fill"
+                },
+                "children": []
+              }
+            ]
           }
         ]
       }

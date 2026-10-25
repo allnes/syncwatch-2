@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
@@ -43,6 +45,25 @@ import androidx.compose.ui.window.PopupProperties
 import kotlin.math.cos
 import kotlin.math.round
 import kotlin.math.sin
+
+internal val LocalDesignPresented = compositionLocalOf { true }
+
+/** Retain composition, native peers and geometry; clip the inactive pane outside its host.
+ * Swing interop observes the empty clipped bounds and hides its native group without removal.
+ */
+@Composable internal fun RetainedContent(presented: Boolean, modifier: Modifier, content: @Composable () -> Unit) {
+    val active = LocalDesignPresented.current && presented
+    var frame = modifier.clipToBounds().onPreviewKeyEvent { !active }
+    if (!active) frame = frame.clearAndSetSemantics { }
+    Box(frame) {
+        CompositionLocalProvider(LocalDesignPresented provides active) {
+            Box(Modifier.layout { measurable, constraints ->
+                val child = measurable.measure(constraints)
+                layout(child.width, child.height) { child.placeRelative(if (active) 0 else -child.width, 0) }
+            }) { content() }
+        }
+    }
+}
 
 internal fun rgba(value: Long) = Color(
     ((value shr 24) and 255).toFloat() / 255,
@@ -169,12 +190,15 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
     }
 }
 @Composable private fun RenderDesignNode(n:DesignElement,theme:SyncWatchTheme,slots:Map<String,@Composable BoxScope.()->Unit>,onEvent:(DesignEvent)->Unit,modifier:Modifier=Modifier) {
-    val enabled=!n.props.containsKey("enabled")||n.flag("enabled")
+    val enabled=LocalDesignPresented.current&&(!n.props.containsKey("enabled")||n.flag("enabled"))
     val currentEvent by rememberUpdatedState(onEvent)
     val currentNode by rememberUpdatedState(n)
     fun emit(value:String?=null) { if(enabled) currentEvent(DesignEvent(n.text("action"),value?:n.props["value"],n.props["payload"])) }
     val frame=modifier.designFrame(n,theme).semantics { if(n.text("label").isNotEmpty()) contentDescription=n.text("label"); if(n.flag("selected")) selected=true }
     when(n.kind){
+        "retained"->RetainedContent(n.flag("presented"),frame) {
+            n.children.forEach { c->key(c.id){RenderDesignNode(c,theme,slots,onEvent)} }
+        }
         "row"->Row(frame,verticalAlignment=if(n.text("align")=="top") Alignment.Top else Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(n.number("gap").dp,if(n.text("align")=="trailing") Alignment.End else if(n.text("align")=="center") Alignment.CenterHorizontally else Alignment.Start)) {
             n.children.forEach { c->key(c.id){RenderDesignNode(c,theme,slots,onEvent,if(c.text("width")=="fill"||c.kind=="spacer") Modifier.weight(1f) else Modifier)} }
         }

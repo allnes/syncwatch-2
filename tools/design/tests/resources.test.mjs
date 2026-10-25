@@ -314,7 +314,9 @@ test('declarative document rejects malformed structure, references and visual ru
         s => s.components.Library.props.background = 'theme.missing', s => s.components.Library.props.unknownStyle = '1',
         s => s.components.Library.props.height = '= 1 +', s => s.components.Library.children[0].id = s.components.Library.id,
         s => s.components.Library.styles.push('missing'), s => s.assets['symbols.playMark'][0][0] = -1,
-        s => s.components.Library = {id:'recursive',kind:'include',styles:[],props:{component:'Library'},children:[]}];
+        s => s.components.Library = {id:'recursive',kind:'include',styles:[],props:{component:'Library'},children:[]},
+        s => s.components.Application.children[0].children = [],
+        s => delete s.components.Application.children[0].props.presented];
     for (const change of mutations) {
         const design = fixture(), path = join(design, 'layouts.json'), spec = JSON.parse(readFileSync(path));
         change(spec); writeFileSync(path, JSON.stringify(spec));

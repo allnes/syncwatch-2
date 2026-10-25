@@ -1962,7 +1962,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83"
+    public static let sourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -2978,6 +2978,7 @@ public enum SyncWatchLayouts {
         "callLocalFixture": makecallLocalFixture(),
         "SelectionMenu": makeSelectionMenu(),
         "selectionFixture": makeselectionFixture(),
+        "Application": makeApplication(),
     ]
     private static func makeLibrary() -> DesignNode {
         let node62 = DesignNode(
@@ -7629,5 +7630,75 @@ public enum SyncWatchLayouts {
             ],
             children: [selectionFixtureSlot])
         return selectionFixtureRoot
+    }
+    private static func makeApplication() -> DesignNode {
+        let applicationLibraryContent = DesignNode(
+            id: "applicationLibraryContent", kind: "slot",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "libraryContent",
+                "width": "fill",
+                "height": "fill",
+            ],
+            children: [])
+        let applicationLibrary = DesignNode(
+            id: "applicationLibrary", kind: "retained",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "presented": "$libraryPresented",
+            ],
+            children: [applicationLibraryContent])
+        let applicationPlayerContent = DesignNode(
+            id: "applicationPlayerContent", kind: "slot",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "playerContent",
+                "width": "fill",
+                "height": "fill",
+            ],
+            children: [])
+        let applicationPlayer = DesignNode(
+            id: "applicationPlayer", kind: "retained",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "presented": "$playerPresented",
+            ],
+            children: [applicationPlayerContent])
+        let applicationRoot = DesignNode(
+            id: "applicationRoot", kind: "overlay",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "height": "fill",
+                "minWidth": "@layout.minimumWidth",
+                "minHeight": "@layout.minimumHeight",
+                "clip": "true",
+            ],
+            children: [applicationLibrary, applicationPlayer])
+        return applicationRoot
     }
 }

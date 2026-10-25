@@ -1,0 +1,123 @@
+// SPDX-License-Identifier: Apache-2.0
+package syncwatch.design.tests
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposePanel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.use
+import java.awt.Canvas
+import java.awt.Dimension
+import java.util.concurrent.atomic.AtomicReference
+import javax.swing.JFrame
+import javax.swing.SwingUtilities
+import syncwatch.design.*
+import syncwatch.state.CompositionStateOwner
+import syncwatch.state.ProvideCompositionState
+
+internal fun verifyRetainedRendering() {
+    var presented by mutableStateOf(true)
+    var created = 0
+    var disposed = 0
+    val owner = CompositionStateOwner(canBeSaved = { saveable(it) })
+    owner.resume()
+    try {
+        ImageComposeScene(800, 600, content = {
+            ProvideCompositionState(owner) {
+                ApplicationChrome(presented,
+                    library = { Box(Modifier.fillMaxSize().background(Color.Yellow)) },
+                    player = {
+                        DisposableEffect(Unit) { created++; onDispose { disposed++ } }
+                        Box(Modifier.fillMaxSize().background(Color.Cyan))
+                    })
+            }
+        }).use { scene ->
+            for (active in listOf(true, false, true, false, true)) {
+                presented = active
+                Snapshot.sendApplyNotifications()
+                scene.render().close()
+                scene.render().use { image ->
+                    val pixel = image.peekPixels()!!.getColor(400, 300)
+                    check(pixel == if (active) 0xff00ffff.toInt() else 0xffffff00.toInt()) { "retained pixels: $active ${pixel.toUInt().toString(16)}" }
+                }
+                check(created == 1 && disposed == 0) { "navigation disposed retained content" }
+            }
+        }
+        check(disposed == 1) { "final removal did not dispose content" }
+    } finally { owner.close() }
+}
+
+/** An application-owned real window checks heavyweight peer lifetime, not manual UI acceptance. */
+private fun verifyRetainedNativePeer() {
+    var presented by mutableStateOf(true)
+    var added = 0
+    var removed = 0
+    val canvas = object : Canvas() {
+        override fun addNotify() { super.addNotify(); added++ }
+        override fun removeNotify() { removed++; super.removeNotify() }
+    }
+    lateinit var window: JFrame
+    lateinit var panel: ComposePanel
+    lateinit var owner: CompositionStateOwner
+    fun onEvent(action: () -> Unit) {
+        val error = AtomicReference<Throwable?>()
+        SwingUtilities.invokeAndWait { try { action() } catch (failure: Throwable) { error.set(failure) } }
+        error.get()?.let { throw it }
+    }
+    fun waitFor(predicate: () -> Boolean) {
+        val deadline = System.nanoTime() + 15_000_000_000L
+        while (true) {
+            var ready = false
+            onEvent { ready = predicate() }
+            if (ready) return
+            check(System.nanoTime() < deadline) { "retained native peer did not settle" }
+            Thread.sleep(20)
+        }
+    }
+    onEvent {
+        owner = CompositionStateOwner(canBeSaved = { saveable(it) })
+        owner.resume()
+        canvas.minimumSize = Dimension(0, 0)
+        canvas.preferredSize = Dimension(0, 0)
+        panel = ComposePanel().apply {
+            setContent {
+                ProvideCompositionState(owner) {
+                    ApplicationChrome(presented, library = { LibraryWorkspace() }, player = { NativePlayerSurface(canvas) })
+                }
+            }
+        }
+        window = JFrame("SyncWatch retained surface check").apply {
+            defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+            contentPane.add(panel)
+            setSize(800, 600)
+            isVisible = true
+        }
+    }
+    try {
+        waitFor { canvas.isShowing && canvas.width > 0 && canvas.height > 0 }
+        for (active in listOf(false, true, false, true)) {
+            onEvent { presented = active; Snapshot.sendApplyNotifications() }
+            waitFor { canvas.isShowing == active }
+            onEvent {
+                check(canvas.isDisplayable && added == 1 && removed == 0) { "navigation replaced the native peer" }
+                check(canvas.width > 0 && canvas.height > 0) { "navigation lost native geometry" }
+                window.setSize(if (active) 896 else 800, 600)
+            }
+            waitFor { canvas.isShowing == active }
+        }
+    } finally {
+        onEvent { window.dispose(); owner.close() }
+    }
+    onEvent { check(added == 1 && removed == 1) { "native peer did not release once on final close" } }
+}
+
+fun main(arguments: Array<String>) {
+    if ("--native" in arguments) verifyRetainedNativePeer()
+    else SwingUtilities.invokeAndWait { verifyRetainedRendering() }
+    println("SYNCWATCH_RETAINED_CONTENT_OK: presentation preserves content; final disposal releases it")
+}

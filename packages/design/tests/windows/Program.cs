@@ -78,6 +78,10 @@ internal static class Program
 
         window.Close();
         application.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("SyncWatchComponents.xaml", UriKind.Relative) });
+        if (Environment.GetCommandLineArgs().Contains("--retained-native"))
+        {
+            RetainedNativeAssertions.Run(); application.Shutdown(); return;
+        }
         VerifyLibrary(application, dictionary);
         LibraryControllerAssertions.Run();
         SettingsAssertions.Run(application, dictionary);

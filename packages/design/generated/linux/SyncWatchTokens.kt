@@ -751,7 +751,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "045feb7d9164d00aa4474dffec73c69ca8f371dec533775f912a2b27ca07ba83"
+    const val sourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -959,6 +959,7 @@ object SyncWatchLayouts {
         "callLocalFixture" to makecallLocalFixture(),
         "SelectionMenu" to makeSelectionMenu(),
         "selectionFixture" to makeselectionFixture(),
+        "Application" to makeApplication(),
     )
     private fun makeLibrary(): DesignNode {
         val node62 = DesignNode("node62", "icon", mapOf(
@@ -4689,5 +4690,60 @@ object SyncWatchLayouts {
             "background" to "theme.backgroundDeep",
         ), listOf(selectionFixtureSlot))
         return selectionFixtureRoot
+    }
+    private fun makeApplication(): DesignNode {
+        val applicationLibraryContent = DesignNode("applicationLibraryContent", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "libraryContent",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val applicationLibrary = DesignNode("applicationLibrary", "retained", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "presented" to "\$libraryPresented",
+        ), listOf(applicationLibraryContent))
+        val applicationPlayerContent = DesignNode("applicationPlayerContent", "slot", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "playerContent",
+            "width" to "fill",
+            "height" to "fill",
+        ), listOf())
+        val applicationPlayer = DesignNode("applicationPlayer", "retained", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "presented" to "\$playerPresented",
+        ), listOf(applicationPlayerContent))
+        val applicationRoot = DesignNode("applicationRoot", "overlay", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "height" to "fill",
+            "minWidth" to "@layout.minimumWidth",
+            "minHeight" to "@layout.minimumHeight",
+            "clip" to "true",
+        ), listOf(applicationLibrary, applicationPlayer))
+        return applicationRoot
     }
 }

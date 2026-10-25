@@ -34,6 +34,10 @@ import java.awt.event.WindowEvent
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable fun NativePlayerSurface(component: Component) {
     val background = rgba(SyncWatchTokens.colorSharedVideoSurface)
+    val presented = LocalDesignPresented.current
     SwingPanel(factory = { component.apply { this.background = background.toAwtColor() } },
-        modifier = Modifier.fillMaxSize(), update = { it.background = background.toAwtColor() })
+        modifier = Modifier.fillMaxSize(), update = {
+            it.background = background.toAwtColor()
+            it.isVisible = presented
+        })
 }

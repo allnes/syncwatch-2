@@ -14,6 +14,7 @@
         <Compile Include="../../../packages/design/generated/windows/SyncWatchTokens.g.cs" Link="Design/SyncWatchTokens.g.cs" />
         <Page Include="../../../packages/design/generated/windows/SyncWatchTheme.g.xaml" Link="Design/SyncWatchTheme.g.xaml" />
         <Compile Include="../../../packages/design/windows/LibraryWorkspace.cs" Link="Design/LibraryWorkspace.cs" />
+        <Compile Include="../../../packages/design/windows/ApplicationChrome.cs" Link="Design/ApplicationChrome.cs" />
         <Page Include="../../../packages/design/windows/SyncWatchComponents.xaml" Link="Design/SyncWatchComponents.xaml" />
         <Compile Include="../../../packages/design/windows/SettingsDialog.cs" Link="Design/SettingsDialog.cs" />
         <Compile Include="../../../packages/design/windows/PlayerSettingsDialog.cs" Link="Design/PlayerSettingsDialog.cs" />

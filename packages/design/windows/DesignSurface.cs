@@ -124,6 +124,17 @@ public class DesignSurface : UserControl
                 });
                 Bind(id, n => { grid.HorizontalAlignment = row && n.Text("align") == "trailing" ? HorizontalAlignment.Right : HorizontalAlignment.Stretch; for (int i = 0; i < n.Children.Length; i++) { var child = n.Children[i]; var size = child.Text(row ? "width" : "height") == "fill" || child.Kind == "spacer" ? new GridLength(1, GridUnitType.Star) : GridLength.Auto; if (row) { grid.ColumnDefinitions[i * 2].Width = size; if (i > 0) grid.ColumnDefinitions[i * 2 - 1].Width = new GridLength(n.Number("gap")); } else { grid.RowDefinitions[i * 2].Height = size; if (i > 0) grid.RowDefinitions[i * 2 - 1].Height = new GridLength(n.Number("gap")); } } }); core = grid; break;
             case "overlay": var overlay = Existing(() => new Grid()); Reconcile(overlay, node.Children.Select(child => (UIElement)Build(child.Id)).ToArray()); core = overlay; break;
+            case "retained":
+                var retained = Existing(() => new Grid()); Reconcile(retained, node.Children.Select(child => (UIElement)Build(child.Id)).ToArray());
+                Bind(id, n =>
+                {
+                    bool presented = n.Flag("presented");
+                    if (!presented && retained.IsKeyboardFocusWithin) Keyboard.ClearFocus();
+                    retained.Visibility = presented ? Visibility.Visible : Visibility.Hidden;
+                    retained.IsEnabled = presented;
+                    retained.IsHitTestVisible = presented;
+                });
+                core = retained; break;
             case "scroll":
                 var scroll = Existing(() => new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
                 var scrollChild = node.Children.Length == 0 ? null : Build(node.Children[0].Id);
