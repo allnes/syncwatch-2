@@ -26,7 +26,7 @@
   ],
   "blockedCapabilities": [
     "complete JVM/application runtime distribution and native renderer desktop qualification",
-    "native video window on X11 and Wayland",
+    "visible native video, fullscreen, DPI and focus acceptance on X11/XWayland",
     "compiled desktop galleries and application acceptance"
   ]
 }

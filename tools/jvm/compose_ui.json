@@ -6408,7 +6408,7 @@
   },
   "expectedJars": {
     "macos-arm64": {
-      "skiko-awt-syncwatch.jar": "38303c3d963f02a7bab94ef576912e1600677b75f6d7700ef800ea433bda9f7c",
+      "skiko-awt-syncwatch.jar": "4c5b4a03c4e511965420b2863eae9c3ab8dc269b1916def1111ba8689666ac0c",
       "ui-util-syncwatch.jar": "2faa7cc451b218797e3f2ad47b8cfdea784ef4e132884246f491d4ba00ac5fe3",
       "ui-geometry-syncwatch.jar": "324122a48cf6e81155daed1a2ad44f8f433ee315f16b160729ed88ef86e4a93d",
       "ui-unit-syncwatch.jar": "7bf2cfe6a38389a2aa8d6f32659a656b12217820d8f9bc74b2a0d868724aa729",
@@ -6426,7 +6426,7 @@
       "foundation-syncwatch.jar": "08fcacf17056f9125360a5f6628f10e60acdd2d80661edc0cc24e8bc9123a1b6"
     },
     "linux-x64": {
-      "skiko-awt-syncwatch.jar": "38303c3d963f02a7bab94ef576912e1600677b75f6d7700ef800ea433bda9f7c",
+      "skiko-awt-syncwatch.jar": "4c5b4a03c4e511965420b2863eae9c3ab8dc269b1916def1111ba8689666ac0c",
       "ui-util-syncwatch.jar": "2faa7cc451b218797e3f2ad47b8cfdea784ef4e132884246f491d4ba00ac5fe3",
       "ui-geometry-syncwatch.jar": "324122a48cf6e81155daed1a2ad44f8f433ee315f16b160729ed88ef86e4a93d",
       "ui-unit-syncwatch.jar": "f7e09196e9647e2d3fd31ceaacb544c44063d91742f8d657ae95d587390b2893",
@@ -6444,7 +6444,7 @@
       "foundation-syncwatch.jar": "4f76092d2491258ff3172f3199a3ef07d111c6c0cd84351999eae35730fd1759"
     },
     "windows-x64": {
-      "skiko-awt-syncwatch.jar": "38303c3d963f02a7bab94ef576912e1600677b75f6d7700ef800ea433bda9f7c",
+      "skiko-awt-syncwatch.jar": "4c5b4a03c4e511965420b2863eae9c3ab8dc269b1916def1111ba8689666ac0c",
       "ui-util-syncwatch.jar": "2faa7cc451b218797e3f2ad47b8cfdea784ef4e132884246f491d4ba00ac5fe3",
       "ui-geometry-syncwatch.jar": "324122a48cf6e81155daed1a2ad44f8f433ee315f16b160729ed88ef86e4a93d",
       "ui-unit-syncwatch.jar": "f7e09196e9647e2d3fd31ceaacb544c44063d91742f8d657ae95d587390b2893",
@@ -6461,5 +6461,6 @@
       "animation-syncwatch.jar": "b8092ef8e5d7424f17673a5132bea209dd88d3c970751bbf7cb35b26755c5df9",
       "foundation-syncwatch.jar": "4f76092d2491258ff3172f3199a3ef07d111c6c0cd84351999eae35730fd1759"
     }
-  }
+  },
+  "displayRefreshFallback": true
 }

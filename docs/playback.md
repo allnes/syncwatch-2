@@ -4,7 +4,7 @@ The local playback layer owns VLC independently of the interface, synchronizatio
 
 ## Ownership and observations
 
-The Swift `VLCPlayback` actor and C# `VLCPlayback` dedicated worker serialize native operations outside the UI thread. The Linux development JVM boundary uses a bounded worker and first-party JNI adapter. Native callbacks only increment an atomic sequence; no callback enters managed code or updates a view. Consumers poll validated observations of the actual player clock, duration, pause state, seekability, tracks and output dimensions. Submitting a command does not acknowledge a changed player state.
+The Swift `VLCPlayback` actor and C# `VLCPlayback` dedicated worker serialize native operations outside the UI thread. Kotlin's coroutine `VLCPlayback` implements the domain `PlaybackPort` through a bounded JVM worker and first-party JNI adapter. Cancellation can reject queued work but cannot interrupt a native operation or cancel terminal release. Native callbacks only increment an atomic sequence; no callback enters managed code or updates a view. Consumers poll validated observations of the actual player clock, duration, pause state, seekability, tracks and output dimensions. Submitting a command does not acknowledge a changed player state.
 
 Each language boundary has a `MediaRuntime` integrity check for the complete SDK receipt, target and pinned VLC revision. Missing, modified, additional or symbolic-link members fail verification. The JVM implementation reuses the first-party strict JSON codec from `packages/ipc/jvm`. These development checks establish file integrity; authenticated immutable installation remains a separate release requirement.
 
@@ -22,7 +22,7 @@ On Linux, `sw_playback_open_x11` accepts a nonzero `uint32_t` drawable. The poin
 
 VLC ignores installed-user configuration and uses the selected owned output modules. A start-paused load may expose metadata before creating a video output. Native-output checks therefore require a real video output after Play and check subsequent pause/seek observations independently. The Linux surface fixture additionally checks resize and closes the native owner before disposing its drawable. Its optional `--lifecycle-check` mode performs this lifecycle automatically. `--owned-lifecycle-check` exercises the independent child; `--owned-detach-check` also removes its AWT parent while the player remains open and verifies parking, further native observations and eventual release. These modes reject duplicate/stale surface ownership and check release after failed open. Visual observation, application integration and physical output remain separate results.
 
-The present player layout places its toolbar and footer outside the video rectangle. WPF popovers and future overlapping controls still require the architecture's separate owned overlay-window integration and DPI/focus acceptance. The development surface does not qualify those workflows, a physical display or speaker output. Linux JNI/X11 fixture acceptance does not qualify the pending Kotlin/Compose GUI or its runtime dependency closure.
+The present player layout places its toolbar and footer outside the video rectangle. Linux supplies its Canvas through the design library's `NativePlayerSurface` slot to the same declarative Player layout and presentation gates used by the native adapters. Window content minimums and video background come from shared design tokens; playback owns neither layout nor styling. WPF popovers and future overlapping controls still require the architecture's separate owned overlay-window integration and DPI/focus acceptance. The development surface does not qualify those workflows, a physical display or speaker output. Linux JNI/X11 and application-controller acceptance do not qualify visible desktop output or its runtime dependency closure.
 
 ## Development entry
 
@@ -34,7 +34,11 @@ SyncWatch.app/Contents/MacOS/SyncWatch --local-playback /absolute/movie.mkv
 
 The default media location is `Contents/Frameworks/Media` inside the macOS bundle, or `Media` beside the Windows application. For an unbundled build use `--media-package /absolute/sdk/payload`; Windows also accepts `--playback-bridge C:\absolute\syncwatch_playback.dll`. This explicit entry enables local playback only. Normal Library/watch activation, shared selection, helper/player coordination, track/settings menus, previews and Meet integration retain their own implementation gates.
 
+The Linux `syncwatch.MainKt` development entry accepts `--local-playback`, `--media-package` and `--playback-bridge`, each followed by an absolute path. It requires the reviewed owned JVM/UI/renderer classpath and JNI bridge; there is no qualified bundled JVM installation yet. Display initialization precedes toolkit creation. The controller waits for the native surface, polls typed engine observations and completes serialized release before disposing its window.
+
 `--playback-report /absolute/report.json` runs actual AppKit/WPF acceptance against the authored four-second fixture and exits. It checks paused load, the advancing clock, pause stability, forward/backward seek observations, native surface creation, resizing, fullscreen transitions and release. Windows `--playback-detach-probe` additionally exercises unexpected surface removal. Screen readback and physical output are reported separately; an unavailable capture does not imply presented-pixel acceptance.
+
+Linux accepts the same report option and optional detach probe through its own application controller. Reports use a new destination and keep window observation, physical output and distribution readiness false. A desktop without an active output is reported separately from playback/control/resize results and cannot pass fullscreen acceptance. Own-application calls are functional probes, not evidence of user input or visual parity.
 
 ## Validation and CI
 
