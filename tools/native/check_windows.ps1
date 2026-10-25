@@ -33,6 +33,7 @@ Invoke-DotNet restore SyncWatch.slnx --configfile NuGet.Config
 Invoke-DotNet format SyncWatch.slnx --no-restore --verify-no-changes
 Invoke-DotNet build SyncWatch.slnx --no-restore --configuration Debug
 Invoke-DotNet run --project packages/windows-domain/SyncWatch.Domain.Tests --no-restore --no-build --configuration Debug
+Invoke-DotNet run --project packages/windows-bridge/SyncWatch.Bridge.Probe --no-restore --no-build --configuration Debug -- --player-correction-fixtures contracts/fixtures/helper-player.json
 Invoke-DotNet run --project packages/windows-library/SyncWatch.Library.Tests --no-restore --no-build --configuration Debug -- contracts/fixtures/library-catalog.json
 if (Test-Path $env:SYNCWATCH_DESIGN_SCREENSHOTS) { Remove-Item -Recurse -Force $env:SYNCWATCH_DESIGN_SCREENSHOTS }
 Invoke-DotNet run --project packages/design/tests/windows --no-restore --no-build --configuration Debug

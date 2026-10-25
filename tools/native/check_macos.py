@@ -40,6 +40,7 @@ def main() -> None:
     environment["SYNCWATCH_LIBRARY_FIXTURE"] = str(ROOT / "contracts/fixtures/library-catalog.json")
     run("swift", "test", "--package-path", "packages/macos-library", "-Xswiftc", "-warnings-as-errors", env=environment)
     environment["SYNCWATCH_CONTRACT_FIXTURES"] = str(ROOT / "contracts/fixtures/acceptance.json")
+    run("swift", "test", "--package-path", "packages/macos-bridge", "-Xswiftc", "-warnings-as-errors", env=environment)
     run("swift", "test", "--package-path", "packages/macos-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
     run("swift", "test", "--package-path", "packages/macos-playback", "-Xswiftc", "-warnings-as-errors", env=environment)
     shutil.rmtree(ROOT / "artifacts/design/macos", ignore_errors=True)

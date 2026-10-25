@@ -5,4 +5,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+  </ItemGroup>
 </Project>

@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text.Json;
 using SyncWatch.Bridge;
 
+if (args.Length == 2 && args[0] == "--player-correction-fixtures") { PlayerCorrectionChecks.Run(args[1]); return; }
+PlayerCorrectionChecks.Run(Path.Combine("contracts", "fixtures", "helper-player.json"));
 if (args.Length != 2) throw new ArgumentException("Pass the owned helper and runtime paths");
 
 byte[] Command(int id, string type, object payload) => JsonSerializer.SerializeToUtf8Bytes(new

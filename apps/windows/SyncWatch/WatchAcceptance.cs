@@ -57,6 +57,13 @@ internal static class WatchAcceptance
                     await watch.CloseAsync(); await watch.CloseAsync(); Require(watch.Player is null && !watch.PlayerPresented);
                     result["closeDuringPreparation"] = true;
                 }
+                else if (mode == "helper-correction")
+                {
+                    await Until(() => Task.FromResult(watch.Player is not null && watch.Phase == WatchPhase.Active));
+                    var current = watch.Player!;
+                    await HelperPlaybackAcceptance.RunAsync(current.Player, current.Scope);
+                    result["nativeHelperCorrections"] = true; result["helperConnectionAccepted"] = false;
+                }
                 else if (mode == "cancel-correction")
                 {
                     await Until(() => Task.FromResult(watch.Player is not null && watch.Phase == WatchPhase.Active));
