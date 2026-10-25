@@ -12613,7 +12613,9 @@
             "src/winfonts/winfnt.h"
           ],
           "requires": [],
-          "unusedSubmodules": {}
+          "unusedSubmodules": {
+            "subprojects/dlg": "The selected Skia FreeType target excludes dlg sources and leaves FT_DEBUG_LOGGING disabled."
+          }
         },
         "3rdparty/skia-harfbuzz": {
           "revision": "9cb1fee51069b206effb4736e443b038d230789d",
