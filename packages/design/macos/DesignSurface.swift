@@ -460,7 +460,8 @@ public struct DesignSurface: View {
         case "slot": result = decorated(slots[node.string("name")] ?? AnyView(Color.clear), node)
         case "retained":
             result = decorated(
-                RetainedContent(content: AnyView(ForEach(node.children) { render($0) }), presented: node.flag("presented")),
+                RetainedContent(
+                    content: AnyView(ForEach(node.children) { render($0) }), presented: node.flag("presented")),
                 node)
         case "subtitle":
             result = AnyView(DesignSubtitle(node: node, paint: paint, context: context, language: language))
