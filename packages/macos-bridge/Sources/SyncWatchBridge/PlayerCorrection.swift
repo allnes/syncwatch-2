@@ -19,40 +19,40 @@ public struct PlayerCorrection: Sendable {
     private let wireScope: PlaybackScope
 
     public static func decode(_ frame: Data, wireScope: PlaybackScope) throws -> Self {
-        let value = try CorrectionJSON.object(frame)
-        try CorrectionJSON.keys(
+        let value = try HelperJSON.object(frame)
+        try HelperJSON.keys(
             value, required: ["v", "id", "type", "clientRunId", "mediaGeneration", "payload"],
             optional: ["afterUserAction"])
-        guard try CorrectionJSON.integer(value["v"], maximum: 1) == 1,
+        guard try HelperJSON.integer(value["v"], maximum: 1) == 1,
             let run = value["clientRunId"] as? String, let id = value["id"] as? String,
             id.range(of: "\\Acmd-[1-9][0-9]{0,15}\\z", options: .regularExpression) != nil,
             let payload = value["payload"] as? [String: Any]
         else { throw PlayerCorrectionFailure.malformed }
         try wireScope.check(
             clientRunID: run,
-            mediaGeneration: CorrectionJSON.integer(value["mediaGeneration"], maximum: PlaybackScope.maximumGeneration))
+            mediaGeneration: HelperJSON.integer(value["mediaGeneration"], maximum: PlaybackScope.maximumGeneration))
         let watermark =
             try value["afterUserAction"].map {
-                try CorrectionJSON.integer($0, maximum: PlaybackScope.maximumGeneration)
+                try HelperJSON.integer($0, maximum: PlaybackScope.maximumGeneration)
             } ?? 0
         let operation: Operation
         switch value["type"] as? String {
         case "player.setPaused":
-            try CorrectionJSON.keys(payload, required: ["paused"])
+            try HelperJSON.keys(payload, required: ["paused"])
             guard let number = payload["paused"] as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() else {
                 throw PlayerCorrectionFailure.malformed
             }
             operation = .pause(number.boolValue)
         case "player.setPosition":
-            try CorrectionJSON.keys(payload, required: ["positionMs"])
-            operation = .seek(Int64(try CorrectionJSON.integer(payload["positionMs"], maximum: 604_800_000)))
+            try HelperJSON.keys(payload, required: ["positionMs"])
+            operation = .seek(Int64(try HelperJSON.integer(payload["positionMs"], maximum: 604_800_000)))
         case "player.setSpeed":
-            try CorrectionJSON.keys(payload, required: ["rate"])
-            let rate = try CorrectionJSON.number(payload["rate"])
+            try HelperJSON.keys(payload, required: ["rate"])
+            let rate = try HelperJSON.number(payload["rate"])
             guard (0.25...4).contains(rate) else { throw PlayerCorrectionFailure.malformed }
             operation = .rate(rate)
         case "player.openFile":
-            try CorrectionJSON.keys(payload, required: ["mediaHandle"])
+            try HelperJSON.keys(payload, required: ["mediaHandle"])
             guard let handle = payload["mediaHandle"] as? String else { throw PlayerCorrectionFailure.malformed }
             _ = try PlaybackScope(clientRunID: handle, mediaGeneration: 0)
             operation = .keepLoaded(handle)
@@ -109,7 +109,7 @@ public struct PlayerCorrection: Sendable {
     }
 }
 
-private enum CorrectionJSON {
+enum HelperJSON {
     static func keys(_ value: [String: Any], required: Set<String>, optional: Set<String> = []) throws {
         let keys = Set(value.keys)
         guard required.isSubset(of: keys), keys.isSubset(of: required.union(optional)) else {

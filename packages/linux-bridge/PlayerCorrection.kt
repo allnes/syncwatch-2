@@ -51,10 +51,7 @@ class PlayerCorrection private constructor(
     }
     companion object {
         fun decode(frame: ByteArray, wireScope: PlaybackScope): PlayerCorrection {
-            if (frame.size !in 2..65536 || frame.last() != 10.toByte() || frame.dropLast(1).contains(10.toByte()) || frame.contains(13.toByte())) bad()
-            val text = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
-                .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(frame)).toString()
-            val value = Json.`object`(Json.parse(text))
+            val value = frameValue(frame)
             keys(value, setOf("v", "id", "type", "clientRunId", "mediaGeneration", "payload"), setOf("afterUserAction"))
             if (integer(value["v"], 1) != 1L) bad()
             wireScope.check(PlaybackScope(text(value, "clientRunId"), integer(value["mediaGeneration"], PlaybackScope.MAXIMUM_GENERATION)))
@@ -79,19 +76,25 @@ class PlayerCorrection private constructor(
             return PlayerCorrection(id, after, operation, wireScope)
         }
         private fun bad(): Nothing = throw WatchFailure("malformed")
-        private fun text(value: Map<String, Any?>, key: String): String = value[key] as? String ?: bad()
+        internal fun text(value: Map<String, Any?>, key: String): String = value[key] as? String ?: bad()
         private fun number(value: Any?): Double {
             val number = (value as? Number)?.toDouble() ?: bad()
             if (!number.isFinite()) bad()
             return number
         }
-        private fun integer(value: Any?, maximum: Long): Long {
+        internal fun integer(value: Any?, maximum: Long): Long {
             val number = number(value)
             if (number < 0 || number > maximum.toDouble() || kotlin.math.floor(number) != number) bad()
             return number.toLong()
         }
-        private fun keys(value: Map<String, Any?>, required: Set<String>, optional: Set<String> = emptySet()) {
+        internal fun keys(value: Map<String, Any?>, required: Set<String>, optional: Set<String> = emptySet()) {
             if (!value.keys.containsAll(required) || !(required + optional).containsAll(value.keys)) bad()
+        }
+        internal fun frameValue(frame: ByteArray): Map<String, Any?> {
+            if (frame.size !in 2..65536 || frame.last() != 10.toByte() || frame.dropLast(1).contains(10.toByte()) || frame.contains(13.toByte())) bad()
+            val text = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(frame)).toString()
+            return Json.`object`(Json.parse(text))
         }
     }
 }

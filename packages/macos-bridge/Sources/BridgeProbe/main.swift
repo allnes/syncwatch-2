@@ -3,10 +3,12 @@ import Foundation
 import SyncWatchBridge
 import SyncWatchDomain
 
-func read(_ helper: HelperProcess) async throws -> String {
-    let data = try await helper.read()
-    let value = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-    return value["type"] as! String
+func read(
+    _ helper: HelperProcess, commands: HelperCommands, id: UInt64, expected: HelperReplyKind, revision: String? = nil
+) async throws -> HelperReply {
+    try HelperReply.decode(
+        await helper.read(), wireScope: commands.wireScope, commandID: id, expected: expected,
+        expectedRevision: revision)
 }
 
 @main
@@ -16,21 +18,25 @@ struct Probe {
         let executable = URL(fileURLWithPath: CommandLine.arguments[1])
         let runtime = URL(fileURLWithPath: CommandLine.arguments[2])
         let commands = HelperCommands(wireScope: try PlaybackScope(clientRunID: "native-probe", mediaGeneration: 2))
+        let revision = try String(
+            contentsOf: runtime.appendingPathComponent("app/syncplay-revision.txt"), encoding: .utf8
+        )
+        .trimmingCharacters(in: .whitespacesAndNewlines)
         let helper = try await HelperProcess.launch(executable: executable, runtime: runtime)
         let hello = try commands.hello(1)
         try await helper.send(hello)
-        let ready = try await read(helper)
-        precondition(ready == "bridge.ready")
+        let ready = try await read(helper, commands: commands, id: 1, expected: .ready, revision: revision)
+        precondition(ready == .ready(revision: revision))
         try await helper.send(hello)
-        let replay = try await read(helper)
-        precondition(replay == "bridge.ready")
+        let replay = try await read(helper, commands: commands, id: 1, expected: .ready, revision: revision)
+        precondition(replay == ready)
         try await helper.send(
             commands.loaded(2, handle: "media-1", name: "Movie.mkv", durationMs: 60_000, fileSizeBytes: 1234))
-        let loaded = try await read(helper)
-        precondition(loaded == "bridge.result")
+        let loaded = try await read(helper, commands: commands, id: 2, expected: .applied)
+        precondition(loaded == .applied)
         try await helper.send(commands.shutdown(3))
-        let stopped = try await read(helper)
-        precondition(stopped == "bridge.stopped")
+        let stopped = try await read(helper, commands: commands, id: 3, expected: .stopped)
+        precondition(stopped == .stopped)
         await helper.close()
 
         let cancelled = try await HelperProcess.launch(executable: executable, runtime: runtime)

@@ -25,10 +25,7 @@ public sealed class PlayerCorrection
 
     public static PlayerCorrection Decode(ReadOnlyMemory<byte> frame, PlaybackScope wireScope)
     {
-        var bytes = frame.Span;
-        if (bytes.Length is < 2 or > 65536 || bytes[^1] != 10 || bytes[..^1].Contains((byte)10) || bytes.Contains((byte)13)) throw Bad();
-        _ = new UTF8Encoding(false, true).GetString(bytes);
-        using var document = JsonDocument.Parse(frame, new JsonDocumentOptions { MaxDepth = 32 });
+        using var document = DecodeFrame(frame);
         var value = document.RootElement;
         Keys(value, ["v", "id", "type", "clientRunId", "mediaGeneration", "payload"], ["afterUserAction"]);
         if (Integer(value.GetProperty("v"), 1) != 1) throw Bad();
@@ -95,24 +92,31 @@ public sealed class PlayerCorrection
         if (value.Status != PlaybackStatus.Ready) throw new PlayerCorrectionException("unavailable");
     }
     private static PlayerCorrectionException Bad() => new("malformed");
-    private static string Text(JsonElement value, string name) => value.GetProperty(name).ValueKind == JsonValueKind.String ? value.GetProperty(name).GetString()! : throw Bad();
+    internal static string Text(JsonElement value, string name) => value.GetProperty(name).ValueKind == JsonValueKind.String ? value.GetProperty(name).GetString()! : throw Bad();
     private static double Number(JsonElement value)
     {
         if (value.ValueKind != JsonValueKind.Number || !value.TryGetDouble(out double number) || !double.IsFinite(number)) throw Bad();
         return number;
     }
-    private static ulong Integer(JsonElement value, ulong maximum)
+    internal static ulong Integer(JsonElement value, ulong maximum)
     {
         double number = Number(value);
         if (number < 0 || number > maximum || Math.Truncate(number) != number) throw Bad();
         return (ulong)number;
     }
-    private static void Keys(JsonElement value, string[] required, string[]? optional = null)
+    internal static void Keys(JsonElement value, string[] required, string[]? optional = null)
     {
         if (value.ValueKind != JsonValueKind.Object) throw Bad();
         HashSet<string> keys = [];
         foreach (var field in value.EnumerateObject())
             if (!keys.Add(field.Name) || !required.Contains(field.Name) && !(optional?.Contains(field.Name) ?? false)) throw Bad();
         if (required.Any(key => !keys.Contains(key))) throw Bad();
+    }
+    internal static JsonDocument DecodeFrame(ReadOnlyMemory<byte> frame)
+    {
+        var bytes = frame.Span;
+        if (bytes.Length is < 2 or > 65536 || bytes[^1] != 10 || bytes[..^1].Contains((byte)10) || bytes.Contains((byte)13)) throw Bad();
+        _ = new UTF8Encoding(false, true).GetString(bytes);
+        return JsonDocument.Parse(frame, new JsonDocumentOptions { MaxDepth = 32 });
     }
 }
