@@ -21,6 +21,8 @@ Skiko renderer with owned X11/GL/fontconfig/D-Bus clients and selected aliases.
 OS C/compiler ABI libraries, GPU vendor drivers and OS/user fonts are explicit
 external platform services; no developer SDK binaries are copied into this package.
 Original source-only/build/test grants remain with their complete source files.
+Configured X11 Compose includes retain original rules and credits while avoiding
+temporary build paths; owned locale/error/color data accompanies the renderer.
 A JNI/Skia API probe and an independent PNG decoder probe are headless checks.
 JVM distribution, native video, desktop/provider behavior and all six directed
 physical synchronization checks remain separate requirements.
@@ -61,6 +63,12 @@ def validate(profile):
             or not {"libskiko-linux-x64.so", "libXrandr.so", "libdbus-1.so"} <= set(profile["runtimeLibraries"])
             or profile["jniExportCount"] <= 0 or not re.fullmatch(r"[0-9a-f]{64}", profile["jniExportDigest"])):
         raise ValueError("Native runtime needs an exact client and public JNI inventory")
+    if not isinstance(profile.get("platformData"), dict) or not profile["platformData"]:
+        raise ValueError("Native X11 client needs its runtime data inventory")
+    for name, pin in profile["platformData"].items():
+        member(name)
+        if not name.startswith("share/X11/") or not re.fullmatch(r"[0-9a-f]{64}", pin):
+            raise ValueError("Native X11 runtime data must have an owned path and exact digest")
     return profile
 
 

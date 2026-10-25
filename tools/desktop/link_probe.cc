@@ -1,4 +1,5 @@
 // Exercise original Skiko/Skia exports without substituting JVM facade classes.
+#include <clocale>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -29,6 +30,13 @@ int main(int argc, char** argv) {
     setMode(nullptr, nullptr, path, 2);
     if (getMode(nullptr, nullptr, path) != 2 || !empty(nullptr, nullptr, path)) return 5;
     reinterpret_cast<Destroy>(static_cast<uintptr_t>(finalizer(nullptr, nullptr)))(reinterpret_cast<void*>(path));
+    if (!std::setlocale(LC_CTYPE, "C.UTF-8")) return 7;
+    using SupportsLocale = int (*)();
+    auto supportsLocale = reinterpret_cast<SupportsLocale>(symbol(library, "XSupportsLocale"));
+    if (!supportsLocale()) {
+        std::fputs("SYNCWATCH_X11_LOCALE_UNAVAILABLE\n", stderr);
+        return 8;
+    }
     if (dlclose(library)) return 6;
     std::puts("SYNCWATCH_NATIVE_LINK_OK");
 }

@@ -12,6 +12,7 @@ import generators
 import native_sources
 import native_objects
 import header_scope
+import platform_data
 
 
 class NativeProfileTests(unittest.TestCase):
@@ -105,6 +106,35 @@ class NativeProfileTests(unittest.TestCase):
             for field in ("revision", "files", "executables"):
                 with self.subTest(source=name, field=field):
                     self.assertEqual(self.profile["sources"][name][field], media[name][field])
+
+    def test_linked_x11_runtime_cannot_omit_its_locale_data(self):
+        profile = copy.deepcopy(self.profile)
+        profile["platformData"] = {}
+        with self.assertRaisesRegex(ValueError, "runtime data inventory"):
+            native_sources.validate(profile)
+
+    def test_compose_rules_and_grants_survive_relocation_without_the_build_prefix(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary)
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b'# Original copyright and permission\n<Multi_key> <a> <e> : "ae"\n')
+            locale = prefix / "share/X11/locale/ru_RU.UTF-8/Compose"
+            locale.parent.mkdir(parents=True)
+            locale.write_bytes(b'include "' + str(common).encode() + b'"\n<Multi_key> <o> <e> : "oe"\n')
+            configured = platform_data.configured(prefix)["share/X11/locale/ru_RU.UTF-8/Compose"]
+            self.assertNotIn(str(prefix).encode(), configured)
+            self.assertIn(common.read_bytes(), configured)
+            self.assertTrue(configured.endswith(b'<Multi_key> <o> <e> : "oe"\n'))
+
+    def test_unreviewed_compose_include_cannot_escape_the_owned_table(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary)
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b'include "/foreign/Compose"\n')
+            with self.assertRaisesRegex(ValueError, "unexpected X11 runtime resource reference"):
+                platform_data.configured(prefix)
 
 
 if __name__ == "__main__":

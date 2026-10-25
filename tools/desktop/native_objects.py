@@ -21,6 +21,7 @@ import header_scope
 import native_link
 import platform_clients
 import native_fonts
+import platform_data
 from native_context import sdk_paths
 
 sys.path.insert(0, str(ROOT / "tools/jvm"))
@@ -42,9 +43,9 @@ class Context:
         for name in ("CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "LIBRARY_PATH", "LD_LIBRARY_PATH"):
             self.env.pop(name, None)
 
-    def run(self, name, command, *, cwd=None, output=False, timeout=600):
+    def run(self, name, command, *, cwd=None, output=False, timeout=600, env=None):
         (self.logs / (name + ".command.json")).write_bytes(encoded({"arguments": list(map(str, command)), "cwd": str(cwd) if cwd else None}))
-        result = subprocess.run(list(map(str, command)), cwd=cwd, env=self.env, stdin=subprocess.DEVNULL,
+        result = subprocess.run(list(map(str, command)), cwd=cwd, env=dict(self.env, **(env or {})), stdin=subprocess.DEVNULL,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout)
         (self.logs / (name + ".log")).write_bytes(result.stdout)
         if result.returncode:
@@ -146,12 +147,17 @@ def build(context, payload, originals, profile, trees, generated):
         write(payload / name, data)
     probe(context, payload, trees)
     clients = platform_clients.build(context.work / "platform-clients", trees, profile["sourceDateEpoch"], OFFLINE)
+    platform_data.package(clients.prefix, payload, profile)
+    for name, data in native_fonts.contents(originals["fontconfig"], profile).items():
+        write(payload / name, data)
     runtime = native_link.build(context, payload, clients)
+    # Runtime checks must not fall back to resources that disappear with the build tree.
+    clients.prefix.rename(context.work / "staged-clients-not-runtime")
     binary = native_link.probe(context, payload)
     runtime["negativeChecks"] = native_link.fault_checks(context, payload, binary)
     runtime["platformHeaderCount"] = clients.header_count
-    for name, data in native_fonts.contents(originals["fontconfig"], profile).items():
-        write(payload / name, data)
+    runtime["x11DataFiles"] = len(profile["platformData"])
+    runtime["x11LocaleAccepted"] = True
     files = {p.relative_to(payload).as_posix(): digest(p.read_bytes()) for p in payload.rglob("*") if p.is_file()}
     report = {"profile": profile["profile"], "sources": len(originals), "archives": len(archives), "jniObjects": len(sources),
               "nativeRendererLinked": True, "nativeRuntimeQualified": False, "physicalOutputAccepted": False, "runtime": runtime, "files": files}
@@ -174,11 +180,17 @@ def verify(payload, originals, profile, generated):
         raise ValueError("Native original grant or scope notice changed")
     expected = ({"lib/" + name for name in profile["nativeArchives"]}
                 | {"objects/" + name + ".o" for name in jni_units(profile)}
-                | {"runtime/" + name for name in profile["runtimeLibraries"]}
+                | {"runtime/" + name for name in profile["runtimeLibraries"]} | set(profile["platformData"])
                 | set(legal_files(originals, profile)) | set(native_fonts.contents(originals["fontconfig"], profile))
                 | {"tools/gn", "sources.zip"})
     if set(files) != expected:
         raise ValueError("Native payload has missing or unexpected objects/archives/files")
+    platform_data.verify(payload, profile)
+    if (report["runtime"]["negativeChecks"] != list(native_link.FAULT_CASES)
+            or report["runtime"]["x11DataFiles"] != len(profile["platformData"])
+            or report["runtime"]["x11LocaleAccepted"] is not True
+            or not isinstance(report["runtime"]["platformHeaderCount"], int) or report["runtime"]["platformHeaderCount"] <= 0):
+        raise ValueError("Native client/resource validation scope changed")
     if report["runtime"]["imports"] != native_link.audit(payload / "runtime"):
         raise ValueError("Linked runtime client imports changed")
     symbols = native_link.public_symbols(payload / "runtime" / native_link.LIBRARY)

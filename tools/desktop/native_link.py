@@ -6,6 +6,8 @@ import re
 import shutil
 import subprocess
 
+import platform_data
+
 ROOT = Path(__file__).resolve().parents[2]
 # The compiler runtime and C ABI are OS/developer SDK services, never copied into the payload.
 SDK_IMPORTS = {"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2", "librt.so.1",
@@ -14,6 +16,7 @@ LIBRARY = "libskiko-linux-x64.so"
 LINK_CLIENTS = {"libGL.so.1", "libX11.so.6", "libfontconfig.so.1"}
 # These exact unversioned names come from the original Skiko xrandr/theme loaders.
 DYNAMIC_CLIENTS = {"libXrandr.so", "libdbus-1.so"}
+FAULT_CASES = ("missing-client", "foreign-runpath", "foreign-import", "incompatible-elf", "symbolic-alias", "missing-locale-data")
 
 
 def dynamic(path):
@@ -103,7 +106,7 @@ def audit(directory):
 def probe(context, payload):
     binary = context.work / "linked-native-consumer"
     context.run("linked-consumer-build", ["g++", "-std=c++17", ROOT / "tools/desktop/link_probe.cc", "-ldl", "-o", binary])
-    if context.run("linked-consumer-run", [binary, payload / "runtime" / LIBRARY], output=True).strip() != b"SYNCWATCH_NATIVE_LINK_OK":
+    if context.run("linked-consumer-run", [binary, payload / "runtime" / LIBRARY], output=True, env=platform_data.environment(payload)).strip() != b"SYNCWATCH_NATIVE_LINK_OK":
         raise ValueError("Original linked Skiko/Skia API consumer failed")
     return binary
 
@@ -118,7 +121,7 @@ def fault_checks(context, payload, binary):
     failures = []
     with tempfile.TemporaryDirectory(prefix="native-errors-", dir=context.work) as temporary:
         root = Path(temporary)
-        for name in ("missing-client", "foreign-runpath", "foreign-import", "incompatible-elf", "symbolic-alias"):
+        for name in FAULT_CASES[:-1]:
             directory = root / name
             shutil.copytree(payload / "runtime", directory)
             library = directory / LIBRARY
@@ -142,9 +145,22 @@ def fault_checks(context, payload, binary):
                 failures.append(name)
             else:
                 raise ValueError("Corrupt runtime was accepted: " + name)
+        missing = root / "missing-locale-data"
+        shutil.copytree(payload / "runtime", missing / "runtime")
+        try:
+            context.run("missing-locale-consumer", [binary, missing / "runtime" / LIBRARY], output=True,
+                        env=platform_data.environment(missing))
+        except ValueError:
+            if b"SYNCWATCH_X11_LOCALE_UNAVAILABLE" not in (context.logs / "missing-locale-consumer.log").read_bytes():
+                raise ValueError("Missing locale data failed for an unrelated reason")
+            failures.append("missing-locale-data")
+        else:
+            raise ValueError("Runtime unexpectedly accepted absent owned locale data")
         relocated = root / "owned runtime with spaces — Кириллица"
-        shutil.copytree(payload / "runtime", relocated)
-        audit(relocated)
-        if context.run("relocated-linked-consumer", [binary, relocated / LIBRARY], output=True).strip() != b"SYNCWATCH_NATIVE_LINK_OK":
+        shutil.copytree(payload / "runtime", relocated / "runtime")
+        shutil.copytree(payload / "share", relocated / "share")
+        audit(relocated / "runtime")
+        if context.run("relocated-linked-consumer", [binary, relocated / "runtime" / LIBRARY], output=True,
+                       env=platform_data.environment(relocated)).strip() != b"SYNCWATCH_NATIVE_LINK_OK":
             raise ValueError("Linked runtime failed after Unicode/space relocation")
     return failures
