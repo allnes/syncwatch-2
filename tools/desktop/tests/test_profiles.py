@@ -52,6 +52,27 @@ class NativeProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "parameters changed"):
             generators.substitute(b"@POINTER_SIZE@ @UNREVIEWED_ABI@", {"POINTER_SIZE": 8})
 
+    def test_generated_headers_can_be_written_and_archived_as_bytes(self):
+        dbus_markers = ("INT64_TYPE", "INT64_MODIFIER", "INT64_CONSTANT", "UINT64_CONSTANT", "INT32_TYPE",
+                        "INT16_TYPE", "SIZEOF_VOID_P", "MAJOR_VERSION", "MINOR_VERSION", "MICRO_VERSION", "VERSION")
+        originals = {
+            "gn": {"build/gen.py": b"contents = '''%s %s %s''' % (mo.group(1), mo.group(1), mo.group(2))"},
+            "fontconfig": {
+                "meson.build": (b"cacheversion = 12\ncachemincompat = 9\ncachesnapversion = 0\n"
+                                b"if cachesnapversion > 0\n  nextcacheversion = cacheversion + 1\n"
+                                b"else\n  nextcacheversion = 0\nendif"),
+                "fontconfig/fontconfig.h.in": b"@CACHE_VERSION@ @CACHE_MIN_COMPAT_VERSION@ @CACHE_SNAP_VERSION@ @NEXT_CACHE_VERSION@",
+                "fontconfig/fcfreetype.h": b"/* synthetic public header */"},
+            "desktop-dbus": {"meson.build": b"version: '1.16.2'",
+                             "dbus/dbus-arch-deps.h.in": " ".join("@DBUS_" + m + "@" for m in dbus_markers).encode()}}
+        generated = generators.headers(originals, self.profile)
+        with tempfile.TemporaryDirectory() as work:
+            for name, data in generated.items():
+                self.assertIsInstance(data, bytes, name)
+                native_objects.write(Path(work) / name, data)
+                self.assertEqual((Path(work) / name).read_bytes(), data)
+        self.assertEqual(generated["gn/last_commit_position.h"], b"2175 2175 b2afae122eeb")
+
     def test_ambient_header_and_linker_paths_do_not_override_source_owners(self):
         with tempfile.TemporaryDirectory() as work:
             with patch.dict(os.environ, {"CPATH": "/foreign/include", "LIBRARY_PATH": "/foreign/lib"}):

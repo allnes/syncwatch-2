@@ -26,7 +26,7 @@ def headers(originals, profile):
     if len(templates) != 1:
         raise ValueError("Original GN version generator changed")
     version = profile["gnVersion"]
-    generated_gn = templates[0] % (version["commitPosition"], str(version["commitPosition"]), version["commitAbbreviation"])
+    generated_gn = (templates[0] % (version["commitPosition"], str(version["commitPosition"]), version["commitAbbreviation"])).encode()
     if version["commitAbbreviation"] != profile["sources"]["gn"]["revision"][:12]:
         raise ValueError("GN version does not describe the exact source revision")
     font = originals["fontconfig"]
