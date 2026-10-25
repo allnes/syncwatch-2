@@ -20,6 +20,7 @@ fun main() = runBlocking {
     val owner = CoroutineScope(MainUIDispatcher + SupervisorJob())
     try {
         withContext(MainUIDispatcher) {
+            watchPersistenceChecks(scratch)
             val model = LibraryController(store, owner, null)
             model.restore(); model.settled()
             check(model.presentation.entries.isEmpty())

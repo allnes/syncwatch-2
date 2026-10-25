@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "7b0720940c27e96e75831f66d9ab304b9584a5407c75faef677404b763a2aadf",
+  "sourceDigest": "b02b6a907fc6ec1ad2367f0278103b38829712849abb89c2bc75d5ba2789d7ae",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -13,7 +13,7 @@
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "b17a8f33d228a1c5bcd44fb731e5243fd7a7510bd1fd5d59ca675013be284f70",
+    "layouts.json": "c4990758666248edbc3b1e1482a7d800147b301bf9f8fc805f4d947bb3a97995",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "006edca67c1ef8f1a2e3490e6d0ddac3452e55e5253b2d93e379df471b039dcc",
@@ -3070,7 +3070,8 @@
                                           "action": "startWatching",
                                           "enabled": "$can.startWatching",
                                           "automation": "{namespace}.startWatching",
-                                          "label": "~startWatching"
+                                          "label": "~startWatching",
+                                          "when": "= $can.continueWatching false true if"
                                         },
                                         "children": [
                                           {
@@ -3088,13 +3089,15 @@
                                         "id": "node47",
                                         "kind": "button",
                                         "styles": [
-                                          "button"
+                                          "button",
+                                          "primary"
                                         ],
                                         "props": {
                                           "action": "continueWatching",
                                           "enabled": "$can.continueWatching",
                                           "automation": "{namespace}.continueWatching",
-                                          "label": "~continueWatching"
+                                          "label": "~continueWatching",
+                                          "when": "$can.continueWatching"
                                         },
                                         "children": [
                                           {
@@ -3118,7 +3121,8 @@
                                           "action": "endWatching",
                                           "enabled": "$can.endWatching",
                                           "automation": "{namespace}.endWatching",
-                                          "label": "~endWatching"
+                                          "label": "~endWatching",
+                                          "when": "$can.endWatching"
                                         },
                                         "children": [
                                           {

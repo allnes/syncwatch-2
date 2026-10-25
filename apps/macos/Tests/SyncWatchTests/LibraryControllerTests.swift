@@ -70,4 +70,5 @@ import Testing
     #expect(owned.access === selectedAccess && retainedData == Data("fixture".utf8))
     #expect(try Data(contentsOf: store.url) == future)
     restored.close()
+    selectedAccess = nil
 }

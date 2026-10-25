@@ -7,13 +7,19 @@ namespace SyncWatch.Design;
 public sealed class ApplicationChrome : UserControl
 {
     private readonly DesignSurface surface = new("Application");
-    public ApplicationChrome(UIElement library, UIElement player)
+    public ApplicationChrome(UIElement library, UIElement? player = null)
     {
         surface.Slots["libraryContent"] = library;
-        surface.Slots["playerContent"] = player;
+        if (player is not null) surface.Slots["playerContent"] = player;
         Content = surface;
         surface.ConfigureHost(this);
         PresentPlayer(false);
+    }
+    public void SetPlayer(UIElement? player)
+    {
+        if (player is null) surface.Slots.Remove("playerContent");
+        else surface.Slots["playerContent"] = player;
+        surface.Render(surface.Context, surface.UiLanguage);
     }
     public void PresentPlayer(bool presented) => surface.Render(new()
     {

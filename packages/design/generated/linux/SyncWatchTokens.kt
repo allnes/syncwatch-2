@@ -751,7 +751,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "5257a41dd81e1cf9334f948b571f717738e7132102defc94844858f9f9674de1"
+    const val sourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -1655,6 +1655,7 @@ object SyncWatchLayouts {
             "enabled" to "\$can.startWatching",
             "automation" to "{namespace}.startWatching",
             "label" to "~startWatching",
+            "when" to "= \$can.continueWatching false true if",
         ), listOf(node44))
         val node46 = DesignNode("node46", "text", mapOf(
             "disabledOpacity" to "0.4",
@@ -1672,12 +1673,12 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "paddingX" to "@layout.panelPadding",
-            "minHeight" to "@control.outlinedButtonMinHeight",
+            "minHeight" to "@control.filledButtonMinHeight",
             "radius" to "@control.buttonRadius",
             "border" to "theme.border",
             "borderWidth" to "@control.borderWidth",
-            "background" to "theme.surfaceRaised",
-            "foreground" to "theme.text",
+            "background" to "theme.accent",
+            "foreground" to "@color.dark.text",
             "fontSize" to "@type.bodySize",
             "weight" to "semibold",
             "contentAlign" to "center",
@@ -1685,6 +1686,7 @@ object SyncWatchLayouts {
             "enabled" to "\$can.continueWatching",
             "automation" to "{namespace}.continueWatching",
             "label" to "~continueWatching",
+            "when" to "\$can.continueWatching",
         ), listOf(node46))
         val node48 = DesignNode("node48", "text", mapOf(
             "disabledOpacity" to "0.4",
@@ -1715,6 +1717,7 @@ object SyncWatchLayouts {
             "enabled" to "\$can.endWatching",
             "automation" to "{namespace}.endWatching",
             "label" to "~endWatching",
+            "when" to "\$can.endWatching",
         ), listOf(node48))
         val node50 = DesignNode("node50", "row", mapOf(
             "disabledOpacity" to "0.4",

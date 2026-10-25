@@ -11,12 +11,7 @@ struct LocalPlaybackLaunch {
     let report: URL?
     static func read(_ arguments: [String] = CommandLine.arguments) -> Self? {
         guard let index = arguments.firstIndex(of: "--local-playback"), index + 1 < arguments.count else { return nil }
-        let package: URL
-        if let i = arguments.firstIndex(of: "--media-package"), i + 1 < arguments.count {
-            package = URL(filePath: arguments[i + 1])
-        } else {
-            package = Bundle.main.bundleURL.appendingPathComponent("Contents/Frameworks/Media")
-        }
+        let package = MediaConfiguration.read(arguments).package
         let report = arguments.firstIndex(of: "--playback-report").flatMap { i in
             i + 1 < arguments.count ? URL(filePath: arguments[i + 1]) : nil
         }
@@ -28,18 +23,45 @@ struct LocalPlaybackLaunch {
     @Published private(set) var presentation = PlayerPresentation()
     @Published private(set) var failed = false
     let player = VLCPlayback()
-    private(set) var scope = PlaybackScope.fresh()
+    private(set) var scope: PlaybackScope
     private let launch: LocalPlaybackLaunch
+    private let runtime: VLCPlaybackRuntime?
     private var polling: Task<Void, Never>?
     private(set) var view: NSView?
     private(set) var window: NSWindow?
     private var closing = false
     private var closed = false
+    private let allocateScope: Bool
+    private let initialPositionMs: Int64
+    private var selection: LibraryMediaSelection?
+    private let onLoaded: @MainActor (PlaybackScope) -> Void
+    private let onObservation: @MainActor (PlaybackObservation) -> Void
+    private let onNavigation: (@MainActor (String) -> Void)?
+    private let onFailure: (@MainActor () -> Void)?
 
-    init(launch: LocalPlaybackLaunch) {
+    init(
+        launch: LocalPlaybackLaunch, runtime: VLCPlaybackRuntime? = nil, scope: PlaybackScope? = nil,
+        positionMs: Int64 = 0,
+        selection: LibraryMediaSelection? = nil,
+        onLoaded: @escaping @MainActor (PlaybackScope) -> Void = { _ in },
+        onObservation: @escaping @MainActor (PlaybackObservation) -> Void = { _ in },
+        onNavigation: (@MainActor (String) -> Void)? = nil, onFailure: (@MainActor () -> Void)? = nil
+    ) {
         self.launch = launch
+        self.runtime = runtime
+        self.scope = scope ?? .fresh()
+        allocateScope = scope == nil
+        initialPositionMs = positionMs
+        self.selection = selection
+        self.onLoaded = onLoaded
+        self.onObservation = onObservation
+        self.onNavigation = onNavigation
+        self.onFailure = onFailure
         presentation.title = launch.file.lastPathComponent
-        presentation.enabledActions = ["endWatching", "toggleFullscreen"]
+        presentation.enabledActions = navigationActions
+    }
+    private var navigationActions: Set<String> {
+        onNavigation == nil ? ["endWatching", "toggleFullscreen"] : ["endWatching", "toggleFullscreen", "showLibrary"]
     }
     func attach(_ view: NSView) {
         guard self.view == nil, !closing else { return }
@@ -47,18 +69,35 @@ struct LocalPlaybackLaunch {
         window = view.window
         polling = Task { [self] in
             do {
-                scope = try scope.replacingMedia()
+                if allocateScope { scope = try scope.replacingMedia() }
                 let address = UInt(bitPattern: Unmanaged.passUnretained(view).toOpaque())
-                try await player.open(package: launch.package, appKitSurfaceAddress: address)
+                if let runtime {
+                    try await player.open(runtime: runtime, appKitSurfaceAddress: address)
+                } else {
+                    try await player.open(package: launch.package, appKitSurfaceAddress: address)
+                }
                 try Task.checkCancellation()
                 try await player.load(launch.file, scope: scope)
+                onLoaded(scope)
+                var resumePending = initialPositionMs > 0
                 if let report = launch.report {
                     Task { await PlaybackAcceptance.run(controller: self, report: report) }
                 }
                 while !Task.isCancelled {
                     let observation = try await player.observe(scope)
                     guard !closing else { break }
+                    if observation.status == .failed { throw PlaybackFailure.engine }
+                    if resumePending, observation.status == .ready {
+                        resumePending = false
+                        if observation.seekable {
+                            // A saved position seeds a request; only the next native observation is published.
+                            try? await player.seek(
+                                to: min(initialPositionMs, observation.durationMs ?? initialPositionMs), scope: scope)
+                            continue
+                        }
+                    }
                     apply(observation)
+                    onObservation(observation)
                     try await Task.sleep(for: .milliseconds(100))
                 }
             } catch is CancellationError {
@@ -70,16 +109,12 @@ struct LocalPlaybackLaunch {
                     }
                     failed = true
                     presentation.enabledActions = ["endWatching"]
+                    onFailure?()
                 }
             }
         }
     }
     private func apply(_ value: PlaybackObservation) {
-        if value.status == .failed {
-            failed = true
-            presentation.enabledActions = ["endWatching"]
-            return
-        }
         presentation.state =
             value.ended
             ? .ended
@@ -88,12 +123,16 @@ struct LocalPlaybackLaunch {
         presentation.durationMs = value.durationMs ?? 0
         presentation.volume = value.volume ?? presentation.volume
         presentation.muted = value.muted
-        presentation.enabledActions = ["endWatching", "toggleFullscreen", "playPause"]
+        presentation.enabledActions = navigationActions.union(["playPause"])
         if value.volume != nil { presentation.enabledActions.formUnion(["setMovieVolume", "muteMovie"]) }
         if value.seekable { presentation.enabledActions.formUnion(["seek", "skip"]) }
     }
     func action(_ action: String, value: Double?) {
         guard !closing else { return }
+        if action == "endWatching" || action == "showLibrary", let onNavigation {
+            onNavigation(action)
+            return
+        }
         if action == "endWatching" {
             let ownedWindow = window
             Task {
@@ -147,7 +186,20 @@ struct LocalPlaybackLaunch {
         polling = nil
         view = nil
         window = nil
+        withExtendedLifetime(selection) {}
+        selection = nil
         closed = true
+    }
+}
+
+struct PlaybackPane: View {
+    @ObservedObject var controller: PlaybackController
+    var language: String
+    var body: some View {
+        PlayerChrome(
+            presentation: controller.presentation, language: language,
+            videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
+            onAction: controller.action)
     }
 }
 
@@ -164,23 +216,18 @@ struct PlaybackWorkspace: View {
         }
     }
     private var content: some View {
-        PlayerChrome(
-            presentation: controller.presentation,
-            language: preferences.state.preferences.language,
-            videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
-            onAction: controller.action
-        )
-        .preferredColorScheme(preferences.colorScheme)
-        .environment(\.locale, Locale(identifier: preferences.state.preferences.language))
-        .alert(
-            SyncWatchCopy.text("playbackFailed", language: preferences.state.preferences.language),
-            isPresented: Binding(
-                get: { controller.failed }, set: { _ in }
-            )
-        ) {
-            Button(SyncWatchCopy.text("endWatching", language: preferences.state.preferences.language)) {
-                controller.action("endWatching", value: nil)
+        PlaybackPane(controller: controller, language: preferences.state.preferences.language)
+            .preferredColorScheme(preferences.colorScheme)
+            .environment(\.locale, Locale(identifier: preferences.state.preferences.language))
+            .alert(
+                SyncWatchCopy.text("playbackFailed", language: preferences.state.preferences.language),
+                isPresented: Binding(
+                    get: { controller.failed }, set: { _ in }
+                )
+            ) {
+                Button(SyncWatchCopy.text("endWatching", language: preferences.state.preferences.language)) {
+                    controller.action("endWatching", value: nil)
+                }
             }
-        }
     }
 }

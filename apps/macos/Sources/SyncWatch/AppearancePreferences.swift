@@ -7,8 +7,9 @@ import SyncWatchLibrary
 
 @MainActor final class AppearancePreferences: ObservableObject {
     @Published private(set) var state = LocalState()
+    @Published private(set) var savingWatchState = false
     private(set) var canWrite = false
-    private let store: any LocalStateStore
+    private let store: SerializedLocalStateStore
 
     static var defaultURL: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -16,9 +17,9 @@ import SyncWatchLibrary
     }
 
     init(store: any LocalStateStore) {
-        self.store = store
+        self.store = SerializedLocalStateStore(store)
         do {
-            switch try store.read() {
+            switch try self.store.read() {
             case .loaded(let value):
                 try value.validate()
                 state = value
@@ -32,11 +33,14 @@ import SyncWatchLibrary
     var editor: SettingsEditor {
         SettingsEditor(
             values: ["theme": state.preferences.theme, "language": state.preferences.language],
-            editableFields: canWrite ? ["theme", "language"] : [], canSave: canWrite)
+            editableFields: canWrite && !savingWatchState ? ["theme", "language"] : [],
+            canSave: canWrite && !savingWatchState)
     }
 
     func save(_ values: [String: String]) -> Bool {
-        guard canWrite, let theme = values["theme"], let language = values["language"] else { return false }
+        guard canWrite, !savingWatchState, let theme = values["theme"], let language = values["language"] else {
+            return false
+        }
         var next = state
         next.preferences.theme = theme
         next.preferences.language = language
@@ -46,6 +50,26 @@ import SyncWatchLibrary
             state = next
             return true
         } catch { return false }
+    }
+
+    /// The WatchSession owner serializes checkpoints. Current appearance always wins the merge.
+    func persistWatchState(_ value: LocalState) async -> Bool {
+        guard !savingWatchState else { return false }
+        var next = value
+        next.preferences = state.preferences
+        do { try next.validate() } catch { return false }
+        state = next
+        guard canWrite else { return false }
+        savingWatchState = true
+        defer { savingWatchState = false }
+        let snapshot = next
+        let destination = store
+        return await Task.detached {
+            do {
+                try destination.write(snapshot)
+                return true
+            } catch { return false }
+        }.value
     }
 
     var colorScheme: ColorScheme? {
@@ -60,13 +84,27 @@ import SyncWatchLibrary
 @MainActor struct ApplicationWorkspace: View {
     @StateObject private var preferences: AppearancePreferences
     @StateObject private var library: LibraryController
-    init() {
-        let preferences = AppearancePreferences(store: FileLocalStateStore(url: AppearancePreferences.defaultURL))
+    @StateObject private var watch: WatchSessionCoordinator
+    private let lifecycle: ApplicationLifecycle
+    init(lifecycle: ApplicationLifecycle) {
+        self.lifecycle = lifecycle
+        let stateURL: URL
+        if let index = CommandLine.arguments.firstIndex(of: "--state-directory"),
+            index + 1 < CommandLine.arguments.count
+        {
+            stateURL = URL(filePath: CommandLine.arguments[index + 1]).appendingPathComponent("local-state.json")
+        } else {
+            stateURL = AppearancePreferences.defaultURL
+        }
+        let preferences = AppearancePreferences(store: FileLocalStateStore(url: stateURL))
         _preferences = StateObject(wrappedValue: preferences)
+        _watch = StateObject(
+            wrappedValue: WatchSessionCoordinator(
+                preferences: preferences, media: MediaConfiguration.read(CommandLine.arguments)))
         _library = StateObject(
             wrappedValue: LibraryController(
                 store: FileLibraryAccessStore(
-                    url: AppearancePreferences.defaultURL.deletingLastPathComponent().appendingPathComponent(
+                    url: stateURL.deletingLastPathComponent().appendingPathComponent(
                         "library-access.json")),
                 selectedID: preferences.state.selectedMediaID))
     }
@@ -74,42 +112,95 @@ import SyncWatchLibrary
     @State private var editor = SettingsEditor()
 
     var body: some View {
-        LibraryWorkspace(
-            presentation: library.presentation,
-            language: preferences.state.preferences.language
-        ) { action, value in
-            if action == "chooseFolder" {
-                chooseFolder()
-            } else if action == "rescan" {
-                library.rescan()
-            } else if action == "selectMovie", let value {
-                library.select(value)
-            } else if action == "openSettings" {
-                editor = preferences.editor
-                showSettings = true
+        ApplicationChrome(
+            playerPresented: watch.playerPresented,
+            library: AnyView(
+                LibraryWorkspace(
+                    presentation: watch.libraryPresentation(library.presentation),
+                    language: preferences.state.preferences.language
+                ) { action, value in
+                    if action == "chooseFolder" {
+                        chooseFolder()
+                    } else if action == "rescan" {
+                        library.rescan()
+                    } else if action == "selectMovie", let value {
+                        library.select(value)
+                    } else if action == "startWatching", let selection = library.selectedMedia() {
+                        watch.start(selection)
+                    } else if action == "continueWatching" {
+                        watch.continueWatching()
+                    } else if action == "endWatching" {
+                        watch.end()
+                    } else if action == "openSettings" {
+                        editor = preferences.editor
+                        showSettings = true
+                    }
+                }), player: playerContent
+        )
+        .background(WindowCloseGate(close: close))
+        .task {
+            lifecycle.prepareForTermination = { [weak sessionOwner = watch, weak catalogOwner = library] in
+                await sessionOwner?.close()
+                catalogOwner?.close()
+            }
+            library.restore()
+            await watch.prepareRuntime()
+            await WatchAcceptance.run(preferences: preferences, library: library, watch: watch)
+        }
+        .onDisappear {
+            let sessionOwner = watch
+            let catalogOwner = library
+            Task {
+                await sessionOwner.close()
+                catalogOwner.close()
             }
         }
-        .task { library.restore() }
-        .onDisappear { library.close() }
         .alert(
             SyncWatchCopy.text("brand", language: preferences.state.preferences.language),
-            isPresented: Binding(get: { library.errorKey != nil }, set: { if !$0 { library.errorKey = nil } })
+            isPresented: Binding(
+                get: { library.errorKey != nil || watch.errorKey != nil },
+                set: {
+                    if !$0 {
+                        library.errorKey = nil
+                        watch.errorKey = nil
+                    }
+                })
         ) {
             Button(SyncWatchCopy.text("close", language: preferences.state.preferences.language)) {
                 library.errorKey = nil
+                watch.errorKey = nil
             }
         } message: {
             Text(
                 SyncWatchCopy.text(
-                    library.errorKey ?? "libraryUnavailable", language: preferences.state.preferences.language))
+                    library.errorKey ?? watch.errorKey ?? "libraryUnavailable",
+                    language: preferences.state.preferences.language))
         }
         .sheet(isPresented: $showSettings) {
             SettingsDialog(
                 editor: $editor, language: preferences.state.preferences.language,
-                onSave: preferences.save, onClose: { showSettings = false })
+                onSave: { values in
+                    let saved = preferences.save(values)
+                    if saved { watch.preferencesChanged() }
+                    return saved
+                }, onClose: { showSettings = false })
         }
         .preferredColorScheme(preferences.colorScheme)
         .environment(\.locale, Locale(identifier: preferences.state.preferences.language))
+    }
+    private var playerContent: AnyView {
+        if let controller = watch.player {
+            return AnyView(
+                PlaybackPane(controller: controller, language: preferences.state.preferences.language)
+                    .id(controller.scope.mediaGeneration))
+        }
+        return AnyView(EmptyView())
+    }
+    private func close() async {
+        let sessionOwner = watch
+        let catalogOwner = library
+        await sessionOwner.close()
+        catalogOwner.close()
     }
     private func chooseFolder() {
         let picker = NSOpenPanel()
