@@ -12,6 +12,8 @@ Results are ordered by unsigned UTF-8 bytes of their exact relative paths with s
 
 A path-derived local ID identifies a catalog entry, not a movie edition or content digest. Full paths and modification timestamps remain local. Peer descriptors require explicit conversion to the reviewed media schema; strong edition matching still requires the independent full-file hash and metadata rules in [Syncplay architecture](syncplay.md#media-identity).
 
+The application captures a typed local selection from the current completed catalog. It retains both the discovered file facts and the folder-access owner. An active playback owner keeps this selection independently of later rescans, folder changes or Library disposal, and releases it only after native playback teardown. Scanning, empty and closed controllers provide no new selection. Display text and paths are never parsed back into authorization or media identity.
+
 ## Application boundary
 
 `LibraryAccessStore` separates local persistence from application coordination. Its version1 record contains the platform, root UUID, absolute path, bookmark, recursive-scan and automatic-refresh preferences. Reads are bounded to256KiB and distinguish missing, loaded, invalid and unsupported-version data. Malformed data is left untouched by reads; recognized future versions cannot be overwritten. Writes validate before atomic replacement; callers serialize operations outside rendering. This is not a cross-process transaction.

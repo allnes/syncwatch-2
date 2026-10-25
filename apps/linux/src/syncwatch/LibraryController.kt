@@ -20,6 +20,9 @@ import syncwatch.design.LibraryPresentation
 import syncwatch.design.LibraryVisualState
 import syncwatch.library.*
 
+/** Local selection ownership only; the path-based catalog ID is not peer content identity. */
+internal data class LibraryMediaSelection(val media: LocalMediaFile, val access: LibraryFolderAccess)
+
 /** UI coordination only. The library services and shared design own their respective boundaries. */
 internal class LibraryController(private val store: LibraryAccessStore, parent: CoroutineScope, private val savedSelection: String?) {
     private val scope = CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]))
@@ -27,6 +30,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private val scanner = FileSystemLibrary()
     private var pending: Job? = null
     private var grant: LibraryFolderAccess? = null
+    private var catalog = emptyMap<String, LocalMediaFile>()
     private var stable: LibraryPresentation? = null
     private var generation = 0L
     private var closed = false
@@ -44,9 +48,20 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     }
     fun choose(path: Path) = start { withContext(Dispatchers.IO) { LibraryFolderAccess.selected(path) } }
     fun rescan() { grant?.let { current -> start { current } } }
-    fun select(id: String) = presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); stable = presentation }
+    fun select(id: String) {
+        if (!closed) presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); stable = presentation }
+    }
+    fun selectedMedia(): LibraryMediaSelection? {
+        check(java.awt.EventQueue.isDispatchThread()) { "library-event-thread" }
+        if (closed || presentation.state != LibraryVisualState.selected) return null
+        val media = catalog[presentation.selectedID] ?: return null
+        return LibraryMediaSelection(media, grant ?: return null)
+    }
     fun clearError() { errorKey = null }
-    fun close() { closed = true; generation++; pending?.cancel(); scope.cancel(); grant = null }
+    fun close() {
+        closed = true; generation++; pending?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
+        presentation = presentation.copy(enabledActions = emptySet())
+    }
     suspend fun settled() { pending?.join() }
     private suspend fun <T> storage(operation: () -> T): T = persistence.withLock { withContext(Dispatchers.IO) { operation() } }
     private fun start(acquire: suspend () -> LibraryFolderAccess?) {
@@ -68,6 +83,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                     .map { LibraryEntry(it.id, it.title, it.file.toString()) }
                 val selected = listOfNotNull(previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
+                catalog = files.associateBy { it.id }
                 presentation = LibraryPresentation(if (rows.isEmpty()) LibraryVisualState.empty else LibraryVisualState.selected,
                     rows, selected, setOf("chooseFolder", "rescan", "search", "selectMovie", "openSettings"))
                 stable = presentation

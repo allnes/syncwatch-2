@@ -65,7 +65,7 @@ The application-settings dialog uses the shared 680 by 420 layout and 150-unit s
 | Call | Input/output devices and supported camera quality; retain the 480p target subject to real provider capability |
 | Connection | Synchronization/room connection and readiness behavior with independent channel states |
 
-Theme and language are implemented in the native application-settings dialog and saved through the local state store, with feedback and validation errors. They apply without restart and survive application restart; Cancel discards unsaved edits. Library, call and connection controls remain disabled until their adapters are available. Other supported configuration changes follow the same local-save boundary as their integrations are implemented. macOS folder grants use security-scoped bookmarks; moved, stale, denied, or corrupt grants need renewed folder access.
+Theme and language are implemented in the native application-settings dialog and saved through the local state store, with feedback and validation errors. They apply without restart and survive application restart; Cancel discards unsaved edits. Library folder selection, access restoration, scanning, search and selection are connected to their local adapters on all three desktops. Watch-session, call and connection actions remain disabled until their runtime owners are available. Other supported configuration changes follow the same local-save boundary as their integrations are implemented. macOS folder grants use security-scoped bookmarks; moved, stale, denied, or corrupt grants need renewed folder access.
 
 The player-settings dialog uses the shared 680 by 460 layout, 170-unit sidebar, draggable title bar, and section reset actions:
 

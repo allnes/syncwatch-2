@@ -1,6 +1,6 @@
 # Local watch state
 
-`WatchSession` in the Swift and C# domain packages owns local media selection, resource generations, navigation, and resume positions. It depends only on the platform SDK. The application serializes access; VLC, synchronization, room, and UI adapters remain separate.
+`WatchSession` in the Swift, C# and Kotlin domain packages owns local media selection, resource generations, navigation, and resume positions. It depends only on the platform SDK. The application serializes access; VLC, synchronization, room, and UI adapters remain separate.
 
 ## Lifecycle and resource effects
 
@@ -40,8 +40,8 @@ On application restart, a fresh process scope is allocated and saved media becom
 
 ## Persistence port
 
-`LocalStateStore` / `ILocalStateStore` separates storage from the coordinator. `FileLocalStateStore` accepts a caller-selected application-owned file under Application Support on macOS or LocalAppData on Windows. It reads at most 64 KiB and reports missing, loaded, invalid, or unsupported-version state. Read errors such as access denial propagate to the caller; malformed or unsupported files are left untouched.
+`LocalStateStore` / `ILocalStateStore` separates storage from the coordinator. `FileLocalStateStore` accepts a caller-selected application-owned file under Application Support on macOS, LocalAppData on Windows, or the XDG state directory on Linux. It reads at most 64 KiB and reports missing, loaded, invalid, or unsupported-version state. Read errors such as access denial propagate to the caller; malformed or unsupported files are left untouched.
 
 Writes validate and encode the complete state before replacing the destination atomically. The temporary file is on the same filesystem; unsuccessful writes do not publish a partial JSON document. The application serializes store access. This is atomic replacement, not a cross-process transaction or a guarantee against power loss. An older client refuses to overwrite a recognized future format. Recovery from invalid state is an explicit caller action.
 
-Both implementations consume [the same local-domain corpus](../../contracts/fixtures/local-domain.json) through their existing native test entry points in [building and running](../building.md). This local format is independent of the versioned network/IPC schemas.
+All three implementations consume [the same local-domain corpus](../../contracts/fixtures/local-domain.json) through their existing native test entry points in [building and running](../building.md). This local format is independent of the versioned network/IPC schemas.

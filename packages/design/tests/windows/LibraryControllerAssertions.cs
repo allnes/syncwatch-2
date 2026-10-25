@@ -35,10 +35,14 @@ internal static class LibraryControllerAssertions
         try
         {
             model.Restore(); await model.Settled; Require(model.Presentation.Entries.Count == 0, "empty-store");
-            model.Choose(root); await model.Settled;
+            Require(model.SelectedMedia() is null, "no-selection");
+            model.Choose(root); Require(model.SelectedMedia() is null, "scanning-selection"); await model.Settled;
             Require(model.ErrorKey is null && model.Presentation.Entries.Select(x => x.Title).SequenceEqual(new[] { "A.MKV", "B.mp4" }), "catalog");
             var ids = model.Presentation.Entries.Select(x => x.Id).ToArray();
-            model.Select(ids.Last()); model.Rescan(); await model.Settled;
+            model.Select(ids.Last());
+            var owned = model.SelectedMedia() ?? throw new InvalidOperationException("missing local selection");
+            Require(owned.Media.Id == ids.Last() && owned.Media.Title == "B.mp4", "typed-selection");
+            model.Rescan(); await model.Settled;
             Require(model.Presentation.SelectedId == ids.Last() && model.Presentation.Entries.Select(x => x.Id).SequenceEqual(ids), "rescan");
             using var restored = new LibraryController(store, dispatcher, ids.Last());
             restored.Restore(); await restored.Settled;
@@ -49,10 +53,13 @@ internal static class LibraryControllerAssertions
             Require(model.Presentation.State != SyncWatch.Design.LibraryVisualState.Scanning && model.Presentation.Entries.Select(x => x.Id).SequenceEqual(ids), "failed-replacement-scan");
             model.Choose(root); model.Choose(empty); await model.Settled;
             Require(model.ErrorKey is null && model.Presentation.Entries.Count == 0 && store.Read().Record!.RootPath == empty, "obsolete-scan");
+            Require(model.SelectedMedia() is null && owned.Access.RootPath == root, "retained-previous-grant");
             string future = "{\"version\":2,\"future\":true}"; File.WriteAllText(path, future);
             model.Choose(root); await model.Settled;
             Require(model.ErrorKey == "librarySaveFailed" && model.Presentation.Entries.Count == 2 && File.ReadAllText(path) == future, "future-preserved");
             model.Choose(empty); model.Dispose(); await model.Settled;
+            Require(model.SelectedMedia() is null && model.Presentation.EnabledActions.Count == 0, "closed-selection");
+            Require(File.ReadAllText(owned.Media.File) == "fixture" && owned.Access.RootPath == root, "selection-outlives-controller");
             Require(File.ReadAllText(path) == future, "close-cancels");
             Console.WriteLine("SYNCWATCH_APPLICATION_LIBRARY_OK");
         }

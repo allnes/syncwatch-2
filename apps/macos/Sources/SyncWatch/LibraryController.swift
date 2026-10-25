@@ -3,6 +3,13 @@ import SwiftUI
 import SyncWatchDesign
 import SyncWatchLibrary
 
+/// A local selection retains the OS folder grant independently of Library navigation or rescans.
+/// Its path-based identifier is not evidence of a matching peer edition.
+struct LibraryMediaSelection: Sendable {
+    let media: LocalMediaFile
+    let access: LibraryFolderAccess
+}
+
 private actor LibraryRecordIO {
     let store: any LibraryAccessStore
     init(_ store: any LibraryAccessStore) { self.store = store }
@@ -24,6 +31,7 @@ private actor LibraryRecordIO {
     private let persistence: LibraryRecordIO
     private var stable: LibraryPresentation?
     private var grant: LibraryFolderAccess?
+    private var catalog: [String: LocalMediaFile] = [:]
     private var pending: Task<Void, Never>?
     private var generation = UUID()
     private var closed = false
@@ -47,16 +55,25 @@ private actor LibraryRecordIO {
     }
     func rescan() { if let grant { run { grant } } }
     func select(_ id: String) {
+        guard !closed else { return }
         presentation.dispatch("selectMovie", value: id) { _, _ in
             presentation.selectedID = id
             stable = presentation
         }
+    }
+    func selectedMedia() -> LibraryMediaSelection? {
+        guard !closed, presentation.state == .selected, let id = presentation.selectedID,
+            let media = catalog[id], let grant
+        else { return nil }
+        return LibraryMediaSelection(media: media, access: grant)
     }
     func close() {
         closed = true
         generation = UUID()
         pending?.cancel()
         grant = nil
+        catalog = [:]
+        presentation.enabledActions = []
     }
     func settled() async { await pending?.value }
 
@@ -92,6 +109,7 @@ private actor LibraryRecordIO {
                     [previous.selectedID, savedSelection].compactMap { $0 }.first { id in rows.contains { $0.id == id }
                     } ?? rows.first?.id
                 grant = next
+                catalog = Dictionary(uniqueKeysWithValues: files.map { ($0.id, $0) })
                 presentation = LibraryPresentation(
                     state: rows.isEmpty ? .empty : .selected, entries: rows, selectedID: selected,
                     enabledActions: ["chooseFolder", "rescan", "search", "selectMovie", "openSettings"])

@@ -19,14 +19,19 @@ import Testing
     model.restore()
     await model.settled()
     #expect(model.presentation.entries.isEmpty)
+    #expect(model.selectedMedia() == nil)
     model.choose(root)
     #expect(model.presentation.state == .scanning)
+    #expect(model.selectedMedia() == nil)
     await model.settled()
     #expect(model.errorKey == nil)
     #expect(model.presentation.entries.map(\.title) == ["A.MKV", "B.mp4"])
     let ids = model.presentation.entries.map(\.id)
     let last = try #require(ids.last)
     model.select(last)
+    let owned = try #require(model.selectedMedia())
+    weak var selectedAccess = owned.access
+    #expect(owned.media.id == last && owned.media.title == "B.mp4")
     model.rescan()
     await model.settled()
     #expect(model.presentation.selectedID == last && model.presentation.entries.map(\.id) == ids)
@@ -45,6 +50,7 @@ import Testing
     model.choose(empty)
     await model.settled()
     #expect(model.errorKey == nil && model.presentation.entries.isEmpty)
+    #expect(model.selectedMedia() == nil && selectedAccess != nil)
     if case .loaded(let record) = try store.read() {
         #expect(URL(fileURLWithPath: record.rootPath).resolvingSymlinksInPath() == empty.resolvingSymlinksInPath())
     } else {
@@ -59,6 +65,9 @@ import Testing
     model.choose(empty)
     model.close()
     await model.settled()
+    #expect(model.selectedMedia() == nil && model.presentation.enabledActions.isEmpty)
+    let retainedData = try Data(contentsOf: owned.media.file)
+    #expect(owned.access === selectedAccess && retainedData == Data("fixture".utf8))
     #expect(try Data(contentsOf: store.url) == future)
     restored.close()
 }
