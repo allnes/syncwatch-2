@@ -25,7 +25,7 @@
     "libvlc"
   ],
   "blockedCapabilities": [
-    "source-closed native Skiko, Skia and selected platform/font graph",
+    "complete JVM/application runtime distribution and native renderer desktop qualification",
     "native video window on X11 and Wayland",
     "compiled desktop galleries and application acceptance"
   ]

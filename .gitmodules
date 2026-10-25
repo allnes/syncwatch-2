@@ -382,3 +382,24 @@
 [submodule "3rdparty/gn"]
 	path = 3rdparty/gn
 	url = https://gn.googlesource.com/gn
+[submodule "desktop-libxcb"]
+	path = 3rdparty/desktop-libxcb
+	url = https://gitlab.freedesktop.org/xorg/lib/libxcb.git
+[submodule "desktop-xcb-proto"]
+	path = 3rdparty/desktop-xcb-proto
+	url = https://gitlab.freedesktop.org/xorg/proto/xcbproto.git
+[submodule "desktop-libxau"]
+	path = 3rdparty/desktop-libxau
+	url = https://gitlab.freedesktop.org/xorg/lib/libxau.git
+[submodule "desktop-libxdmcp"]
+	path = 3rdparty/desktop-libxdmcp
+	url = https://gitlab.freedesktop.org/xorg/lib/libxdmcp.git
+[submodule "desktop-libxext"]
+	path = 3rdparty/desktop-libxext
+	url = https://gitlab.freedesktop.org/xorg/lib/libxext.git
+[submodule "desktop-xtrans"]
+	path = 3rdparty/desktop-xtrans
+	url = https://gitlab.freedesktop.org/xorg/lib/libxtrans.git
+[submodule "desktop-xorg-macros"]
+	path = 3rdparty/desktop-xorg-macros
+	url = https://gitlab.freedesktop.org/xorg/util/macros.git

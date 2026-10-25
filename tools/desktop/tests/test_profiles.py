@@ -36,7 +36,7 @@ class NativeProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "grant inventory"):
             native_sources.validate(profile)
 
-    def test_unlinked_object_package_cannot_claim_runtime_acceptance(self):
+    def test_native_source_package_cannot_claim_application_acceptance(self):
         profile = copy.deepcopy(self.profile)
         profile["nativeRuntimeQualified"] = True
         with self.assertRaisesRegex(ValueError, "prematurely qualified"):
@@ -82,9 +82,21 @@ class NativeProfileTests(unittest.TestCase):
             self.assertEqual(context.env["GIT_NO_LAZY_FETCH"], "1")
 
     def test_system_x11_and_zlib_headers_are_not_compiler_sdk_inputs(self):
-        for path in ("/usr/include/X11/Xlib.h", "/usr/include/zlib.h", "/usr/include/unicode/uchar.h"):
+        for path in ("/usr/include/X11/Xlib.h", "/usr/include/zlib.h", "/usr/include/unicode/uchar.h",
+                     "/usr/include/rpc/rpc.h", "/usr/lib/x86_64-linux-gnu/libX11.so"):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, "undeclared application header"):
                 header_scope.verify([path], set(), [], Path("/sdk/gcc/include"), Path("/sdk/jdk/include"))
+
+    def test_automake_phony_and_empty_rules_do_not_become_header_paths(self):
+        self.assertEqual(header_scope.make_paths(""), [])
+        self.assertEqual(header_scope.make_paths("# dummy\n"), [])
+        self.assertEqual(header_scope.make_paths("a.o: a.c \\\n a.h\na.h:\n"), ["a.c", "a.h"])
+
+    def test_dynamic_loader_aliases_cannot_be_removed(self):
+        profile = copy.deepcopy(self.profile)
+        profile["runtimeLibraries"].remove("libdbus-1.so")
+        with self.assertRaisesRegex(ValueError, "exact client"):
+            native_sources.validate(profile)
 
 
 if __name__ == "__main__":

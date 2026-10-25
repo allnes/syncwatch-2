@@ -11,7 +11,8 @@ from font_configuration import contents as font_contents
 
 def recipes():
     files = {"LICENSE": (ROOT / "LICENSE").read_bytes()}
-    names = subprocess.check_output(["git", "ls-files", "-z", "--", "tools/vlc", "tools/compression"], cwd=ROOT)
+    names = subprocess.check_output(["git", "ls-files", "-z", "--", "tools/vlc", "tools/compression", "tools/native/native_context.py",
+         "tools/native/native_libraries.py", "tools/native/native_fonts.py"], cwd=ROOT)
     for name in names.decode().split("\0"):
         if name and "/tests/" not in name:
             path = ROOT / name
