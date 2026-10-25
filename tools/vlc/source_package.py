@@ -4,14 +4,15 @@ import subprocess
 
 from source_profile import ROOT
 from source_files import archive_bytes, digest, encoded
-from configuration import vlc_files
+from configuration import vlc_files, pulse_version
 from sdk_material import notices
 from font_configuration import contents as font_contents
 
 
 def recipes():
     files = {"LICENSE": (ROOT / "LICENSE").read_bytes()}
-    names = subprocess.check_output(["git", "ls-files", "-z", "--", "tools/vlc", "tools/compression"], cwd=ROOT)
+    names = subprocess.check_output(["git", "ls-files", "-z", "--", "tools/vlc", "tools/compression", "tools/native/native_context.py",
+         "tools/native/native_libraries.py", "tools/native/native_fonts.py", "tools/native/native_x11.py"], cwd=ROOT)
     for name in names.decode().split("\0"):
         if name and "/tests/" not in name:
             path = ROOT / name
@@ -29,6 +30,10 @@ def expected(snapshots, profile, context):
     files.update(notices(context))
     if context.target == "linux-x64":
         files.update(font_contents(snapshots["fontconfig"], profile))
+        # Connect to the existing user audio service; never start a daemon as a
+        # side effect of opening a movie or probing an unavailable output.
+        files["share/pulse/client.conf"] = b"# SyncWatch native audio client\nautospawn = no\n"
+        files["sources/configured/pulseaudio/.tarball-version"] = pulse_version(snapshots["pulseaudio"], profile)
     for name, data in vlc_files(snapshots["vlc"], profile).items():
         files["sources/configured/vlc/" + name] = data
     inventory = {}

@@ -1,4 +1,4 @@
-"""Build original Linux Skia/JNI objects; a linked desktop runtime is a separate gate."""
+"""Build original Linux Skia/JNI and platform clients; desktop acceptance remains separate."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -18,6 +18,11 @@ from native_sources import ROOT, digest, encoded, jni_units, legal_files, materi
 from generators import headers
 from build import OFFLINE
 import header_scope
+import native_link
+import platform_clients
+import native_fonts
+import platform_data
+from native_context import sdk_paths
 
 sys.path.insert(0, str(ROOT / "tools/jvm"))
 import jdk
@@ -31,15 +36,16 @@ class Context:
         self.work = work
         self.logs = work / "logs"
         self.logs.mkdir(parents=True)
-        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(profile["sourceDateEpoch"]), GIT_CEILING_DIRECTORIES=str(work),
+        self.env = dict(os.environ, SOURCE_DATE_EPOCH=str(profile["sourceDateEpoch"]), GIT_CEILING_DIRECTORIES=str(work), LC_ALL="C",
                         CC="gcc", CXX="g++", **OFFLINE)
+        self.env["PATH"] = os.pathsep.join(map(str, [*sdk_paths(self.env), self.env["PATH"]]))
         # Developer SDK inputs cannot inject an undeclared application header/library.
         for name in ("CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "LIBRARY_PATH", "LD_LIBRARY_PATH"):
             self.env.pop(name, None)
 
-    def run(self, name, command, *, cwd=None, output=False, timeout=600):
+    def run(self, name, command, *, cwd=None, output=False, timeout=600, env=None):
         (self.logs / (name + ".command.json")).write_bytes(encoded({"arguments": list(map(str, command)), "cwd": str(cwd) if cwd else None}))
-        result = subprocess.run(list(map(str, command)), cwd=cwd, env=self.env, stdin=subprocess.DEVNULL,
+        result = subprocess.run(list(map(str, command)), cwd=cwd, env=dict(self.env, **(env or {})), stdin=subprocess.DEVNULL,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout)
         (self.logs / (name + ".log")).write_bytes(result.stdout)
         if result.returncode:
@@ -72,6 +78,9 @@ def probe(context, payload, trees):
 
 
 def build(context, payload, originals, profile, trees, generated):
+    # Resolve client/resource ownership before the expensive renderer compile.
+    clients = platform_clients.build(context.work / "platform-clients", trees, profile["sourceDateEpoch"], OFFLINE)
+    platform_data.package(clients.prefix, payload, profile)
     gn_work = context.work / "gn-build"
     gn_work.mkdir()
     write(gn_work / "last_commit_position.h", generated["gn/last_commit_position.h"])
@@ -140,9 +149,19 @@ def build(context, payload, originals, profile, trees, generated):
     for name, data in legal_files(originals, profile).items():
         write(payload / name, data)
     probe(context, payload, trees)
+    for name, data in native_fonts.contents(originals["fontconfig"], profile).items():
+        write(payload / name, data)
+    runtime = native_link.build(context, payload, clients)
+    # Runtime checks must not fall back to resources that disappear with the build tree.
+    clients.prefix.rename(context.work / "staged-clients-not-runtime")
+    binary = native_link.probe(context, payload)
+    runtime["negativeChecks"] = native_link.fault_checks(context, payload, binary)
+    runtime["platformHeaderCount"] = clients.header_count
+    runtime["x11DataFiles"] = len(profile["platformData"])
+    runtime["x11LocaleAccepted"] = True
     files = {p.relative_to(payload).as_posix(): digest(p.read_bytes()) for p in payload.rglob("*") if p.is_file()}
     report = {"profile": profile["profile"], "sources": len(originals), "archives": len(archives), "jniObjects": len(sources),
-              "nativeRendererLinked": False, "nativeRuntimeQualified": False, "physicalOutputAccepted": False, "files": files}
+              "nativeRendererLinked": True, "nativeRuntimeQualified": False, "physicalOutputAccepted": False, "runtime": runtime, "files": files}
     write(payload / "native-objects.json", encoded(report))
 
 
@@ -153,7 +172,8 @@ def verify(payload, originals, profile, generated):
     if (any(p.is_symlink() for p in payload.rglob("*")) or report["files"] != files
             or report["profile"] != profile["profile"] or report["sources"] != len(originals)
             or report["archives"] != len(profile["nativeArchives"]) or report["jniObjects"] != len(jni_units(profile))
-            or any(report[key] is not False for key in ("nativeRendererLinked", "nativeRuntimeQualified", "physicalOutputAccepted"))):
+            or report["nativeRendererLinked"] is not True
+            or any(report[key] is not False for key in ("nativeRuntimeQualified", "physicalOutputAccepted"))):
         raise ValueError("Native object payload or acceptance scope changed")
     if (payload / "sources.zip").read_bytes() != source_archive(originals, profile, generated):
         raise ValueError("Original native source, grant, generator or profile changed")
@@ -161,9 +181,25 @@ def verify(payload, originals, profile, generated):
         raise ValueError("Native original grant or scope notice changed")
     expected = ({"lib/" + name for name in profile["nativeArchives"]}
                 | {"objects/" + name + ".o" for name in jni_units(profile)}
-                | set(legal_files(originals, profile)) | {"tools/gn", "sources.zip"})
+                | {"runtime/" + name for name in profile["runtimeLibraries"]} | set(profile["platformData"])
+                | set(legal_files(originals, profile)) | set(native_fonts.contents(originals["fontconfig"], profile))
+                | {"tools/gn", "sources.zip"})
     if set(files) != expected:
         raise ValueError("Native payload has missing or unexpected objects/archives/files")
+    platform_data.verify(payload, profile)
+    if (report["runtime"]["negativeChecks"] != list(native_link.FAULT_CASES)
+            or report["runtime"]["x11DataFiles"] != len(profile["platformData"])
+            or report["runtime"]["x11LocaleAccepted"] is not True
+            or not isinstance(report["runtime"]["platformHeaderCount"], int) or report["runtime"]["platformHeaderCount"] <= 0):
+        raise ValueError("Native client/resource validation scope changed")
+    if report["runtime"]["imports"] != native_link.audit(payload / "runtime"):
+        raise ValueError("Linked runtime client imports changed")
+    symbols = native_link.public_symbols(payload / "runtime" / native_link.LIBRARY)
+    if (len(symbols) != profile["jniExportCount"] or native_link.symbol_digest(symbols) != profile["jniExportDigest"]
+            or report["runtime"]["exportDigest"] != profile["jniExportDigest"]
+            or any((payload / name).read_bytes() != data for name, data in native_fonts.contents(originals["fontconfig"], profile).items())
+            or report["runtime"]["exports"] != profile["jniExportCount"]):
+        raise ValueError("Linked runtime JNI symbol inventory changed")
     return report
 
 
@@ -189,6 +225,8 @@ def main():
             if archive:
                 verify(payload, originals, profile, generated)
                 probe(context, payload, trees)
+                binary = native_link.probe(context, payload)
+                native_link.fault_checks(context, payload, binary)
             else:
                 build(context, payload, originals, profile, trees, generated)
                 verify(payload, originals, profile, generated)
@@ -197,7 +235,7 @@ def main():
             retained.mkdir(parents=True, exist_ok=True)
             for path in context.logs.iterdir():
                 shutil.copy2(path, retained / path.name)
-    print("Original source-built GN, 26 Skia archives and 105 JNI objects verified; native runtime and desktop acceptance remain open")
+    print("Original source-built renderer, platform clients and linked JNI API verified; desktop/provider acceptance remains open")
 
 
 if __name__ == "__main__":

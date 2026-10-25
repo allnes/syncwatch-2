@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
+
+static const char *const video_outputs[] = {"dummy", "macosx", "direct3d11", "xcb_x11"};
+static const char *const audio_options[] = {"--aout=dummy", "--aout=auhal", "--aout=mmdevice", "--aout=pulse"};
 
 struct sw_playback {
     sw_vlc_api api;
@@ -38,19 +42,21 @@ static int check(sw_playback *p, uint64_t generation) {
     if (generation != p->generation) return SW_STALE;
     return p->loaded ? SW_OK : SW_UNAVAILABLE;
 }
-int sw_playback_open(const char *path, const char *revision, int output, void *surface, sw_playback **result) {
+static int open_output(const char *path, const char *revision, int output, void *surface,
+                       uint32_t drawable, sw_playback **result) {
     if (!result) return SW_INVALID;
     *result = NULL;
-    if (!path || !revision || strlen(revision) != 40 || output < SW_OUTPUT_HEADLESS || output > SW_OUTPUT_HWND ||
-        (output == SW_OUTPUT_HEADLESS ? surface != NULL : surface == NULL)) return SW_INVALID;
+    if (!path || !revision || strlen(revision) != 40 || output < SW_OUTPUT_HEADLESS || output > SW_OUTPUT_X11 ||
+        (output == SW_OUTPUT_HEADLESS ? surface != NULL || drawable != 0 :
+         output == SW_OUTPUT_X11 ? surface != NULL || drawable == 0 : surface == NULL || drawable != 0)) return SW_INVALID;
     const char *plugins = getenv("VLC_PLUGIN_PATH");
     if (plugins && *plugins) return SW_UNAVAILABLE;
 #ifdef __APPLE__
-    if (output == SW_OUTPUT_HWND) return SW_INVALID;
+    if (output != SW_OUTPUT_HEADLESS && output != SW_OUTPUT_APPKIT) return SW_INVALID;
 #elif defined(_WIN32)
-    if (output == SW_OUTPUT_APPKIT) return SW_INVALID;
+    if (output != SW_OUTPUT_HEADLESS && output != SW_OUTPUT_HWND) return SW_INVALID;
 #else
-    if (output != SW_OUTPUT_HEADLESS) return SW_UNAVAILABLE;
+    if (output != SW_OUTPUT_HEADLESS && output != SW_OUTPUT_X11) return SW_UNAVAILABLE;
 #endif
     sw_playback *p = calloc(1, sizeof(*p));
     if (!p) return SW_ENGINE;
@@ -61,12 +67,11 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
         sw_playback_close(p); return SW_UNAVAILABLE;
     }
     /* Never silently select hardware paths whose controls are unqualified. */
-    const char *options[] = {"--quiet", "--no-video-title-show", "--no-osd", "--no-snapshot-preview", "--no-plugins-cache",
+    char video[32];
+    snprintf(video, sizeof(video), "--vout=%s", video_outputs[output]);
+    const char *options[] = {"--quiet", "--ignore-config", "--no-video-title-show", "--no-osd", "--no-snapshot-preview", "--no-plugins-cache",
         "--avcodec-hw=none", "--no-media-library", "--no-sub-autodetect-file",
-        output == SW_OUTPUT_HEADLESS ? "--vout=dummy" :
-            output == SW_OUTPUT_APPKIT ? "--vout=macosx" : "--vout=direct3d11",
-        output == SW_OUTPUT_HEADLESS ? "--aout=dummy" :
-            output == SW_OUTPUT_APPKIT ? "--aout=auhal" : "--aout=mmdevice"};
+        video, audio_options[output]};
     p->instance = p->api.libvlc_new(sizeof(options) / sizeof(options[0]), options);
     if (!p->instance || !(p->player = p->api.libvlc_media_player_new(p->instance))) {
         sw_playback_close(p); return SW_ENGINE;
@@ -75,6 +80,7 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
     p->api.libvlc_video_set_key_input(p->player, 0);
     p->api.libvlc_video_set_mouse_input(p->player, 0);
     if (surface) p->api.set_surface(p->player, surface);
+    if (drawable) p->api.set_xwindow(p->player, drawable);
     p->events = p->api.libvlc_media_player_event_manager(p->player);
     for (unsigned i = 0; i < sizeof(event_types) / sizeof(event_types[0]); ++i) {
         if (p->api.libvlc_event_attach(p->events, event_types[i], changed, p)) {
@@ -84,6 +90,16 @@ int sw_playback_open(const char *path, const char *revision, int output, void *s
     }
     *result = p;
     return SW_OK;
+}
+int sw_playback_open(const char *path, const char *revision, int output, void *surface, sw_playback **result) {
+    if (output == SW_OUTPUT_X11) {
+        if (result) *result = NULL;
+        return SW_INVALID;
+    }
+    return open_output(path, revision, output, surface, 0, result);
+}
+int sw_playback_open_x11(const char *path, const char *revision, uint32_t drawable, sw_playback **result) {
+    return open_output(path, revision, SW_OUTPUT_X11, NULL, drawable, result);
 }
 int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
     if (!p || !path || !path[0] || !generation || generation > UINT64_C(9007199254740991)) return SW_INVALID;
@@ -106,11 +122,13 @@ int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
     /* Surface setters reset inherited VLC options. Fixed trusted per-media
      * options preserve software decoding and forbid a standalone HWND fallback. */
     p->api.libvlc_media_add_option_flag(media, ":avcodec-hw=none", libvlc_media_option_trusted);
-    p->api.libvlc_media_add_option_flag(media,
-        p->output == SW_OUTPUT_HEADLESS ? ":vout=dummy" :
-        p->output == SW_OUTPUT_APPKIT ? ":vout=macosx" : ":vout=direct3d11", libvlc_media_option_trusted);
+    char video[32];
+    snprintf(video, sizeof(video), ":vout=%s", video_outputs[p->output]);
+    p->api.libvlc_media_add_option_flag(media, video, libvlc_media_option_trusted);
     if (p->output == SW_OUTPUT_HWND)
         p->api.libvlc_media_add_option_flag(media, ":window=embed-hwnd", libvlc_media_option_trusted);
+    if (p->output == SW_OUTPUT_X11)
+        p->api.libvlc_media_add_option_flag(media, ":window=embed-xid", libvlc_media_option_trusted);
     p->api.libvlc_media_player_set_media(p->player, media);
     p->api.libvlc_media_release(media);
     p->loaded = 1;
@@ -225,6 +243,7 @@ void sw_playback_close(sw_playback *p) {
         p->api.libvlc_media_player_stop(p->player);
         p->api.libvlc_media_player_set_media(p->player, NULL);
         if (p->api.set_surface) p->api.set_surface(p->player, NULL);
+        if (p->api.set_xwindow) p->api.set_xwindow(p->player, 0);
         p->api.libvlc_media_player_release(p->player);
     }
     if (p->instance) p->api.libvlc_release(p->instance);

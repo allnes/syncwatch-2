@@ -8,25 +8,41 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.rememberDialogState
+import androidx.compose.ui.window.WindowPlacement
 import java.nio.file.Path
 import syncwatch.design.*
 import syncwatch.domain.*
 
 /** Desktop entry point. Composition, text, dimensions and appearance come from SyncWatch Design.
- * The source-closed Compose runtime/build and native video host remain required before this entry can be accepted.
+ * Runtime distribution and visible desktop/provider acceptance remain required.
  */
-fun main(arguments: Array<String>) = application {
-    val state = rememberWindowState(width = SyncWatchTokens.layoutGalleryWidth.dp, height = SyncWatchTokens.layoutGalleryHeight.dp)
-    Window(onCloseRequest = ::exitApplication, title = "SyncWatch", state = state) {
-        when {
-            "--selection-menu-gallery" in arguments -> SelectionMenuGallery()
-            "--call-gallery" in arguments -> CallGallery()
-            "--player-settings-gallery" in arguments -> PlayerSettingsGallery()
-            "--player-gallery" in arguments -> PlayerGallery()
-            "--settings-gallery" in arguments -> SettingsGallery()
-            "--design-gallery" in arguments -> DesignGallery()
-            "--local-playback" in arguments -> error("Linux native video window acceptance is required")
-            else -> ApplicationWorkspace()
+fun main(arguments: Array<String>) {
+    val launch = LocalPlaybackLaunch.read(arguments)
+    val display = launch?.initializeDisplay()
+    application {
+        val scope = rememberCoroutineScope()
+        val playback = remember(launch) { launch?.let { PlaybackController(it, requireNotNull(display), scope) } }
+        val state = rememberWindowState(width = SyncWatchTokens.layoutGalleryWidth.dp, height = SyncWatchTokens.layoutGalleryHeight.dp)
+        val close = { exitApplication() }
+        Window(onCloseRequest = { if (playback != null) playback.requestClose(close) else close() }, title = "SyncWatch", state = state) {
+            if (playback != null) NativePlayerWindowBounds(window)
+            when {
+                playback != null -> PlaybackWorkspace(playback, close) {
+                    state.placement = if (state.placement == WindowPlacement.Fullscreen) WindowPlacement.Floating else WindowPlacement.Fullscreen
+                }
+                "--selection-menu-gallery" in arguments -> SelectionMenuGallery()
+                "--call-gallery" in arguments -> CallGallery()
+                "--player-settings-gallery" in arguments -> PlayerSettingsGallery()
+                "--player-gallery" in arguments -> PlayerGallery()
+                "--settings-gallery" in arguments -> SettingsGallery()
+                "--design-gallery" in arguments -> DesignGallery()
+                else -> ApplicationWorkspace()
+            }
+            if (playback != null && launch?.report != null) {
+                LaunchedEffect(playback) {
+                    PlaybackAcceptance.run(playback, window, state, launch.report, launch.detachProbe, close)
+                }
+            }
         }
     }
 }
@@ -36,11 +52,32 @@ fun main(arguments: Array<String>) = application {
     var state by remember { mutableStateOf(preferences.state) }
     var settingsOpen by remember { mutableStateOf(false) }
     var editor by remember { mutableStateOf(preferences.editor()) }
+    val scope = rememberCoroutineScope()
+    val library = remember { LibraryController(syncwatch.library.FileLibraryAccessStore(
+        AppearancePreferences.defaultPath().resolveSibling("library-access.json")), scope, state.selectedMediaId) }
+    LaunchedEffect(library) { library.restore() }
+    DisposableEffect(library) { onDispose { library.close() } }
     val language = state.preferences.language
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
-    LibraryWorkspace(LibraryPresentation(enabledActions = setOf("openSettings")), language, theme) { action, _ ->
-        if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
+    LibraryWorkspace(library.presentation, language, theme) { action, value ->
+        if (action == "chooseFolder") {
+            val picker = javax.swing.JFileChooser().apply {
+                fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
+                isMultiSelectionEnabled = false
+                dialogTitle = SyncWatchCopy.text("folder", language)
+                approveButtonText = SyncWatchCopy.text("chooseFolder", language)
+            }
+            if (picker.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) library.choose(picker.selectedFile.toPath())
+        } else if (action == "rescan") library.rescan()
+        else if (action == "selectMovie" && value != null) library.select(value)
+        else if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
+    }
+    LaunchedEffect(library.errorKey) {
+        library.errorKey?.let { key ->
+            javax.swing.JOptionPane.showMessageDialog(null, SyncWatchCopy.text(key, language), SyncWatchCopy.text("brand", language), javax.swing.JOptionPane.WARNING_MESSAGE)
+            library.clearError()
+        }
     }
     if (settingsOpen) {
         DialogWindow(onCloseRequest = { settingsOpen = false }, title = SyncWatchCopy.text("openSettings", language),

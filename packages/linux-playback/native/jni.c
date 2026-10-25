@@ -1,28 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-#include <jni.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../../playback-native/include/syncwatch_playback.h"
+#include "support.h"
 #define JNI_METHOD(name) Java_syncwatch_playback_NativePlayback_##name
-static int checked(JNIEnv *env, int code) {
-    if (!code) return 1;
-    jclass type = (*env)->FindClass(env, "java/lang/IllegalStateException");
-    if (type) (*env)->ThrowNew(env, type, code == SW_STALE ? "stale" : code == SW_INVALID ? "invalid" : code == SW_UNAVAILABLE ? "unavailable" : "engine");
-    return 0;
-}
-/* JNI's modified UTF-8 is unsuitable for filesystem paths containing emoji.
- * The Java boundary supplies ordinary UTF-8 bytes with no embedded NUL. */
-static char *text(JNIEnv *env, jbyteArray bytes) {
-    if (!bytes) { checked(env, SW_INVALID); return NULL; }
-    jsize size = (*env)->GetArrayLength(env, bytes);
-    if (size <= 0 || size > 65535) { checked(env, SW_INVALID); return NULL; }
-    char *value = malloc((size_t)size + 1);
-    if (!value) { checked(env, SW_ENGINE); return NULL; }
-    (*env)->GetByteArrayRegion(env, bytes, 0, size, (jbyte *)value);
-    if ((*env)->ExceptionCheck(env)) { free(value); return NULL; }
-    if (memchr(value, 0, (size_t)size)) { free(value); checked(env, SW_INVALID); return NULL; }
-    value[size] = 0; return value;
-}
 JNIEXPORT jlong JNICALL JNI_METHOD(open)(JNIEnv *env, jclass type, jbyteArray library, jbyteArray revision) {
     (void)type;
     char *path = text(env, library); if (!path) return 0;
@@ -33,6 +11,18 @@ JNIEXPORT jlong JNICALL JNI_METHOD(open)(JNIEnv *env, jclass type, jbyteArray li
     if (!checked(env, code)) return 0;
     return (jlong)(intptr_t)player;
 }
+JNIEXPORT jlong JNICALL JNI_METHOD(openX11)(JNIEnv *env, jclass type, jbyteArray library, jbyteArray revision, jlong drawable) {
+    (void)type;
+    if (drawable <= 0 || (uint64_t)drawable > UINT32_MAX) { checked(env, SW_INVALID); return 0; }
+    char *path = text(env, library); if (!path) return 0;
+    char *pin = text(env, revision); if (!pin) { free(path); return 0; }
+    sw_playback *player = NULL;
+    int code = sw_playback_open_x11(path, pin, (uint32_t)drawable, &player);
+    free(path); free(pin);
+    if (!checked(env, code)) return 0;
+    return (jlong)(intptr_t)player;
+}
+
 JNIEXPORT jint JNICALL JNI_METHOD(load)(JNIEnv *env, jclass type, jlong player, jlong generation, jbyteArray file) {
     (void)type; char *path = text(env, file); if (!path) return SW_INVALID;
     int result = sw_playback_load((sw_playback *)(intptr_t)player, (uint64_t)generation, path); free(path); return result;

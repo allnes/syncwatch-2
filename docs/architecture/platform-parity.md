@@ -13,7 +13,7 @@ The [platform registry](../../tools/native/platforms.json) records implementatio
 | Watch domain and local preferences | Native implementation and shared corpus | Native implementation and shared corpus | Compiled Kotlin domain, source-built runtime and the same shared corpus |
 | Library and settings application | Compiled native components | Compiled native components | Kotlin entry/preferences source; registered application build pending |
 | Shared component galleries | Native renders and shared pixel probes | Native renders and shared pixel probes | Offscreen Compose/Skia research renders and shared pixel probes; registered source/runtime closure pending |
-| VLC local controls and native video | AppKit surface | Owned HWND surface | Source-built native/JNI boundary; desktop surface pending |
+| VLC local controls and native video | AppKit surface | Owned HWND surface | Typed coroutine/domain adapter, owned X11 child and shared Player entry; visible/fullscreen/DPI acceptance pending |
 | Owned Syncplay helper transport | Executed Swift pipes | Executed C# pipes | Kotlin transport source; full application integration pending |
 
 The watch domain and local-preferences slice is qualified across the three native clients. Its [Kotlin runtime build](../kotlin-stdlib.md) compiles and executes the domain corpus on each supported developer host, including restored-cache verification.

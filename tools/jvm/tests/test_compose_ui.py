@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import compose_ui
@@ -76,6 +77,29 @@ class ComposeUiArtifactTests(unittest.TestCase):
         self.write_sources()
         with self.assertRaisesRegex(ValueError, "exact target pins"):
             self.verify()
+
+    def test_display_configuration_preserves_original_and_rejects_changed_input(self):
+        original = b"// Original fixture notice\n" + compose_ui.DISPLAY_RATE + b"\n"
+        self.files["skiko"][compose_ui.DISPLAY] = original
+        self.profile["displayRefreshFallback"] = True
+        self.profile["sources"]["skiko"]["files"] = {compose_ui.DISPLAY: digest(original)}
+        support = compose_ui.support(self.files, self.profile)
+        self.assertEqual(support["originals/skiko/" + compose_ui.DISPLAY], original)
+        configured = support["configured/skiko/" + compose_ui.DISPLAY]
+        self.assertTrue(configured.startswith(b"// Original fixture notice\n"))
+        self.assertIn(b"normalizeDisplayRefreshRate(" + compose_ui.DISPLAY_RATE + b")", configured)
+        self.assertIn("CONFIGURATION.txt", support)
+        self.write_sources(); self.verify()
+        source_archive = self.payload / "compose-ui-sources.jar"
+        with zipfile.ZipFile(source_archive) as archive:
+            entries = {name: archive.read(name) for name in archive.namelist()}
+        entries["configured/skiko/" + compose_ui.DISPLAY] += b"// replacement configuration"
+        source_archive.write_bytes(jar_bytes(entries))
+        with self.assertRaisesRegex(ValueError, "generation or profile"):
+            self.verify()
+        self.files["skiko"][compose_ui.DISPLAY] += b"// changed"
+        with self.assertRaisesRegex(ValueError, "display refresh source"):
+            compose_ui.configured_sources(self.files, self.profile)
 
 
 if __name__ == "__main__":

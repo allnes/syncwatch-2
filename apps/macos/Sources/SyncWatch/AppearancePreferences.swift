@@ -1,7 +1,9 @@
+import AppKit
 import Foundation
 import SwiftUI
 import SyncWatchDesign
 import SyncWatchDomain
+import SyncWatchLibrary
 
 @MainActor final class AppearancePreferences: ObservableObject {
     @Published private(set) var state = LocalState()
@@ -55,21 +57,51 @@ import SyncWatchDomain
     }
 }
 
-struct ApplicationWorkspace: View {
-    @StateObject private var preferences = AppearancePreferences(
-        store: FileLocalStateStore(url: AppearancePreferences.defaultURL))
+@MainActor struct ApplicationWorkspace: View {
+    @StateObject private var preferences: AppearancePreferences
+    @StateObject private var library: LibraryController
+    init() {
+        let preferences = AppearancePreferences(store: FileLocalStateStore(url: AppearancePreferences.defaultURL))
+        _preferences = StateObject(wrappedValue: preferences)
+        _library = StateObject(
+            wrappedValue: LibraryController(
+                store: FileLibraryAccessStore(
+                    url: AppearancePreferences.defaultURL.deletingLastPathComponent().appendingPathComponent(
+                        "library-access.json")),
+                selectedID: preferences.state.selectedMediaID))
+    }
     @State private var showSettings = false
     @State private var editor = SettingsEditor()
 
     var body: some View {
         LibraryWorkspace(
-            presentation: LibraryPresentation(enabledActions: ["openSettings"]),
+            presentation: library.presentation,
             language: preferences.state.preferences.language
-        ) { action, _ in
-            if action == "openSettings" {
+        ) { action, value in
+            if action == "chooseFolder" {
+                chooseFolder()
+            } else if action == "rescan" {
+                library.rescan()
+            } else if action == "selectMovie", let value {
+                library.select(value)
+            } else if action == "openSettings" {
                 editor = preferences.editor
                 showSettings = true
             }
+        }
+        .task { library.restore() }
+        .onDisappear { library.close() }
+        .alert(
+            SyncWatchCopy.text("brand", language: preferences.state.preferences.language),
+            isPresented: Binding(get: { library.errorKey != nil }, set: { if !$0 { library.errorKey = nil } })
+        ) {
+            Button(SyncWatchCopy.text("close", language: preferences.state.preferences.language)) {
+                library.errorKey = nil
+            }
+        } message: {
+            Text(
+                SyncWatchCopy.text(
+                    library.errorKey ?? "libraryUnavailable", language: preferences.state.preferences.language))
         }
         .sheet(isPresented: $showSettings) {
             SettingsDialog(
@@ -79,4 +111,16 @@ struct ApplicationWorkspace: View {
         .preferredColorScheme(preferences.colorScheme)
         .environment(\.locale, Locale(identifier: preferences.state.preferences.language))
     }
+    private func chooseFolder() {
+        let picker = NSOpenPanel()
+        picker.canChooseDirectories = true
+        picker.canChooseFiles = false
+        picker.allowsMultipleSelection = false
+        picker.title = SyncWatchCopy.text("folder", language: preferences.state.preferences.language)
+        picker.prompt = SyncWatchCopy.text("chooseFolder", language: preferences.state.preferences.language)
+        picker.begin { response in
+            if response == .OK, let url = picker.url { library.choose(url) }
+        }
+    }
+
 }

@@ -52,6 +52,21 @@ internal static class LayoutAssertions
         query.Text = "Example"; query.CaretIndex = 2;
         Check(ReferenceEquals(query, Find<TextBox>(library).Single(e => AutomationProperties.GetAutomationId(e) == "library.search")), "filtering reconciles only changed list children");
         query.Text = "Example M"; Check(ReferenceEquals(query, Find<TextBox>(library).Single(e => AutomationProperties.GetAutomationId(e) == "library.search")), "continued typing remains attached");
+        var nativeLeaf = new Border();
+        var application = new ApplicationChrome(new Border(), nativeLeaf);
+        DependencyObject? parent = null;
+        foreach (bool presented in new[] { true, false, true, false, true })
+        {
+            application.PresentPlayer(presented); Layout(application, 800, 600);
+            var current = VisualTreeHelper.GetParent(nativeLeaf);
+            Check(current is not null && (parent is null || ReferenceEquals(parent, current)), "retained native parent identity");
+            parent = current;
+            var pane = Find<Grid>(application).Single(e => e.Children.Count == 1 && ReferenceEquals(e.Children[0],
+                Find<Border>(application).Single(b => b.Child is Grid g && ReferenceEquals(g, current))));
+            Check(pane.Visibility == (presented ? Visibility.Visible : Visibility.Hidden), "retained pane visibility");
+            Check(pane.IsEnabled == presented && pane.IsHitTestVisible == presented, "hidden pane rejects input");
+            Check(nativeLeaf.ActualWidth > 0 && nativeLeaf.ActualHeight > 0, "hidden pane keeps native geometry");
+        }
         Console.WriteLine("Verified document-driven axis/order/spacing pixels and stable native input controls");
     }
 }

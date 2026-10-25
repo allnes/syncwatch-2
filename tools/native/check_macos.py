@@ -37,6 +37,8 @@ def main() -> None:
     # The first-party C interop target compiles against the pinned public headers.
     # Runtime libraries remain the separately source-built media SDK.
     run("git", "submodule", "update", "--init", "--checkout", "--depth=1", "--", "3rdparty/vlc")
+    environment["SYNCWATCH_LIBRARY_FIXTURE"] = str(ROOT / "contracts/fixtures/library-catalog.json")
+    run("swift", "test", "--package-path", "packages/macos-library", "-Xswiftc", "-warnings-as-errors", env=environment)
     environment["SYNCWATCH_CONTRACT_FIXTURES"] = str(ROOT / "contracts/fixtures/acceptance.json")
     run("swift", "test", "--package-path", "packages/macos-domain", "-Xswiftc", "-warnings-as-errors", env=environment)
     run("swift", "test", "--package-path", "packages/macos-playback", "-Xswiftc", "-warnings-as-errors", env=environment)

@@ -12,7 +12,8 @@
     "packages/design/linux",
     "packages/linux-bridge",
     "packages/linux-playback/src",
-    "packages/linux-state/src"
+    "packages/linux-state/src",
+    "packages/linux-library/src"
   ],
   "applicationBuildReady": false,
   "requiredSourceComponents": [
@@ -25,8 +26,8 @@
     "libvlc"
   ],
   "blockedCapabilities": [
-    "source-closed native Skiko, Skia and selected platform/font graph",
-    "native video window on X11 and Wayland",
+    "complete JVM/application runtime distribution and native renderer desktop qualification",
+    "visible native video, fullscreen, DPI and focus acceptance on X11/XWayland",
     "compiled desktop galleries and application acceptance"
   ]
 }

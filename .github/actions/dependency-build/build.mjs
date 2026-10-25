@@ -37,7 +37,7 @@ async function main() {
     if (component === 'syncplay-runtime' && !runCommand([python, 'tools/syncplay-runtime/provision_sdks.py'])) {
         throw new Error('Headless engine developer SDK provisioning failed');
     }
-    if (component === 'libvlc' && !runCommand([python, 'tools/vlc/provision_sdks.py'])) {
+    if (['libvlc', 'skiko-native-objects'].includes(component) && !runCommand([python, 'tools/vlc/provision_sdks.py'])) {
         throw new Error('Native media developer SDK provisioning failed');
     }
     if (!run('prepare')) throw new Error('Dependency preparation failed');

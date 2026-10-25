@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -11,6 +12,8 @@ import generators
 import native_sources
 import native_objects
 import header_scope
+import platform_data
+import native_context
 
 
 class NativeProfileTests(unittest.TestCase):
@@ -36,7 +39,7 @@ class NativeProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "grant inventory"):
             native_sources.validate(profile)
 
-    def test_unlinked_object_package_cannot_claim_runtime_acceptance(self):
+    def test_native_source_package_cannot_claim_application_acceptance(self):
         profile = copy.deepcopy(self.profile)
         profile["nativeRuntimeQualified"] = True
         with self.assertRaisesRegex(ValueError, "prematurely qualified"):
@@ -81,10 +84,91 @@ class NativeProfileTests(unittest.TestCase):
             self.assertNotIn("LIBRARY_PATH", context.env)
             self.assertEqual(context.env["GIT_NO_LAZY_FETCH"], "1")
 
+    def test_build_child_receives_owned_locale_despite_an_inherited_utf8_override(self):
+        with tempfile.TemporaryDirectory() as work:
+            with patch.dict(os.environ, {"LC_ALL": "C.UTF-8", "LC_CTYPE": "C.UTF-8"}), \
+                    patch.object(native_context.BuildContext, "tool", return_value=sys.executable):
+                context = native_context.BuildContext(Path(work), 0)
+            context.run("locale-child", [sys.executable, "-c",
+                "import json, locale, os; print(json.dumps({'override': os.environ['LC_ALL'], 'ctype': locale.setlocale(locale.LC_CTYPE)}))"], timeout=30)
+            child = json.loads((context.logs / "locale-child.log").read_text())
+            self.assertEqual(child["override"], "C")
+            # Windows Python retains its native CRT locale; GNU build tools
+            # consume the inherited POSIX environment. POSIX Python also lets
+            # this real child assert the resulting C character classification.
+            if os.name != "nt":
+                self.assertEqual(child["ctype"], "C")
+
     def test_system_x11_and_zlib_headers_are_not_compiler_sdk_inputs(self):
-        for path in ("/usr/include/X11/Xlib.h", "/usr/include/zlib.h", "/usr/include/unicode/uchar.h"):
+        for path in ("/usr/include/X11/Xlib.h", "/usr/include/zlib.h", "/usr/include/unicode/uchar.h",
+                     "/usr/include/rpc/rpc.h", "/usr/lib/x86_64-linux-gnu/libX11.so"):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, "undeclared application header"):
                 header_scope.verify([path], set(), [], Path("/sdk/gcc/include"), Path("/sdk/jdk/include"))
+
+    def test_automake_phony_and_empty_rules_do_not_become_header_paths(self):
+        self.assertEqual(header_scope.make_paths(""), [])
+        self.assertEqual(header_scope.make_paths("# dummy\n"), [])
+        self.assertEqual(header_scope.make_paths("a.o: a.c \\\n a.h\na.h:\n"), ["a.c", "a.h"])
+
+    def test_dynamic_loader_aliases_cannot_be_removed(self):
+        profile = copy.deepcopy(self.profile)
+        profile["runtimeLibraries"].remove("libdbus-1.so")
+        with self.assertRaisesRegex(ValueError, "exact client"):
+            native_sources.validate(profile)
+
+    def test_shared_font_build_sources_retain_the_same_original_blob_pins(self):
+        media = json.loads((native_sources.ROOT / "tools/vlc/profile.json").read_text())["sources"]
+        for name in ("meson", "zlib", "freetype", "expat", "fontconfig"):
+            for field in ("revision", "files", "executables"):
+                with self.subTest(source=name, field=field):
+                    self.assertEqual(self.profile["sources"][name][field], media[name][field])
+
+    def test_linked_x11_runtime_cannot_omit_its_locale_data(self):
+        profile = copy.deepcopy(self.profile)
+        profile["platformData"] = {}
+        with self.assertRaisesRegex(ValueError, "runtime data inventory"):
+            native_sources.validate(profile)
+
+    def test_compose_rules_and_grants_survive_relocation_without_the_build_prefix(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary)
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b'# Original copyright and permission\n<Multi_key> <a> <e> : "ae"\n')
+            locale = prefix / "share/X11/locale/ru_RU.UTF-8/Compose"
+            locale.parent.mkdir(parents=True)
+            locale.write_bytes(b'include "' + str(common).encode() + b'"\n<Multi_key> <o> <e> : "oe"\n')
+            configured = platform_data.configured(prefix)["share/X11/locale/ru_RU.UTF-8/Compose"]
+            self.assertNotIn(str(prefix).encode(), configured)
+            self.assertIn(common.read_bytes(), configured)
+            self.assertTrue(configured.endswith(b'<Multi_key> <o> <e> : "oe"\n'))
+
+    def test_unreviewed_compose_include_cannot_escape_the_owned_table(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary)
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b'include "/foreign/Compose"\n')
+            with self.assertRaisesRegex(ValueError, "unexpected X11 runtime resource reference"):
+                platform_data.configured(prefix)
+
+    def test_resource_mismatch_reports_missing_changed_and_unexpected_files_before_packaging(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary) / "prefix"
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b"# Original grant\n")
+            (prefix / "share/X11/XErrorDB").write_bytes(b"unexpected data")
+            name = common.relative_to(prefix).as_posix()
+            profile = {"platformData": {name: "0" * 64, "share/X11/missing": "0" * 64}}
+            payload = Path(temporary) / "payload"
+            with self.assertRaisesRegex(ValueError, "reviewed source profile") as error:
+                platform_data.package(prefix, payload, profile)
+            differences = json.loads(str(error.exception).split(": ", 1)[1])
+            self.assertEqual(differences["missing"], ["share/X11/missing"])
+            self.assertEqual(differences["unexpected"], ["share/X11/XErrorDB"])
+            self.assertEqual(set(differences["changed"]), {name})
+            self.assertFalse(payload.exists())
 
 
 if __name__ == "__main__":

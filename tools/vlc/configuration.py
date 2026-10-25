@@ -1,6 +1,19 @@
 """Explicit, narrowly scoped derivatives of the pinned original VLC sources."""
 
 import datetime
+import re
+
+
+def pulse_version(original, profile):
+    version = profile["linuxOutputScope"]["pulseVersion"]
+    if (not re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version)
+            or original["NEWS"].splitlines()[0] != ("PulseAudio " + version).encode()
+            or b"'.tarball-version'" not in original["meson.build"]
+            or b".tarball-version" not in original["git-version-gen"]):
+        raise ValueError("Review original PulseAudio distribution-version metadata")
+    # This is the original release-tarball input, absent from a Git snapshot.
+    # Do not let git-version-gen invent a version from the enclosing checkout.
+    return (version + "\n").encode()
 
 
 def vlc_files(original, profile):

@@ -52,6 +52,7 @@ def runtime_environment(package, output):
     if sys.platform == "linux":
         env["FONTCONFIG_FILE"] = str(package / "share/fonts/fonts.conf")
         env["FONTCONFIG_PATH"] = str(package / "share/fonts")
+        env["PULSE_CLIENTCONFIG"] = str(package / "share/pulse/client.conf")
         env["XDG_CACHE_HOME"] = str(output / "font-cache")
     return env
 

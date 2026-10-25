@@ -44,6 +44,14 @@ OPT_INS = [
     "kotlinx.coroutines.InternalCoroutinesApi", "kotlinx.serialization.ExperimentalSerializationApi",
 ]
 GENERATOR = "skiko/buildSrc/src/main/kotlin/tasks/configuration/CommonTasksConfiguration.kt"
+DISPLAY = "skiko/src/awtMain/kotlin/org/jetbrains/skiko/Display.kt"
+DISPLAY_RATE = b"getLinuxDisplayRefreshRate(it.display, it.window)"
+DISPLAY_FALLBACK = (
+    b"Skiko Display.kt configuration: retain valid Linux refresh rates; use the upstream "
+    b"MinMainstreamMonitorRefreshRate when XRandR reports zero, negative, NaN or infinity.\n"
+    b"This prevents the frame limiter from waiting indefinitely after display disconnection.\n"
+    b"Original source bytes and the complete configured source accompany this artifact.\n"
+)
 
 
 def profile_data():
@@ -60,6 +68,7 @@ def profile_data():
                 or len(selected[name]) != len(set(selected[name])) or set(selected[name]) != code):
             raise ValueError("Desktop UI modules must cover the exact source and notice inventory once")
     if (profile["schemaVersion"] != 1 or profile["profile"] != "desktop-ui-jvm11-v1"
+            or profile.get("displayRefreshFallback") is not True
             or profile["compilerVersion"] != kotlin.specification()["version"]
             or registry[COMPONENT]["sources"] != expected):
         raise ValueError("Desktop UI source/compiler graph differs from the reviewed profile")
@@ -79,9 +88,25 @@ def generated_version(files, profile):
     return text.encode()
 
 
+def configured_sources(files, profile):
+    if not profile.get("displayRefreshFallback"):
+        return {}
+    original = files["skiko"][DISPLAY]
+    if (digest(original) != profile["sources"]["skiko"]["files"][DISPLAY]
+            or original.count(DISPLAY_RATE) != 1):
+        raise ValueError("Review the original Skiko display refresh source before configuration")
+    configured = original.replace(DISPLAY_RATE, b"normalizeDisplayRefreshRate(" + DISPLAY_RATE + b")")
+    configured += (b"\n// SyncWatch configuration: disconnected/virtual outputs may have no usable refresh rate.\n"
+                   b"private fun normalizeDisplayRefreshRate(rate: Double): Double =\n"
+                   b"    rate.takeIf { it.isFinite() && it > 0.0 } ?: MinMainstreamMonitorRefreshRate\n")
+    return {"skiko/" + DISPLAY: configured}
+
+
 def support(files, profile):
     return ({"profile.json": encoded(profile), "CHANGES.txt": CHANGES,
              "generated/Version.kt": generated_version(files, profile)}
+            | ({"CONFIGURATION.txt": DISPLAY_FALLBACK} if profile.get("displayRefreshFallback") else {})
+            | {"configured/" + name: data for name, data in configured_sources(files, profile).items()}
             | {"originals/" + name + "/" + path: data
                for name, values in files.items() for path, data in values.items()})
 
@@ -101,6 +126,8 @@ def assemble(files, profile, payload, home, compiler):
                 path = work / name / filename
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
+        for name, data in configured_sources(files, profile).items():
+            (work / name).write_bytes(data)
         version = work / "generated/Version.kt"
         version.parent.mkdir()
         version.write_bytes(generated_version(files, profile))
@@ -122,7 +149,8 @@ def assemble(files, profile, payload, home, compiler):
                 stdlib.javac(["--release", "11", "-g:none", "-proc:none", "-encoding", "UTF-8", "-cp",
                               os.pathsep.join(map(str, [classes, *classpath])), "-d", str(classes), *map(str, java)], work, home)
             entries = {path.relative_to(classes).as_posix(): path.read_bytes() for path in classes.rglob("*") if path.is_file()}
-            entries |= {"META-INF/CHANGES.txt": CHANGES,
+            changes = CHANGES + (DISPLAY_FALLBACK if source == "skiko" and profile.get("displayRefreshFallback") else b"")
+            entries |= {"META-INF/CHANGES.txt": changes,
                         "META-INF/UPSTREAM-NOTICES.txt": concurrency.source_notices(files, profile, source)}
             destination = payload / module["binary"]
             destination.write_bytes(jar_bytes(entries))
@@ -168,6 +196,10 @@ def probe(payload, profile, home, compiler):
         sources = sorted(path for source in manifest["sources"] for path in (ROOT / source).rglob("*")
                          if path.suffix in {".java", ".kt"})
         sources += sorted((ROOT / "packages/design/tests/linux").glob("*.kt"))
+        sources += sorted((ROOT / "packages/linux-playback/tests").rglob("*.kt"))
+        sources += sorted((ROOT / "packages/linux-library/tests").rglob("*.kt"))
+        sources += sorted((ROOT / "apps/linux/tests").rglob("*.kt"))
+        sources.append(ROOT / "tools/jvm/tests/DisplayRefreshChecks.kt")
         stdlib.javac(["--release", "21", "-g:none", "-proc:none", "-encoding", "UTF-8", "-cp",
                       os.pathsep.join(map(str, classpath)), "-d", str(classes),
                       *[str(path) for path in sources if path.suffix == ".java"]], work, home)
@@ -178,6 +210,26 @@ def probe(payload, profile, home, compiler):
                               "syncwatch.design.tests.PresentationChecksKt", str(ROOT / "packages/design/tests/fixtures")], work, home)
         if "SYNCWATCH_DESIGN_PRESENTATIONS_OK" not in output:
             raise ValueError("Desktop UI first-party application/design consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.tests.DisplayRefreshChecksKt"], work, home)
+        if "SYNCWATCH_DISPLAY_REFRESH_OK" not in output:
+            raise ValueError("Display refresh fallback/frame scheduling consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.playback.KotlinPortChecksKt"], work, home)
+        if "SYNCWATCH_KOTLIN_PLAYBACK_OK" not in output:
+            raise ValueError("Kotlin playback value/cancellation consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.library.LibraryChecksKt", str(ROOT / "contracts/fixtures/library-catalog.json")], work, home)
+        if "SYNCWATCH_LIBRARY_OK" not in output:
+            raise ValueError("Local filesystem library consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.ApplicationLibraryChecksKt"], work, home)
+        if "SYNCWATCH_APPLICATION_LIBRARY_OK" not in output:
+            raise ValueError("Application library ownership/cancellation consumer failed")
         print(output.strip())
 
 

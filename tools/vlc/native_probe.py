@@ -17,6 +17,7 @@ def environment(package, target):
     elif target == "linux-x64":
         env["FONTCONFIG_FILE"] = str(package / "share/fonts/fonts.conf")
         env["FONTCONFIG_PATH"] = str(package / "share/fonts")
+        env["PULSE_CLIENTCONFIG"] = str(package / "share/pulse/client.conf")
     return env
 
 

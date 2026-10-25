@@ -14,7 +14,7 @@ extern "C" {
 
 typedef struct sw_playback sw_playback;
 enum sw_result { SW_OK, SW_INVALID, SW_UNAVAILABLE, SW_STALE, SW_ENGINE };
-enum sw_output { SW_OUTPUT_HEADLESS, SW_OUTPUT_APPKIT, SW_OUTPUT_HWND };
+enum sw_output { SW_OUTPUT_HEADLESS, SW_OUTPUT_APPKIT, SW_OUTPUT_HWND, SW_OUTPUT_X11 };
 enum sw_status { SW_UNLOADED, SW_LOADING, SW_READY, SW_FAILED };
 /* Fixed-width values only: identical C, Swift, .NET and JNI layouts. */
 typedef struct sw_observation {
@@ -40,6 +40,12 @@ typedef struct sw_observation {
  * package must have passed the host's receipt/integrity check before open. */
 SW_PLAYBACK_API int sw_playback_open(const char *library, const char *revision,
     int output, void *surface, sw_playback **result);
+/* XIDs have their original uint32 ABI, never a void-pointer representation.
+ * The host must initialize Xlib threading before any display is opened and
+ * retain this Input/Output drawable until serialized close returns. The
+ * pointer-based open deliberately rejects SW_OUTPUT_X11. */
+SW_PLAYBACK_API int sw_playback_open_x11(const char *library, const char *revision,
+    uint32_t drawable, sw_playback **result);
 /* Loading starts paused. A request is never reported as an observation. */
 SW_PLAYBACK_API int sw_playback_load(sw_playback *, uint64_t generation, const char *local_path);
 SW_PLAYBACK_API int sw_playback_observe(sw_playback *, uint64_t generation, sw_observation *);

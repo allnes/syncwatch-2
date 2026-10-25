@@ -1,0 +1,200 @@
+{
+  "rootId": "20de4e95-518f-4c23-9908-4453893ff821",
+  "otherRootId": "a48f904d-98e8-4d40-a052-5a0ddf39cb13",
+  "files": [
+    {
+      "path": "root.mkv",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.MP4",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.avi",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.MOV",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.m4v",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.webm",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.WMV",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.mpg",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.mpeg",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.ts",
+      "content": "movie fixture"
+    },
+    {
+      "path": "root.m2ts",
+      "content": "movie fixture"
+    },
+    {
+      "path": ".mp4",
+      "content": "movie fixture"
+    },
+    {
+      "path": "empty.avi",
+      "content": ""
+    },
+    {
+      "path": "nested/root.mkv",
+      "content": "movie fixture"
+    },
+    {
+      "path": "nested/deeper/Кино 🎬.Mp4",
+      "content": "movie fixture"
+    },
+    {
+      "path": "Кино.mp4",
+      "content": "movie fixture"
+    },
+    {
+      "path": ".mp4",
+      "content": "movie fixture"
+    },
+    {
+      "path": "🎬.mp4",
+      "content": "movie fixture"
+    },
+    {
+      "path": "notes.txt",
+      "content": "text"
+    },
+    {
+      "path": "nested/root.srt",
+      "content": "subtitle"
+    },
+    {
+      "path": "audio.mp3",
+      "content": "audio"
+    }
+  ],
+  "expected": [
+    {
+      "relativePath": ".mp4",
+      "id": "1ad7d539021916f6904400130b1fba52a1e68d39a91ca09f0bae702e0c3e26fc",
+      "sizeBytes": 13,
+      "title": ".mp4"
+    },
+    {
+      "relativePath": "empty.avi",
+      "id": "4ee045e0c57a8b80576ccc8cd3482293c858bd2d5c7beeac47258700bdef383d",
+      "sizeBytes": 0,
+      "title": "empty.avi"
+    },
+    {
+      "relativePath": "nested/deeper/Кино 🎬.Mp4",
+      "id": "d6142f323ca30fa5f88016c1585c55df5a46febfdd894157afa835e412eab60e",
+      "sizeBytes": 13,
+      "title": "Кино 🎬.Mp4"
+    },
+    {
+      "relativePath": "nested/root.mkv",
+      "id": "14bcd7928c0e566758a5951045acc515e031e7d8ce01586e162d4fc0fdf31440",
+      "sizeBytes": 13,
+      "title": "root.mkv"
+    },
+    {
+      "relativePath": "root.MOV",
+      "id": "cafa6553b407689edd000e147e477213bdeffcc98de559a72ab9cc2233df3322",
+      "sizeBytes": 13,
+      "title": "root.MOV"
+    },
+    {
+      "relativePath": "root.MP4",
+      "id": "51c987a787984870188e2846ac27a09b912be2122c2f27561fbdd6090b437743",
+      "sizeBytes": 13,
+      "title": "root.MP4"
+    },
+    {
+      "relativePath": "root.WMV",
+      "id": "5e7cbbeef3b3072619803143ac2d414e0834590ddce669b737a00a28a55f9569",
+      "sizeBytes": 13,
+      "title": "root.WMV"
+    },
+    {
+      "relativePath": "root.avi",
+      "id": "e0663258240b5bba6c4dbee2559e6f768ae8a073048c2fc44d4381076bb48a98",
+      "sizeBytes": 13,
+      "title": "root.avi"
+    },
+    {
+      "relativePath": "root.m2ts",
+      "id": "51e159f5138781e3dae7cf3e0bdd4d44054bc64487bfb1115184b50b9235dbe5",
+      "sizeBytes": 13,
+      "title": "root.m2ts"
+    },
+    {
+      "relativePath": "root.m4v",
+      "id": "47acaf162add03d60296943eca4e57a6a41516d4425a778324b2ea52d905b5ae",
+      "sizeBytes": 13,
+      "title": "root.m4v"
+    },
+    {
+      "relativePath": "root.mkv",
+      "id": "fc4f86f2d758438a1580d1945aeb97b56de8b5254c12b7f4ef5e3de81479cc3c",
+      "sizeBytes": 13,
+      "title": "root.mkv"
+    },
+    {
+      "relativePath": "root.mpeg",
+      "id": "7a2dcf83264f55e524baa01cccf3c12aaed43a396afefe5edab6a96ea0090430",
+      "sizeBytes": 13,
+      "title": "root.mpeg"
+    },
+    {
+      "relativePath": "root.mpg",
+      "id": "12093af4e277387f136d326995e543eb3186931ab80f8510d3ff4b2a13ac6634",
+      "sizeBytes": 13,
+      "title": "root.mpg"
+    },
+    {
+      "relativePath": "root.ts",
+      "id": "0fcd9c96cc12519cd1a4f7d36271106a06954f8f0bf9b2f8530fd459d698a935",
+      "sizeBytes": 13,
+      "title": "root.ts"
+    },
+    {
+      "relativePath": "root.webm",
+      "id": "0c6fed175128fbad5d15d3cc08b283dd5eb17c8b4dcb1a8ea7b18083451c5894",
+      "sizeBytes": 13,
+      "title": "root.webm"
+    },
+    {
+      "relativePath": "Кино.mp4",
+      "id": "18502690dea9679900f8c34fc5e53270d9685e01f73bf9bab7cc4e31efae3525",
+      "sizeBytes": 13,
+      "title": "Кино.mp4"
+    },
+    {
+      "relativePath": ".mp4",
+      "id": "eaad1c4987748e0d2903edd78c039ae42b46ec00d29bdaa44622fe4c1d702c51",
+      "sizeBytes": 13,
+      "title": ".mp4"
+    },
+    {
+      "relativePath": "🎬.mp4",
+      "id": "335c067f7915ae0c6b8e2842ae44dc8b2e9891514b2a4b8010ddef2810ce557b",
+      "sizeBytes": 13,
+      "title": "🎬.mp4"
+    }
+  ]
+}

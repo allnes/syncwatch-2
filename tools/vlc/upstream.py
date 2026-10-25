@@ -32,7 +32,7 @@ def build(context, sources, profile):
     context.run("vlc-bootstrap", ["./bootstrap"], cwd=source, shell=True)
     flags = ["--prefix=" + shell_path(context.prefix), "--disable-sout", "--disable-vlm",
         "--disable-lua", "--disable-qt", "--disable-skins2", "--disable-nls", "--disable-dbus",
-        "--disable-postproc", "--disable-libva", "--disable-wayland", "--disable-xcb", "--disable-pulse",
+        "--disable-postproc", "--disable-libva", "--disable-wayland",
         "--disable-gnutls", "--disable-smbclient", "--disable-libgcrypt", "--disable-notify",
         "--disable-macosx", "--disable-sparkle", "--disable-chromecast",
         "--enable-avcodec", "--enable-avformat", "--enable-swscale", "--enable-freetype",
@@ -43,7 +43,9 @@ def build(context, sources, profile):
     else:
         flags.append("--without-libiconv-prefix")
     if context.target == "linux-x64":
-        flags.append("--disable-alsa")
+        flags.extend(["--enable-xcb", "--disable-xvideo", "--enable-pulse", "--disable-alsa"])
+    else:
+        flags.extend(["--disable-xcb", "--disable-pulse"])
     # VLC 3 uses the C11 atomic initialization API, removed by C23. Modern GCC
     # defaults to C23; select the upstream language contract explicitly.
     environment = {"CFLAGS": context.env["CFLAGS"] + " -std=gnu11"}

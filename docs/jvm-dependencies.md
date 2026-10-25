@@ -59,4 +59,4 @@ The regression suite is part of required repository CI. The tool and its tests a
 - [Gradle Module Metadata](https://docs.gradle.org/current/userguide/module_metadata.html).
 - [Maven dependencies and version requirements](https://maven.apache.org/pom.html#dependencies).
 
-The [native object profile](native-renderer-objects.md) builds the original Linux Skia/JNI object graph separately. A linked renderer, platform/font runtime, native video surface and desktop acceptance remain required.
+The [native renderer profile](native-renderer-objects.md) owns the original Linux Skia/JNI objects, linked renderer and platform clients separately. JVM distribution, native video, complete desktop/provider behavior and six-direction acceptance remain required.

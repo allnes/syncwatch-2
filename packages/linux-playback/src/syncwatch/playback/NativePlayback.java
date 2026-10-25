@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,35 +40,55 @@ public final class NativePlayback {
     }
     private final AtomicBoolean closing = new AtomicBoolean();
     private final CompletableFuture<Void> closed = new CompletableFuture<>();
+    private static final int MAX_REQUESTS = 64;
+    private final Semaphore requests = new Semaphore(MAX_REQUESTS);
     private final ThreadPoolExecutor worker = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(64), task -> { Thread thread = new Thread(task, "SyncWatch playback"); thread.setDaemon(true); return thread; });
+            new ArrayBlockingQueue<>(MAX_REQUESTS + 1), task -> { Thread thread = new Thread(task, "SyncWatch playback"); thread.setDaemon(true); return thread; });
     private long player;
     private Scope scope;
+    private X11Display.Surface videoSurface;
     private static Path loadedBridge;
 
     @FunctionalInterface private interface Operation<T> { T run() throws Exception; }
     private <T> CompletableFuture<T> submit(Operation<T> operation) {
         CompletableFuture<T> result = new CompletableFuture<>();
         if (closing.get()) { result.completeExceptionally(new IllegalStateException("closed")); return result; }
+        if (!requests.tryAcquire()) { result.completeExceptionally(new RejectedExecutionException("busy")); return result; }
         try {
             worker.execute(() -> {
-                if (result.isCancelled()) return;
-                if (closing.get()) { result.completeExceptionally(new IllegalStateException("closed")); return; }
-                try { result.complete(operation.run()); }
+                try {
+                    if (result.isCancelled()) return;
+                    if (closing.get()) { result.completeExceptionally(new IllegalStateException("closed")); return; }
+                    result.complete(operation.run());
+                }
                 catch (Throwable error) { result.completeExceptionally(error); }
+                finally { requests.release(); }
             });
-        } catch (RejectedExecutionException error) { result.completeExceptionally(error); }
+        } catch (RejectedExecutionException error) { requests.release(); result.completeExceptionally(error); }
         return result;
     }
-    private static synchronized void loadBridge(Path bridge) {
+    static synchronized void loadBridge(Path bridge) {
         bridge = bridge.toAbsolutePath().normalize();
         if (loadedBridge != null && !loadedBridge.equals(bridge)) throw new IllegalStateException("bridge-path");
         if (loadedBridge == null) { System.load(bridge.toString()); loadedBridge = bridge; }
     }
     public CompletableFuture<Void> openVerified(Path bridge, Path library, String revision) {
         return submit(() -> {
-            if (player != 0 || !library.isAbsolute()) throw new IllegalStateException("open");
+            if (player != 0 || videoSurface != null || !library.isAbsolute()) throw new IllegalStateException("open");
             loadBridge(bridge); player = open(bytes(library.toString()), bytes(revision)); return null;
+        });
+    }
+    /** The surface's parent window must remain displayable until closeAsync completes. */
+    public CompletableFuture<Void> openX11Verified(Path bridge, Path library, String revision, X11Display.Surface surface) {
+        return submit(() -> {
+            if (player != 0 || videoSurface != null || !library.isAbsolute() || surface == null) throw new IllegalStateException("open");
+            loadBridge(bridge);
+            long drawable = surface.bindDrawable();
+            // Keep the surface even if native open fails; terminal release
+            // must also cover resources created before the player instance.
+            videoSurface = surface;
+            player = openX11(bytes(library.toString()), bytes(revision), drawable);
+            return null;
         });
     }
     public CompletableFuture<Void> load(Path file, Scope incoming) {
@@ -118,24 +139,27 @@ public final class NativePlayback {
     }
     public CompletableFuture<Void> closeAsync() {
         if (closing.compareAndSet(false, true)) {
-            // Shutdown rejects new submissions. Accepted queued work observes closing.
-            worker.shutdown();
-            Thread disposer = new Thread(() -> {
+            // Normal work has at most MAX_REQUESTS permits. The reserved queue
+            // slot lets terminal release run on the same owner even under load.
+            worker.execute(() -> {
                 try {
-                    while (!worker.awaitTermination(1, TimeUnit.SECONDS)) { }
                     if (player != 0) { close(player); player = 0; }
+                    if (videoSurface != null) videoSurface.retainUntilClosed();
+                    videoSurface = null;
                     closed.complete(null);
                 } catch (Throwable error) { closed.completeExceptionally(error); }
-            }, "SyncWatch playback release");
-            disposer.setDaemon(true); disposer.start();
+            });
+            worker.shutdown();
         }
-        return closed;
+        // Cancelling one wait must not complete the resource owner's receipt.
+        return closed.copy();
     }
-    private static byte[] bytes(String value) {
+    static byte[] bytes(String value) {
         if (value.indexOf(0) >= 0) throw new IllegalArgumentException("string");
         return value.getBytes(StandardCharsets.UTF_8);
     }
     private static native long open(byte[] library, byte[] revision);
+    private static native long openX11(byte[] library, byte[] revision, long drawable);
     private static native int load(long player, long generation, byte[] file);
     private static native long[] observe(long player, long generation);
     private static native void pause(long player, long generation, boolean paused);

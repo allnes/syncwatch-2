@@ -11,20 +11,26 @@ sys.path.insert(0, str(ROOT / "tools/dependencies"))
 from source_files import archive_bytes, digest, encoded, member, read_snapshot
 
 
-SCOPE = b"""SyncWatch native objects source profile
-Original upstream sources and grants are preserved without patches.
-GN and platform headers are generated from the retained original templates.
+SCOPE = b"""SyncWatch original native renderer and platform client profile
+Original upstream sources and grants are preserved without source patches.
+GN and platform headers are generated from their retained original templates.
 The selected Linux profile excludes RAW photographic DNG/PIEX decoding.
 Movie formats belong to VLC; text, SVG, PNG, JPEG and WebP remain enabled.
-This package contains native objects, static archives and a source-built build tool.
-It does not contain a qualified linked Skiko runtime or a desktop application.
-Platform clients, fonts, runtime packaging, native video and visible acceptance
-remain independent requirements. It does not establish physical synchronization.
+The package includes source-built GN, static archives, JNI objects and a linked
+Skiko renderer with owned X11/GL/fontconfig/D-Bus clients and selected aliases.
+OS C/compiler ABI libraries, GPU vendor drivers and OS/user fonts are explicit
+external platform services; no developer SDK binaries are copied into this package.
+Original source-only/build/test grants remain with their complete source files.
+Configured X11 Compose includes retain original rules and credits while avoiding
+temporary build paths; owned locale/error/color data accompanies the renderer.
+A JNI/Skia API probe and an independent PNG decoder probe are headless checks.
+JVM distribution, native video, desktop/provider behavior and all six directed
+physical synchronization checks remain separate requirements.
 """
 
 
 def validate(profile):
-    if (profile["schemaVersion"] != 1 or profile["profile"] != "linux-native-objects-v1"
+    if (profile["schemaVersion"] != 1 or profile["profile"] != "linux-native-runtime-v1"
             or profile["target"] != "linux-x64" or profile["nativeRuntimeQualified"] is not False):
         raise ValueError("Unknown or prematurely qualified native object profile")
     occupied = set()
@@ -53,6 +59,16 @@ def validate(profile):
             or "skia_use_dng_sdk=false" not in profile["gnArguments"]
             or "skia_use_piex=false" not in profile["gnArguments"]):
         raise ValueError("RAW photographic decoders are outside the reviewed native profile")
+    if (profile["runtimeLibraries"] != sorted(set(profile["runtimeLibraries"]))
+            or not {"libskiko-linux-x64.so", "libXrandr.so", "libdbus-1.so"} <= set(profile["runtimeLibraries"])
+            or profile["jniExportCount"] <= 0 or not re.fullmatch(r"[0-9a-f]{64}", profile["jniExportDigest"])):
+        raise ValueError("Native runtime needs an exact client and public JNI inventory")
+    if not isinstance(profile.get("platformData"), dict) or not profile["platformData"]:
+        raise ValueError("Native X11 client needs its runtime data inventory")
+    for name, pin in profile["platformData"].items():
+        member(name)
+        if not name.startswith("share/X11/") or not re.fullmatch(r"[0-9a-f]{64}", pin):
+            raise ValueError("Native X11 runtime data must have an owned path and exact digest")
     return profile
 
 

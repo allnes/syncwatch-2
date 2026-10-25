@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "aea99832c07aa8b9f4f29b73f9e0bd370df092b4bbb82bba18f54f846d08129a",
+  "sourceDigest": "7b0720940c27e96e75831f66d9ab304b9584a5407c75faef677404b763a2aadf",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "538a1c22c83e507b2a631377d52d914d55897862d2c20bbd6f5d0f5e5591ee87",
-    "copy.json": "600277295c718d39308f8a2fc28dc675e11ada224b556472145d907b948c7a5a",
+    "copy.json": "ad9509a34903cce41b39484593f0e2b095f12646d5b7bba55518298986b2b8de",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "750a5928f269af2d436f5254acbf0e274800b6789c40bc8798639c83c9e6ee97",
+    "layouts.json": "b17a8f33d228a1c5bcd44fb731e5243fd7a7510bd1fd5d59ca675013be284f70",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "baf7439fad7916c091dd1984bbb1d4521f3527176836214c5fce71045c297595",
+  "generatorRevision": "006edca67c1ef8f1a2e3490e6d0ddac3452e55e5253b2d93e379df471b039dcc",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -30,7 +30,7 @@
       "tools/design/settings-formats.mjs": "ead19296a106d72d8c156d63bf4202d94cca61fd91902bd9520f455dbf9417b8",
       "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
-      "tools/design/layout-formats.mjs": "f225c788257b7e771a1f2042a27f8495594be1dbf130f9c8740e129a2f4589cc",
+      "tools/design/layout-formats.mjs": "e29a42b64c9289f7746b8208ab25d809cd4e77dc624a023b587da48cb873618d",
       "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
       "tools/design/selection-menu-formats.mjs": "f5c6334203d99b239f1e2397af158efad317fb7aa9c237f01226e183445b2df3"
     },
@@ -281,7 +281,9 @@
         "selectionFixtureLabel": "Selection menu fixture",
         "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
         "galleryKind": "Menu",
-        "playbackFailed": "Could not open this movie."
+        "playbackFailed": "Could not open this movie.",
+        "libraryUnavailable": "Could not access the movie folder. Choose it again or check its permissions.",
+        "librarySaveFailed": "The folder is available for this session, but its access could not be saved."
       },
       "ru": {
         "brand": "SyncWatch",
@@ -477,7 +479,9 @@
         "selectionFixtureLabel": "Пример меню выбора",
         "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
         "galleryKind": "Меню",
-        "playbackFailed": "Не удалось открыть фильм."
+        "playbackFailed": "Не удалось открыть фильм.",
+        "libraryUnavailable": "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
+        "librarySaveFailed": "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось."
       }
     },
     "gallery": {
@@ -5951,6 +5955,66 @@
               "height": "fill"
             },
             "children": []
+          }
+        ]
+      },
+      "Application": {
+        "id": "applicationRoot",
+        "kind": "overlay",
+        "styles": [],
+        "props": {
+          "width": "fill",
+          "height": "fill",
+          "minWidth": "@layout.minimumWidth",
+          "minHeight": "@layout.minimumHeight",
+          "clip": "true"
+        },
+        "children": [
+          {
+            "id": "applicationLibrary",
+            "kind": "retained",
+            "styles": [],
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "presented": "$libraryPresented"
+            },
+            "children": [
+              {
+                "id": "applicationLibraryContent",
+                "kind": "slot",
+                "styles": [],
+                "props": {
+                  "name": "libraryContent",
+                  "width": "fill",
+                  "height": "fill"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "applicationPlayer",
+            "kind": "retained",
+            "styles": [],
+            "props": {
+              "width": "fill",
+              "height": "fill",
+              "presented": "$playerPresented"
+            },
+            "children": [
+              {
+                "id": "applicationPlayerContent",
+                "kind": "slot",
+                "styles": [],
+                "props": {
+                  "name": "playerContent",
+                  "width": "fill",
+                  "height": "fill"
+                },
+                "children": []
+              }
+            ]
           }
         ]
       }

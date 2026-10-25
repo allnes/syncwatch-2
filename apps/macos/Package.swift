@@ -7,6 +7,7 @@ let package = Package(
     products: [.executable(name: "SyncWatch", targets: ["SyncWatch"])],
     dependencies: [
         .package(path: "../../packages/macos-domain"),
+        .package(path: "../../packages/macos-library"),
         .package(path: "../../packages/design"),
         .package(path: "../../packages/macos-playback"),
     ],
@@ -15,6 +16,7 @@ let package = Package(
             name: "SyncWatch",
             dependencies: [
                 .product(name: "SyncWatchDomain", package: "macos-domain"),
+                .product(name: "SyncWatchLibrary", package: "macos-library"),
                 .product(name: "SyncWatchDesign", package: "design"),
                 .product(name: "SyncWatchPlayback", package: "macos-playback"),
             ]
