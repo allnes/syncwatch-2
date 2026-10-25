@@ -234,7 +234,8 @@ def registry(root):
         for path, source in sources.items():
             require(re.fullmatch(r"3rdparty/[A-Za-z0-9_.-]+", path), "External sources must be top-level 3rdparty submodules")
             required = {"revision", "license", "notices", "requires", "unusedSubmodules"}
-            require(set(source) in (required, required | {"exports"}), "Invalid source graph entry")
+            require(set(source) in (required, required | {"exports"}, required | {"exports", "checkoutDirectories"}),
+                    "Invalid source graph entry")
             require(entries.get(path) == ("160000", source["revision"]), "Source revision must match its Git index pin")
             require(path in modules and re.fullmatch(r"https://[^/@?#\s]+/[^?#\s]+", modules[path]), "Source needs a credential-free HTTPS submodule registration")
             require(isinstance(source["license"], str) and source["license"], "Source license is required")
@@ -242,6 +243,12 @@ def registry(root):
             for notice in source["notices"]:
                 member(notice)
             export_paths(source)
+            if "checkoutDirectories" in source:
+                directories = source["checkoutDirectories"]
+                require(isinstance(directories, list) and directories, "Sparse index checkout requires directories")
+                for directory in directories:
+                    member(directory)
+                require(directories == sorted(set(directories)), "Sparse index checkout requires unique sorted directories")
             require(isinstance(source["requires"], list) and all(item in sources for item in source["requires"]), "Source graph references an undeclared dependency")
             require(isinstance(source["unusedSubmodules"], dict), "Unused nested sources require explicit reasons")
             for nested, reason in source["unusedSubmodules"].items():
@@ -338,9 +345,18 @@ def initialize_export_source(root, path, specification, url):
     if created:
         # No worktree/index exists yet: detach at the exact pin before materializing files.
         subprocess.run(["git", "update-ref", "--no-deref", "HEAD", revision], cwd=source, check=True)
-    patterns = "".join("/" + name + "\n" for name in export_paths(specification))
+    directories = specification.get("checkoutDirectories")
+    if directories:
+        for directory in directories:
+            require(git(source, "cat-file", "-t", f"HEAD:{directory}").strip() == b"tree",
+                    "Sparse index checkout requires original directories")
+        patterns = "\n".join(directories) + "\n"
+        mode = ["--cone", "--sparse-index"]
+    else:
+        patterns = "".join("/" + name + "\n" for name in export_paths(specification))
+        mode = ["--no-cone"]
     subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
-                    "sparse-checkout", "set", "--no-cone", "--stdin"], cwd=source, input=patterns, text=True, check=True)
+                    "sparse-checkout", "set", *mode, "--stdin"], cwd=source, input=patterns, text=True, check=True)
     subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
                     "checkout", "--detach", revision], cwd=source, check=True)
 

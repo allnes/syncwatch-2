@@ -102,6 +102,33 @@ class DependencyBuildTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             return build.prepare(self.root, "example", TARGET)
 
+    def test_sparse_index_materialization_is_separate_from_exact_source_exports(self):
+        source = self.root / "3rdparty/example"
+        for directory in ("client", "server"):
+            (source / directory).mkdir()
+            (source / directory / "library.c").write_text("/* original " + directory + " */\n")
+        self.commit(source)
+        revision = build.git(source, "rev-parse", "HEAD").decode().strip()
+        specification = {"revision": revision, "exports": ["LICENSE", "client", "server"],
+                         "notices": ["LICENSE"], "checkoutDirectories": ["client"]}
+        build.initialize_export_source(self.root, "3rdparty/example", specification, "https://example.invalid/source.git")
+        self.assertTrue((source / "client/library.c").is_file())
+        self.assertFalse((source / "server/library.c").exists())
+        self.assertFalse(build.git(source, "status", "--porcelain").strip())
+        archive = self.root / "originals.tar"
+        entries = build.exported_entries(source, build.export_paths(specification))
+        build.export_original_blobs(source, archive, entries, revision)
+        build.verify_source_export(archive, entries, revision, ["LICENSE"])
+        with tarfile.open(archive) as package:
+            self.assertEqual(package.extractfile("server/library.c").read(), b"/* original server */\n")
+
+    def test_sparse_index_directory_cannot_be_a_file(self):
+        source = self.root / "3rdparty/example"
+        specification = {"revision": build.git(source, "rev-parse", "HEAD").decode().strip(),
+                         "exports": ["LICENSE"], "notices": ["LICENSE"], "checkoutDirectories": ["LICENSE"]}
+        with self.assertRaisesRegex(ValueError, "original directories"):
+            build.initialize_export_source(self.root, "3rdparty/example", specification, "https://example.invalid/source.git")
+
     def remove_source_fixture(self, source):
         """Remove an owned Git fixture, including read-only Windows objects."""
         self.assertTrue(source.resolve().is_relative_to(self.root.resolve()))

@@ -127,6 +127,37 @@ class BuildContext:
             raise ValueError("Missing native developer tool: " + name)
         return path
 
+    def sdk_command(self, name, *arguments):
+        path = self.tool(name)
+        if self.target == "windows-x64":
+            return [self.shell, "-c", shlex.join([shell_path(path), *arguments])]
+        root = self.env.get("SYNCWATCH_VLC_EXTRA_TOOLS_ROOT")
+        if self.target == "linux-x64" and root and name in {"msgfmt", "msginit", "msgmerge", "xgettext"}:
+            directory = Path(root).resolve() / "usr/lib"
+            libraries = [directory, *sorted(p for p in directory.iterdir() if p.is_dir())]
+            # This environment belongs to this SDK tool invocation only. Target
+            # library discovery and application consumers must not inherit it.
+            return ["/usr/bin/env", "LD_LIBRARY_PATH=" + os.pathsep.join(map(str, libraries)), path, *arguments]
+        return [path, *arguments]
+
+    def meson_binaries(self):
+        if self.target == "linux-x64" and self.env.get("SYNCWATCH_VLC_EXTRA_TOOLS_ROOT"):
+            return {name: self.sdk_command(name) for name in ("msgfmt", "msginit", "msgmerge", "xgettext")}
+        return {}
+
+    def sdk_support(self):
+        root = self.env.get("SYNCWATCH_VLC_EXTRA_TOOLS_ROOT")
+        if self.target != "linux-x64" or not root:
+            return {}
+        root = Path(root).resolve()
+        files = {}
+        for path in sorted((root / "usr/lib").rglob("*.so*")):
+            if path.is_file():
+                if not path.resolve().is_relative_to(root):
+                    raise ValueError("SDK tool support leaves its declared root")
+                files[path.relative_to(root).as_posix()] = checksum(path)
+        return files
+
     def auxiliary_files(self):
         if self.target != "linux-x64":
             return {}
@@ -181,14 +212,12 @@ class BuildContext:
         if self.target != "macos-arm64":
             names.append("nasm")
         if self.target == "linux-x64":
-            names.extend(["readelf", "patchelf"])
+            names.extend(["readelf", "patchelf", "msgfmt", "msginit", "msgmerge", "xgettext"])
         elif self.target == "windows-x64":
             names.append("objdump")
         for name in names:
             path = self.tool(name)
-            command = [path, "--version"]
-            if self.target == "windows-x64":
-                command = [self.shell, "-c", shlex.join([shell_path(path), "--version"])]
+            command = self.sdk_command(name, "--version")
             result = subprocess.check_output(command, env=self.env, stderr=subprocess.STDOUT, timeout=30)
             tools[name] = {"sha256": checksum(path), "version": result.decode(errors="replace").splitlines()[0]}
         tools["buildPython"] = {"sha256": checksum(sys.executable), "version": sys.version.split()[0]}
@@ -209,4 +238,5 @@ class BuildContext:
         return {"target": self.target, "tools": tools, "sdkPackaged": False,
                 "platformSdk": platform_sdk,
                 "compilerSupport": {name: checksum(path) for name, path in self.compiler_runtime().items()},
+                "toolSupport": self.sdk_support(),
                 "gnuConfig": {name: checksum(path) for name, path in self.auxiliary_files().items()}}

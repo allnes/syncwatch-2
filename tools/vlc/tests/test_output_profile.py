@@ -7,6 +7,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import source_profile
+from configuration import pulse_version
 
 
 class OutputProfileTests(unittest.TestCase):
@@ -35,6 +36,11 @@ class OutputProfileTests(unittest.TestCase):
                 for field in ("revision", "files", "executables"):
                     with self.subTest(source=name, field=field):
                         self.assertEqual(source[field], renderer["sources"][name][field])
+
+    def test_wrong_distribution_version_cannot_replace_original_release_metadata(self):
+        original = {"NEWS": b"PulseAudio 0.0\n", "meson.build": b"'.tarball-version'", "git-version-gen": b".tarball-version"}
+        with self.assertRaisesRegex(ValueError, "distribution-version"):
+            pulse_version(original, self.profile)
 
 
 if __name__ == "__main__":

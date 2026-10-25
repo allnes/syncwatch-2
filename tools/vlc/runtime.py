@@ -46,7 +46,7 @@ def run(operation, directory, payload, original, profile):
         for name, specification in profile["sources"].items():
             trees[name] = work / "sources" / name
             materialize(trees[name], original[name], specification, profile["sourceDateEpoch"])
-        libraries.build(context, trees)
+        libraries.build(context, trees, profile)
         build = upstream.build(context, trees, profile)
         package = work / "package"
         assemble(context, build, trees["vlc"], profile, package)

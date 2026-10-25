@@ -11,9 +11,15 @@ ROOT = Path(__file__).resolve().parents[2]
 def meson(context, sources, name, options):
     build = context.work / (name + "-build")
     command = [sys.executable, str(sources["meson"] / "meson.py")]
+    binaries = context.meson_binaries()
+    native = []
+    if binaries:
+        configuration = context.work / "meson-sdk-tools.ini"
+        configuration.write_text("[binaries]\n" + "".join(key + " = " + repr(value) + "\n" for key, value in binaries.items()))
+        native = ["--native-file=" + str(configuration)]
     context.run(name + "-configure", [*command, "setup", str(build), str(sources[name]),
         "--prefix=" + str(context.prefix), "--libdir=lib", "--buildtype=release",
-        "--wrap-mode=nodownload", "-Dauto_features=disabled", "-Ddefault_library=shared", *options])
+        "--wrap-mode=nodownload", *native, "-Dauto_features=disabled", "-Ddefault_library=shared", *options])
     context.run(name + "-build", [*command, "compile", "-C", str(build), "-j4"])
     context.run(name + "-install", [*command, "install", "-C", str(build), "--no-rebuild"])
 

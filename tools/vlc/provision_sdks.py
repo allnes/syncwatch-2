@@ -2,12 +2,15 @@
 
 import hashlib
 import json
+import lzma
 import os
 from pathlib import Path
 import platform
 import shlex
+import shutil
 import subprocess
 import tarfile
+import tempfile
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,6 +30,22 @@ def download(item, destination):
         raise ValueError("Developer SDK archive differs from its pinned digest")
 
 
+def unpack_windows_base(archive, directory):
+    with tarfile.open(archive) as package:
+        for item in package:
+            if not (item.name == "msys64" or item.name.startswith("msys64/")) or ".." in Path(item.name).parts:
+                raise ValueError("Unsafe developer SDK archive member")
+    # Python already decodes the verified xz archive above. Do not require an
+    # ambient xz executable when the bootstrap tar runs from a native shell.
+    with tempfile.TemporaryDirectory(prefix="base-", dir=directory) as temporary:
+        unpacked = Path(temporary) / "msys2-base.tar"
+        with lzma.open(archive, "rb") as source, unpacked.open("wb") as destination:
+            shutil.copyfileobj(source, destination)
+        bootstrap = Path("C:/msys64/usr/bin/tar.exe")
+        subprocess.run([str(bootstrap), "--force-local", "-xf", unpacked.as_posix(),
+                        "-C", directory.as_posix(), "--no-same-owner"], check=True)
+
+
 def windows():
     if os.environ.get("SYNCWATCH_VLC_MSYS_ROOT"):
         return
@@ -36,15 +55,7 @@ def windows():
     archive = directory / "base.tar.xz"
     download(profile["base"], archive)
     if not root.exists():
-        with tarfile.open(archive) as package:
-            for item in package:
-                if not (item.name == "msys64" or item.name.startswith("msys64/")) or ".." in Path(item.name).parts:
-                    raise ValueError("Unsafe developer SDK archive member")
-        # The hosted Windows image provides GNU tar as an explicit bootstrap
-        # tool. It extracts the independent SDK without changing that installation.
-        bootstrap = Path("C:/msys64/usr/bin/tar.exe")
-        subprocess.run([str(bootstrap), "--force-local", "-xf", archive.as_posix(),
-                        "-C", directory.as_posix(), "--no-same-owner"], check=True)
+        unpack_windows_base(archive, directory)
     packages = directory / "packages"
     for name, item in profile["archives"].items():
         download(item, packages / name)

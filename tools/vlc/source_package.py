@@ -4,7 +4,7 @@ import subprocess
 
 from source_profile import ROOT
 from source_files import archive_bytes, digest, encoded
-from configuration import vlc_files
+from configuration import vlc_files, pulse_version
 from sdk_material import notices
 from font_configuration import contents as font_contents
 
@@ -33,6 +33,7 @@ def expected(snapshots, profile, context):
         # Connect to the existing user audio service; never start a daemon as a
         # side effect of opening a movie or probing an unavailable output.
         files["share/pulse/client.conf"] = b"# SyncWatch native audio client\nautospawn = no\n"
+        files["sources/configured/pulseaudio/.tarball-version"] = pulse_version(snapshots["pulseaudio"], profile)
     for name, data in vlc_files(snapshots["vlc"], profile).items():
         files["sources/configured/vlc/" + name] = data
     inventory = {}

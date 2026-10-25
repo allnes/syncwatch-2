@@ -25936,6 +25936,16 @@
         "src/utils/pa-info",
         "src/utils/padsp.in",
         "src/utils/qpaeq"
+      ],
+      "checkoutDirectories": [
+        "po",
+        "scripts",
+        "shell-completion",
+        "src/modules/echo-cancel",
+        "src/pulse",
+        "src/pulsecore",
+        "src/utils",
+        "vala"
       ]
     },
     "libsndfile": {
@@ -26808,6 +26818,7 @@
       "PulseAudio daemon, modules, D-Bus, X11 autolaunch, GLib, async DNS and systemd integrations",
       "libsndfile external Xiph and MPEG codecs",
       "VLC Wayland, XVideo, GL/VA/VDPAU output and ALSA; software X11 output only"
-    ]
+    ],
+    "pulseVersion": "17.0"
   }
 }

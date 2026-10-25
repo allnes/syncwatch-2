@@ -44,7 +44,7 @@ def profile_data():
         output_libraries(profile, target)
     component = json.loads((ROOT / "tools/dependencies/components.json").read_bytes())["components"]["libvlc"]
     expected = {source["path"]: {key: source[key] for key in
-                ["revision", "license", "notices", "exports", "requires", "unusedSubmodules"]}
+                ["revision", "license", "notices", "exports", "requires", "unusedSubmodules", "checkoutDirectories"] if key in source}
                 for source in profile["sources"].values()}
     if component.get("status") != "ready" or component.get("sources") != expected:
         raise ValueError("Registered media source graph differs from the reviewed build profile")

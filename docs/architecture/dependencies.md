@@ -73,6 +73,8 @@ Before building a component:
 4. Associate distributed binaries with their source revisions, build flags, toolchain, and SHA-256 digests.
 5. Disable implicit dependency downloads and verify the notices for the resulting binary module set.
 
+An exported source may separately declare `checkoutDirectories` for a cone-mode sparse index. This keeps unrelated trees with host-incompatible filenames out of materialized Git indexes without disabling path protections. It does not change the explicit source exports: snapshots still retain and verify every selected original Git blob and grant, including exported files outside those working-tree directories.
+
 Compilers, platform SDKs, and system frameworks such as SwiftUI, AppKit, Foundation, WebKit, .NET, and WPF are build-platform requirements. This exception includes SDK-provided Swift Testing, compiler analyzers, formatting tools, and the .NET reference/runtime packs used by the dependency-free native shells. Toolchain versions and commands are declared in [building and running](../building.md); no NuGet test framework or formatter package is installed. Google Meet is a remote service rather than a vendored source library.
 
 Python and Node.js are developer/runner toolchains. The CI artifact and dependency-cache adapters are first-party code using only Node built-ins; their local JavaScript actions run with the runner-provided Node 24 runtime. Their tests require Node 22 or newer. They install no npm packages or external Actions. The GitHub artifact service is remote infrastructure, used by the repository-owned workflows under `.github/workflows/` and not required by the application runtime.

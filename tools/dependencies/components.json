@@ -6854,7 +6854,17 @@
             "3rdparty/libsndfile",
             "3rdparty/meson"
           ],
-          "unusedSubmodules": {}
+          "unusedSubmodules": {},
+          "checkoutDirectories": [
+            "po",
+            "scripts",
+            "shell-completion",
+            "src/modules/echo-cancel",
+            "src/pulse",
+            "src/pulsecore",
+            "src/utils",
+            "vala"
+          ]
         },
         "3rdparty/libsndfile": {
           "revision": "72f6af15e8f85157bd622ed45b979025828b7001",
