@@ -106,7 +106,7 @@ def export_paths(source):
     if "exports" not in source:
         return None
     paths = source["exports"]
-    require(isinstance(paths, list) and 0 < len(paths) <= 512, "Source exports must be a nonempty bounded list")
+    require(isinstance(paths, list) and 0 < len(paths) <= 4096, "Source exports must be a nonempty bounded list")
     for path in paths:
         member(path)
     require(paths == sorted(set(paths)), "Source exports must be sorted and unique")
@@ -119,16 +119,33 @@ def export_paths(source):
     return paths
 
 
+def export_pathspec_batches(paths):
+    """Keep explicit inventories below Windows' UTF-16 command-line limit."""
+    batch, units = [], 0
+    for path in paths:
+        spec = ":(literal)" + path
+        cost = len(spec.encode("utf-16-le")) // 2 + 3
+        require(cost <= 8192, "Source export path exceeds the portable Git argument bound")
+        if batch and units + cost > 8192:
+            yield batch
+            batch, units = [], 0
+        batch.append(spec)
+        units += cost
+    if batch:
+        yield batch
+
+
 def exported_entries(source, paths):
     entries = {}
-    for item in git(source, "ls-tree", "-rz", "--full-tree", "HEAD", "--", *[":(literal)" + p for p in paths]).split(b"\0"):
-        if item:
-            metadata, name = item.decode("utf-8").split("\t", 1)
-            mode, kind, revision = metadata.split()
-            if kind == "blob":
-                member(name)
-                require(mode in {"100644", "100755", "120000"}, "Unsupported source export mode")
-                entries[name] = (mode, revision)
+    for batch in export_pathspec_batches(paths):
+        for item in git(source, "ls-tree", "-rz", "--full-tree", "HEAD", "--", *batch).split(b"\0"):
+            if item:
+                metadata, name = item.decode("utf-8").split("\t", 1)
+                mode, kind, revision = metadata.split()
+                if kind == "blob":
+                    member(name)
+                    require(mode in {"100644", "100755", "120000"}, "Unsupported source export mode")
+                    entries[name] = (mode, revision)
     require(all(any(name == path or name.startswith(path + "/") for name in entries) for path in paths),
             "Source export is missing or has no file content at the pinned revision")
     portable = {}

@@ -304,3 +304,15 @@
 [submodule "3rdparty/kotlinx-coroutines-swing"]
 	path = 3rdparty/kotlinx-coroutines-swing
 	url = https://github.com/Kotlin/kotlinx.coroutines.git
+[submodule "3rdparty/androidx-compose-ui"]
+	path = 3rdparty/androidx-compose-ui
+	url = https://github.com/JetBrains/compose-multiplatform-core.git
+[submodule "3rdparty/androidx-lifecycle-ui"]
+	path = 3rdparty/androidx-lifecycle-ui
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/androidx-navigationevent"]
+	path = 3rdparty/androidx-navigationevent
+	url = https://github.com/androidx/androidx.git
+[submodule "3rdparty/skiko"]
+	path = 3rdparty/skiko
+	url = https://github.com/JetBrains/skiko.git

@@ -20,11 +20,12 @@
     "kotlinx-concurrency",
     "compose-runtime",
     "compose-state",
+    "compose-ui-jvm",
     "linux-compose-ui",
     "libvlc"
   ],
   "blockedCapabilities": [
-    "source-closed Compose, Skiko, Skia and selected native/font graph",
+    "source-closed native Skiko, Skia and selected platform/font graph",
     "native video window on X11 and Wayland",
     "compiled desktop galleries and application acceptance"
   ]
