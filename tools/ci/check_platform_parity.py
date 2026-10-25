@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 PLATFORMS = {"macos", "windows", "linux"}
-MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge"}
+MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge", "library"}
 VALIDATION = {"native-tested", "native-boundary-tested", "research-tested", "source-only", "missing"}
 
 

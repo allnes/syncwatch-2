@@ -15658,7 +15658,8 @@
         "packages/design/linux",
         "packages/design/generated/linux",
         "packages/design/tests/linux",
-        "packages/design/tests/fixtures"
+        "packages/design/tests/fixtures",
+        "packages/linux-library"
       ],
       "watch": [
         "tools/jvm",
@@ -15671,7 +15672,8 @@
         "packages/design/linux",
         "packages/design/generated/linux",
         "packages/design/tests/linux",
-        "packages/design/tests/fixtures"
+        "packages/design/tests/fixtures",
+        "packages/linux-library"
       ],
       "targets": {
         "linux-x64": {

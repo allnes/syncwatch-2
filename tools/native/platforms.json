@@ -7,7 +7,8 @@
       "design": "packages/design/macos",
       "generatedDesign": "packages/design/generated/macos",
       "playback": "packages/macos-playback",
-      "bridge": "packages/macos-bridge"
+      "bridge": "packages/macos-bridge",
+      "library": "packages/macos-library"
     },
     "windows": {
       "application": "apps/windows",
@@ -15,7 +16,8 @@
       "design": "packages/design/windows",
       "generatedDesign": "packages/design/generated/windows",
       "playback": "packages/windows-playback",
-      "bridge": "packages/windows-bridge"
+      "bridge": "packages/windows-bridge",
+      "library": "packages/windows-library"
     },
     "linux": {
       "application": "apps/linux",
@@ -23,7 +25,8 @@
       "design": "packages/design/linux",
       "generatedDesign": "packages/design/generated/linux",
       "playback": "packages/linux-playback",
-      "bridge": "packages/linux-bridge"
+      "bridge": "packages/linux-bridge",
+      "library": "packages/linux-library"
     }
   },
   "featureSlices": {
@@ -42,6 +45,10 @@
     "native-video-and-local-controls": {
       "complete": false,
       "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-boundary-tested" }
+    },
+    "local-library-discovery": {
+      "complete": false,
+      "validation": { "macos": "native-boundary-tested", "windows": "native-boundary-tested", "linux": "native-boundary-tested" }
     },
     "application-syncplay-transport": {
       "complete": false,

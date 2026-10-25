@@ -197,6 +197,7 @@ def probe(payload, profile, home, compiler):
                          if path.suffix in {".java", ".kt"})
         sources += sorted((ROOT / "packages/design/tests/linux").glob("*.kt"))
         sources += sorted((ROOT / "packages/linux-playback/tests").rglob("*.kt"))
+        sources += sorted((ROOT / "packages/linux-library/tests").rglob("*.kt"))
         sources.append(ROOT / "tools/jvm/tests/DisplayRefreshChecks.kt")
         stdlib.javac(["--release", "21", "-g:none", "-proc:none", "-encoding", "UTF-8", "-cp",
                       os.pathsep.join(map(str, classpath)), "-d", str(classes),
@@ -218,6 +219,11 @@ def probe(payload, profile, home, compiler):
                               "syncwatch.playback.KotlinPortChecksKt"], work, home)
         if "SYNCWATCH_KOTLIN_PLAYBACK_OK" not in output:
             raise ValueError("Kotlin playback value/cancellation consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.library.LibraryChecksKt", str(ROOT / "contracts/fixtures/library-catalog.json")], work, home)
+        if "SYNCWATCH_LIBRARY_OK" not in output:
+            raise ValueError("Local filesystem library consumer failed")
         print(output.strip())
 
 
