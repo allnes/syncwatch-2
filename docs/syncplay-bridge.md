@@ -16,6 +16,12 @@ A correction submission returns an actual `PlaybackObservation`. Only that obser
 
 The current helper accepts public trusted TLS endpoints. `secretHandle` fails as unavailable until the application credential broker is attached. Standard output contains protocol frames only. Upstream console text is suppressed; native adapters discard diagnostics without accumulating them.
 
+`HelperSession` on Swift, C# and Kotlin owns one helper transport and borrows one already loaded native player. Its private wire scope is independent of the native media scope. Construction requires admitted media metadata, a validated TLS endpoint and the trusted engine revision. Media agreement and room admission belong to the application coordinator. Starting a session pauses the player, performs the correlated handshake and publishes actual native observations. `sync.identity` reports the authenticated server-accepted username before the connected event; callers must use that identity when binding room metadata. The connection acknowledgement alone never establishes identity or readiness.
+
+Each session has one bounded reader and one serialized writer/operation owner. Explicit UI intents enter synchronously on the owning UI context. An incoming correction may queue while a user observation write is in flight; publication advances only after that write succeeds. Superseded corrections receive cancellation only after the newer actual observation is sent. Completed corrections and replies have bounded replay caches, and contradictory reuse fails closed. The helper likewise accepts identical completed native results without applying them again.
+
+Missing replies, malformed input, queue exhaustion and helper EOF stop the session. Cleanup pauses the borrowed player through an independent cancellation context and closes the owned transport. Await session close before replacing it or releasing the native player. Session close is repeatable and does not close the borrowed player. These lifecycle and ordering checks run in all three native language lanes; they do not establish room/media agreement or physical cross-platform acceptance.
+
 Build and exercise a previously source-built engine payload:
 
 ```sh

@@ -1,5 +1,7 @@
 """One reactor owner serializes validated commands and authoritative observations."""
 
+from collections import OrderedDict
+import copy
 import json
 import time
 
@@ -18,6 +20,7 @@ class Controller:
         self.closing = False
         self.replay = Replay(pending_limit=capacity)
         self.pending = {}
+        self.completed_results = OrderedDict()
         self.sequence = 0
         self.user_sequence = 0
         self.event_sequence = 0
@@ -68,14 +71,21 @@ class Controller:
         self.registry.accept("helper-ipc", value, self.context)
         if "replyTo" in value:
             pending = self.pending.get(value["replyTo"])
+            previous = self.completed_results.get(value["replyTo"])
+            if previous is not None:
+                if previous != value:
+                    raise ContractError("conflict")
+                return
             if pending is None or value["type"] not in {"player.result", "bridge.error"}:
                 raise ContractError("invalidState")
             del self.pending[value["replyTo"]]
             if value["type"] == "bridge.error":
                 if value["payload"]["code"] == "cancelled" and pending[0]["afterUserAction"] < self.user_sequence:
+                    self.remember_result(value)
                     return
                 raise ContractError("unavailable")
             self.engine.player_result(value["payload"])
+            self.remember_result(value)
             return
         kind = value["type"]
         if kind == "player.state":
@@ -122,6 +132,11 @@ class Controller:
                 raise ContractError("invalidState")
         except ContractError as error:
             self.reply(value, "bridge.error", {"code": error.code, "message": error.code, "retryable": False})
+
+    def remember_result(self, value):
+        self.completed_results[value["replyTo"]] = copy.deepcopy(value)
+        while len(self.completed_results) > 128:
+            self.completed_results.popitem(last=False)
 
     def finished(self, command=None):
         if self.stopped:

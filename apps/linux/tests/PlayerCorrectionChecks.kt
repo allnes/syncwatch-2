@@ -10,6 +10,7 @@ import syncwatch.ipc.Json
 
 /** The shared wire corpus also runs in the production JVM consumer lane. */
 fun main(arguments: Array<String>) {
+    helperSessionChecks()
     helperCommandChecks(Path.of(arguments.single()).parent.resolve("helper-commands.json"))
     helperReplyChecks(Path.of(arguments.single()).parent.resolve("helper-replies.json"))
     val corpus = Json.`object`(Json.parse(Files.readString(Path.of(arguments.single()))))

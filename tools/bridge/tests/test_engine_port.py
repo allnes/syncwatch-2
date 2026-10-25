@@ -20,6 +20,7 @@ class EnginePortTests(unittest.TestCase):
                       "paused": False, "rate": 1, "seekable": True}
         user = SimpleNamespace(username="player-a", room="room", isReady=lambda: False)
         self.engine.session = SimpleNamespace(_protocol=None, has_initial_state=True,
+            getUsername=lambda: user.username,
             userlist=SimpleNamespace(currentUser=user, _users={}),
             changeReadyState=self.requests.append)
 
@@ -59,6 +60,19 @@ class EnginePortTests(unittest.TestCase):
         self.engine.port.controller.pending["cmd-1"] = ({"paused": False}, 1)
         self.assertTrue(self.engine.port.state_pending())
         self.assertIsNone(self.engine.port.state)
+
+    def test_identity_waits_for_authenticated_initial_state_and_uses_accepted_name(self):
+        self.engine.session.has_initial_state = False
+        self.engine.tick()
+        self.assertFalse(any(kind == "sync.identity" for kind, _ in self.events))
+        self.engine.session.userlist.currentUser.username = "player-a_2"
+        self.engine.session.has_initial_state = True
+        self.engine.tick()
+        identity = ("sync.identity", {"username": "player-a_2"})
+        self.assertEqual(self.events.count(identity), 1)
+        self.assertLess(self.events.index(identity), self.events.index(("sync.connection", {"state": "connected"})))
+        self.engine.tick()
+        self.assertEqual(self.events.count(identity), 1)
 
     def test_released_native_port_cannot_publish_again(self):
         self.engine.port.release()

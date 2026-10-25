@@ -106,7 +106,26 @@ class ProtocolTests(unittest.TestCase):
         reply["replyTo"] = "cmd-1"
         self.receive(reply)
         self.assertEqual(self.controller.engine.actions[0][0], "result")
-        self.rejection("invalidState", reply)
+        self.receive(reply)
+        self.assertEqual(len(self.controller.engine.actions), 1)
+        changed = copy.deepcopy(reply)
+        changed["payload"]["positionMs"] = 1
+        self.rejection("conflict", changed)
+
+    def test_completed_reverse_results_are_bounded_and_old_replay_cannot_execute(self):
+        self.receive(self.command())
+        first = None
+        for number in range(1, 131):
+            self.controller.request("player.setPaused", {"paused": True})
+            reply = self.command("player.result", payload={"status": "applied", "positionMs": 0, "paused": True})
+            del reply["id"]
+            reply["replyTo"] = "cmd-" + str(number)
+            if first is None:
+                first = copy.deepcopy(reply)
+            self.receive(reply)
+        self.assertEqual(len(self.controller.completed_results), 128)
+        self.rejection("invalidState", first)
+        self.assertEqual(len(self.controller.engine.actions), 130)
 
     def test_stale_correction_cancellation_is_correlated_with_newer_user_action(self):
         self.receive(self.command())

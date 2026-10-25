@@ -19,6 +19,9 @@ public sealed class PlayerCorrection
     public double Rate { get; }
     public string? MediaHandle { get; }
     private readonly PlaybackScope wireScope;
+    internal bool SameRequest(PlayerCorrection other) => Id == other.Id && AfterUserAction == other.AfterUserAction
+        && Kind == other.Kind && Paused == other.Paused && PositionMs == other.PositionMs && Rate == other.Rate
+        && MediaHandle == other.MediaHandle && wireScope == other.wireScope;
     private PlayerCorrection(string id, ulong after, CorrectionKind kind, PlaybackScope scope,
         bool paused = false, long position = 0, double rate = 1, string? handle = null)
     { Id = id; AfterUserAction = after; Kind = kind; wireScope = scope; Paused = paused; PositionMs = position; Rate = rate; MediaHandle = handle; }

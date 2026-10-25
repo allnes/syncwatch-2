@@ -7,6 +7,7 @@ internal static class PlayerCorrectionChecks
 {
     internal static void Run(string path)
     {
+        HelperSessionChecks.Run();
         HelperCommandsChecks.Run(Path.Combine(Path.GetDirectoryName(path)!, "helper-commands.json"));
         HelperReplyChecks.Run(Path.Combine(Path.GetDirectoryName(path)!, "helper-replies.json"));
         using var corpus = JsonDocument.Parse(File.ReadAllBytes(path));

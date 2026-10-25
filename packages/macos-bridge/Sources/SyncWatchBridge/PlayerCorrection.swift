@@ -6,7 +6,7 @@ public enum PlayerCorrectionFailure: Error { case malformed, unavailable, unauth
 
 /// One validated helper request. The wire scope and the trusted native scope are
 /// deliberately separate: restarting a helper must not replace the native owner.
-public struct PlayerCorrection: Sendable {
+public struct PlayerCorrection: Sendable, Equatable {
     public enum Operation: Sendable, Equatable {
         case pause(Bool)
         case seek(Int64)

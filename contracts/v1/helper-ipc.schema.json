@@ -33,7 +33,8 @@
         "player.result",
         "bridge.result",
         "bridge.error",
-        "bridge.stopped"
+        "bridge.stopped",
+        "sync.identity"
       ]
     },
     "clientRunId": {
@@ -667,6 +668,36 @@
         },
         "id": {
           "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/commandId"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "not": {
+        "required": [
+          "replyTo"
+        ]
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "sync.identity"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+            }
+          },
+          "required": [
+            "username"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

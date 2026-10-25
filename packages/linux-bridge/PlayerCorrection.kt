@@ -15,6 +15,7 @@ import syncwatch.ipc.Json
 class PlayerCorrection private constructor(
     val id: String, val afterUserAction: Long, val operation: Operation, private val wireScope: PlaybackScope,
 ) {
+    internal fun sameRequest(other: PlayerCorrection) = id == other.id && afterUserAction == other.afterUserAction && operation == other.operation && wireScope == other.wireScope
     sealed interface Operation {
         data class Pause(val paused: Boolean) : Operation
         data class Seek(val positionMs: Long) : Operation
