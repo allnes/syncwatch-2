@@ -1,0 +1,82 @@
+"""Reject substituted UI bytecode, changed generation and incomplete legal inputs."""
+
+import copy
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import compose_ui
+from build_support import digest, jar_bytes
+
+
+class ComposeUiArtifactTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.payload = Path(temporary.name)
+        self.files = {"skiko": {compose_ui.GENERATOR: b'File(out).writeText("""\nval version = "${skikoProperties.deployVersion}"\nval skia = "$skiaTag"\n""".trimIndent()',
+                                "LICENSE": b"Original fixture grant"}}
+        self.profile = {"sources": {"skiko": {}}, "modules": [{"binary": "ui.jar"}],
+                        "version": {"skiko": "fixture", "skiaTag": "fixture-skia"},
+                        "expectedJars": {compose_ui.jdk.current_target(): {"ui.jar": digest(b"Fixture bytecode")}}}
+        self.notices = {"notices/skiko/LICENSE": b"Original fixture grant"}
+        (self.payload / "ui.jar").write_bytes(b"Fixture bytecode")
+        for name, data in self.notices.items():
+            path = self.payload / name
+            path.parent.mkdir(parents=True)
+            path.write_bytes(data)
+        self.write_sources()
+
+    def write_sources(self, files=None, profile=None):
+        (self.payload / "compose-ui-sources.jar").write_bytes(jar_bytes(
+            compose_ui.support(files or self.files, profile or self.profile)))
+
+    def verify(self):
+        compose_ui.verify(self.payload, self.files, self.profile, self.notices)
+
+    def test_registry_binary_extra_runtime_and_changed_notice_fail(self):
+        self.verify()
+        binary = self.payload / "ui.jar"
+        binary.write_bytes(b"Substituted binary")
+        with self.assertRaisesRegex(ValueError, "compiler output"):
+            self.verify()
+        binary.write_bytes(b"Fixture bytecode")
+        extra = self.payload / "registry-runtime.jar"
+        extra.write_bytes(b"Unreviewed registry library")
+        with self.assertRaisesRegex(ValueError, "unexpected files"):
+            self.verify()
+        extra.unlink()
+        notice = self.payload / "notices/skiko/LICENSE"
+        notice.write_bytes(b"Replacement grant")
+        with self.assertRaisesRegex(ValueError, "notice changed"):
+            self.verify()
+        notice.unlink()
+        with self.assertRaisesRegex(ValueError, "missing or unexpected"):
+            self.verify()
+
+    def test_changed_original_generator_or_version_profile_fail(self):
+        for change in ("source", "version"):
+            files, profile = copy.deepcopy(self.files), copy.deepcopy(self.profile)
+            if change == "source":
+                files["skiko"][compose_ui.GENERATOR] += b"\n// changed generator"
+            else:
+                profile["version"]["skiko"] = "unreviewed"
+            self.write_sources(files, profile)
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, "generation or profile"):
+                self.verify()
+        broken = copy.deepcopy(self.files)
+        broken["skiko"][compose_ui.GENERATOR] = b'File(out).writeText("""$unknown""".trimIndent()'
+        with self.assertRaisesRegex(ValueError, "Unresolved"):
+            compose_ui.generated_version(broken, self.profile)
+
+    def test_missing_target_pin_fails_even_with_consistent_source_archive(self):
+        self.profile["expectedJars"].clear()
+        self.write_sources()
+        with self.assertRaisesRegex(ValueError, "exact target pins"):
+            self.verify()
+
+
+if __name__ == "__main__":
+    unittest.main()

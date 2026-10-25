@@ -4,6 +4,8 @@
 
 This inspection covers published JVM runtime metadata. It does not establish complete source, build-tool, native-library, embedded-code, font or packaged Java runtime inventories, binary/source correspondence, API compatibility or license clearance. In particular, a Skiko runtime metadata entry does not enumerate its compiled Skia dependencies. The Linux Compose component remains unavailable in the [component registry](../tools/dependencies/components.json) until its full source/build/license graph is resolved under the [dependency policy](architecture/dependencies.md).
 
+The [desktop UI JVM profile](compose-ui-jvm.md) owns the sixteen UI/Skiko JVM modules and compiles the actual application/design consumer. Its bytecode qualification is independent of the native renderer and application gate.
+
 ## Input inventory
 
 Keep fetched metadata, provenance and reports in a separate audit directory. Prefer upstream Gradle `.module` metadata when published; a POM can omit multiplatform variants and rich version information. Verify the repository URL and exact coordinate for every snapshot before recording its digest. Library binaries and caches do not replace pinned source submodules.

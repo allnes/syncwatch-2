@@ -302,6 +302,28 @@ class DependencyBuildTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     build.registry(self.root)
 
+    def test_source_exports_remain_bounded_for_large_explicit_ui_inventories(self):
+        self.set_exports(["LICENSE", *[f"source{index:04d}.kt" for index in range(4096)]])
+        with self.assertRaisesRegex(ValueError, "bounded list"):
+            build.registry(self.root)
+
+    def test_large_literal_inventory_uses_bounded_git_commands_without_omissions(self):
+        source = self.root / "3rdparty/example"
+        paths = [f"source{index:04d}-" + "x" * 160 + "-映画.kt" for index in range(230)]
+        for name in paths:
+            (source / name).write_text(name + "\n", encoding="utf-8")
+        self.update_source_pin()
+        selected = sorted(["LICENSE", *paths])
+        from unittest.mock import patch
+        with patch.object(build, "git", wraps=build.git) as calls:
+            entries = build.exported_entries(source, selected)
+        self.assertEqual(set(entries), set(selected))
+        self.assertGreater(calls.call_count, 1)
+        for call in calls.call_args_list:
+            arguments = call.args[1:]
+            units = sum(len(str(value).encode("utf-16-le")) // 2 + 3 for value in arguments)
+            self.assertLess(units, 9000)
+
     def test_literal_file_and_directory_exports_do_not_interpret_git_pathspec_magic(self):
         source = self.root / "3rdparty/example"
         for name in ("!literal", "selected", "selected-other", "unselected"):
