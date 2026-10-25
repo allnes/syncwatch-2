@@ -136,6 +136,24 @@ class NativeProfileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unexpected X11 runtime resource reference"):
                 platform_data.configured(prefix)
 
+    def test_resource_mismatch_reports_missing_changed_and_unexpected_files_before_packaging(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            prefix = Path(temporary) / "prefix"
+            common = prefix / "share/X11/locale/en_US.UTF-8/Compose"
+            common.parent.mkdir(parents=True)
+            common.write_bytes(b"# Original grant\n")
+            (prefix / "share/X11/XErrorDB").write_bytes(b"unexpected data")
+            name = common.relative_to(prefix).as_posix()
+            profile = {"platformData": {name: "0" * 64, "share/X11/missing": "0" * 64}}
+            payload = Path(temporary) / "payload"
+            with self.assertRaisesRegex(ValueError, "reviewed source profile") as error:
+                platform_data.package(prefix, payload, profile)
+            differences = json.loads(str(error.exception).split(": ", 1)[1])
+            self.assertEqual(differences["missing"], ["share/X11/missing"])
+            self.assertEqual(differences["unexpected"], ["share/X11/XErrorDB"])
+            self.assertEqual(set(differences["changed"]), {name})
+            self.assertFalse(payload.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

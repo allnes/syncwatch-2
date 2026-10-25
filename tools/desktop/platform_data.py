@@ -1,6 +1,7 @@
 """Retain source-built X11 data and locate owned client resources after relocation."""
 
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -38,8 +39,15 @@ def configured(prefix):
 
 def package(prefix, payload, profile):
     files = configured(prefix)
-    if {name: digest(data) for name, data in files.items()} != profile["platformData"]:
-        raise ValueError("Generated X11 runtime data differs from its reviewed source profile")
+    actual = {name: digest(data) for name, data in files.items()}
+    expected = profile["platformData"]
+    if actual != expected:
+        differences = {"missing": sorted(expected.keys() - actual.keys()),
+                       "unexpected": sorted(actual.keys() - expected.keys()),
+                       "changed": {name: {"expected": expected[name], "actual": actual[name], "bytes": len(files[name])}
+                                   for name in sorted(actual.keys() & expected.keys()) if actual[name] != expected[name]}}
+        raise ValueError("Generated X11 runtime data differs from its reviewed source profile: "
+                         + json.dumps(differences, sort_keys=True))
     for name, data in files.items():
         target = payload / name
         target.parent.mkdir(parents=True, exist_ok=True)

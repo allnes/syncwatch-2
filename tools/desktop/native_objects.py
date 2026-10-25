@@ -78,6 +78,9 @@ def probe(context, payload, trees):
 
 
 def build(context, payload, originals, profile, trees, generated):
+    # Resolve client/resource ownership before the expensive renderer compile.
+    clients = platform_clients.build(context.work / "platform-clients", trees, profile["sourceDateEpoch"], OFFLINE)
+    platform_data.package(clients.prefix, payload, profile)
     gn_work = context.work / "gn-build"
     gn_work.mkdir()
     write(gn_work / "last_commit_position.h", generated["gn/last_commit_position.h"])
@@ -146,8 +149,6 @@ def build(context, payload, originals, profile, trees, generated):
     for name, data in legal_files(originals, profile).items():
         write(payload / name, data)
     probe(context, payload, trees)
-    clients = platform_clients.build(context.work / "platform-clients", trees, profile["sourceDateEpoch"], OFFLINE)
-    platform_data.package(clients.prefix, payload, profile)
     for name, data in native_fonts.contents(originals["fontconfig"], profile).items():
         write(payload / name, data)
     runtime = native_link.build(context, payload, clients)
