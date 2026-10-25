@@ -387,7 +387,15 @@ def initialize_sources(root, sources, directory):
             nested.read_string(git(source, "show", "HEAD:.gitmodules").decode("utf-8"))
         nested_paths = {nested[section]["path"] for section in nested.sections()}
         # Consumed nested dependencies must be flattened into separately pinned 3rdparty entries.
-        nested_links = {name: revision for name, (mode, revision) in index(source).items() if mode == "160000"}
+        # Inspect the immutable tree without expanding a protected sparse index.
+        # ls-files expands excluded upstream names that are invalid on Windows.
+        nested_links = {}
+        for entry in git(source, "ls-tree", "-rz", "--full-tree", "HEAD").split(b"\0"):
+            if entry:
+                metadata, name = entry.decode("utf-8").split("\t", 1)
+                mode, kind, revision = metadata.split()
+                if mode == "160000" and kind == "commit":
+                    nested_links[name] = revision
         for name in nested_paths:
             require(name in specification["unusedSubmodules"] or nested_links.get(name) in {sources[item]["revision"] for item in specification["requires"]}, "Nested source is neither pinned separately nor explicitly unused")
         require(set(specification["unusedSubmodules"]).issubset(nested_paths), "Unused source declaration does not match upstream")

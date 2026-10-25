@@ -29,7 +29,7 @@ class SdkToolEnvironmentTests(unittest.TestCase):
                 command = context.sdk_command("msgfmt", "--version")
                 compiler = context.sdk_command("gcc")
             self.assertEqual(command[0], "/usr/bin/env")
-            self.assertIn(str(library.parent), command[1])
+            self.assertIn(str(library.parent.resolve()), command[1])
             self.assertEqual(context.env["LD_LIBRARY_PATH"], inherited)
             self.assertNotIn(str(library.parent), inherited)
             self.assertEqual(compiler, [sys.executable])
