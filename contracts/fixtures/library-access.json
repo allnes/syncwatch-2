@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "name": "empty",
+      "text": "{}",
+      "status": "invalid"
+    },
+    {
+      "name": "array",
+      "text": "[]",
+      "status": "invalid"
+    },
+    {
+      "name": "bad-json",
+      "text": "{",
+      "status": "invalid"
+    },
+    {
+      "name": "future",
+      "text": "{\"version\":2,\"future\":{\"a\":1}}",
+      "status": "unsupportedVersion"
+    },
+    {
+      "name": "boolean-version",
+      "text": "{\"version\":true}",
+      "status": "invalid"
+    },
+    {
+      "name": "negative-version",
+      "text": "{\"version\":-1}",
+      "status": "invalid"
+    },
+    {
+      "name": "large-version",
+      "text": "{\"version\":2147483648}",
+      "status": "invalid"
+    },
+    {
+      "name": "duplicate-version",
+      "text": "{\"version\":1,\"version\":2}",
+      "status": "invalid"
+    },
+    {
+      "name": "escaped-duplicate",
+      "text": "{\"vers\\u0069on\":1,\"version\":2}",
+      "status": "invalid"
+    }
+  ]
+}

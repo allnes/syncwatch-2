@@ -40,6 +40,7 @@ fun main(arguments: Array<String>) = runBlocking {
         }.join()
         check(runCatching { scanner.scan(root.resolve("absent"), id, true) }.isFailure)
         check(runCatching { scanner.scan(root, "invalid", true) }.isFailure)
+        libraryAccessChecks(Path.of(arguments.single()), root)
         println("SYNCWATCH_LIBRARY_OK entries=${result.size} symlinkChecks=true")
     } finally {
         Files.walk(root).use { paths -> paths.sorted(Comparator.reverseOrder()).forEach { Files.delete(it) } }

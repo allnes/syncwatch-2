@@ -40,6 +40,7 @@ try
     catch (IOException error) when (error is FileNotFoundException or DirectoryNotFoundException) { }
     try { await scanner.ScanAsync(root, "invalid", true); throw new Exception("invalid-id-accepted"); }
     catch (ArgumentException) { }
+    LibraryAccessTests.Run(args.Single(), root);
     Console.WriteLine($"SYNCWATCH_LIBRARY_OK entries={result.Count} symlinkChecks={linksCreated}");
 }
 finally { Directory.Delete(root, true); }
