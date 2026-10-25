@@ -1,15 +1,7 @@
 import Darwin
 import Foundation
 import SyncWatchBridge
-
-func command(_ id: Int, _ type: String, _ payload: [String: Any]) throws -> Data {
-    var data = try JSONSerialization.data(withJSONObject: [
-        "v": 1, "id": "cmd-\(id)", "type": type, "clientRunId": "native-probe",
-        "mediaGeneration": 2, "payload": payload,
-    ])
-    data.append(10)
-    return data
-}
+import SyncWatchDomain
 
 func read(_ helper: HelperProcess) async throws -> String {
     let data = try await helper.read()
@@ -23,8 +15,9 @@ struct Probe {
         precondition(CommandLine.arguments.count == 3)
         let executable = URL(fileURLWithPath: CommandLine.arguments[1])
         let runtime = URL(fileURLWithPath: CommandLine.arguments[2])
+        let commands = HelperCommands(wireScope: try PlaybackScope(clientRunID: "native-probe", mediaGeneration: 2))
         let helper = try await HelperProcess.launch(executable: executable, runtime: runtime)
-        let hello = try command(1, "bridge.hello", ["supportedVersions": [1]])
+        let hello = try commands.hello(1)
         try await helper.send(hello)
         let ready = try await read(helper)
         precondition(ready == "bridge.ready")
@@ -32,14 +25,10 @@ struct Probe {
         let replay = try await read(helper)
         precondition(replay == "bridge.ready")
         try await helper.send(
-            command(
-                2, "player.loaded",
-                [
-                    "mediaHandle": "media-1", "name": "Movie.mkv", "durationMs": 60_000, "fileSizeBytes": 1234,
-                ]))
+            commands.loaded(2, handle: "media-1", name: "Movie.mkv", durationMs: 60_000, fileSizeBytes: 1234))
         let loaded = try await read(helper)
         precondition(loaded == "bridge.result")
-        try await helper.send(command(3, "bridge.shutdown", [:]))
+        try await helper.send(commands.shutdown(3))
         let stopped = try await read(helper)
         precondition(stopped == "bridge.stopped")
         await helper.close()

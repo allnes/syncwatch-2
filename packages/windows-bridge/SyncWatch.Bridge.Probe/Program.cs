@@ -1,20 +1,13 @@
 using System.Diagnostics;
 using System.Text.Json;
 using SyncWatch.Bridge;
+using SyncWatch.Domain;
 
 if (args.Length == 2 && args[0] == "--player-correction-fixtures") { PlayerCorrectionChecks.Run(args[1]); return; }
 PlayerCorrectionChecks.Run(Path.Combine("contracts", "fixtures", "helper-player.json"));
 if (args.Length != 2) throw new ArgumentException("Pass the owned helper and runtime paths");
 
-byte[] Command(int id, string type, object payload) => JsonSerializer.SerializeToUtf8Bytes(new
-{
-    v = 1,
-    id = "cmd-" + id,
-    type,
-    clientRunId = "native-probe",
-    mediaGeneration = 2,
-    payload
-}).Concat(new byte[] { 10 }).ToArray();
+var commands = new HelperCommands(new PlaybackScope("native-probe", 2));
 
 async Task<string> Read(HelperProcess helper, int seconds = 5)
 {
@@ -25,14 +18,14 @@ async Task<string> Read(HelperProcess helper, int seconds = 5)
 
 await using (HelperProcess helper = HelperProcess.Start(args[0], args[1]))
 {
-    byte[] hello = Command(1, "bridge.hello", new { supportedVersions = new[] { 1 } });
+    byte[] hello = commands.Hello(1);
     await helper.SendAsync(hello);
     if (await Read(helper, 15) != "bridge.ready") throw new IOException("Missing handshake");
     await helper.SendAsync(hello);
     if (await Read(helper) != "bridge.ready") throw new IOException("Missing duplicate response");
-    await helper.SendAsync(Command(2, "player.loaded", new { mediaHandle = "media-1", name = "Movie.mkv", durationMs = 60000, fileSizeBytes = 1234 }));
+    await helper.SendAsync(commands.Loaded(2, "media-1", "Movie.mkv", 60000, 1234));
     if (await Read(helper) != "bridge.result") throw new IOException("Missing media acknowledgement");
-    await helper.SendAsync(Command(3, "bridge.shutdown", new { }));
+    await helper.SendAsync(commands.Shutdown(3));
     if (await Read(helper) != "bridge.stopped") throw new IOException("Missing shutdown acknowledgement");
 }
 

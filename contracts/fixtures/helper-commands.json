@@ -1,0 +1,287 @@
+{
+  "formatVersion": 1,
+  "cases": [
+    {
+      "name": "hello",
+      "op": "hello",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "bridge.hello",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "supportedVersions": [
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "shutdown",
+      "op": "shutdown",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "bridge.shutdown",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {}
+      }
+    },
+    {
+      "name": "disconnect",
+      "op": "disconnect",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "sync.disconnect",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {}
+      }
+    },
+    {
+      "name": "ready",
+      "op": "ready",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "sync.setReady",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "ready": true
+        }
+      }
+    },
+    {
+      "name": "loaded",
+      "op": "loaded",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "player.loaded",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "mediaHandle": "media-1",
+          "name": "Кино 🎬.mkv",
+          "durationMs": 4000,
+          "fileSizeBytes": 4096
+        }
+      }
+    },
+    {
+      "name": "connect",
+      "op": "connect",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "sync.connect",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "host": "127.0.0.1",
+          "port": 8999,
+          "room": "room",
+          "username": "Viewer",
+          "tls": true
+        }
+      }
+    },
+    {
+      "name": "observation",
+      "op": "observation",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "player.state",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "status": "ready",
+          "positionMs": 1300,
+          "durationMs": 4000,
+          "paused": true,
+          "rate": 1,
+          "seekable": true
+        },
+        "origin": "observation"
+      }
+    },
+    {
+      "name": "user",
+      "op": "user",
+      "args": {},
+      "expected": {
+        "v": 1,
+        "id": "cmd-9",
+        "type": "player.state",
+        "clientRunId": "helper-run",
+        "mediaGeneration": 7,
+        "payload": {
+          "status": "ready",
+          "positionMs": 1300,
+          "durationMs": 4000,
+          "paused": true,
+          "rate": 1,
+          "seekable": true
+        },
+        "origin": "user",
+        "actionSequence": 3
+      }
+    },
+    {
+      "name": "zero-id",
+      "op": "hello",
+      "args": {
+        "id": 0
+      },
+      "expected": null
+    },
+    {
+      "name": "oversize-id",
+      "op": "hello",
+      "args": {
+        "id": 9007199254740992
+      },
+      "expected": null
+    },
+    {
+      "name": "small-port",
+      "op": "connect",
+      "args": {
+        "port": 0
+      },
+      "expected": null
+    },
+    {
+      "name": "large-port",
+      "op": "connect",
+      "args": {
+        "port": 65536
+      },
+      "expected": null
+    },
+    {
+      "name": "space-host",
+      "op": "connect",
+      "args": {
+        "host": "bad host"
+      },
+      "expected": null
+    },
+    {
+      "name": "newline-host",
+      "op": "connect",
+      "args": {
+        "host": "localhost\n"
+      },
+      "expected": null
+    },
+    {
+      "name": "empty-room",
+      "op": "connect",
+      "args": {
+        "room": ""
+      },
+      "expected": null
+    },
+    {
+      "name": "control-room",
+      "op": "connect",
+      "args": {
+        "room": "line\nbreak"
+      },
+      "expected": null
+    },
+    {
+      "name": "long-username",
+      "op": "connect",
+      "args": {
+        "username": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "expected": null
+    },
+    {
+      "name": "path-media-handle",
+      "op": "loaded",
+      "args": {
+        "handle": "/tmp/file"
+      },
+      "expected": null
+    },
+    {
+      "name": "path-filename",
+      "op": "loaded",
+      "args": {
+        "name": "../file.mkv"
+      },
+      "expected": null
+    },
+    {
+      "name": "windows-path-filename",
+      "op": "loaded",
+      "args": {
+        "name": "C:\\file.mkv"
+      },
+      "expected": null
+    },
+    {
+      "name": "large-duration",
+      "op": "loaded",
+      "args": {
+        "durationMs": 604800001
+      },
+      "expected": null
+    },
+    {
+      "name": "large-filesize",
+      "op": "loaded",
+      "args": {
+        "fileSizeBytes": 9007199254740992
+      },
+      "expected": null
+    },
+    {
+      "name": "zero-user-sequence",
+      "op": "user",
+      "args": {
+        "sequence": 0
+      },
+      "expected": null
+    },
+    {
+      "name": "large-user-sequence",
+      "op": "user",
+      "args": {
+        "sequence": 9007199254740992
+      },
+      "expected": null
+    },
+    {
+      "name": "foreign-native-observation",
+      "op": "observation",
+      "args": {
+        "foreignNative": true
+      },
+      "expected": null
+    },
+    {
+      "name": "nonready-user-observation",
+      "op": "user",
+      "args": {
+        "loading": true
+      },
+      "expected": null
+    }
+  ]
+}

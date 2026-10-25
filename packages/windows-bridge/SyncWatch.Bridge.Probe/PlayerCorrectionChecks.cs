@@ -7,6 +7,7 @@ internal static class PlayerCorrectionChecks
 {
     internal static void Run(string path)
     {
+        HelperCommandsChecks.Run(Path.Combine(Path.GetDirectoryName(path)!, "helper-commands.json"));
         using var corpus = JsonDocument.Parse(File.ReadAllBytes(path));
         var cases = corpus.RootElement.GetProperty("cases");
         if (cases.GetArrayLength() != 49) throw new InvalidDataException("Incomplete helper/player corpus");
