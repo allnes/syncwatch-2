@@ -64,8 +64,13 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             var rows = files.OrderBy(x => x.Title.ToLowerInvariant(), utf8).ThenBy(x => x.RelativePath, utf8)
                 .Select(x => new LibraryEntry(x.Id, x.Title, x.File)).ToArray();
             string? selected = new[] { previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
-            grant = next; Presentation = new() { State = rows.Length == 0 ? LibraryVisualState.Empty : LibraryVisualState.Selected,
-                Entries = rows, SelectedId = selected, EnabledActions = new HashSet<string> { "chooseFolder", "rescan", "search", "selectMovie", "openSettings" } };
+            grant = next; Presentation = new()
+            {
+                State = rows.Length == 0 ? LibraryVisualState.Empty : LibraryVisualState.Selected,
+                Entries = rows,
+                SelectedId = selected,
+                EnabledActions = new HashSet<string> { "chooseFolder", "rescan", "search", "selectMovie", "openSettings" }
+            };
             stable = Presentation; Changed?.Invoke();
             try { await Storage(() => { store.Write(next.Record); return true; }, token); }
             catch (OperationCanceledException) { }

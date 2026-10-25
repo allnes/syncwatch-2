@@ -46,8 +46,11 @@ public partial class MainWindow : Window
                 if (controller.ErrorKey is string key)
                 {
                     controller.ClearError();
-                    Dispatcher.InvokeAsync(() => { if (IsLoaded) MessageBox.Show(this, Design.SyncWatchCopy.Text(key, preferences.State.Preferences.Language),
-                        "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Warning); });
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        if (IsLoaded) MessageBox.Show(this, Design.SyncWatchCopy.Text(key, preferences.State.Preferences.Language),
+                        "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    });
                 }
             }
             controller.Changed += Refresh;
