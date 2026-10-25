@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -97,6 +98,13 @@ class NativeProfileTests(unittest.TestCase):
         profile["runtimeLibraries"].remove("libdbus-1.so")
         with self.assertRaisesRegex(ValueError, "exact client"):
             native_sources.validate(profile)
+
+    def test_shared_font_build_sources_retain_the_same_original_blob_pins(self):
+        media = json.loads((native_sources.ROOT / "tools/vlc/profile.json").read_text())["sources"]
+        for name in ("meson", "zlib", "freetype", "expat", "fontconfig"):
+            for field in ("revision", "files", "executables"):
+                with self.subTest(source=name, field=field):
+                    self.assertEqual(self.profile["sources"][name][field], media[name][field])
 
 
 if __name__ == "__main__":

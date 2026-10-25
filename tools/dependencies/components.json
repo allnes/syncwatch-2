@@ -22213,6 +22213,7 @@
             "src/makealias",
             "src/makealias.py",
             "src/meson.build",
+            "subprojects/.gitignore",
             "subprojects/expat.wrap",
             "subprojects/freetype2.wrap",
             "subprojects/gperf.wrap",
