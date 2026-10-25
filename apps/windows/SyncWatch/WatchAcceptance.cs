@@ -57,6 +57,28 @@ internal static class WatchAcceptance
                     await watch.CloseAsync(); await watch.CloseAsync(); Require(watch.Player is null && !watch.PlayerPresented);
                     result["closeDuringPreparation"] = true;
                 }
+                else if (mode == "cancel-correction")
+                {
+                    await Until(() => Task.FromResult(watch.Player is not null && watch.Phase == WatchPhase.Active));
+                    var current = watch.Player!;
+                    await Until(async () => { var value = await current.Player.ObserveAsync(current.Scope); return value.Status == PlaybackStatus.Ready && value.Seekable && value.Paused; });
+                    await current.Player.SeekAsync(1300, current.Scope); await Until(() => Task.FromResult(Math.Abs(watch.PositionMs - 1300) < 200));
+                    using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
+                    foreach (string command in new[] { "seek", "rate", "pause" })
+                    {
+                        bool cancelled = false;
+                        try
+                        {
+                            if (command == "seek") await current.Player.SeekAsync(0, current.Scope, cancellation.Token);
+                            else if (command == "rate") await current.Player.SetRateAsync(1.25, current.Scope, cancellation.Token);
+                            else await current.Player.SetPausedAsync(false, current.Scope, cancellation.Token);
+                        }
+                        catch (OperationCanceledException) { cancelled = true; }
+                        var value = await current.Player.ObserveAsync(current.Scope);
+                        Require(cancelled && value.Paused && value.Rate == 1 && Math.Abs(value.PositionMs - 1300) < 200);
+                    }
+                    result["cancelledCorrectionsPreserveNativeState"] = true;
+                }
                 else throw new ArgumentException("watch check mode");
                 await watch.CloseAsync(); result["success"] = true; result.Remove("stage");
                 Finish(window, catalog, report, result); return;

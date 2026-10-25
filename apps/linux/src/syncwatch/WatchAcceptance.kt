@@ -5,6 +5,11 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.CancellationException
 import syncwatch.domain.PlaybackStatus
 import syncwatch.domain.WatchPhase
 import syncwatch.ipc.Json
@@ -50,6 +55,29 @@ internal object WatchAcceptance {
                     until { watch.player != null }; check(watch.phase == WatchPhase.preparing)
                     watch.close(); watch.close(); check(watch.player == null && !watch.playerPresented)
                     result["closeDuringPreparation"] = true
+                } else if (mode == "cancel-correction") {
+                    until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }
+                    val current = checkNotNull(watch.player)
+                    until { val v = current.player.observe(current.scope); v.status == PlaybackStatus.ready && v.seekable && v.paused }
+                    current.player.seek(1300, current.scope); until { kotlin.math.abs(watch.positionMs - 1300) < 200 }
+                    for (command in listOf("seek", "rate", "pause")) {
+                        coroutineScope {
+                            val operation = async {
+                                currentCoroutineContext().cancel()
+                                when (command) {
+                                    "seek" -> current.player.seek(0, current.scope)
+                                    "rate" -> current.player.setRate(1.25, current.scope)
+                                    else -> current.player.setPaused(false, current.scope)
+                                }
+                            }
+                            try { operation.await(); error("cancelled correction completed") }
+                            catch (_: CancellationException) { }
+                        }
+                        delay(100)
+                        val v = current.player.observe(current.scope)
+                        check(v.paused && v.rate == 1.0 && kotlin.math.abs(v.positionMs - 1300) < 200)
+                    }
+                    result["cancelledCorrectionsPreserveNativeState"] = true
                 } else error("watch check mode")
                 watch.close(); result["success"] = true; result.remove("stage")
                 finish(result, catalog, report, exit); return

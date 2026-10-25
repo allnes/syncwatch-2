@@ -46,6 +46,7 @@ foreach (string invalid in new[] { "", "-run", "run/7", "run\n7", "\u00e9", new 
 }
 
 WatchSessionTests.Run(Path.GetDirectoryName(Path.GetFullPath(path))!);
+PlaybackActionFenceTests.Run(Path.GetDirectoryName(Path.GetFullPath(path))!);
 Console.WriteLine("Passed shared ownership fixtures, replacement/restart, integer bounds, and identifier checks");
 return 0;
 

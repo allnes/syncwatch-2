@@ -147,6 +147,9 @@ public actor VLCPlayback: PlaybackPort {
         owner.close()
     }
     private func native(_ incoming: PlaybackScope? = nil) throws -> OpaquePointer {
+        // Check on the actor executor, before any scoped native operation starts.
+        // Terminal close intentionally bypasses this cancellable command path.
+        try Task.checkCancellation()
         guard !closed, let pointer = owner.pointer else { throw PlaybackFailure.closed }
         if let incoming {
             guard let scope else { throw PlaybackFailure.unavailable }

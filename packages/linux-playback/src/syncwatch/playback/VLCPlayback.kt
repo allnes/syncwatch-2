@@ -4,6 +4,8 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -37,7 +39,12 @@ class VLCPlayback : PlaybackPort {
         else native.openX11Verified(bridge, runtime.library(), runtime.revision(), surface).awaitNative()
     }
 
-    private fun PlaybackScope.nativeScope() = NativePlayback.Scope(clientRunId, mediaGeneration)
+    private suspend fun PlaybackScope.nativeScope(): NativePlayback.Scope {
+        // Resolve before submitting a future; cancellation during await alone
+        // can arrive after the native worker has already started the command.
+        currentCoroutineContext().ensureActive()
+        return NativePlayback.Scope(clientRunId, mediaGeneration)
+    }
     override suspend fun load(localFile: Path, scope: PlaybackScope) { native.load(localFile, scope.nativeScope()).awaitNative() }
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation {
         val value = native.observe(scope.nativeScope()).awaitNative()
@@ -47,9 +54,15 @@ class VLCPlayback : PlaybackPort {
             value.positionMs(), value.durationMs(), value.paused(), value.rate(), value.seekable(),
             value.buffering(), value.ended(), value.width(), value.height(), value.videoOutputs(), value.volume(), value.muted())
     }
-    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { native.pause(paused, scope.nativeScope()).awaitNative() }
-    override suspend fun seek(positionMs: Long, scope: PlaybackScope) { native.seek(positionMs, scope.nativeScope()).awaitNative() }
-    override suspend fun setRate(rate: Double, scope: PlaybackScope) { native.rate(rate, scope.nativeScope()).awaitNative() }
+    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) {
+        native.pause(paused, scope.nativeScope()).awaitNative()
+    }
+    override suspend fun seek(positionMs: Long, scope: PlaybackScope) {
+        native.seek(positionMs, scope.nativeScope()).awaitNative()
+    }
+    override suspend fun setRate(rate: Double, scope: PlaybackScope) {
+        native.rate(rate, scope.nativeScope()).awaitNative()
+    }
     override suspend fun setVolume(volume: Double, muted: Boolean, scope: PlaybackScope) {
         native.volume(volume, muted, scope.nativeScope()).awaitNative()
     }

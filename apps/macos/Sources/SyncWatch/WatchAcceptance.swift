@@ -81,6 +81,36 @@ import SyncWatchDomain
                     await watch.close()
                     try require(watch.player == nil && !watch.playerPresented)
                     result["closeDuringPreparation"] = true
+                } else if mode == "cancel-correction" {
+                    try await until { watch.player?.view?.window != nil && watch.phase == .active }
+                    guard let current = watch.player else { throw Failure.condition }
+                    try await until {
+                        let value = try await current.player.observe(current.scope)
+                        return value.status == .ready && value.seekable && value.paused
+                    }
+                    try await current.player.seek(to: 1300, scope: current.scope)
+                    try await until { abs(watch.positionMs - 1300) < 200 }
+                    for command in ["seek", "rate", "pause"] {
+                        let operation = Task {
+                            withUnsafeCurrentTask { $0?.cancel() }
+                            if command == "seek" {
+                                try await current.player.seek(to: 0, scope: current.scope)
+                            } else if command == "rate" {
+                                try await current.player.setRate(1.25, scope: current.scope)
+                            } else {
+                                try await current.player.setPaused(false, scope: current.scope)
+                            }
+                        }
+                        var cancelled = false
+                        do { try await operation.value } catch is CancellationError { cancelled = true }
+                        result["cancelled-\(command)"] = cancelled
+                        let value = try await current.player.observe(current.scope)
+                        result["actualPositionMs"] = value.positionMs
+                        result["actualRate"] = value.rate
+                        result["actualPaused"] = value.paused
+                        try require(cancelled && value.paused && value.rate == 1 && abs(value.positionMs - 1300) < 200)
+                    }
+                    result["cancelledCorrectionsPreserveNativeState"] = true
                 } else {
                     throw Failure.condition
                 }
