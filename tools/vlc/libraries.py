@@ -5,9 +5,18 @@ import shutil
 from build_context import shell_path
 from source_profile import restore_iconv
 from native_libraries import cmake, meson, zlib
+from native_x11 import build as build_x11
 
 
 def build(context, sources):
+    if context.target == "linux-x64":
+        build_x11(context, sources)
+        cmake(context, "libsndfile", sources["libsndfile"], ["-DBUILD_SHARED_LIBS=ON", "-DBUILD_TESTING=OFF",
+            "-DBUILD_PROGRAMS=OFF", "-DBUILD_EXAMPLES=OFF", "-DBUILD_REGTEST=OFF", "-DENABLE_CPACK=OFF",
+            "-DENABLE_EXTERNAL_LIBS=OFF", "-DENABLE_MPEG=OFF"])
+        meson(context, sources, "pulseaudio", ["-Ddaemon=false", "-Dclient=true", "-Dtests=false", "-Dman=false",
+            "-Ddoxygen=false", "-Ddbus=disabled", "-Dglib=disabled", "-Dgtk=disabled", "-Dx11=disabled",
+            "-Dasyncns=disabled", "-Dsystemd=disabled", "-Dbashcompletiondir=no", "-Dzshcompletiondir=no"])
     if context.target == "windows-x64":
         # GCC's POSIX thread ABI is also used by the codec/runtime libraries.
         # Build its provider from the separately pinned source, never copy the

@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from source_profile import selected_plugins
+from source_profile import selected_plugins, output_libraries
 
 
 def library(path):
@@ -36,6 +36,17 @@ def assemble(context, build, source, profile, destination):
         if len(matches) != 1:
             raise ValueError("Missing or ambiguous selected VLC plugin: " + name)
         copy_library(matches[0], plugins)
+    helpers, private = output_libraries(profile, context.target)
+    for name in helpers:
+        path = build / "modules/.libs" / name
+        if not path.is_file():
+            raise ValueError("Missing selected VLC platform helper: " + name)
+        copy_library(path, libraries)
+    for name in private:
+        path = context.prefix / name
+        if not path.is_file():
+            raise ValueError("Missing selected private platform client: " + name)
+        copy_library(path, libraries)
     shutil.copytree(context.prefix / "include", destination / "include")
     include = destination / "include/vlc"
     include.mkdir(parents=True)

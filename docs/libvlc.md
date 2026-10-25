@@ -1,6 +1,6 @@
 # Native libVLC SDK
 
-The `libvlc` component builds VLC 3.0.24 and its selected codec, audio, text and font dependencies from the exact Git submodules registered in `3rdparty/`. It targets native macOS arm64, Windows x64 and Linux x64. This is a decoder SDK consumed by the separate [native playback adapters](playback.md). Native output modules are selected for AppKit and Windows; physical output remains separately unqualified.
+The `libvlc` component builds VLC 3.0.24 and its selected codec, audio, text and font dependencies from the exact Git submodules registered in `3rdparty/`. It targets native macOS arm64, Windows x64 and Linux x64. This SDK is consumed by the separate [native playback adapters](playback.md). Native output modules are selected for AppKit, Windows and Linux X11/PulseAudio; physical output remains separately unqualified.
 
 ## Build and revalidate
 
@@ -23,6 +23,10 @@ macOS uses the selected Apple SDK plus GNU M4, Autoconf, Automake, Libtool, Gett
 
 Linux retains Fontconfig's original default alias, matching, hinting and fallback rules from its pinned source. The configuration is relocated into the owned package and checked against those source bytes on every verification. The consumer selects that configuration directory explicitly; it does not rely on a configuration left in the build prefix.
 
+The Linux output source graph adds the existing pinned Xorg/XCB client sources, PulseAudio17.0 client libraries and libsndfile1.2.2. The shared X11 recipe is used by both the renderer and media SDK. VLC selects software `xcb_x11`, its window provider and `pulse`; its private XCB/Pulse helpers and PulseAudio's private client library are packaged explicitly. PulseAudio's daemon, device modules and optional D-Bus/GLib/X11 discovery are disabled. libsndfile's external Xiph/MPEG codecs are disabled. Complete original LGPL, Apache, embedded GSM/Sun and other grants remain in the source/notices inventories. One daemon-only ALSA mixer sample with a nonportable filename is excluded; the exact path and reason are in the profile.
+
+Linux consumers set `PULSE_CLIENTCONFIG` to the owned `share/pulse/client.conf`, which disables autospawn and connects only to an existing user audio server. This changes no user or system configuration. X11, display-server/session, audio-device and drawable-lifetime behavior require separate native output and application checks. This profile does not select native Wayland, XVideo or GL/VA/VDPAU output.
+
 FFmpeg uses dynamic libraries with GPL, version3 and nonfree components disabled. The actual libraries must report the expected license, version and configuration through their own APIs. FreeType uses its FreeType License choice. The full original grants and embedded notices are retained, including license alternatives for excluded original sources.
 
 Fresh native consumers check authored I420/PCM, H.264/AAC, 1080p H.264/AAC and 4K HEVC/AAC fixtures. They observe metadata, decoded frames, resampled PCM and its known tone, pause stability, forward and backward seek pixels, stop, reload and release. Separate effect cases check actual brightness changes, normalization amplitude, pitch preservation during time stretching, replacement by an external audio tone and rendered SRT/ASS subtitle pixels. These are memory-callback observations; they establish no physical display, speaker, GPU-surface or application acceptance.
@@ -31,7 +35,7 @@ Windows plugins reside under `bin/plugins`; Darwin/Linux plugins reside under `l
 
 On Windows, the consumer loads the verified owned shared-library closure before initializing VLC. Its dependency search permits only the owned DLL directory and System32, and it rejects a loaded library with a foreign path. Handles remain owned until all players and the VLC instance are released. This is required because VLC's plugin loader restricts dependency discovery to System32; a developer SDK or working-directory search must not provide missing application libraries.
 
-VideoToolbox/CVPX modules are selected on macOS, and D3D11VA on Windows. Hardware availability and playback controls need separate qualification. H.264 VideoToolbox backward seeking is unqualified; software decoding remains the accepted consumer path. Linux currently has a headless software decoder profile. Native Linux surfaces and the full Compose runtime remain separate prerequisites.
+VideoToolbox/CVPX modules are selected on macOS, and D3D11VA on Windows. Hardware availability and playback controls need separate qualification. H.264 VideoToolbox backward seeking is unqualified; software decoding remains the accepted consumer path. The Linux software decoder and newly selected X11/PulseAudio output sources do not by themselves qualify native surfaces, output or the full Compose application/runtime.
 
 ## Corresponding sources and declared changes
 

@@ -229,6 +229,9 @@ def main() -> int:
         report.execute("Native renderer source and header boundaries", lambda: subprocess.run(
             [sys.executable, "-m", "unittest", "discover", "-s", "tools/desktop/tests", "-v"],
             cwd=ROOT, env=environment, check=True))
+        report.execute("Native video/audio source and loader boundaries", lambda: subprocess.run(
+            [sys.executable, "-m", "unittest", "discover", "-s", "tools/vlc/tests", "-v"],
+            cwd=ROOT, env=environment, check=True))
         if args.target == "macos":
             def select_toolchain():
                 if environment.get("GITHUB_ACTIONS") == "true":

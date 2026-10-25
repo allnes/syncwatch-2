@@ -403,3 +403,9 @@
 [submodule "desktop-xorg-macros"]
 	path = 3rdparty/desktop-xorg-macros
 	url = https://gitlab.freedesktop.org/xorg/util/macros.git
+[submodule "3rdparty/pulseaudio"]
+	path = 3rdparty/pulseaudio
+	url = https://gitlab.freedesktop.org/pulseaudio/pulseaudio.git
+[submodule "3rdparty/libsndfile"]
+	path = 3rdparty/libsndfile
+	url = https://github.com/libsndfile/libsndfile.git
