@@ -76,7 +76,12 @@ int sw_library_open(const char *path, sw_vlc_api *api, int output, sw_library **
     memcpy(&api->name, &address, sizeof(address)); }
     SW_VLC_FUNCTIONS(SW_BIND)
 #undef SW_BIND
-    if (output != SW_OUTPUT_HEADLESS) {
+    if (output == SW_OUTPUT_X11) {
+        void *address = symbol(lib, "libvlc_media_player_set_xwindow");
+        if (!address) goto failed;
+        _Static_assert(sizeof(address) == sizeof(api->set_xwindow), "X11 function pointer size");
+        memcpy(&api->set_xwindow, &address, sizeof(address));
+    } else if (output != SW_OUTPUT_HEADLESS) {
         void *address = symbol(lib, output == SW_OUTPUT_APPKIT ? "libvlc_media_player_set_nsobject" : "libvlc_media_player_set_hwnd");
         if (!address) goto failed;
         memcpy(&api->set_surface, &address, sizeof(address));

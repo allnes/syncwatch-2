@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+#define _GNU_SOURCE
 #include <jni.h>
+#include <jawt.h>
+#include <jawt_md.h>
+#include <dlfcn.h>
+#include <X11/Xlib.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../playback-native/include/syncwatch_playback.h"
@@ -32,6 +37,86 @@ JNIEXPORT jlong JNICALL JNI_METHOD(open)(JNIEnv *env, jclass type, jbyteArray li
     free(path); free(pin);
     if (!checked(env, code)) return 0;
     return (jlong)(intptr_t)player;
+}
+JNIEXPORT jlong JNICALL JNI_METHOD(openX11)(JNIEnv *env, jclass type, jbyteArray library, jbyteArray revision, jlong drawable) {
+    (void)type;
+    if (drawable <= 0 || (uint64_t)drawable > UINT32_MAX) { checked(env, SW_INVALID); return 0; }
+    char *path = text(env, library); if (!path) return 0;
+    char *pin = text(env, revision); if (!pin) { free(path); return 0; }
+    sw_playback *player = NULL;
+    int code = sw_playback_open_x11(path, pin, (uint32_t)drawable, &player);
+    free(path); free(pin);
+    if (!checked(env, code)) return 0;
+    return (jlong)(intptr_t)player;
+}
+
+static void *owned_symbol(const char *path, const char *name, void **library) {
+    if (path[0] != '/') return NULL;
+    *library = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+    if (!*library) return NULL;
+    void *address = dlsym(*library, name);
+    Dl_info info;
+    char *expected = realpath(path, NULL), *actual = NULL;
+    if (address && dladdr(address, &info)) actual = realpath(info.dli_fname, NULL);
+    int owned = expected && actual && !strcmp(expected, actual);
+    free(expected); free(actual);
+    if (!owned) { dlclose(*library); *library = NULL; return NULL; }
+    return address;
+}
+
+JNIEXPORT jlong JNICALL Java_syncwatch_playback_X11Display_initialize(JNIEnv *env, jclass type, jbyteArray library) {
+    (void)type;
+    char *path = text(env, library); if (!path) return 0;
+    void *handle = NULL, *address = owned_symbol(path, "XInitThreads", &handle);
+    free(path);
+    int (*initialize)(void);
+    _Static_assert(sizeof(initialize) == sizeof(address), "Xlib function pointer size");
+    memcpy(&initialize, &address, sizeof(address));
+    if (!initialize || !initialize()) {
+        if (handle) dlclose(handle);
+        checked(env, SW_UNAVAILABLE); return 0;
+    }
+    /* Intentional process-lifetime reference; AWT may continue to use Xlib
+     * after individual players/surfaces close. No late toolkit initialization. */
+    return (jlong)(intptr_t)handle;
+}
+
+JNIEXPORT jlong JNICALL Java_syncwatch_playback_X11Display_drawable(JNIEnv *env, jclass type,
+        jlong library, jobject canvas, jbyteArray jawtLibrary) {
+    (void)type;
+    if (!library || !canvas) { checked(env, SW_INVALID); return 0; }
+    char *path = text(env, jawtLibrary); if (!path) return 0;
+    void *handle = NULL, *address = owned_symbol(path, "JAWT_GetAWT", &handle);
+    free(path);
+    jboolean (JNICALL *get_awt)(JNIEnv *, JAWT *);
+    _Static_assert(sizeof(get_awt) == sizeof(address), "JAWT function pointer size");
+    memcpy(&get_awt, &address, sizeof(address));
+    JAWT awt = { .version = JAWT_VERSION_1_7 };
+    JAWT_DrawingSurface *surface = NULL;
+    JAWT_DrawingSurfaceInfo *info = NULL;
+    jlong drawable = 0;
+    int locked = 0;
+    if (!get_awt || !get_awt(env, &awt) || !(surface = awt.GetDrawingSurface(env, canvas))) goto done;
+    if (surface->Lock(surface) & JAWT_LOCK_ERROR) goto done;
+    locked = 1;
+    info = surface->GetDrawingSurfaceInfo(surface);
+    if (!info || !info->platformInfo) goto done;
+    JAWT_X11DrawingSurfaceInfo *x11 = info->platformInfo;
+    if (!x11->drawable || x11->drawable > UINT32_MAX || !x11->display) goto done;
+    int (*attributes)(Display *, Window, XWindowAttributes *);
+    address = dlsym((void *)(intptr_t)library, "XGetWindowAttributes");
+    _Static_assert(sizeof(attributes) == sizeof(address), "Xlib attribute function size");
+    memcpy(&attributes, &address, sizeof(address));
+    XWindowAttributes value;
+    if (attributes && attributes(x11->display, x11->drawable, &value) && value.class == InputOutput)
+        drawable = (jlong)x11->drawable;
+done:
+    if (info) surface->FreeDrawingSurfaceInfo(info);
+    if (locked) surface->Unlock(surface);
+    if (surface) awt.FreeDrawingSurface(surface);
+    if (handle) dlclose(handle);
+    if (!drawable && !(*env)->ExceptionCheck(env)) checked(env, SW_UNAVAILABLE);
+    return drawable;
 }
 JNIEXPORT jint JNICALL JNI_METHOD(load)(JNIEnv *env, jclass type, jlong player, jlong generation, jbyteArray file) {
     (void)type; char *path = text(env, file); if (!path) return SW_INVALID;

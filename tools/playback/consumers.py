@@ -68,13 +68,17 @@ def check(package, output, dotnet=None, jdk_root=None):
         jni = output / "syncwatch_playback_jni.so"
         context.run("playback-jni", [context.tool(context.env["CC"]), "-std=c11", "-shared", "-fPIC",
                     "-O2", "-g0", "-Wall", "-Wextra", "-Werror", "-I" + str(jdk / "include"),
-                    "-I" + str(jdk / "include/linux"), str(ROOT / "packages/linux-playback/native/jni.c"),
-                    str(bridge), "-Wl,-rpath,$ORIGIN", "-o", str(jni)])
+                    "-I" + str(jdk / "include/linux"), "-I" + str(package / "include"),
+                    str(ROOT / "packages/linux-playback/native/jni.c"),
+                    str(bridge), "-ldl", "-Wl,-rpath,$ORIGIN", "-o", str(jni)])
         classes = output / "classes"
         classes.mkdir(exist_ok=True)
         sources = sorted((ROOT / "packages/linux-playback").rglob("*.java"))
+        sources += sorted((ROOT / "packages/ipc/jvm").rglob("*.java"))
         run([str(jdk / "bin/javac"), "-encoding", "UTF-8", "-Xlint:all", "-Werror", "-d", str(classes),
              *map(str, sources)], output, "jvm-build", env)
+        run([str(jdk / "bin/java"), "-cp", str(classes), "syncwatch.playback.MediaRuntimeProbe"],
+            output, "jvm-integrity-proof", env)
         run([str(jdk / "bin/java"), "--enable-native-access=ALL-UNNAMED", "-cp", str(classes),
              "syncwatch.playback.PlaybackProbe", str(jni), str(package / "lib/libvlc.so.5"),
              report["sources"]["vlc"]["revision"], str(unicode_file)], output, "jvm-proof", env)

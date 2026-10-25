@@ -56,7 +56,10 @@ typedef struct sw_vlc_api {
     SW_VLC_FUNCTIONS(SW_DECLARE)
 #undef SW_DECLARE
     void (*set_surface)(libvlc_media_player_t *, void *);
+    void (*set_xwindow)(libvlc_media_player_t *, uint32_t);
 } sw_vlc_api;
+_Static_assert(__builtin_types_compatible_p(__typeof__(&libvlc_media_player_set_xwindow),
+    void (*)(libvlc_media_player_t *, uint32_t)), "VLC ABI: X11 drawable");
 /* Header drift is a compilation error on every supported compiler. */
 #define SW_CHECK(result, name, arguments) \
  _Static_assert(__builtin_types_compatible_p(__typeof__(&name), result (*) arguments), "VLC ABI: " #name);

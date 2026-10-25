@@ -32,6 +32,8 @@ public final class PlaybackProbe {
     }
     public static void main(String[] arguments) throws Exception {
         Path bridge = Path.of(arguments[0]), library = Path.of(arguments[1]), file = Path.of(arguments[3]);
+        MediaRuntime runtime = MediaRuntime.verify(library.getParent().getParent());
+        require(runtime.library().equals(library) && runtime.revision().equals(arguments[2]));
         var scope = new NativePlayback.Scope("jni-owned-run", 1);
         for (int iteration = 0; iteration < 3; iteration++) {
             NativePlayback player = new NativePlayback();
@@ -74,6 +76,16 @@ public final class PlaybackProbe {
             } finally { await(player.closeAsync()); await(player.closeAsync()); }
             rejected(player.observe(scope));
         }
+        NativePlayback busy = new NativePlayback();
+        await(busy.openVerified(bridge, library, arguments[2]));
+        await(busy.load(file, scope));
+        java.util.List<java.util.concurrent.CompletableFuture<?>> pending = new java.util.ArrayList<>();
+        for (int index = 0; index < 256; index++) pending.add(busy.observe(scope));
+        var cancelledWait = busy.closeAsync();
+        cancelledWait.cancel(false);
+        await(busy.closeAsync());
+        for (var operation : pending) await(operation.handle((value, error) -> null));
+        rejected(busy.observe(scope));
         System.out.println("{\"success\":true,\"ordinaryUtf8Paths\":true,\"nativeClock\":true,"
                 + "\"generationTransaction\":true,\"tracks\":true,\"repeatedClose\":true,"
                 + "\"guiAccepted\":false,\"physicalOutputAccepted\":false}");
