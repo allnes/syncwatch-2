@@ -6036,6 +6036,7 @@
         "gn/BUILDCONFIG.gn",
         "gn/codec.gni",
         "gn/core.gni",
+        "gn/cp.py",
         "gn/effects.gni",
         "gn/effects_imagefilters.gni",
         "gn/find_headers.py",
@@ -6049,6 +6050,7 @@
         "gn/pdf.gni",
         "gn/portable/BUILD.gn",
         "gn/ports.gni",
+        "gn/rm.py",
         "gn/rust.gni",
         "gn/shared_sources.gni",
         "gn/skia.gni",
@@ -8829,6 +8831,7 @@
         "gn/BUILDCONFIG.gn": "5ad5dc47f8aead6b95450ae64b83e7475199b4c53a422f45649fce6a184231ad",
         "gn/codec.gni": "0bc1fdb003688b9b54d8c7303937585ebbf2d9d1717d8749f79a40f5d9597cf1",
         "gn/core.gni": "343666f6863e093fe981499a661fdfeb77c0c5b2da6f7f7936f34e4665b9055a",
+        "gn/cp.py": "71442a14ac8569be62bfdcb385bd3260bb8f944eaa57a57ad3e22bd12803f201",
         "gn/effects.gni": "975e34b4d76de40c73e356f265da3bca22dc4eb6653fa7e4c8d3f607790bc2d6",
         "gn/effects_imagefilters.gni": "ae3c4eb6d845b5c485d9ee64f2dfcbd993e935bf0773f99e53116aa03724733a",
         "gn/find_headers.py": "5b308633a52a43cbaf7d7a0da64f0a733c1631586104fb2eea9c2820db2232d3",
@@ -8842,6 +8845,7 @@
         "gn/pdf.gni": "41df72c77be114c1707e6ed7bc3731f308896f5f77e8aa544c10fb31c48b6f48",
         "gn/portable/BUILD.gn": "20e98bfc82f2758c3ad753650b57709cd8735c7282df8e3a3635976d16e2e1e7",
         "gn/ports.gni": "63a4994c1f6b85507e0a4474b2068398515524e15ac231d7886fefcb27b08b12",
+        "gn/rm.py": "05debdbf09c9035e4f8939fc6fa221f63734d309c037a541eef77ce7f133fdbf",
         "gn/rust.gni": "32b8a3306f1053ae56f39bf8e0cf2927682cf21a76040836fdee48de772fe615",
         "gn/shared_sources.gni": "8a3c3d1f63955dfd057802d74699fb7a45891f958ba00478ee0d6e97e00a892b",
         "gn/skia.gni": "8d866ece199f1f0175684b056cc4121c2e28e1bb3c98d1299df14105fc19339f",
@@ -11613,7 +11617,9 @@
       },
       "executables": [
         "bazel/rbe/gce_linux/LICENSE",
+        "gn/cp.py",
         "gn/is_clang.py",
+        "gn/rm.py",
         "gn/toolchain/num_cpus.py"
       ]
     },
