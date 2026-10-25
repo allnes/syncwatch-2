@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "aea99832c07aa8b9f4f29b73f9e0bd370df092b4bbb82bba18f54f846d08129a",
+  "sourceDigest": "e324bf8ccd7688a218c92a52d733dfa6c8a1f97f6bca44ac199adc9c705be398",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "538a1c22c83e507b2a631377d52d914d55897862d2c20bbd6f5d0f5e5591ee87",
-    "copy.json": "600277295c718d39308f8a2fc28dc675e11ada224b556472145d907b948c7a5a",
+    "copy.json": "ad9509a34903cce41b39484593f0e2b095f12646d5b7bba55518298986b2b8de",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
@@ -281,7 +281,9 @@
         "selectionFixtureLabel": "Selection menu fixture",
         "selectionFixtureLong": "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
         "galleryKind": "Menu",
-        "playbackFailed": "Could not open this movie."
+        "playbackFailed": "Could not open this movie.",
+        "libraryUnavailable": "Could not access the movie folder. Choose it again or check its permissions.",
+        "librarySaveFailed": "The folder is available for this session, but its access could not be saved."
       },
       "ru": {
         "brand": "SyncWatch",
@@ -477,7 +479,9 @@
         "selectionFixtureLabel": "Пример меню выбора",
         "selectionFixtureLong": "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
         "galleryKind": "Меню",
-        "playbackFailed": "Не удалось открыть фильм."
+        "playbackFailed": "Не удалось открыть фильм.",
+        "libraryUnavailable": "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
+        "librarySaveFailed": "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось."
       }
     },
     "gallery": {

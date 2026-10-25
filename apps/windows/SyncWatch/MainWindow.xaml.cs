@@ -37,9 +37,32 @@ public partial class MainWindow : Window
             var application = (App)Application.Current;
             var preferences = application.Preferences!;
             var library = new Design.LibraryWorkspace();
-            void Refresh() => library.Render(new Design.LibraryPresentation { EnabledActions = new HashSet<string> { "openSettings" } }, preferences.State.Preferences.Language);
-            library.ActionRequested += (action, _) =>
+            var controller = new LibraryController(new Library.FileLibraryAccessStore(
+                System.IO.Path.Combine(System.IO.Path.GetDirectoryName(AppearancePreferences.DefaultPath)!, "library-access.json")),
+                Dispatcher, preferences.State.SelectedMediaId);
+            void Refresh()
             {
+                library.Render(controller.Presentation, preferences.State.Preferences.Language);
+                if (controller.ErrorKey is string key)
+                {
+                    controller.ClearError();
+                    Dispatcher.InvokeAsync(() => { if (IsLoaded) MessageBox.Show(this, Design.SyncWatchCopy.Text(key, preferences.State.Preferences.Language),
+                        "SyncWatch", MessageBoxButton.OK, MessageBoxImage.Warning); });
+                }
+            }
+            controller.Changed += Refresh;
+            Loaded += (_, _) => controller.Restore();
+            Closing += (_, _) => controller.Dispose();
+            library.ActionRequested += (action, value) =>
+            {
+                if (action == "chooseFolder")
+                {
+                    var picker = new Microsoft.Win32.OpenFolderDialog { Title = Design.SyncWatchCopy.Text("folder", preferences.State.Preferences.Language), Multiselect = false };
+                    if (picker.ShowDialog(this) == true) controller.Choose(picker.FolderName);
+                    return;
+                }
+                if (action == "rescan") { controller.Rescan(); return; }
+                if (action == "selectMovie" && value is not null) { controller.Select(value); return; }
                 if (action != "openSettings") return;
                 var view = new Design.SettingsDialog(preferences.CreateEditor(), preferences.State.Preferences.Language);
                 var window = new Window

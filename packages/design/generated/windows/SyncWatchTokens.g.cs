@@ -558,6 +558,8 @@ public static class SyncWatchCopy
         ("en", "selectionFixtureLong") => "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv",
         ("en", "galleryKind") => "Menu",
         ("en", "playbackFailed") => "Could not open this movie.",
+        ("en", "libraryUnavailable") => "Could not access the movie folder. Choose it again or check its permissions.",
+        ("en", "librarySaveFailed") => "The folder is available for this session, but its access could not be saved.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -752,6 +754,8 @@ public static class SyncWatchCopy
         ("ru", "selectionFixtureLong") => "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv",
         ("ru", "galleryKind") => "Меню",
         ("ru", "playbackFailed") => "Не удалось открыть фильм.",
+        ("ru", "libraryUnavailable") => "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
+        ("ru", "librarySaveFailed") => "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };

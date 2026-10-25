@@ -52,11 +52,32 @@ fun main(arguments: Array<String>) {
     var state by remember { mutableStateOf(preferences.state) }
     var settingsOpen by remember { mutableStateOf(false) }
     var editor by remember { mutableStateOf(preferences.editor()) }
+    val scope = rememberCoroutineScope()
+    val library = remember { LibraryController(syncwatch.library.FileLibraryAccessStore(
+        AppearancePreferences.defaultPath().resolveSibling("library-access.json")), scope, state.selectedMediaId) }
+    LaunchedEffect(library) { library.restore() }
+    DisposableEffect(library) { onDispose { library.close() } }
     val language = state.preferences.language
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
-    LibraryWorkspace(LibraryPresentation(enabledActions = setOf("openSettings")), language, theme) { action, _ ->
-        if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
+    LibraryWorkspace(library.presentation, language, theme) { action, value ->
+        if (action == "chooseFolder") {
+            val picker = javax.swing.JFileChooser().apply {
+                fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
+                isMultiSelectionEnabled = false
+                dialogTitle = SyncWatchCopy.text("folder", language)
+                approveButtonText = SyncWatchCopy.text("chooseFolder", language)
+            }
+            if (picker.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) library.choose(picker.selectedFile.toPath())
+        } else if (action == "rescan") library.rescan()
+        else if (action == "selectMovie" && value != null) library.select(value)
+        else if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
+    }
+    LaunchedEffect(library.errorKey) {
+        library.errorKey?.let { key ->
+            javax.swing.JOptionPane.showMessageDialog(null, SyncWatchCopy.text(key, language), SyncWatchCopy.text("brand", language), javax.swing.JOptionPane.WARNING_MESSAGE)
+            library.clearError()
+        }
     }
     if (settingsOpen) {
         DialogWindow(onCloseRequest = { settingsOpen = false }, title = SyncWatchCopy.text("openSettings", language),

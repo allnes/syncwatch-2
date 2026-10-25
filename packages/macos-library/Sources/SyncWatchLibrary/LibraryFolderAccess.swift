@@ -5,6 +5,8 @@ public final class LibraryFolderAccess: Sendable {
     public let rootId: String
     public let url: URL
     public let record: LibraryAccessRecord?
+    public let scanSubfolders: Bool
+    public let autoRefresh: Bool
     private let scoped: Bool
 
     private init(url: URL, rootId: String, scanSubfolders: Bool, autoRefresh: Bool) throws {
@@ -16,6 +18,8 @@ public final class LibraryFolderAccess: Sendable {
             self.url = url
             self.rootId = rootId
             self.scoped = scoped
+            self.scanSubfolders = scanSubfolders
+            self.autoRefresh = autoRefresh
             // A failed bookmark prevents persistence, while the current picker grant remains usable.
             let bookmark = try? url.bookmarkData(
                 options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],

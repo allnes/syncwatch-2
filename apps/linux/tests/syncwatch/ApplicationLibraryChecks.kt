@@ -1,0 +1,57 @@
+package syncwatch
+
+import java.nio.file.Files
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.jetbrains.skiko.MainUIDispatcher
+import syncwatch.design.LibraryVisualState
+import syncwatch.library.FileLibraryAccessStore
+
+fun main() = runBlocking {
+    val scratch = Files.createTempDirectory("syncwatch-application-library-")
+    val root = Files.createDirectory(scratch.resolve("movies"))
+    Files.writeString(root.resolve("A.MKV"), "fixture")
+    Files.writeString(root.resolve("B.mp4"), "fixture")
+    val empty = Files.createDirectory(scratch.resolve("empty"))
+    val store = FileLibraryAccessStore(scratch.resolve("state/library-access.json"))
+    val owner = CoroutineScope(MainUIDispatcher + SupervisorJob())
+    try {
+        withContext(MainUIDispatcher) {
+            val model = LibraryController(store, owner, null)
+            model.restore(); model.settled()
+            check(model.presentation.entries.isEmpty())
+            model.choose(root)
+            check(model.presentation.state == LibraryVisualState.scanning)
+            model.settled()
+            check(model.errorKey == null && model.presentation.entries.map { it.title } == listOf("A.MKV", "B.mp4"))
+            val ids = model.presentation.entries.map { it.id }
+            model.select(ids.last()); model.rescan(); model.settled()
+            check(model.presentation.selectedID == ids.last() && model.presentation.entries.map { it.id } == ids)
+            val restored = LibraryController(store, owner, ids.last())
+            restored.restore(); restored.settled()
+            check(restored.presentation.entries.map { it.id } == ids && restored.presentation.selectedID == ids.last())
+            model.choose(root.resolve("absent")); model.settled()
+            check(model.errorKey == "libraryUnavailable" && model.presentation.entries.map { it.id } == ids)
+            model.choose(root); model.choose(root.resolve("absent")); model.settled()
+            check(model.presentation.state != LibraryVisualState.scanning && model.presentation.entries.map { it.id } == ids)
+            model.choose(root); model.choose(empty); model.settled()
+            check(model.errorKey == null && model.presentation.entries.isEmpty())
+            check(store.read().record!!.rootPath == empty.toString())
+            val future = "{\"version\":2,\"future\":true}"
+            Files.writeString(store.path, future)
+            model.choose(root); model.settled()
+            check(model.errorKey == "librarySaveFailed" && model.presentation.entries.size == 2)
+            check(Files.readString(store.path) == future)
+            model.choose(empty); model.close(); model.settled()
+            check(Files.readString(store.path) == future)
+            restored.close()
+        }
+        println("SYNCWATCH_APPLICATION_LIBRARY_OK")
+    } finally {
+        owner.cancel()
+        Files.walk(scratch).use { paths -> paths.sorted(Comparator.reverseOrder()).forEach { Files.delete(it) } }
+    }
+}

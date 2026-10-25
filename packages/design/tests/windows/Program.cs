@@ -79,6 +79,7 @@ internal static class Program
         window.Close();
         application.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("SyncWatchComponents.xaml", UriKind.Relative) });
         VerifyLibrary(application, dictionary);
+        LibraryControllerAssertions.Run();
         SettingsAssertions.Run(application, dictionary);
         PlayerAssertions.Run(application, dictionary);
         PlayerSettingsAssertions.Run(application, dictionary);

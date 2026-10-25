@@ -198,6 +198,7 @@ def probe(payload, profile, home, compiler):
         sources += sorted((ROOT / "packages/design/tests/linux").glob("*.kt"))
         sources += sorted((ROOT / "packages/linux-playback/tests").rglob("*.kt"))
         sources += sorted((ROOT / "packages/linux-library/tests").rglob("*.kt"))
+        sources += sorted((ROOT / "apps/linux/tests").rglob("*.kt"))
         sources.append(ROOT / "tools/jvm/tests/DisplayRefreshChecks.kt")
         stdlib.javac(["--release", "21", "-g:none", "-proc:none", "-encoding", "UTF-8", "-cp",
                       os.pathsep.join(map(str, classpath)), "-d", str(classes),
@@ -224,6 +225,11 @@ def probe(payload, profile, home, compiler):
                               "syncwatch.library.LibraryChecksKt", str(ROOT / "contracts/fixtures/library-catalog.json")], work, home)
         if "SYNCWATCH_LIBRARY_OK" not in output:
             raise ValueError("Local filesystem library consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.ApplicationLibraryChecksKt"], work, home)
+        if "SYNCWATCH_APPLICATION_LIBRARY_OK" not in output:
+            raise ValueError("Application library ownership/cancellation consumer failed")
         print(output.strip())
 
 

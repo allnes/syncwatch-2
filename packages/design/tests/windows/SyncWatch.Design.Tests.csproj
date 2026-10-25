@@ -15,6 +15,8 @@
         <Compile Include="../../windows/PlayerSettingsDialog.cs" Link="PlayerSettingsDialog.cs" />
         <Compile Include="../../windows/PlayerChrome.cs" Link="PlayerChrome.cs" />
         <ProjectReference Include="../../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+        <ProjectReference Include="../../../windows-library/SyncWatch.Library/SyncWatch.Library.csproj" />
+        <Compile Include="../../../../apps/windows/SyncWatch/LibraryController.cs" Link="LibraryController.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
         <None Include="../fixtures/player-settings.json" Link="player-settings.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="../fixtures/player-actions.json" Link="player-actions.json" CopyToOutputDirectory="PreserveNewest" />

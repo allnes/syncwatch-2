@@ -387,6 +387,8 @@ object SyncWatchCopy {
         "en" to "selectionFixtureLong" -> "A very long media or track title with multilingual text — Длинное название — 日本語 — 2160p.mkv"
         "en" to "galleryKind" -> "Menu"
         "en" to "playbackFailed" -> "Could not open this movie."
+        "en" to "libraryUnavailable" -> "Could not access the movie folder. Choose it again or check its permissions."
+        "en" to "librarySaveFailed" -> "The folder is available for this session, but its access could not be saved."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -581,6 +583,8 @@ object SyncWatchCopy {
         "ru" to "selectionFixtureLong" -> "Очень длинное название фильма или дорожки — A long title — 日本語 — 2160p.mkv"
         "ru" to "galleryKind" -> "Меню"
         "ru" to "playbackFailed" -> "Не удалось открыть фильм."
+        "ru" to "libraryUnavailable" -> "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа."
+        "ru" to "librarySaveFailed" -> "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
