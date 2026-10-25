@@ -42,6 +42,7 @@ class DependencyBuildTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
         subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        subprocess.run(["git", "config", "--local", "core.autocrlf", "false"], cwd=self.root, check=True)
         for prefix in build.FRAMEWORK_INPUTS:
             source, destination = REPOSITORY / prefix, self.root / prefix
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -52,6 +53,7 @@ class DependencyBuildTests(unittest.TestCase):
         source = self.root / "3rdparty/example"
         source.mkdir(parents=True)
         subprocess.run(["git", "init", "-q", str(source)], check=True)
+        subprocess.run(["git", "config", "--local", "core.autocrlf", "false"], cwd=source, check=True)
         (source / "LICENSE").write_text("Fixture source license\n")
         (source / "library.txt").write_text("source payload\n")
         (source / ".gitignore").write_text("ignored.txt\n")
@@ -396,11 +398,15 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_exports_do_not_bypass_review_of_excluded_nested_submodules(self):
         source = self.root / "3rdparty/example"
+        (source / "client").mkdir()
+        (source / "client/library.c").write_text("/* selected client */\n")
         (source / ".gitmodules").write_text('[submodule "nested"]\n path = omitted/nested\n url = https://example.invalid/nested.git\n')
         revision = self.component["sources"]["3rdparty/example"]["revision"]
         subprocess.run(["git", "update-index", "--add", "--cacheinfo", "160000", revision, "omitted/nested"], cwd=source, check=True)
         self.update_source_pin()
-        self.set_exports(["LICENSE", "library.txt"])
+        self.set_exports(["LICENSE", "client", "library.txt"])
+        self.component["sources"]["3rdparty/example"]["checkoutDirectories"] = ["client"]
+        self.write_manifest()
         with self.assertRaisesRegex(ValueError, "Nested source is neither pinned separately nor explicitly unused"):
             self.prepare()
         self.component["sources"]["3rdparty/example"]["unusedSubmodules"] = {"omitted/nested": "Upstream tests, not used by this source profile"}
