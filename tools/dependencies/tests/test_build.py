@@ -26,7 +26,7 @@ TARGET = next(name for name, (system, architectures, _) in build.PLATFORMS.items
 class DependencyBuildTests(unittest.TestCase):
     def test_original_blob_export_ignores_upstream_eol_conversion(self):
         source = self.root / "3rdparty/example"
-        (source / ".gitattributes").write_text("*.props text eol=crlf\n")
+        (source / ".gitattributes").write_text("*.props text eol=crlf\n", newline="\n")
         (source / "build.props").write_bytes(b"original\nsource\n")
         self.commit(source)
         revision = build.git(source, "rev-parse", "HEAD").decode().strip()
@@ -54,14 +54,14 @@ class DependencyBuildTests(unittest.TestCase):
         source.mkdir(parents=True)
         subprocess.run(["git", "init", "-q", str(source)], check=True)
         subprocess.run(["git", "config", "--local", "core.autocrlf", "false"], cwd=source, check=True)
-        (source / "LICENSE").write_text("Fixture source license\n")
-        (source / "library.txt").write_text("source payload\n")
-        (source / ".gitignore").write_text("ignored.txt\n")
+        (source / "LICENSE").write_text("Fixture source license\n", newline="\n")
+        (source / "library.txt").write_text("source payload\n", newline="\n")
+        (source / ".gitignore").write_text("ignored.txt\n", newline="\n")
         self.commit(source)
         revision = build.git(source, "rev-parse", "HEAD").decode().strip()
-        (self.root / ".gitmodules").write_text('[submodule "example"]\n path = 3rdparty/example\n url = https://example.invalid/source.git\n')
+        (self.root / ".gitmodules").write_text('[submodule "example"]\n path = 3rdparty/example\n url = https://example.invalid/source.git\n', newline="\n")
         subprocess.run(["git", "update-index", "--add", "--cacheinfo", "160000", revision, "3rdparty/example"], cwd=self.root, check=True)
-        (self.root / ".gitignore").write_text("artifacts/\n.local/\n__pycache__/\n")
+        (self.root / ".gitignore").write_text("artifacts/\n.local/\n__pycache__/\n", newline="\n")
         self.recipe = self.root / "recipe.py"
         self.recipe.write_text(
             "import os\nfrom pathlib import Path\n"
@@ -74,7 +74,7 @@ class DependencyBuildTests(unittest.TestCase):
             "(output / 'library.txt').write_bytes((sources / '3rdparty/example/library.txt').read_bytes())\n"
             "counter = Path('artifacts/counter')\n"
             "counter.write_text(str(int(counter.read_text()) + 1) if counter.exists() else '1')\n"
-        )
+        , newline="\n")
         self.component = {
             "status": "ready", "always": True, "roots": ["3rdparty/example"],
             "sources": {"3rdparty/example": {"revision": revision, "license": "Apache-2.0", "notices": ["LICENSE"], "requires": [], "unusedSubmodules": {}}},
@@ -98,7 +98,7 @@ class DependencyBuildTests(unittest.TestCase):
         subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=root, check=True)
 
     def write_manifest(self):
-        (self.root / "tools/dependencies/components.json").write_text(json.dumps(self.manifest, indent=2) + "\n")
+        (self.root / "tools/dependencies/components.json").write_text(json.dumps(self.manifest, indent=2) + "\n", newline="\n")
 
     def prepare(self):
         with contextlib.redirect_stdout(io.StringIO()):
@@ -108,7 +108,7 @@ class DependencyBuildTests(unittest.TestCase):
         source = self.root / "3rdparty/example"
         for directory in ("client", "server"):
             (source / directory).mkdir()
-            (source / directory / "library.c").write_text("/* original " + directory + " */\n")
+            (source / directory / "library.c").write_text("/* original " + directory + " */\n", newline="\n")
         self.commit(source)
         revision = build.git(source, "rev-parse", "HEAD").decode().strip()
         specification = {"revision": revision, "exports": ["LICENSE", "client", "server"],
@@ -165,7 +165,7 @@ class DependencyBuildTests(unittest.TestCase):
                         f"payload = Path('artifacts/dependencies/example/{TARGET}/payload')\n"
                         "assert (payload/'notices/example/LICENSE').read_text() == 'Fixture source license\\n'\n"
                         "counter = Path('artifacts/verifications')\n"
-                        "counter.write_text(str(int(counter.read_text())+1) if counter.exists() else '1')\n")
+                        "counter.write_text(str(int(counter.read_text())+1) if counter.exists() else '1')\n", newline="\n")
         self.component["inputs"].append("verify.py")
         self.component["targets"][TARGET]["verifyCommand"] = ["{python}", "verify.py"]
         self.write_manifest()
@@ -229,11 +229,11 @@ class DependencyBuildTests(unittest.TestCase):
         with patch.dict(os.environ, {"ImageVersion": "different-image"}):
             self.assertNotEqual(self.prepare()["key"], baseline)
         original = self.recipe.read_text()
-        self.recipe.write_text(original + "# A changed recipe\n")
+        self.recipe.write_text(original + "# A changed recipe\n", newline="\n")
         self.assertNotEqual(self.prepare()["key"], baseline)
-        self.recipe.write_text(original)
+        self.recipe.write_text(original, newline="\n")
         source = self.root / "3rdparty/example"
-        (source / "library.txt").write_text("updated source\n")
+        (source / "library.txt").write_text("updated source\n", newline="\n")
         self.commit(source)
         revision = build.git(source, "rev-parse", "HEAD").decode().strip()
         subprocess.run(["git", "update-index", "--cacheinfo", "160000", revision, "3rdparty/example"], cwd=self.root, check=True)
@@ -255,7 +255,7 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_build_uses_git_snapshot_not_ignored_source_worktree_bytes(self):
         baseline = self.prepare()["key"]
-        (self.root / "3rdparty/example/ignored.txt").write_text("Not a build input")
+        (self.root / "3rdparty/example/ignored.txt").write_text("Not a build input", newline="\n")
         self.assertEqual(self.prepare()["key"], baseline)
         self.assertEqual(self.run_build()["result"], "success")
 
@@ -282,7 +282,7 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_selected_export_excludes_unselected_code_and_preserves_cold_cached_payload(self):
         source = self.root / "3rdparty/example"
-        (source / "unselected.txt").write_text("Unselected upstream code\n")
+        (source / "unselected.txt").write_text("Unselected upstream code\n", newline="\n")
         self.update_source_pin()
         self.set_exports(["LICENSE", "library.txt"])
         cold = self.run_build(cold=True)
@@ -340,7 +340,7 @@ class DependencyBuildTests(unittest.TestCase):
         source = self.root / "3rdparty/example"
         paths = [f"source{index:04d}-" + "x" * 160 + "-映画.kt" for index in range(230)]
         for name in paths:
-            (source / name).write_text(name + "\n", encoding="utf-8")
+            (source / name).write_text(name + "\n", encoding="utf-8", newline="\n")
         self.update_source_pin()
         selected = sorted(["LICENSE", *paths])
         from unittest.mock import patch
@@ -357,7 +357,7 @@ class DependencyBuildTests(unittest.TestCase):
         source = self.root / "3rdparty/example"
         for name in ("!literal", "selected", "selected-other", "unselected"):
             (source / name).mkdir()
-            (source / name / "file.txt").write_text(name + "\n")
+            (source / name / "file.txt").write_text(name + "\n", newline="\n")
         self.update_source_pin()
         self.set_exports(["!literal", "LICENSE", "selected"])
         self.prepare()
@@ -368,7 +368,7 @@ class DependencyBuildTests(unittest.TestCase):
         for ignored in ("library.txt", "LICENSE"):
             with self.subTest(ignored=ignored):
                 source = self.root / "3rdparty/example"
-                (source / ".gitattributes").write_text(ignored + " export-ignore\n")
+                (source / ".gitattributes").write_text(ignored + " export-ignore\n", newline="\n")
                 self.update_source_pin()
                 self.set_exports(["LICENSE", "library.txt"])
                 self.prepare()
@@ -378,8 +378,8 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_git_export_substitution_cannot_change_pinned_source_bytes(self):
         source = self.root / "3rdparty/example"
-        (source / "library.txt").write_text("$Format:%H$\n")
-        (source / ".gitattributes").write_text("library.txt export-subst\n")
+        (source / "library.txt").write_text("$Format:%H$\n", newline="\n")
+        (source / ".gitattributes").write_text("library.txt export-subst\n", newline="\n")
         self.update_source_pin()
         self.set_exports(["LICENSE", "library.txt"])
         self.prepare()
@@ -389,7 +389,7 @@ class DependencyBuildTests(unittest.TestCase):
     def test_selected_tree_must_cover_all_nested_notices(self):
         source = self.root / "3rdparty/example"
         (source / "legal").mkdir()
-        (source / "legal/NOTICE").write_text("Fixture nested attribution\n")
+        (source / "legal/NOTICE").write_text("Fixture nested attribution\n", newline="\n")
         self.update_source_pin()
         self.component["sources"]["3rdparty/example"]["notices"].append("legal/NOTICE")
         self.set_exports(["LICENSE", "legal", "library.txt"])
@@ -399,8 +399,8 @@ class DependencyBuildTests(unittest.TestCase):
     def test_exports_do_not_bypass_review_of_excluded_nested_submodules(self):
         source = self.root / "3rdparty/example"
         (source / "client").mkdir()
-        (source / "client/library.c").write_text("/* selected client */\n")
-        (source / ".gitmodules").write_text('[submodule "nested"]\n path = omitted/nested\n url = https://example.invalid/nested.git\n')
+        (source / "client/library.c").write_text("/* selected client */\n", newline="\n")
+        (source / ".gitmodules").write_text('[submodule "nested"]\n path = omitted/nested\n url = https://example.invalid/nested.git\n', newline="\n")
         revision = self.component["sources"]["3rdparty/example"]["revision"]
         subprocess.run(["git", "update-index", "--add", "--cacheinfo", "160000", revision, "omitted/nested"], cwd=source, check=True)
         self.update_source_pin()
@@ -444,7 +444,7 @@ class DependencyBuildTests(unittest.TestCase):
         source = self.root / "3rdparty/example"
         self.remove_source_fixture(source)
         source.mkdir()
-        (source / "owner.txt").write_text("preserve\n")
+        (source / "owner.txt").write_text("preserve\n", newline="\n")
         self.set_exports(["LICENSE", "library.txt"])
         with self.assertRaisesRegex(ValueError, "must be empty"):
             self.prepare()
@@ -487,7 +487,7 @@ class DependencyBuildTests(unittest.TestCase):
     @unittest.skipIf(os.name == "nt", "Windows symlink creation is host-policy dependent")
     def test_selected_symlink_target_is_verified_and_not_followed_into_omitted_code(self):
         source = self.root / "3rdparty/example"
-        (source / "unselected.txt").write_text("Omitted code\n")
+        (source / "unselected.txt").write_text("Omitted code\n", newline="\n")
         (source / "alias.txt").symlink_to("unselected.txt")
         self.update_source_pin()
         self.set_exports(["LICENSE", "alias.txt", "library.txt"])
@@ -499,7 +499,7 @@ class DependencyBuildTests(unittest.TestCase):
 
     def test_dirty_source_checkout_is_rejected_before_checkout_changes(self):
         source = self.root / "3rdparty/example/library.txt"
-        source.write_text("uncommitted work\n")
+        source.write_text("uncommitted work\n", newline="\n")
         with self.assertRaisesRegex(ValueError, "local changes"):
             self.prepare()
         self.assertEqual(source.read_text(), "uncommitted work\n")
@@ -543,7 +543,7 @@ class DependencyBuildTests(unittest.TestCase):
         self.assertEqual(environment["PIP_NO_INDEX"], "1")
 
     def test_hosted_build_cannot_identify_modified_inputs_as_a_clean_commit(self):
-        self.recipe.write_text(self.recipe.read_text() + "# Uncommitted change\n")
+        self.recipe.write_text(self.recipe.read_text() + "# Uncommitted change\n", newline="\n")
         with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
             with self.assertRaises(subprocess.CalledProcessError):
                 self.prepare()
@@ -577,7 +577,7 @@ class DependencyBuildTests(unittest.TestCase):
     def test_failing_and_empty_builds_cannot_enter_the_cache(self):
         for recipe in ("raise RuntimeError('controlled failure')\n", "pass\n"):
             with self.subTest(recipe=recipe):
-                self.recipe.write_text(recipe)
+                self.recipe.write_text(recipe, newline="\n")
                 request = self.prepare()
                 with self.assertRaises((ValueError, subprocess.CalledProcessError)):
                     self.run_build(cold=True)
