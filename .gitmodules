@@ -316,3 +316,69 @@
 [submodule "3rdparty/skiko"]
 	path = 3rdparty/skiko
 	url = https://github.com/JetBrains/skiko.git
+[submodule "3rdparty/skia-vulkanmemoryallocator"]
+	path = 3rdparty/skia-vulkanmemoryallocator
+	url = https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+[submodule "3rdparty/skia-opengl-registry"]
+	path = 3rdparty/skia-opengl-registry
+	url = https://skia.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry
+[submodule "3rdparty/skia-vulkan-headers"]
+	path = 3rdparty/skia-vulkan-headers
+	url = https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers
+[submodule "3rdparty/skia-libjpeg-turbo"]
+	path = 3rdparty/skia-libjpeg-turbo
+	url = https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git
+[submodule "3rdparty/skia-egl-registry"]
+	path = 3rdparty/skia-egl-registry
+	url = https://skia.googlesource.com/external/github.com/KhronosGroup/EGL-Registry
+[submodule "3rdparty/skia-freetype"]
+	path = 3rdparty/skia-freetype
+	url = https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
+[submodule "3rdparty/skia-harfbuzz"]
+	path = 3rdparty/skia-harfbuzz
+	url = https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git
+[submodule "3rdparty/skia-highway"]
+	path = 3rdparty/skia-highway
+	url = https://chromium.googlesource.com/external/github.com/google/highway.git
+[submodule "3rdparty/skia-libwebp"]
+	path = 3rdparty/skia-libwebp
+	url = https://chromium.googlesource.com/webm/libwebp.git
+[submodule "3rdparty/skia-libpng"]
+	path = 3rdparty/skia-libpng
+	url = https://skia.googlesource.com/third_party/libpng.git
+[submodule "3rdparty/skia-expat"]
+	path = 3rdparty/skia-expat
+	url = https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git
+[submodule "3rdparty/skia-wuffs"]
+	path = 3rdparty/skia-wuffs
+	url = https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git
+[submodule "3rdparty/skia-zlib"]
+	path = 3rdparty/skia-zlib
+	url = https://chromium.googlesource.com/chromium/src/third_party/zlib
+[submodule "3rdparty/skia-icu"]
+	path = 3rdparty/skia-icu
+	url = https://chromium.googlesource.com/chromium/deps/icu.git
+[submodule "3rdparty/desktop-libxrender"]
+	path = 3rdparty/desktop-libxrender
+	url = https://gitlab.freedesktop.org/xorg/lib/libxrender.git
+[submodule "3rdparty/desktop-libxrandr"]
+	path = 3rdparty/desktop-libxrandr
+	url = https://gitlab.freedesktop.org/xorg/lib/libxrandr.git
+[submodule "3rdparty/desktop-xorgproto"]
+	path = 3rdparty/desktop-xorgproto
+	url = https://gitlab.freedesktop.org/xorg/proto/xorgproto.git
+[submodule "3rdparty/desktop-libglvnd"]
+	path = 3rdparty/desktop-libglvnd
+	url = https://github.com/NVIDIA/libglvnd.git
+[submodule "3rdparty/desktop-libx11"]
+	path = 3rdparty/desktop-libx11
+	url = https://gitlab.freedesktop.org/xorg/lib/libx11.git
+[submodule "3rdparty/desktop-dbus"]
+	path = 3rdparty/desktop-dbus
+	url = https://gitlab.freedesktop.org/dbus/dbus.git
+[submodule "3rdparty/skia"]
+	path = 3rdparty/skia
+	url = https://github.com/JetBrains/skia.git
+[submodule "3rdparty/gn"]
+	path = 3rdparty/gn
+	url = https://gn.googlesource.com/gn
