@@ -80,6 +80,8 @@ struct LocalPlaybackLaunch {
     {
         do {
             guard !closing, view != nil, sharedSession == nil else { throw HelperSessionFailure.unavailable }
+            try await sharedMediaPreparation.validate(player: player, scope: scope)
+            guard !closing, sharedSession == nil else { throw HelperSessionFailure.unavailable }
             let session = try HelperSession(
                 transport: transport, player: player, nativeScope: scope,
                 endpoint: endpoint, media: media, revision: revision

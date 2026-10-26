@@ -16,9 +16,11 @@ import syncwatch.domain.PlaybackPort
 import syncwatch.domain.PlaybackScope
 import syncwatch.domain.PlaybackStatus
 import syncwatch.domain.PlaybackTrack
+import syncwatch.domain.LoadedMediaContentPort
+import syncwatch.domain.LoadedMediaVersion
 
 /** Domain adapter only. JNI worker, native surface lifetime and common design have independent owners. */
-class VLCPlayback : PlaybackPort {
+class VLCPlayback : PlaybackPort, LoadedMediaContentPort {
     private val native = NativePlayback()
 
     companion object {
@@ -46,6 +48,13 @@ class VLCPlayback : PlaybackPort {
         return NativePlayback.Scope(clientRunId, mediaGeneration)
     }
     override suspend fun load(localFile: Path, scope: PlaybackScope) { native.load(localFile, scope.nativeScope()).awaitNative() }
+    override suspend fun contentVersion(scope: PlaybackScope): LoadedMediaVersion {
+        val value = native.contentVersion(scope.nativeScope()).awaitNative()
+        val stamp = value.joinToString("") { java.lang.Long.toUnsignedString(it, 16).padStart(16, '0') }
+        return LoadedMediaVersion(scope, value[3], stamp)
+    }
+    override suspend fun readContent(offset: Long, capacity: Int, scope: PlaybackScope): ByteArray =
+        native.readContent(offset, capacity, scope.nativeScope()).awaitNative()
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation {
         val value = native.observe(scope.nativeScope()).awaitNative()
         val owner = PlaybackScope(value.scope().clientRunId(), value.scope().generation())

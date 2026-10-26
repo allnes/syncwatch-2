@@ -1,12 +1,12 @@
 # Loaded media identity
 
-Status: native input ownership and VLC binding implemented; client hashing integration proposed. Normal shared playback admission remains disabled.
+Status: native input ownership, VLC binding and client hashing implemented. Normal shared playback admission remains disabled.
 
-The native player owns a pinned local input, while descriptor preparation still opens its path again to compute the hash. Matching duration, size and modification time does not establish that these operations read the same file version. A replacement or an in-place write can invalidate an otherwise matching descriptor.
+The native player and descriptor preparation read one pinned local input. Matching duration, size and modification time alone does not establish that independently opened paths read the same file version. A replacement or an in-place write must invalidate the prepared descriptor.
 
 `packages/playback-native/src/media_input.c` supplies regular-file ownership, bounded positional reads and local version validation. POSIX detects handle/path replacement and change metadata even when size and modification time are restored; invalidation latches. Windows holds read-only handles that exclude writers and replacement, including a separate read position for hashing. Both paths release their handles explicitly.
 
-The player passes the owned descriptor to the pinned public VLC file-descriptor API and releases it only after stopping and detaching media. Every observation or scoped command validates the input. A changed input stops and becomes failed; restoring the path cannot revive that generation. New generation-scoped native version/read calls expose local content without leaking paths or descriptor ownership. The client hashing/admission stages must adopt them before normal shared activation is enabled. Regular observations provide validation; this does not implement an independent filesystem watcher.
+The player passes the owned descriptor to the pinned public VLC file-descriptor API and releases it only after stopping and detaching media. Every observation or scoped command validates the input. A changed input stops and becomes failed; restoring the path cannot revive that generation. Generation-scoped native version/read calls expose local content without leaking paths or descriptor ownership. Regular observations provide validation; this does not implement an independent filesystem watcher.
 
 ## Ownership boundary
 
@@ -18,7 +18,11 @@ Provide bounded positional reads for hashing without changing VLC's read positio
 
 ## Native clients and hashing
 
-Swift on macOS, Kotlin on Linux and C# on Windows retain their platform hash implementations. A local content-reader port supplies bounded chunks from the player's pinned input and a scoped version stamp. Keep hashing, media input, room membership and shared-playback admission as separate components. Cancellation or player replacement invalidates outstanding preparation; a stale generation cannot publish a descriptor.
+Swift on macOS, Kotlin on Linux and C# on Windows implement separate `LoadedMediaContentPort` interfaces through their existing serialized native owners. `LoadedMediaVersion` is immutable local equality evidence scoped to the client run and media generation. Its stamp is private, redacted and excluded from room DTOs. The port returns bounded chunks from the player's pinned input without exposing descriptor ownership.
+
+The Library hash component accepts a bounded asynchronous chunk reader and retains its platform crypto implementation. It has no dependency on the player, domain or room modules and opens no path in this mode. It rejects premature EOF, oversized responses and trailing bytes. The existing path-based catalog hash entry remains available for independent local-library work.
+
+Shared media preparation retains the selected folder grant, reads and compares the native version before and after hashing, validates the observed duration, and retains the prepared version. The playback coordinator revalidates it immediately before transferring a synchronization transport. Cancellation, terminal close, stale generations or changed inputs reject the operation. Hashing, media input, room membership and admission remain independently owned components.
 
 Validate regular-file identity and version before reading, after hashing and immediately before admission. On systems permitting concurrent file changes, compare handle and path identity, change metadata and modification metadata, and invalidate on filesystem changes or lost observation. Restoring size or modification time must not preserve an old authorization. Do not describe metadata checks as immutable storage or proof against an adversary controlling the filesystem.
 
@@ -30,4 +34,4 @@ Implement each stage for all three clients together: native input ownership and 
 
 Exercise replacement between load and hash, same-length writes with restored modification time, mutation during hashing, unlink/rename, symlink and directory rejection, Unicode paths, stale generations, cancellation and repeated close. Verify that positional hashing does not disturb VLC playback or seek behavior. Test Windows write/delete exclusion and POSIX invalidation using actual native filesystem operations.
 
-Run equivalent checks only on the target OS. Complete real GUI regression on all three desktops and all six applicable directed playback cases before qualifying normal shared admission. Reuse verified engine/runtime packages and one current build per platform; release file handles, apps, helpers, service and tunnels after each test group. No new external library or media-file copy is required by this proposal.
+Run equivalent checks only on the target OS. Complete real GUI regression on all three desktops and all six applicable directed playback cases before qualifying normal shared admission. Reuse verified engine/runtime packages and one current build per platform; release file handles, apps, helpers, service and tunnels after each test group. No new external library or media-file copy is required by this design.

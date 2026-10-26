@@ -17,11 +17,20 @@ internal static class FileContentHasherTests
             {
                 string value = string.Concat(Enumerable.Repeat(item.GetProperty("content").GetString(), item.GetProperty("repeat").GetInt32()));
                 File.WriteAllBytes(file, Encoding.UTF8.GetBytes(value)); File.SetLastWriteTimeUtc(file, timestamp);
+                byte[] bytes = Encoding.UTF8.GetBytes(value);
                 var media = (await scanner.ScanAsync(root, rootId, false)).Single();
                 if (await hasher.Sha256Async(media) != item.GetProperty("sha256").GetString()) throw new InvalidOperationException(item.GetProperty("name").GetString());
+                string streamed = await hasher.Sha256Async(bytes.Length, (offset, capacity, _) =>
+                    Task.FromResult(bytes.AsSpan((int)offset, Math.Min(capacity, bytes.Length - (int)offset)).ToArray()));
+                if (streamed != item.GetProperty("sha256").GetString()) throw new InvalidOperationException("Scoped content digest");
                 last = media;
             }
             var selected = last ?? throw new InvalidOperationException("No fixture");
+            foreach (var (size, response) in new[] { (1L, Array.Empty<byte>()), (0L, new byte[] { 1 }), (1L, new byte[] { 1, 2 }) })
+            {
+                try { await hasher.Sha256Async(size, (_, _, _) => Task.FromResult(response)); throw new InvalidOperationException("Incomplete, oversized or trailing content accepted"); }
+                catch (IOException) { }
+            }
             File.WriteAllText(file, "longer");
             try { await hasher.Sha256Async(selected); throw new InvalidOperationException("Stale catalog accepted"); } catch (IOException) { }
             File.Delete(file);

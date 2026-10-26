@@ -26,13 +26,25 @@ import Testing
     let timestamp = Date(timeIntervalSince1970: 1_600_000_000)
     var last: LocalMediaFile?
     for item in corpus.cases {
-        try Data(String(repeating: item.content, count: item.repeat).utf8).write(to: movie)
+        let content = Data(String(repeating: item.content, count: item.repeat).utf8)
+        try content.write(to: movie)
         try FileManager.default.setAttributes([.modificationDate: timestamp], ofItemAtPath: movie.path)
         let media = try #require(await scanner.scan(root: root, rootID: rootID, recursive: false).first)
         #expect(try await hasher.sha256(media) == item.sha256, "\(item.name)")
+        let streamed = try await hasher.sha256(sizeBytes: Int64(content.count)) { offset, capacity in
+            let start = Int(offset)
+            return content.subdata(in: start..<min(content.count, start + capacity))
+        }
+        #expect(streamed == item.sha256, "\(item.name) scoped content")
         last = media
     }
     let media = try #require(last)
+    for (size, response) in [(Int64(1), Data()), (0, Data([1])), (1, Data([1, 2]))] {
+        do {
+            _ = try await hasher.sha256(sizeBytes: size) { _, _ in response }
+            Issue.record("Incomplete, oversized or trailing content accepted")
+        } catch is CocoaError {}
+    }
     try Data("longer".utf8).write(to: movie)
     do {
         _ = try await hasher.sha256(media)

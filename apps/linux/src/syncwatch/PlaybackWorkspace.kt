@@ -89,6 +89,8 @@ internal class PlaybackController(
         check(EventQueue.isDispatchThread())
         try {
             check(!closing && started && sharedSession == null)
+            sharedMediaPreparation.validate(player, scope)
+            check(!closing && started && sharedSession == null)
             val session = HelperSession(transport, player, scope, endpoint, media, revision, work) { state ->
                 sharedState = state; gateSharedActions()
             }

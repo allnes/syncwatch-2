@@ -11,6 +11,7 @@ internal sealed class SharedMediaPreparation
     private CancellationTokenSource? pendingCancellation;
     private bool closed;
     private Task? shutdown;
+    private LoadedMediaVersion? prepared;
 
     internal async Task<MediaDescriptor> PrepareAsync(LibraryMediaSelection selection, IPlaybackPort player, PlaybackScope scope, CancellationToken requestCancellation = default)
     {
@@ -28,13 +29,24 @@ internal sealed class SharedMediaPreparation
         {
             var before = await player.ObserveAsync(scope, token);
             if (before.Status != PlaybackStatus.Ready || !before.Seekable || before.DurationMs is not > 0) throw new InvalidOperationException("media-unavailable");
-            string digest = await new FileContentHasher().Sha256Async(selection.Media, token);
+            if (player is not ILoadedMediaContentPort content) throw new InvalidOperationException("media-unavailable");
+            var version = await content.ContentVersionAsync(scope, token);
+            if (version.SizeBytes != selection.Media.SizeBytes) throw new InvalidOperationException("media-changed");
+            string digest = await new FileContentHasher().Sha256Async(version.SizeBytes,
+                (offset, capacity, cancellation) => content.ReadContentAsync(offset, capacity, scope, cancellation), token);
             var after = await player.ObserveAsync(scope, token);
-            if (after.Status != PlaybackStatus.Ready || !after.Seekable || after.DurationMs != before.DurationMs) throw new InvalidOperationException("media-changed");
+            if (after.Status != PlaybackStatus.Ready || !after.Seekable || after.DurationMs != before.DurationMs
+                || !version.Equals(await content.ContentVersionAsync(scope, token))) throw new InvalidOperationException("media-changed");
+            token.ThrowIfCancellationRequested(); prepared = version;
             string title = MediaDescriptor.LogicalTitle(selection.Media.Title);
             return new(selection.Media.Id, title, MediaDescriptor.NormalizedTitleKey(title), selection.Media.SizeBytes, before.DurationMs, digest);
         }
         finally { GC.KeepAlive(selection.Access); }
+    }
+    internal async Task ValidateAsync(ILoadedMediaContentPort content, PlaybackScope scope)
+    {
+        if (closed || prepared is null || prepared.Scope != scope
+            || !prepared.Equals(await content.ContentVersionAsync(scope, cancellation.Token))) throw new InvalidOperationException("media-changed");
     }
     private static async Task<MediaDescriptor> WaitAsync(Task<MediaDescriptor> task, CancellationTokenSource source, CancellationToken token)
     {
@@ -50,6 +62,7 @@ internal sealed class SharedMediaPreparation
     {
         closed = true; cancellation.Cancel();
         if (pending is not null) { try { await pending; } catch (Exception) { /* The request caller observes its failure. */ } }
+        prepared = null;
         cancellation.Dispose();
     }
 }
