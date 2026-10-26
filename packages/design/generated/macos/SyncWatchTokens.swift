@@ -587,6 +587,8 @@ public enum SyncWatchCopy {
             "roomConnectionHint": "Create a room or join with an invitation.",
             "pasteInvitation": "Paste invitation",
             "roomInvitationInvalid": "Copy a complete room invitation and try again.",
+            "roomCatalogPublishing": "Sharing library…",
+            "roomCatalogPublishFailed": "Could not share the library. Rescan the folder to retry.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -809,6 +811,8 @@ public enum SyncWatchCopy {
             "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
             "pasteInvitation": "Вставить приглашение",
             "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
+            "roomCatalogPublishing": "Публикация библиотеки…",
+            "roomCatalogPublishFailed": "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {

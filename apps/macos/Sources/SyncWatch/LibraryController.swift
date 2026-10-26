@@ -27,6 +27,8 @@ private actor LibraryRecordIO {
 @MainActor final class LibraryController: ObservableObject {
     @Published private(set) var presentation = LibraryPresentation(enabledActions: ["chooseFolder", "openSettings"])
     @Published var errorKey: String?
+    @Published private(set) var roomRevision = UUID()
+    var roomFiles: [LocalMediaFile] { catalog.values.sorted { $0.id < $1.id } }
     private let scanner = FileSystemLibrary()
     private let persistence: LibraryRecordIO
     private var stable: LibraryPresentation?
@@ -110,6 +112,7 @@ private actor LibraryRecordIO {
                     } ?? rows.first?.id
                 grant = next
                 catalog = Dictionary(uniqueKeysWithValues: files.map { ($0.id, $0) })
+                roomRevision = UUID()
                 presentation = LibraryPresentation(
                     state: rows.isEmpty ? .empty : .selected, entries: rows, selectedID: selected,
                     enabledActions: ["chooseFolder", "rescan", "search", "selectMovie", "openSettings"])

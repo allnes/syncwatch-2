@@ -583,6 +583,8 @@ public static class SyncWatchCopy
         ("en", "roomConnectionHint") => "Create a room or join with an invitation.",
         ("en", "pasteInvitation") => "Paste invitation",
         ("en", "roomInvitationInvalid") => "Copy a complete room invitation and try again.",
+        ("en", "roomCatalogPublishing") => "Sharing library…",
+        ("en", "roomCatalogPublishFailed") => "Could not share the library. Rescan the folder to retry.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -802,6 +804,8 @@ public static class SyncWatchCopy
         ("ru", "roomConnectionHint") => "Создайте комнату или войдите по приглашению.",
         ("ru", "pasteInvitation") => "Вставить приглашение",
         ("ru", "roomInvitationInvalid") => "Скопируйте приглашение комнаты целиком и повторите вставку.",
+        ("ru", "roomCatalogPublishing") => "Публикация библиотеки…",
+        ("ru", "roomCatalogPublishFailed") => "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };

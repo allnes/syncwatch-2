@@ -1,8 +1,14 @@
+using System.IO;
 using SyncWatch;
 using SyncWatch.Domain;
 using SyncWatch.Library;
 
-await RoomPlaybackGateChecks.RunAsync();
+await RoomDispatcherChecks.RunAsync(async () =>
+{
+    await RoomPlaybackGateChecks.RunAsync();
+    await RoomPublicationChecks.RunAsync();
+    await RoomPublicationLiveChecks.RunAsync();
+});
 
 string root = Path.Combine(Path.GetTempPath(), "syncwatch-media-preparation-" + Guid.NewGuid());
 Directory.CreateDirectory(root);

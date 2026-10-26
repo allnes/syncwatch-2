@@ -34,6 +34,13 @@ class RoomClient(val address: RoomAddress) {
         RoomCatalogPosition(cursor, bootstrap)
         return RoomCatalogPage.decode(request("GET", "v1/rooms/${admission.roomId}/catalog", admission.token, cursor = cursor), bootstrap, cursor)
     }
+    /** The caller serializes bootstrap creation with this walk and bounds its overall lifetime. */
+    suspend fun catalogView(admission: RoomAdmission, bootstrap: RoomBootstrap): RoomCatalogView {
+        if (bootstrap.snapshot.epoch != admission.bootstrap.snapshot.epoch) throw RoomWire.bad()
+        return RoomCatalogView.read(bootstrap) { cursor ->
+            request("GET", "v1/rooms/${admission.roomId}/catalog", admission.token, cursor = cursor)
+        }
+    }
     suspend fun leave(admission: RoomAdmission) {
         val value = RoomWire.parse(request("POST", "v1/rooms/${admission.roomId}/leave", admission.token))
         RoomWire.keys(value, "v", "status")

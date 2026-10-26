@@ -7,6 +7,40 @@ namespace SyncWatch.Room;
 
 public sealed record RoomCatalogEntry(string MemberId, MediaDescriptor Media);
 
+/// <summary>A bootstrap and its complete catalog are published together; no partial view escapes.</summary>
+public sealed class RoomCatalogView
+{
+    public RoomBootstrap Bootstrap { get; }
+    public IReadOnlyList<RoomCatalogEntry> Items { get; }
+    private RoomCatalogView(RoomBootstrap bootstrap, List<RoomCatalogEntry> items)
+    { Bootstrap = bootstrap; Items = items.AsReadOnly(); }
+
+    public static async Task<RoomCatalogView> ReadAsync(RoomBootstrap bootstrap,
+        Func<string, CancellationToken, Task<byte[]>> fetch, CancellationToken cancellation = default)
+    {
+        _ = new RoomCatalogPosition(bootstrap.CatalogCursor, bootstrap);
+        string cursor = bootstrap.CatalogCursor;
+        List<RoomCatalogEntry> items = []; HashSet<(string, string)> seen = [];
+        Dictionary<string, int> counts = new(StringComparer.Ordinal);
+        while (true)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var page = RoomCatalogPage.Decode(await fetch(cursor, cancellation), bootstrap, cursor);
+            cancellation.ThrowIfCancellationRequested();
+            foreach (var item in page.Items)
+            {
+                counts.TryGetValue(item.MemberId, out int count);
+                // The service permits at most 2048 catalog items per member.
+                if (!seen.Add((item.MemberId, item.Media.MediaId)) || ++count > 2048) throw RoomWire.Bad();
+                counts[item.MemberId] = count;
+            }
+            items.AddRange(page.Items);
+            if (page.NextCursor is not string next) return new(bootstrap, items);
+            cursor = next;
+        }
+    }
+}
+
 /// <summary>One bounded page of a bootstrap's stable view, never a partial replacement catalog.</summary>
 public sealed class RoomCatalogPage
 {

@@ -235,7 +235,7 @@ def probe(payload, profile, home, compiler):
             raise ValueError("Local filesystem library consumer failed")
         print(output.strip())
         output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.ApplicationLibraryChecksKt"], work, home)
+                              "syncwatch.ApplicationLibraryChecksKt", str(ROOT)], work, home)
         if "SYNCWATCH_APPLICATION_LIBRARY_OK" not in output:
             raise ValueError("Application library ownership/cancellation consumer failed")
         print(output.strip())

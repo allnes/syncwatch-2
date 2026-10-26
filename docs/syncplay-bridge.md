@@ -31,8 +31,12 @@ python3 tools/bridge/check.py --runtime artifacts/dependencies/syncplay-runtime/
 python3 -m unittest discover -s tools/bridge/tests -v
 swift run --package-path packages/macos-bridge BridgeProbe /absolute/helper/bin/syncwatch-helper /absolute/helper
 dotnet run --project packages/windows-bridge/SyncWatch.Bridge.Probe -- /absolute/helper/bin/syncwatch-helper /absolute/helper
+# Linux only; requires provisioned JDK/Kotlin and the source-built kotlin-stdlib artifact:
+python3 tools/bridge/linux_probe.py /absolute/helper/bin/syncwatch-helper /absolute/helper
 ```
 
-Use the corresponding target directory and `.exe` name on Windows. Build inputs come from the existing runtime receipt and pinned fastjsonschema Git submodule. No package installation or application dependency download occurs inside the helper builder. Its receipt retains every payload digest and original validator grant.
+Run Swift only on macOS, C# only on Windows and Kotlin only on Linux. Use the corresponding target directory and `.exe` name on Windows. The dependency action calls `tools/bridge/ci.py`, which follows the same native dispatch. Linux provisioning selects the JDK and Kotlin compiler and builds the owned stdlib through its registered dependency recipe; the probe verifies that artifact before compiling. `--kotlin-runtime` selects an existing `kotlin-stdlib/linux-x64` artifact directory for reuse in both provisioning and checking. Each process probe covers handshake, identical replay, loaded media, shutdown, cancellation and an owned helper crash. Kotlin probe classes are temporary and every owned helper is closed and checked absent, including failure paths.
 
-This is a development helper. Authenticated immutable installation/signing, actual VLC, physical media/device acceptance and application provider activation remain separate requirements. Compiled Kotlin command and application consumers exercise the owned source-built JVM/UI payload. Packaged application/runtime qualification and visible physical/provider acceptance remain separate. A portable .NET pipe probe on Linux establishes its OS process/pipe boundary independently of Kotlin application acceptance.
+Build inputs come from the existing runtime receipt and pinned fastjsonschema Git submodule. No package installation or application dependency download occurs inside the helper builder. Its receipt retains every payload digest and original validator grant.
+
+This is a development helper. Authenticated immutable installation/signing, physical media/device acceptance and normal room admission remain separate requirements. Compiled Kotlin command and application consumers exercise the owned source-built JVM/UI payload. Packaged application/runtime qualification and visible physical/provider acceptance remain separate. Process probes do not establish media agreement, room admission or six-direction playback acceptance.

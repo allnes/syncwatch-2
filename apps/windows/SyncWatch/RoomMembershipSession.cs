@@ -1,0 +1,80 @@
+using SyncWatch.Domain;
+using SyncWatch.Room;
+
+namespace SyncWatch;
+
+/// <summary>One application-owned membership serializes bootstrap walks and command numbering.</summary>
+internal sealed class RoomMembershipSession(RoomClient client, RoomAdmission admission, RoomIdentity identity)
+{
+    private readonly SemaphoreSlim gate = new(1, 1);
+    private long minimumSequence = admission.Bootstrap.Snapshot.Sequence;
+    private long number;
+    private RoomCommand? unresolved;
+
+    internal async Task<RoomCatalogView> RefreshAsync(RoomBootstrap? initial = null, long sequence = 0, CancellationToken cancellation = default)
+    {
+        await gate.WaitAsync(cancellation);
+        try { minimumSequence = Math.Max(minimumSequence, sequence); return await ReadAsync(initial, cancellation); }
+        finally { gate.Release(); }
+    }
+    internal async Task<RoomCatalogView> PublishAsync(IReadOnlyList<MediaDescriptor> items, CancellationToken cancellation = default)
+    {
+        await gate.WaitAsync(cancellation);
+        try
+        {
+            if (items.Count > 2048 || items.Select(p => p.MediaId).Distinct(StringComparer.Ordinal).Count() != items.Count) throw new RoomProtocolException("malformed");
+            if (unresolved is not null) await AcknowledgeAsync(cancellation);
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                var snapshot = await ValidatedSnapshotAsync(null, cancellation);
+                string batch = "batch-" + Guid.NewGuid().ToString("N"); int offset = 0;
+                try
+                {
+                    do
+                    {
+                        var command = CatalogCommand(admission, number + 1, snapshot.Snapshot.WatchGeneration, batch, items, offset);
+                        number++; unresolved = command.Command;
+                        await AcknowledgeAsync(cancellation); offset += command.Count;
+                    } while (offset < items.Count);
+                    return await ReadAsync(null, cancellation);
+                }
+                catch (RoomProtocolException error) when (error.Message == "staleGeneration" && attempt == 0) { }
+            }
+            throw new RoomProtocolException("staleGeneration");
+        }
+        finally { gate.Release(); }
+    }
+    internal static (RoomCommand Command, int Count) CatalogCommand(RoomAdmission admission, long number, long generation, string batch, IReadOnlyList<MediaDescriptor> items, int offset)
+    {
+        if (offset < 0 || offset > items.Count) throw new RoomProtocolException("malformed");
+        int count = Math.Min(100, items.Count - offset);
+        while (true)
+        {
+            try { return (new(admission, number, generation, new RoomCommandAction.Catalog(batch, offset, items.Skip(offset).Take(count).ToArray(), offset + count == items.Count)), count); }
+            catch (RoomProtocolException error) when (error.Message == "frameTooLarge" && count > 1) { count /= 2; }
+        }
+    }
+    private async Task AcknowledgeAsync(CancellationToken cancellation)
+    {
+        if (unresolved is null) return;
+        var result = await client.ExecuteAsync(admission, unresolved, cancellation);
+        unresolved = null; minimumSequence = Math.Max(minimumSequence, result.Sequence);
+        if (result.ErrorCode is string error) throw new RoomProtocolException(error);
+        cancellation.ThrowIfCancellationRequested();
+    }
+    private async Task<RoomBootstrap> ValidatedSnapshotAsync(RoomBootstrap? initial, CancellationToken cancellation)
+    {
+        var value = initial ?? await client.SnapshotAsync(admission, cancellation);
+        if (value.Snapshot.Epoch != admission.Bootstrap.Snapshot.Epoch || value.Snapshot.Sequence < minimumSequence || value.Connection != admission.Bootstrap.Connection
+            || !value.Snapshot.Members.Any(p => p.MemberId == admission.MemberId && p.Identity == identity)) throw new RoomProtocolException("malformed");
+        return value;
+    }
+    private async Task<RoomCatalogView> ReadAsync(RoomBootstrap? initial, CancellationToken cancellation)
+    {
+        var bootstrap = await ValidatedSnapshotAsync(initial, cancellation);
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation); deadline.CancelAfter(TimeSpan.FromSeconds(20));
+        var view = await client.CatalogViewAsync(admission, bootstrap, deadline.Token);
+        cancellation.ThrowIfCancellationRequested(); minimumSequence = view.Bootstrap.Snapshot.Sequence;
+        return view;
+    }
+}

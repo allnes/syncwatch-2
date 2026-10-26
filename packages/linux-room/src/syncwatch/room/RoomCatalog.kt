@@ -1,8 +1,36 @@
 package syncwatch.room
 
 import syncwatch.domain.MediaDescriptor
+import kotlinx.coroutines.ensureActive
 
 data class RoomCatalogEntry(val memberId: String, val media: MediaDescriptor)
+
+/** A bootstrap and its complete catalog are published together; no partial view escapes. */
+class RoomCatalogView private constructor(val bootstrap: RoomBootstrap, items: List<RoomCatalogEntry>) {
+    val items: List<RoomCatalogEntry> = java.util.Collections.unmodifiableList(items.toList())
+    companion object {
+        suspend fun read(bootstrap: RoomBootstrap, fetch: suspend (String) -> ByteArray): RoomCatalogView {
+            RoomCatalogPosition(bootstrap.catalogCursor, bootstrap)
+            var cursor = bootstrap.catalogCursor
+            val items = mutableListOf<RoomCatalogEntry>()
+            val seen = mutableSetOf<Pair<String, String>>()
+            val counts = mutableMapOf<String, Int>()
+            while (true) {
+                kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                val page = RoomCatalogPage.decode(fetch(cursor), bootstrap, cursor)
+                kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                for (item in page.items) {
+                    val count = (counts[item.memberId] ?: 0) + 1
+                    // The service permits at most 2048 catalog items per member.
+                    if (!seen.add(item.memberId to item.media.mediaId) || count > 2048) throw RoomWire.bad()
+                    counts[item.memberId] = count
+                }
+                items.addAll(page.items)
+                cursor = page.nextCursor ?: return RoomCatalogView(bootstrap, items)
+            }
+        }
+    }
+}
 
 /** One bounded page of a bootstrap's stable view, never a partial replacement catalog. */
 class RoomCatalogPage private constructor(val epoch: String, val sequence: Long, items: List<RoomCatalogEntry>, val nextCursor: String?) {

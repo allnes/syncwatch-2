@@ -1,6 +1,7 @@
 package syncwatch
 
 import java.nio.file.Files
+import java.nio.file.Path
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -10,7 +11,9 @@ import org.jetbrains.skiko.MainUIDispatcher
 import syncwatch.design.LibraryVisualState
 import syncwatch.library.FileLibraryAccessStore
 
-fun main() = runBlocking {
+fun main(arguments: Array<String>) = runBlocking {
+    require(arguments.size <= 1) { "Pass an optional repository directory" }
+    val repository = Path.of(arguments.singleOrNull() ?: ".").toAbsolutePath()
     val scratch = Files.createTempDirectory("syncwatch-application-library-")
     val root = Files.createDirectory(scratch.resolve("movies"))
     Files.writeString(root.resolve("A.MKV"), "fixture")
@@ -22,6 +25,8 @@ fun main() = runBlocking {
         withContext(MainUIDispatcher) {
             watchPersistenceChecks(scratch)
             roomPlaybackGateChecks(owner)
+            roomPublicationChecks(repository.resolve("contracts/fixtures/room-client.json"))
+            roomPublicationLiveChecks(owner)
             val model = LibraryController(store, owner, null)
             model.restore(); model.settled()
             check(model.presentation.entries.isEmpty())

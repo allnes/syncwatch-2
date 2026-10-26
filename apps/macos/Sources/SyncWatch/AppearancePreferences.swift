@@ -142,6 +142,9 @@ import SyncWatchLibrary
                 }), player: playerContent
         )
         .background(WindowCloseGate(close: close))
+        .onReceive(library.$roomRevision) { revision in
+            room.updateLibrary(revision: revision, files: library.roomFiles)
+        }
         .task {
             lifecycle.prepareForTermination = {
                 [weak sessionOwner = watch, weak catalogOwner = library, weak roomOwner = room] in

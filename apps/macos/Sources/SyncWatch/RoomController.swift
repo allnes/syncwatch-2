@@ -1,14 +1,22 @@
 import Foundation
 import SwiftUI
 import SyncWatchDesign
+import SyncWatchLibrary
 import SyncWatchRoom
 
 /// The workspace owns membership independently of the visible connection sheet.
 @MainActor final class RoomController: ObservableObject {
     @Published var editor = RoomEditor()
-    @Published private(set) var bootstrap: RoomBootstrap?
+    @Published private(set) var catalogView: RoomCatalogView?
+    var bootstrap: RoomBootstrap? { catalogView?.bootstrap }
     private var admission: RoomAdmission?
     private var work: Task<Void, Never>?
+    private var session: RoomMembershipSession?
+    private var catalogMap = RoomLocalCatalog()
+    private var localRevision: UUID?
+    private var acknowledgedRevision: UUID?
+    private var localFiles: [LocalMediaFile] = []
+    private var publisher: Task<Void, Never>?
     private var stopping = false
     private var closing: Task<Void, Never>?
     var connected: Bool { editor.connected && bootstrap != nil }
@@ -27,7 +35,8 @@ import SyncWatchRoom
         if editor.state != "disconnected" { result.enabledActions.remove("startWatching") }
         result.roomStatus =
             connected
-            ? "roomMetadataConnected"
+            ? (["roomCatalogPublishing", "roomCatalogPublishFailed"].contains(editor.status)
+                ? editor.status : "roomMetadataConnected")
             : editor.busy ? "roomConnecting" : editor.state == "failed" ? "roomConnectionFailed" : "disconnected"
         return result
     }
@@ -71,10 +80,11 @@ import SyncWatchRoom
         }
         stopping = true
         work?.cancel()
+        publisher?.cancel()
         if let work { await work.value }
         self.work = nil
         stopping = false
-        bootstrap = nil
+        catalogView = nil
         admission = nil
         editor.state = "disconnected"
         editor.status = ""
@@ -82,6 +92,46 @@ import SyncWatchRoom
         editor.memberCount = 0
         editor.owner = false
         editor.clearSecrets()
+    }
+    func updateLibrary(revision: UUID, files: [LocalMediaFile]) {
+        guard localRevision != revision else { return }
+        localRevision = revision
+        localFiles = files
+        startPublisher()
+    }
+    private func startPublisher() {
+        guard !stopping, connected, publisher == nil, let session, localRevision != nil,
+            localRevision != acknowledgedRevision
+        else { return }
+        publisher = Task { await publishLibrary(session) }
+    }
+    private func publishLibrary(_ owner: RoomMembershipSession) async {
+        defer { publisher = nil }
+        while !Task.isCancelled, !stopping, session === owner, let revision = localRevision,
+            revision != acknowledgedRevision
+        {
+            do {
+                let publication = try catalogMap.prepare(localFiles)
+                editor.status = "roomCatalogPublishing"
+                let view = try await owner.publish(publication.items)
+                try Task.checkCancellation()
+                guard !stopping, session === owner else { return }
+                catalogMap.acknowledge(publication)
+                acknowledgedRevision = revision
+                accept(view)
+                if ["roomCatalogPublishing", "roomCatalogPublishFailed"].contains(editor.status) { editor.status = "" }
+            } catch {
+                guard !Task.isCancelled, !stopping, session === owner else { return }
+                if localRevision != revision { continue }
+                editor.status = "roomCatalogPublishFailed"
+                return
+            }
+        }
+    }
+    private func accept(_ view: RoomCatalogView) {
+        guard view.bootstrap.snapshot.sequence >= (bootstrap?.snapshot.sequence ?? 0) else { return }
+        catalogView = view
+        editor.memberCount = view.bootstrap.snapshot.members.count
     }
     private func run(_ values: [String: String], owner: Bool) async {
         var current: RoomClient?
@@ -119,31 +169,38 @@ import SyncWatchRoom
                 return try await group.next()!
             }
             try Task.checkCancellation()
-            bootstrap = initial
+            let ownerSession = RoomMembershipSession(client: next, admission: value, identity: identity)
+            let firstView = try await ownerSession.refresh(initial: initial)
+            try Task.checkCancellation()
+            catalogMap = RoomLocalCatalog()
+            acknowledgedRevision = nil
+            session = ownerSession
+            catalogView = firstView
             editor.state = "connected"
             editor.roomID = value.roomID
             editor.memberCount = initial.snapshot.members.count
             editor.owner = owner
+            startPublisher()
             while !Task.isCancelled {
                 let event = try RoomInvalidation.decode(await stream.receive())
                 guard let previous = bootstrap, event.epoch == previous.snapshot.epoch else {
                     throw RoomProtocolFailure.malformed
                 }
                 if event.sequence <= previous.snapshot.sequence { continue }
-                let snapshot = try await next.snapshot(value)
-                guard snapshot.snapshot.epoch == previous.snapshot.epoch, snapshot.snapshot.sequence >= event.sequence,
-                    snapshot.connection == initial.connection,
-                    snapshot.snapshot.members.contains(where: {
-                        $0.memberID == value.memberID && $0.identity == identity
-                    })
-                else { throw RoomProtocolFailure.malformed }
-                bootstrap = snapshot
-                editor.memberCount = snapshot.snapshot.members.count
+                let complete = try await ownerSession.refresh(sequence: event.sequence)
+                try Task.checkCancellation()
+                accept(complete)
             }
         } catch {
             failed = !Task.isCancelled
             editor.state = "connecting"
         }
+        publisher?.cancel()
+        await publisher?.value
+        publisher = nil
+        session = nil
+        acknowledgedRevision = nil
+        catalogMap = RoomLocalCatalog()
         if let current {
             // Cleanup work is owned and bounded even when the attempt's caller was cancelled.
             if let admitted {
@@ -159,7 +216,7 @@ import SyncWatchRoom
             await current.close()
         }
         admission = nil
-        bootstrap = nil
+        catalogView = nil
         editor.clearSecrets()
         editor.memberCount = 0
         editor.owner = false

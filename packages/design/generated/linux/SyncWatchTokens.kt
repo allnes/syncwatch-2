@@ -412,6 +412,8 @@ object SyncWatchCopy {
         "en" to "roomConnectionHint" -> "Create a room or join with an invitation."
         "en" to "pasteInvitation" -> "Paste invitation"
         "en" to "roomInvitationInvalid" -> "Copy a complete room invitation and try again."
+        "en" to "roomCatalogPublishing" -> "Sharing library…"
+        "en" to "roomCatalogPublishFailed" -> "Could not share the library. Rescan the folder to retry."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -631,6 +633,8 @@ object SyncWatchCopy {
         "ru" to "roomConnectionHint" -> "Создайте комнату или войдите по приглашению."
         "ru" to "pasteInvitation" -> "Вставить приглашение"
         "ru" to "roomInvitationInvalid" -> "Скопируйте приглашение комнаты целиком и повторите вставку."
+        "ru" to "roomCatalogPublishing" -> "Публикация библиотеки…"
+        "ru" to "roomCatalogPublishFailed" -> "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")

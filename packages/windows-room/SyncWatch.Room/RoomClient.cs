@@ -57,6 +57,13 @@ public sealed class RoomClient : IAsyncDisposable
         _ = new RoomCatalogPosition(cursor, bootstrap);
         return RoomCatalogPage.Decode(await RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/catalog", admission.Token, null, cancellation, cursor), bootstrap, cursor);
     }
+    /// <summary>The caller serializes bootstrap creation with this walk and bounds its overall lifetime.</summary>
+    public Task<RoomCatalogView> CatalogViewAsync(RoomAdmission admission, RoomBootstrap bootstrap, CancellationToken cancellation = default)
+    {
+        if (bootstrap.Snapshot.Epoch != admission.Bootstrap.Snapshot.Epoch) throw RoomWire.Bad();
+        return RoomCatalogView.ReadAsync(bootstrap,
+            (cursor, token) => RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/catalog", admission.Token, null, token, cursor), cancellation);
+    }
     public async Task LeaveAsync(RoomAdmission admission, CancellationToken cancellation = default)
     {
         using var document = RoomWire.Parse(await RequestAsync(HttpMethod.Post, $"v1/rooms/{admission.RoomId}/leave", admission.Token, null, cancellation));

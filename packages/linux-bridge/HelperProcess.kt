@@ -13,10 +13,9 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** Owns inherited pipes only. Compose and playback state are separate consumers.
- * Source-only until the Linux compiler/native/font closure is accepted.
- */
+/** Owns inherited pipes only. Compose and playback state are separate consumers. */
 class HelperProcess private constructor(private val process: Process) : HelperTransport {
+    val processID: Long get() = process.pid()
     private val closed = AtomicBoolean(false)
     private val reading = AtomicBoolean(false)
     private val writing = AtomicBoolean(false)

@@ -30,10 +30,6 @@ import syncwatch.domain.PlaybackStatus
 import syncwatch.domain.WatchFailure
 import syncwatch.ipc.Json
 
-interface HelperTransport : AutoCloseable {
-    fun read(): CompletableFuture<ByteArray>
-    fun send(frame: ByteArray): CompletableFuture<Unit>
-}
 data class SharedMedia(val handle: String, val name: String, val durationMs: Long, val fileSizeBytes: Long)
 data class SyncplayEndpoint(val host: String, val port: Int, val room: String, val username: String)
 data class SyncplayParticipant(val username: String, val ready: Boolean)

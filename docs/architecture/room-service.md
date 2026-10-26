@@ -35,7 +35,9 @@ Catalog pages are stable at the bootstrap sequence. Their cursor expires after 6
 
 The Swift/macOS, C#/Windows and Kotlin/Linux Room SDKs expose bounded catalog-page requests tied to an explicit bootstrap. They validate the view cursor, epoch, sequence, member bindings, descriptor fields and forward pagination before returning an immutable page. Descriptors reuse the native Domain model, including exact canonical title-key validation. A media ID is unique within a member's catalog; the same ID from another member is a separate entry.
 
-Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. Page transport alone does not implement that coordinator, metadata commands, media admission or playback activation. Normal shared Start remains gated until those application paths are verified on all three operating systems.
+Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. The normal desktop membership session also serializes outgoing [local catalog publication](../room-client.md#local-catalog-publication) against those walks, preserving one command counter and any unresolved request. Page transport alone does not implement media admission or playback activation. Normal shared Start remains gated until those application paths are verified on all three operating systems.
+
+The SDKs also assemble a complete catalog view with its bootstrap. They validate duplicates across pages and the service maximum of 2048 items per member, check cancellation before publishing the final page, and expose no partial replacement. The normal desktop membership loop serializes snapshots with page walks and bounds each walk to 20 seconds. It publishes metadata and catalog together, retaining the previous complete view while a refresh is pending; failed or cancelled attempts cannot authorize playback. Cursor expiry requires a new bootstrap. Local catalog publication and media admission remain separate application work.
 
 ## Commands and ordering
 
