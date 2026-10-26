@@ -278,7 +278,7 @@ class HelperSession(
     }
     private fun validate(value: PlaybackObservation) {
         nativeScope.check(value.scope)
-        if (value.status != PlaybackStatus.ready || value.durationMs != media.durationMs || !value.seekable) bad()
+        if (value.status != PlaybackStatus.ready || value.durationMs != media.durationMs || (!value.seekable && !(value.ended && value.paused))) bad()
     }
     private fun text(value: Any?, maximum: Int): String {
         val text = value as? String ?: bad()

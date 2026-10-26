@@ -17,6 +17,7 @@ import SyncWatchRoom
     private var active: (membership: RoomWatchMembership, context: RoomWatchContext, player: PlaybackController)?
     private var seenMembership = false
     private var closing = false
+    private var admitted = false
 
     init(room: RoomController, watch: WatchSessionCoordinator, helper: HelperConfiguration) {
         self.room = room
@@ -66,6 +67,8 @@ import SyncWatchRoom
         var publication: RoomPreparedPublication?
         var membership: RoomWatchMembership?
         var owned: PlaybackController?
+        var finished = false
+        admitted = false
         do {
             let intent = try await room.beginWatch()
             membership = intent.membership
@@ -134,6 +137,12 @@ import SyncWatchRoom
             let readyDeadline = ContinuousClock.now + .seconds(20)
             while true {
                 try Task.checkCancellation()
+                let actual = try await player.player.observe(scope)
+                if actual.ended {
+                    finished = true
+                    status = "ended"
+                    break
+                }
                 guard authorized(), !player.failed else { throw HelperSessionFailure.unavailable }
                 guard player.sharedState?.connection != .failed, player.sharedState?.connection != .stopped else {
                     throw HelperSessionFailure.unavailable
@@ -142,11 +151,12 @@ import SyncWatchRoom
                     guard player.sharedState?.acceptedUsername == intent.membership.identity.syncplayUsername else {
                         throw HelperSessionFailure.malformed
                     }
+                    admitted = true
                     if busy {
                         busy = false
                         status = "sharedWatchConnected"
                     }
-                } else if ContinuousClock.now >= readyDeadline {
+                } else if !admitted, ContinuousClock.now >= readyDeadline {
                     throw HelperSessionFailure.timeout
                 }
                 try await Task.sleep(for: .milliseconds(100))
@@ -157,16 +167,26 @@ import SyncWatchRoom
             errorKey = key
             status = key
         }
+        let previous = active
         active = nil
+        admitted = false
         await owned?.revokeShared()
+        if finished, let previous, room.editor.owner, room.isCurrent(previous.membership) {
+            // Completion releases only this helper; bookkeeping cannot control a peer's movie.
+            _ = try? await room.performWatch(
+                .end(reason: .finished), membership: previous.membership, expected: previous.context)
+        }
         if let publication, let membership { room.clearPrepared(publication.lease, membership: membership) }
         busy = false
         work = nil
     }
     private func authorized() -> Bool {
-        guard !closing, let active, room.isCurrent(active.membership), watch.player === active.player,
-            watch.scope == active.player.scope, let current = room.watchBootstrap
-        else { return false }
+        guard !closing, let active, watch.player === active.player, watch.scope == active.player.scope else {
+            return false
+        }
+        // Metadata generations authorize a new load; Syncplay owns an already admitted file's timing.
+        if admitted { return room.canContinuePlayback(active.membership) }
+        guard room.isCurrent(active.membership), let current = room.watchBootstrap else { return false }
         return current.snapshot.epoch == active.context.bootstrap.snapshot.epoch
             && current.snapshot.watchGeneration == active.context.bootstrap.snapshot.watchGeneration
             && current.snapshot.watchStatus == "active"
@@ -190,7 +210,7 @@ import SyncWatchRoom
             do {
                 _ = try await room.performWatch(
                     .end(reason: .user), membership: previous.membership, expected: previous.context)
-            } catch { errorKey = "sharedWatchFailed" }
+            } catch { /* Local End succeeded; metadata bookkeeping is best effort. */  }
         }
         watch.end()
         status = ""

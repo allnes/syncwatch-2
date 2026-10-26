@@ -284,7 +284,7 @@ public sealed class HelperSession : IAsyncDisposable
     private void Validate(PlaybackObservation value)
     {
         value.Validate(); nativeScope.Check(value.Scope.ClientRunId, value.Scope.MediaGeneration);
-        if (value.Status != PlaybackStatus.Ready || value.DurationMs != media.DurationMs || !value.Seekable) throw Bad();
+        if (value.Status != PlaybackStatus.Ready || value.DurationMs != media.DurationMs || (!value.Seekable && !(value.Ended && value.Paused))) throw Bad();
     }
     private static bool Boolean(JsonElement value) => value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : throw Bad();
     private static string Text(JsonElement value, int maximum)

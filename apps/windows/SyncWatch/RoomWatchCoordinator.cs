@@ -12,7 +12,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     private ActiveWatch? active;
     private CancellationTokenSource? cancellation;
     private Task? work;
-    private bool seenMembership, closing;
+    private bool seenMembership, closing, admitted;
     internal bool Busy { get; private set; }
     internal string Status { get; private set; } = "";
     internal string? ErrorKey { get; private set; }
@@ -54,7 +54,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     private async Task RunAsync(LibraryMediaSelection selection, CancellationToken token)
     {
         await Task.Yield();
-        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null;
+        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false; admitted = false;
         try
         {
             var intent = await room.BeginWatchAsync(token); membership = intent.Membership;
@@ -108,13 +108,16 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             while (true)
             {
                 token.ThrowIfCancellationRequested();
+                var actual = await owned.Player.ObserveAsync(scope, token);
+                if (actual.Ended) { finished = true; Status = "ended"; break; }
                 if (!Authorized() || owned.SharedState is { Connection: HelperConnection.Failed or HelperConnection.Stopped }) throw new InvalidOperationException("watch-revoked");
                 if (owned.SharedState is { Connection: HelperConnection.Connected, Ready: true } state)
                 {
                     if (state.AcceptedUsername != intent.Membership.Identity.SyncplayUsername) throw new InvalidOperationException("identity-changed");
+                    admitted = true;
                     if (Busy) { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
-                else if (Environment.TickCount64 >= readyDeadline) throw new TimeoutException();
+                else if (!admitted && Environment.TickCount64 >= readyDeadline) throw new TimeoutException();
                 await Task.Delay(100, token);
             }
         }
@@ -122,8 +125,16 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         catch (Exception) { ErrorKey = owned?.SharedState?.IdentityRejected == true ? "sharedWatchIdentityRejected" : "sharedWatchFailed"; Status = ErrorKey; }
         finally
         {
-            active = null;
-            try { if (owned is not null) await owned.RevokeSharedAsync(); }
+            var previous = active; active = null; admitted = false;
+            try
+            {
+                if (owned is not null) await owned.RevokeSharedAsync();
+                if (finished && previous is not null && room.Editor.Owner && room.IsCurrent(previous.Membership))
+                {
+                    try { await room.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.Finished), previous.Membership, previous.Context); }
+                    catch (Exception) { /* Completion metadata never changes another player's timing. */ }
+                }
+            }
             finally
             {
                 if (publication is not null && membership is not null) room.ClearPrepared(publication.Lease, membership);
@@ -131,10 +142,15 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             }
         }
     }
-    private bool Authorized() => !closing && active is { } value && room.IsCurrent(value.Membership)
-        && ReferenceEquals(watch.Player, value.Player) && watch.Scope == value.Player.Scope && room.WatchBootstrap is { } current
-        && current.Snapshot.Epoch == value.Context.Bootstrap.Snapshot.Epoch
-        && current.Snapshot.WatchGeneration == value.Context.Bootstrap.Snapshot.WatchGeneration && current.Snapshot.WatchStatus == "active";
+    private bool Authorized()
+    {
+        if (closing || active is not { } value || !ReferenceEquals(watch.Player, value.Player) || watch.Scope != value.Player.Scope) return false;
+        // Metadata generations authorize new loads, not play/pause/seek of an admitted file.
+        if (admitted) return room.CanContinuePlayback(value.Membership);
+        return room.IsCurrent(value.Membership) && room.WatchBootstrap is { } current
+            && current.Snapshot.Epoch == value.Context.Bootstrap.Snapshot.Epoch
+            && current.Snapshot.WatchGeneration == value.Context.Bootstrap.Snapshot.WatchGeneration && current.Snapshot.WatchStatus == "active";
+    }
     internal static void RequireSameGeneration(RoomWatchContext expected, RoomWatchContext current)
     {
         if (expected.Bootstrap.Snapshot.Epoch != current.Bootstrap.Snapshot.Epoch || expected.Bootstrap.Snapshot.WatchGeneration != current.Bootstrap.Snapshot.WatchGeneration) throw new RoomProtocolException("staleGeneration");
@@ -155,7 +171,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         if (previous is not null && room.Editor.Owner && room.IsCurrent(previous.Membership))
         {
             try { await room.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.User), previous.Membership, previous.Context); }
-            catch (Exception) { ErrorKey = "sharedWatchFailed"; }
+            catch (Exception) { /* Local End already released its own playback. */ }
         }
         watch.End(); Status = ""; Changed?.Invoke();
     }

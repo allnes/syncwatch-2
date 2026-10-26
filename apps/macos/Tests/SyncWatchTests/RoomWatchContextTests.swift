@@ -32,6 +32,13 @@ func preparedPublicationCannotEscapeItsMembership() async throws {
             fileSizeBytes: 1000, durationMs: 60000, fullHashSha256: String(repeating: "a", count: 64))
         let first = try await controller.publishPrepared(media, membership: intent.membership)
         #expect(first.media.mediaID != media.mediaID && first.media.fullHashSha256 == media.fullHashSha256)
+        #expect(controller.canContinuePlayback(intent.membership))
+        var context = try await controller.performWatch(
+            .select(mediaID: first.media.mediaID), membership: intent.membership, expected: intent.context)
+        context = try await controller.performWatch(
+            .start(mediaID: first.media.mediaID), membership: intent.membership, expected: context)
+        _ = try await controller.performWatch(.end(reason: .user), membership: intent.membership, expected: context)
+        #expect(controller.canContinuePlayback(intent.membership))
         let second = try await controller.publishPrepared(media, membership: intent.membership)
         #expect(second.media == first.media && second.lease != first.lease)
         controller.clearPrepared(first.lease, membership: intent.membership)
@@ -39,7 +46,9 @@ func preparedPublicationCannotEscapeItsMembership() async throws {
         controller.clearPrepared(second.lease, membership: intent.membership)
         try await wait { controller.catalogView?.items.isEmpty == true }
         await controller.close()
-        #expect(!controller.isCurrent(intent.membership) && controller.watchBootstrap == nil)
+        #expect(
+            !controller.isCurrent(intent.membership) && !controller.canContinuePlayback(intent.membership)
+                && controller.watchBootstrap == nil)
         do {
             _ = try await controller.publishPrepared(media, membership: intent.membership)
             Issue.record("Stale membership published")
@@ -119,5 +128,13 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
         await peer.close()
         await client.close()
         throw error
+    }
+}
+
+@Test @MainActor func metadataFailureClassificationDoesNotPreserveInvalidMemberships() {
+    #expect(RoomController.isMetadataInterruption(URLError(.networkConnectionLost)))
+    #expect(RoomController.isMetadataInterruption(RoomProtocolFailure.transport))
+    for error in [RoomProtocolFailure.malformed, .rejected("unauthorized"), .rejected("forbidden"), .frameTooLarge] {
+        #expect(!RoomController.isMetadataInterruption(error))
     }
 }

@@ -16,6 +16,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     private var work: Job? = null
     private var seenMembership = false
     private var closing = false
+    private var admitted = false
     var busy by mutableStateOf(false)
         private set
     var status by mutableStateOf("")
@@ -56,6 +57,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         var publication: RoomPreparedPublication? = null
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
+        var finished = false; admitted = false
         try {
             val (ticket, intent) = room.beginWatch(); membership = ticket
             val runtime = helper.verify()
@@ -105,19 +107,27 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             val readyDeadline = System.nanoTime() + 20_000_000_000L
             while (true) {
                 currentCoroutineContext().ensureActive()
+                val actual = player.player.observe(nativeScope)
+                if (actual.ended) { finished = true; status = "ended"; break }
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
                 if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
-                    busy = false; status = "sharedWatchConnected"
-                } else check(System.nanoTime() < readyDeadline) { "helper-timeout" }
+                    admitted = true; busy = false; status = "sharedWatchConnected"
+                } else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
                 delay(100)
             }
         } catch (_: CancellationException) {
         } catch (_: Exception) { val key = if (owned?.sharedState?.identityRejected == true) "sharedWatchIdentityRejected" else "sharedWatchFailed"; errorKey = key; status = key }
         finally {
             withContext(NonCancellable) {
-                active = null
-                try { owned?.revokeShared() }
+                val previous = active; active = null; admitted = false
+                try {
+                    owned?.revokeShared()
+                    if (finished && previous != null && room.editor.owner && room.isCurrent(previous.membership)) {
+                        try { room.performWatch(RoomCommandAction.End(RoomWatchEndReason.finished), previous.membership, previous.context) }
+                        catch (_: Exception) { /* Completion metadata is not a peer playback command. */ }
+                    }
+                }
                 finally {
                     publication?.let { value -> membership?.let { room.clearPrepared(value.lease, it) } }
                     busy = false; work = null
@@ -127,8 +137,11 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     }
     private fun authorized(): Boolean {
         val value = active ?: return false
+        if (closing || watch.player !== value.player || watch.scope != value.player.scope) return false
+        // Metadata generations govern future admission; Syncplay owns the admitted native scope.
+        if (admitted) return room.canContinuePlayback(value.membership)
         val current = room.watchBootstrap ?: return false
-        return !closing && room.isCurrent(value.membership) && watch.player === value.player && watch.scope == value.player.scope &&
+        return room.isCurrent(value.membership) &&
             current.snapshot.epoch == value.context.bootstrap.snapshot.epoch && current.snapshot.watchGeneration == value.context.bootstrap.snapshot.watchGeneration && current.snapshot.watchStatus == "active"
     }
     private suspend fun stop() { work?.cancelAndJoin() }
@@ -137,7 +150,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         if (previous != null && room.editor.owner && room.isCurrent(previous.membership)) {
             try { room.performWatch(RoomCommandAction.End(RoomWatchEndReason.user), previous.membership, previous.context) }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { errorKey = "sharedWatchFailed" }
+            catch (_: Exception) { /* Local End already released its own playback. */ }
         }
         watch.end(); status = ""
     }

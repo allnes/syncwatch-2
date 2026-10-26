@@ -31,5 +31,4 @@ internal class RoomLocalCatalog {
     }
     fun acknowledge(publication: Publication) { acknowledged = publication.localIds }
     fun localId(roomId: String): String? = acknowledged.entries.firstOrNull { it.value == roomId }?.key
-    fun roomId(localId: String): String? = acknowledged[localId]
 }

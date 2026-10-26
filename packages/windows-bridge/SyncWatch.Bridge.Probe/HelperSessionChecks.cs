@@ -90,6 +90,7 @@ internal static class HelperSessionChecks
             frame["id"] = "cmd-" + id; frame["afterUserAction"] = after; Push(frame);
         }
         internal int ReplyCount(int id, string kind) => sent.Count(v => v.TryGetProperty("replyTo", out var reply) && reply.GetString() == "cmd-" + id && v.GetProperty("type").GetString() == kind);
+        internal bool SawNativeEnd => sent.Any(v => v.GetProperty("type").GetString() == "player.state" && v.GetProperty("payload").GetProperty("positionMs").GetInt64() == 60000 && !v.GetProperty("payload").GetProperty("seekable").GetBoolean() && v.GetProperty("payload").GetProperty("paused").GetBoolean());
         internal int UserCount => sent.Count(v => v.TryGetProperty("origin", out var origin) && origin.GetString() == "user");
     }
 
@@ -100,6 +101,8 @@ internal static class HelperSessionChecks
         internal long Position { get; private set; } = 1200;
         internal int Seeks { get; private set; }
         internal int Closes { get; private set; }
+        private bool ended;
+        internal void FinishMedia() { ended = true; Paused = true; Position = 60000; }
         public Task<PlaybackObservation> ObserveAsync(PlaybackScope scope, CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested(); owner.Check(scope.ClientRunId, scope.MediaGeneration);
@@ -111,7 +114,7 @@ internal static class HelperSessionChecks
                 PositionMs = Position,
                 DurationMs = 60000,
                 Paused = Paused,
-                Seekable = true
+                Seekable = !ended, Ended = ended
             });
         }
         public Task SetPausedAsync(bool paused, PlaybackScope scope, CancellationToken cancellation = default)
@@ -127,7 +130,7 @@ internal static class HelperSessionChecks
         public ValueTask DisposeAsync() { Closes++; return ValueTask.CompletedTask; }
     }
 
-    private static async Task Scenario(bool eof, bool strict = false)
+    private static async Task Scenario(bool eof, bool strict = false, bool nativeEnd = false)
     {
         var native = PlaybackScope.Create().ReplacingMedia(); var player = new Player(native); var peer = new Peer();
         await using var session = new HelperSession(peer, player, native, new("localhost", 8999, "room", "Viewer"),
@@ -142,7 +145,12 @@ internal static class HelperSessionChecks
         }
         session.Start(); await Eventually(() => session.State.Ready);
         Require(session.State.AcceptedUsername == "Viewer_2" && player.Paused && peer.UserCount == 0);
-        if (eof)
+        if (nativeEnd)
+        {
+            player.FinishMedia(); await Eventually(() => peer.SawNativeEnd);
+            Require(session.State.Connection == HelperConnection.Connected && session.State.Ready && peer.UserCount == 0);
+        }
+        else if (eof)
         {
             session.Pause(false); await Eventually(() => peer.UserCount == 1);
             await peer.DisposeAsync(); await Eventually(() => session.State.Connection == HelperConnection.Failed);
@@ -165,7 +173,7 @@ internal static class HelperSessionChecks
     }
     internal static void Run()
     {
-        new OwnerContext().Run(async () => { await Scenario(false); await Scenario(true); await Scenario(false, strict: true); });
+        new OwnerContext().Run(async () => { await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true); });
         Console.WriteLine("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup");
     }
 }

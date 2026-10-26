@@ -96,6 +96,14 @@ private actor SessionPeer: HelperTransport {
             return v["replyTo"] as? String == "cmd-\(id)" && v["type"] as? String == kind
         }.count
     }
+    func sawNativeEnd() throws -> Bool {
+        try sent.contains {
+            let value = try HelperJSON.object($0)
+            let payload = value["payload"] as? [String: Any]
+            return value["type"] as? String == "player.state" && payload?["positionMs"] as? Int == 60000
+                && payload?["seekable"] as? Bool == false && payload?["paused"] as? Bool == true
+        }
+    }
     func userCount() throws -> Int {
         try sent.filter { try HelperJSON.object($0)["origin"] as? String == "user" }.count
     }
@@ -108,14 +116,20 @@ private actor SessionPlayer: PlaybackPort {
     private(set) var position: Int64 = 1200
     private(set) var seeks = 0
     private(set) var closes = 0
+    private var ended = false
     init(_ scope: PlaybackScope) { self.scope = scope }
     func observe(_ scope: PlaybackScope) throws -> PlaybackObservation {
         try self.scope.check(clientRunID: scope.clientRunID, mediaGeneration: scope.mediaGeneration)
         sequence += 1
         return try PlaybackObservation(
             scope: scope, sequence: sequence, status: .ready, positionMs: position,
-            durationMs: 60000, paused: paused, rate: 1, seekable: true, buffering: false, ended: false,
+            durationMs: 60000, paused: paused, rate: 1, seekable: !ended, buffering: false, ended: ended,
             width: 0, height: 0, videoOutputs: 0, volume: nil, muted: false)
+    }
+    func finishMedia() {
+        ended = true
+        paused = true
+        position = 60000
     }
     func setPaused(_ paused: Bool, scope: PlaybackScope) { self.paused = paused }
     func seek(to positionMs: Int64, scope: PlaybackScope) throws {
@@ -228,4 +242,28 @@ private actor SessionPlayer: PlaybackPort {
     #expect(try await peer.userCount() == 0)
     #expect(await player.paused)
     #expect(await player.closes == 0)
+}
+
+@Test @MainActor func nativeFileCompletionIsNotHelperFailure() async throws {
+    let native = try PlaybackScope.fresh().replacingMedia()
+    let player = SessionPlayer(native)
+    let peer = SessionPeer()
+    let session = try HelperSession(
+        transport: peer, player: player, nativeScope: native,
+        endpoint: SyncplayEndpoint(host: "localhost", port: 8999, room: "room", username: "Viewer"),
+        media: SharedMedia(handle: "media-1", name: "Movie.mkv", durationMs: 60000, fileSizeBytes: 1234),
+        revision: sessionRevision)
+    do {
+        try session.start()
+        try await eventually { session.state.ready }
+        await player.finishMedia()
+        try await eventually { try await peer.sawNativeEnd() }
+        #expect(session.state.connection == .connected && session.state.ready)
+        #expect(try await peer.userCount() == 0)
+        await session.close()
+        #expect(await player.closes == 0)
+    } catch {
+        await session.close()
+        throw error
+    }
 }

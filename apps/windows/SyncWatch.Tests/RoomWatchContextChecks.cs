@@ -6,6 +6,9 @@ internal static class RoomWatchContextChecks
 {
     internal static async Task RunAsync()
     {
+        if (!RoomController.IsMetadataInterruption(new System.Net.Http.HttpRequestException()) || !RoomController.IsMetadataInterruption(new RoomProtocolException("transport"))) throw new Exception("Transport interruption classification");
+        foreach (string code in new[] { "malformed", "unauthorized", "forbidden", "frameTooLarge" })
+            if (RoomController.IsMetadataInterruption(new RoomProtocolException(code))) throw new Exception("Invalid membership retained");
         string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), key = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_CREATION_KEY");
         if (address is null || key is null) return;
         await PreparedPublicationAsync(address, key);
@@ -66,6 +69,11 @@ internal static class RoomWatchContextChecks
             var media = new MediaDescriptor("private-loaded-file", "Loaded", "loaded", 1000, 60000, new string('a', 64));
             var first = await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token);
             if (first.Media.MediaId == media.MediaId || first.Media.FullHashSha256 != media.FullHashSha256) throw new Exception("Strong publication lost opaque identity or hash");
+            if (!controller.CanContinuePlayback(intent.Membership)) throw new Exception("Current playback membership unavailable");
+            var context = await controller.PerformWatchAsync(new RoomCommandAction.Select(first.Media.MediaId), intent.Membership, intent.Context, deadline.Token);
+            context = await controller.PerformWatchAsync(new RoomCommandAction.Start(first.Media.MediaId), intent.Membership, context, deadline.Token);
+            _ = await controller.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.User), intent.Membership, context, deadline.Token);
+            if (!controller.CanContinuePlayback(intent.Membership)) throw new Exception("Bookkeeping revoked peer playback");
             var second = await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token);
             if (second.Media != first.Media || second.Lease == first.Lease) throw new Exception("Publication lease identity");
             controller.ClearPrepared(first.Lease, intent.Membership);
@@ -73,7 +81,7 @@ internal static class RoomWatchContextChecks
             controller.ClearPrepared(second.Lease, intent.Membership);
             while (controller.CatalogView?.Items.Count != 0) await Task.Delay(20, deadline.Token);
             await controller.CloseAsync();
-            if (controller.IsCurrent(intent.Membership) || controller.WatchBootstrap is not null) throw new Exception("Membership retained authority");
+            if (controller.IsCurrent(intent.Membership) || controller.CanContinuePlayback(intent.Membership) || controller.WatchBootstrap is not null) throw new Exception("Membership retained authority");
             bool rejected = false; try { await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token); } catch (RoomProtocolException) { rejected = true; }
             if (!rejected) throw new Exception("Stale membership published");
             Console.WriteLine("SYNCWATCH_PREPARED_PUBLICATION_OK opaque strong ACK/new lease/stale cleanup/leave/repeated close");

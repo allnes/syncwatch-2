@@ -31,5 +31,4 @@ internal sealed class RoomLocalCatalog
     }
     internal void Acknowledge(Publication publication) => acknowledged = publication.LocalIds;
     internal string? LocalId(string roomId) => acknowledged.FirstOrDefault(p => p.Value == roomId).Key;
-    internal string? RoomId(string localId) => acknowledged.GetValueOrDefault(localId);
 }

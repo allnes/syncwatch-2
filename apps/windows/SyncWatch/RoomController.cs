@@ -22,7 +22,8 @@ internal sealed class RoomController
     private RoomAdmission? admission;
     private CancellationTokenSource? stop;
     private Task? work;
-    private RoomMembershipSession? session;
+    private RoomMembershipSession? session, playbackSession;
+    private string? playbackEpoch;
     private RoomLocalCatalog catalogMap = new();
     private Guid? localRevision, acknowledgedRevision;
     private IReadOnlyList<LocalMediaFile> localFiles = [];
@@ -35,6 +36,7 @@ internal sealed class RoomController
     {
         dispatcher.VerifyAccess();
         if (stopping || Editor.Busy || Connected || work is not null || !Editor.IsValid) return;
+        playbackSession = null; playbackEpoch = null;
         var values = Editor.Values; bool owner = Editor.Mode == "createRoom";
         Editor.State = "connecting"; Editor.Status = "";
         stop = new(); work = RunAsync(values, owner, stop.Token); Changed?.Invoke();
@@ -73,7 +75,7 @@ internal sealed class RoomController
     private async Task StopAsync()
     {
         await Task.Yield();
-        stopping = true; stop?.Cancel();
+        stopping = true; playbackSession = null; playbackEpoch = null; stop?.Cancel();
         if (work is not null) await work;
         work = null; stop?.Dispose(); stop = null; admission = null; CatalogView = null;
         Editor.State = "disconnected"; Editor.Status = ""; Editor.RoomId = ""; Editor.MemberCount = 0; Editor.Owner = false; Editor.ClearSecrets();
@@ -91,6 +93,16 @@ internal sealed class RoomController
         return !stopping && Connected && ReferenceEquals(session, membership.Owner) && admission?.MemberId == membership.MemberId
             && admission?.Bootstrap.Snapshot.Epoch == membership.Epoch;
     }
+    // Existing playback survives only transport interruption, never a replacement membership.
+    internal bool CanContinuePlayback(RoomWatchMembership membership) => !stopping && ReferenceEquals(playbackSession, membership.Owner) && playbackEpoch == membership.Epoch;
+    internal static bool IsMetadataInterruption(Exception error) => error switch
+    {
+        RoomProtocolException protocol => protocol.Message is "transport" or "closed",
+        System.Net.Http.HttpRequestException => true,
+        System.IO.IOException => true,
+        OperationCanceledException => true,
+        _ => false
+    };
     internal async Task<(RoomWatchMembership Membership, RoomWatchContext Context)> BeginWatchAsync(CancellationToken cancellation = default)
     {
         dispatcher.VerifyAccess();
@@ -184,7 +196,7 @@ internal sealed class RoomController
     }
     private async Task RunAsync(IReadOnlyDictionary<string, string> values, bool owner, CancellationToken cancellation)
     {
-        await Task.Yield(); RoomClient? current = null; RoomAdmission? admitted = null; bool failed = false;
+        await Task.Yield(); RoomClient? current = null; RoomAdmission? admitted = null; bool failed = false, interrupted = false;
         try
         {
             current = new(new(values["serviceAddress"]));
@@ -197,7 +209,7 @@ internal sealed class RoomController
             var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(initialTimeout.Token), admitted);
             var ownerSession = new RoomMembershipSession(current, admitted, identity);
             var firstView = await ownerSession.RefreshAsync(initial, cancellation: cancellation);
-            cancellation.ThrowIfCancellationRequested(); session = ownerSession; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; CatalogView = firstView;
+            cancellation.ThrowIfCancellationRequested(); session = ownerSession; playbackSession = ownerSession; playbackEpoch = admitted.Bootstrap.Snapshot.Epoch; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; CatalogView = firstView;
             WatchBootstrap = firstView.Bootstrap;
             Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke(); StartPublisher();
             while (!cancellation.IsCancellationRequested)
@@ -209,7 +221,13 @@ internal sealed class RoomController
                 cancellation.ThrowIfCancellationRequested(); Accept(complete); Changed?.Invoke();
             }
         }
-        catch (Exception) { failed = !cancellation.IsCancellationRequested; stop?.Cancel(); Editor.State = "connecting"; Changed?.Invoke(); }
+        catch (Exception error)
+        {
+            failed = !cancellation.IsCancellationRequested;
+            interrupted = failed && IsMetadataInterruption(error) && playbackSession is not null;
+            if (!interrupted) { playbackSession = null; playbackEpoch = null; }
+            stop?.Cancel(); Editor.State = "connecting"; Changed?.Invoke();
+        }
         finally
         {
             if (publisher is not null) await publisher;
@@ -217,7 +235,7 @@ internal sealed class RoomController
             WatchBootstrap = null;
             if (current is not null)
             {
-                if (admitted is not null)
+                if (admitted is not null && !interrupted)
                 {
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                     try { await current.LeaveAsync(admitted, timeout.Token); } catch (Exception) { }

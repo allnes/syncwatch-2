@@ -25,6 +25,8 @@ struct RoomPreparedPublication {
     private var admission: RoomAdmission?
     private var work: Task<Void, Never>?
     private var session: RoomMembershipSession?
+    private var playbackSession: RoomMembershipSession?
+    private var playbackEpoch: String?
     private var catalogMap = RoomLocalCatalog()
     private var localRevision: UUID?
     private var acknowledgedRevision: UUID?
@@ -37,6 +39,8 @@ struct RoomPreparedPublication {
     var connected: Bool { editor.connected && bootstrap != nil }
     func connect() {
         guard !stopping, !editor.busy, !connected, work == nil, editor.isValid else { return }
+        playbackSession = nil
+        playbackEpoch = nil
         let values = editor.values
         let owner = editor.mode == "createRoom"
         editor.state = "connecting"
@@ -96,6 +100,8 @@ struct RoomPreparedPublication {
             return
         }
         stopping = true
+        playbackSession = nil
+        playbackEpoch = nil
         work?.cancel()
         publisher?.cancel()
         if let work { await work.value }
@@ -119,6 +125,19 @@ struct RoomPreparedPublication {
     func isCurrent(_ membership: RoomWatchMembership) -> Bool {
         !stopping && connected && session === membership.owner && admission?.memberID == membership.memberID
             && admission?.bootstrap.snapshot.epoch == membership.epoch
+    }
+    // An admitted native scope survives metadata transport loss. New starts still require isCurrent.
+    func canContinuePlayback(_ membership: RoomWatchMembership) -> Bool {
+        !stopping && playbackSession === membership.owner && playbackEpoch == membership.epoch
+    }
+    static func isMetadataInterruption(_ error: any Error) -> Bool {
+        if error is URLError { return true }
+        switch error {
+        case RoomProtocolFailure.transport, RoomProtocolFailure.closed,
+            RoomProtocolFailure.rejected("transport"):
+            return true
+        default: return false
+        }
     }
     func beginWatch() async throws -> (membership: RoomWatchMembership, context: RoomWatchContext) {
         guard let session, let admission,
@@ -223,6 +242,7 @@ struct RoomPreparedPublication {
         var current: RoomClient?
         var admitted: RoomAdmission?
         var failed = false
+        var interrupted = false
         do {
             let next = try RoomClient(address: RoomAddress(values["serviceAddress"] ?? ""))
             current = next
@@ -263,6 +283,8 @@ struct RoomPreparedPublication {
             acknowledgedPrepared = nil
             acknowledgedRevision = nil
             session = ownerSession
+            playbackSession = ownerSession
+            playbackEpoch = value.bootstrap.snapshot.epoch
             catalogView = firstView
             watchBootstrap = firstView.bootstrap
             editor.state = "connected"
@@ -282,6 +304,11 @@ struct RoomPreparedPublication {
             }
         } catch {
             failed = !Task.isCancelled
+            interrupted = failed && Self.isMetadataInterruption(error) && playbackSession != nil
+            if !interrupted {
+                playbackSession = nil
+                playbackEpoch = nil
+            }
             editor.state = "connecting"
         }
         publisher?.cancel()
@@ -295,7 +322,7 @@ struct RoomPreparedPublication {
         acknowledgedPrepared = nil
         if let current {
             // Cleanup work is owned and bounded even when the attempt's caller was cancelled.
-            if let admitted {
+            if let admitted, !interrupted {
                 let leaving = Task { try? await current.leave(admitted) }
                 let deadline = Task {
                     try? await Task.sleep(for: .seconds(3))

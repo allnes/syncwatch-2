@@ -455,7 +455,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     }
     private func validate(_ value: PlaybackObservation) throws {
         try nativeScope.check(clientRunID: value.scope.clientRunID, mediaGeneration: value.scope.mediaGeneration)
-        guard value.status == .ready, value.durationMs == media.durationMs, value.seekable else {
+        guard value.status == .ready, value.durationMs == media.durationMs,
+            value.seekable || (value.ended && value.paused)
+        else {
             throw HelperSessionFailure.unavailable
         }
     }

@@ -48,5 +48,4 @@ import SyncWatchLibrary
     }
     func acknowledge(_ publication: Publication) { acknowledged = publication.localIDs }
     func localID(for roomID: String) -> String? { acknowledged.first { $0.value == roomID }?.key }
-    func roomID(for localID: String) -> String? { acknowledged[localID] }
 }
