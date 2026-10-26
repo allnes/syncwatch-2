@@ -11,3 +11,11 @@ Responses and messages are bounded to 64 KiB. JSON rejects duplicate names, malf
 Close cancels HTTP work, terminates the event stream and waits for owned operations. These APIs provide transport and validated bootstrap facts. They do not authorize media, establish a Syncplay connection or qualify a usable desktop room workflow. Workspace integration, event reduction/recovery and playback admission remain separate requirements.
 
 The shared [room-client corpus](../contracts/fixtures/room-client.json) exercises admission/address rejection and redaction on each native OS. Live transport tests additionally create a room, attach the owner's stream, join and attach a guest, observe member binding/departure, read a snapshot, leave, close twice and reject subsequent work. Their owned service is supplied through `SYNCWATCH_ROOM_SERVICE` and `SYNCWATCH_ROOM_CREATION_KEY`; these variables are test inputs rather than desktop configuration.
+
+## Workspace integration
+
+Each native workspace owns its membership controller independently of the connection dialog. The common `packages/design/room.json` defines the form fields, limits and secure input kinds; `layouts.json` and the existing design tokens define its appearance. Native adapters translate input and clipboard actions without defining another visual design.
+
+Create and join drafts remain in memory. Switching modes or closing the form clears secret fields. Dismissing an established connection's form retains membership. Leave and application close cancel the attempt, attempt a bounded departure and release owned network work. Event messages are ordering hints: controllers validate their envelope and fetch an authoritative snapshot before updating presence.
+
+Workspace integration remains in progress. Sustained desktop event delivery, recovery and shared playback admission require further acceptance. Membership does not authorize local playback: Start is withheld while connecting or connected until the shared-watch coordinator is attached. Media catalogs, confirmed selection, the accepted Syncplay username and the loaded file version remain separate admission requirements.

@@ -197,6 +197,7 @@ fun main(arguments: Array<String>) {
     val call = callChecks(root)
     val selection = selectionChecks(root)
     libraryChecks()
+    roomChecks()
     val fields = settingsChecks(root)
     println("SYNCWATCH_DESIGN_PRESENTATIONS_OK: $player player, $call call, $selection selection cases; library capabilities; settings and $fields player-setting fields")
 }

@@ -30,6 +30,18 @@
             </ControlTemplate.Triggers>
         </ControlTemplate></Setter.Value></Setter>
     </Style>
+    <Style x:Key="Design.SecretInput" TargetType="PasswordBox">
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="PasswordBox">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource design.radius}">
+                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource design.focusBorder}" /><Setter TargetName="Chrome" Property="BorderThickness" Value="{DynamicResource design.focusThickness}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource design.disabledOpacity}" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
     <Style x:Key="Design.Choice" TargetType="ComboBox">
         <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem">
             <Setter Property="Foreground" Value="{DynamicResource design.rowForeground}" />

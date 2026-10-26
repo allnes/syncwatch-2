@@ -90,6 +90,7 @@ internal static class Program
         LibraryControllerAssertions.Run();
         WatchPersistenceAssertions.Run();
         SettingsAssertions.Run(application, dictionary);
+        RoomAssertions.Run();
         PlayerAssertions.Run(application, dictionary);
         PlayerSettingsAssertions.Run(application, dictionary);
         LayoutAssertions.Run();

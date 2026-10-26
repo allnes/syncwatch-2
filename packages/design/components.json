@@ -33,7 +33,8 @@
         "continueWatching",
         "endWatching",
         "openSettings",
-        "openCall"
+        "openCall",
+        "openRoom"
       ]
     },
     "PlayerChrome": {
@@ -223,6 +224,27 @@
         "available",
         "readOnly",
         "longList"
+      ]
+    },
+    "RoomDialog": {
+      "sections": [
+        "connection",
+        "createRoom",
+        "joinRoom"
+      ],
+      "states": [
+        "disconnected",
+        "connecting",
+        "connected",
+        "failed"
+      ],
+      "actions": [
+        "chooseRoomMode",
+        "editRoomField",
+        "connectRoom",
+        "leaveRoom",
+        "copyInvitation",
+        "close"
       ]
     }
   }

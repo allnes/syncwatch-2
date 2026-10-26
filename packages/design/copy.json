@@ -197,7 +197,27 @@
       "galleryKind": "Menu",
       "playbackFailed": "Could not open this movie.",
       "libraryUnavailable": "Could not access the movie folder. Choose it again or check its permissions.",
-      "librarySaveFailed": "The folder is available for this session, but its access could not be saved."
+      "librarySaveFailed": "The folder is available for this session, but its access could not be saved.",
+      "openRoom": "Room connection",
+      "createRoom": "Create room",
+      "joinRoom": "Join room",
+      "createRoomHint": "Create a room using your service creation key.",
+      "joinRoomHint": "Join using a room ID and invitation.",
+      "roomService": "Room service URL",
+      "roomCreationKey": "Creation key",
+      "roomSyncplayPort": "Syncplay port",
+      "roomIdentifier": "Room ID",
+      "roomInvitation": "Invitation",
+      "roomConnecting": "Connecting to the room…",
+      "roomMetadataConnected": "Connected to room",
+      "roomDisconnected": "Room connection interrupted",
+      "roomConnectionFailed": "Could not connect. Check the service, credentials and username.",
+      "leaveRoom": "Leave room",
+      "copyInvitation": "Copy invitation",
+      "roomInvitationCopied": "Room ID and invitation copied",
+      "roomMembers": "Room members",
+      "roomInvalidInput": "Complete the connection fields.",
+      "roomConnectionHint": "Create a room or join with an invitation."
     },
     "ru": {
       "brand": "SyncWatch",
@@ -395,7 +415,27 @@
       "galleryKind": "Меню",
       "playbackFailed": "Не удалось открыть фильм.",
       "libraryUnavailable": "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
-      "librarySaveFailed": "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось."
+      "librarySaveFailed": "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось.",
+      "openRoom": "Подключение к комнате",
+      "createRoom": "Создать комнату",
+      "joinRoom": "Войти в комнату",
+      "createRoomHint": "Создайте комнату с ключом сервиса.",
+      "joinRoomHint": "Войдите по идентификатору и приглашению.",
+      "roomService": "Адрес сервиса комнат",
+      "roomCreationKey": "Ключ создания",
+      "roomSyncplayPort": "Порт Syncplay",
+      "roomIdentifier": "Идентификатор комнаты",
+      "roomInvitation": "Приглашение",
+      "roomConnecting": "Подключение к комнате…",
+      "roomMetadataConnected": "Подключено к комнате",
+      "roomDisconnected": "Соединение с комнатой прервано",
+      "roomConnectionFailed": "Не удалось подключиться. Проверьте сервис, ключи и имя участника.",
+      "leaveRoom": "Выйти из комнаты",
+      "copyInvitation": "Копировать приглашение",
+      "roomInvitationCopied": "Идентификатор и приглашение скопированы",
+      "roomMembers": "Участников в комнате",
+      "roomInvalidInput": "Заполните данные подключения.",
+      "roomConnectionHint": "Создайте комнату или войдите по приглашению."
     }
   },
   "gallery": {
@@ -420,7 +460,8 @@
       "continueWatching",
       "endWatching",
       "openSettings",
-      "openCall"
+      "openCall",
+      "openRoom"
     ]
   }
 }

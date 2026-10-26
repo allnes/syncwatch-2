@@ -2,6 +2,7 @@ package syncwatch
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.DialogWindow
@@ -79,6 +80,9 @@ fun main(arguments: Array<String>) {
     val preferences = workspace.preferences
     val state = preferences.state
     val watch = workspace.watch
+    val room = workspace.room
+    val roomWork = rememberCoroutineScope()
+    var roomOpen by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     var editor by remember { mutableStateOf(preferences.editor()) }
     val library = workspace.library
@@ -91,7 +95,7 @@ fun main(arguments: Array<String>) {
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
     ApplicationChrome(watch.playerPresented, library = {
-    LibraryWorkspace(watch.libraryPresentation(library.presentation), language, theme) { action, value ->
+    LibraryWorkspace(room.libraryPresentation(watch.libraryPresentation(library.presentation)), language, theme) { action, value ->
         if (action == "chooseFolder") {
             val picker = javax.swing.JFileChooser().apply {
                 fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
@@ -105,6 +109,7 @@ fun main(arguments: Array<String>) {
         else if (action == "startWatching") library.selectedMedia()?.let(watch::start)
         else if (action == "continueWatching") watch.continueWatching()
         else if (action == "endWatching") watch.end()
+        else if (action == "openRoom") roomOpen = true
         else if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
     }
     }, player = {
@@ -117,6 +122,18 @@ fun main(arguments: Array<String>) {
         (library.errorKey ?: watch.errorKey)?.let { key ->
             javax.swing.JOptionPane.showMessageDialog(null, SyncWatchCopy.text(key, language), SyncWatchCopy.text("brand", language), javax.swing.JOptionPane.WARNING_MESSAGE)
             library.clearError(); watch.clearError()
+        }
+    }
+    if (roomOpen) {
+        fun closeDialog() { if (room.editor.busy) roomWork.launch { room.close(); roomOpen = false } else { room.editor = room.editor.clearSecrets(); roomOpen = false } }
+        DialogWindow(onCloseRequest = ::closeDialog, title = SyncWatchCopy.text("openRoom", language),
+            state = rememberDialogState(width = SyncWatchTokens.layoutSettingsWidth.dp, height = SyncWatchTokens.layoutSettingsHeight.dp)) {
+            RoomDialog(room.editor, { room.editor = it }, language, theme) { action -> when (action) {
+                "connectRoom" -> room.connect()
+                "leaveRoom" -> roomWork.launch { room.close() }
+                "copyInvitation" -> room.invitationToCopy()?.let { value -> java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(value), null); room.invitationCopied() }
+                "close" -> closeDialog()
+            } }
         }
     }
     if (settingsOpen) {

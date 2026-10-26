@@ -20,14 +20,27 @@ public sealed class RoomClient : IAsyncDisposable
         Address = address;
         client = new HttpClient(new SocketsHttpHandler
         {
-            AllowAutoRedirect = false, UseCookies = false, Credentials = null, PreAuthenticate = false,
-            MaxConnectionsPerServer = 2, MaxResponseHeadersLength = 16, ConnectTimeout = TimeSpan.FromSeconds(10)
-        }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = RoomWire.MaximumBytes };
+            AllowAutoRedirect = false,
+            UseCookies = false,
+            Credentials = null,
+            PreAuthenticate = false,
+            MaxConnectionsPerServer = 2,
+            MaxResponseHeadersLength = 16,
+            ConnectTimeout = TimeSpan.FromSeconds(10)
+        })
+        { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = RoomWire.MaximumBytes };
     }
     public async Task<RoomAdmission> CreateAsync(RoomIdentity identity, RoomConnection connection, RoomSecret creationKey, CancellationToken cancellation = default)
     {
-        byte[] body = RoomWire.Encode(new { v = 1, clientRunId = identity.ClientRunId, syncplayUsername = identity.SyncplayUsername,
-            syncplayHost = connection.Host, syncplayPort = connection.Port, syncplayRoom = connection.Room });
+        byte[] body = RoomWire.Encode(new
+        {
+            v = 1,
+            clientRunId = identity.ClientRunId,
+            syncplayUsername = identity.SyncplayUsername,
+            syncplayHost = connection.Host,
+            syncplayPort = connection.Port,
+            syncplayRoom = connection.Room
+        });
         return RoomAdmission.Decode(await RequestAsync(HttpMethod.Post, "v1/rooms", creationKey, body, cancellation), identity, true);
     }
     public async Task<RoomAdmission> JoinAsync(string roomId, RoomSecret invitation, RoomIdentity identity, CancellationToken cancellation = default)

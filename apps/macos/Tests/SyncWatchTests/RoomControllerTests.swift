@@ -1,0 +1,61 @@
+import Foundation
+import SyncWatchPlayback
+import SyncWatchRoom
+import Testing
+
+@testable import SyncWatch
+
+@MainActor @Test(.enabled(if: ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"] != nil))
+func connectedRoomClosesAndCanConnectAgain() async throws {
+    let environment = ProcessInfo.processInfo.environment
+    let address = try #require(environment["SYNCWATCH_ROOM_SERVICE"])
+    let key = try #require(environment["SYNCWATCH_ROOM_CREATION_KEY"])
+    let controller = RoomController()
+    let runtime = VLCPlaybackRuntime()
+    if let package = environment["SYNCWATCH_ROOM_MEDIA_PACKAGE"] {
+        try await runtime.open(package: URL(filePath: package))
+    }
+    var activeGuest: RoomClient?
+    do {
+        for iteration in 0..<2 {
+            for (field, value) in [
+                "serviceAddress": address, "username": "macOS workspace", "creationKey": key,
+                "syncplayHost": "syncplay.example.com", "roomName": "Workspace lifecycle",
+            ] { controller.editor.edit(field, value: value) }
+            controller.connect()
+            let deadline = ContinuousClock.now + .seconds(20)
+            while controller.editor.busy && ContinuousClock.now < deadline {
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            #expect(controller.connected)
+            if iteration == 0, let delay = environment["SYNCWATCH_ROOM_IDLE_TEST_SECONDS"], let seconds = Int(delay) {
+                try await Task.sleep(for: .seconds(seconds))
+            }
+            let invitation = try #require(controller.invitationToCopy()?.split(separator: "\n").map(String.init))
+            let guest = try RoomClient(address: RoomAddress(address))
+            activeGuest = guest
+            let admission = try await guest.join(
+                roomID: invitation[0], invitation: RoomSecret(invitation[1]),
+                identity: RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS peer"))
+            let updateDeadline = ContinuousClock.now + .seconds(5)
+            while controller.editor.memberCount != 2 && ContinuousClock.now < updateDeadline {
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            #expect(controller.editor.memberCount == 2)
+            try await guest.leave(admission)
+            await guest.close()
+            activeGuest = nil
+            await controller.close()
+            #expect(!controller.connected && !controller.editor.busy)
+            #expect(controller.editor.memberCount == 0)
+            #expect(controller.invitationToCopy() == nil)
+            await controller.close()
+        }
+    } catch {
+        await activeGuest?.close()
+        await controller.close()
+        await runtime.close()
+        throw error
+    }
+    await runtime.close()
+}

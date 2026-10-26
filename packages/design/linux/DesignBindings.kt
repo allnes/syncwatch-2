@@ -8,7 +8,7 @@ internal object DesignBindings {
     fun library(p: LibraryPresentation, query: String, language: String): DesignContext = DesignContext(capabilities(SyncWatchCopy.libraryActions,p::allows)+mapOf(
         "namespace" to "library","query" to query,"entryCount" to p.entries.size.toString(),"filesLabel" to SyncWatchCopy.text("files",language),"hasEntries" to p.entries.isNotEmpty().toString(),
         "hasSelection" to (p.selected!=null).toString(),"selectedTitle" to p.selected?.title.orEmpty(),"selectedLocation" to p.selected?.location.orEmpty(),
-        "emptyMessage" to if(p.state==LibraryVisualState.scanning)"scanning"else"empty","missingMedia" to (p.state==LibraryVisualState.missingMedia).toString(),"roomMessage" to if(p.state==LibraryVisualState.reconnecting)"reconnecting"else"disconnected"),
+        "emptyMessage" to if(p.state==LibraryVisualState.scanning)"scanning"else"empty","missingMedia" to (p.state==LibraryVisualState.missingMedia).toString(),"roomMessage" to if(p.roomStatus.isNotEmpty())p.roomStatus else if(p.state==LibraryVisualState.reconnecting)"reconnecting"else"disconnected"),
         mapOf("entries" to p.entries.filter{query.isEmpty()||it.title.contains(query,ignoreCase=true)}.map{DesignContext(mapOf("id" to it.id,"title" to it.title,"selected" to (it.id==p.selectedID).toString()))}))
     fun player(p: PlayerPresentation) = DesignContext(capabilities(SyncWatchPlayer.actions,p::allows)+mapOf(
         "namespace" to "player","title" to p.title,"state" to p.state.name,"position" to p.displayedPosition.toString(),"duration" to p.displayedDuration.toString(),

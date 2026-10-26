@@ -428,7 +428,13 @@ public struct DesignSurface: View {
             result = button
         case "input":
             result = decorated(
-                TextField(node.string("label"), text: binding(node)).textFieldStyle(.plain).disabled(!enabled), node)
+                Group {
+                    if node.flag("secret") {
+                        SecureField(node.string("label"), text: binding(node))
+                    } else {
+                        TextField(node.string("label"), text: binding(node))
+                    }
+                }.textFieldStyle(.plain).disabled(!enabled), node)
         case "choice":
             let options = contextForOptions(node)
             let selected =
