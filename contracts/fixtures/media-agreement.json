@@ -1,0 +1,452 @@
+{
+  "normalization": [
+    {
+      "title": "  EXAMPLE   Movie  ",
+      "key": "example movie"
+    },
+    {
+      "title": "Café 🎬",
+      "key": "café 🎬"
+    },
+    {
+      "title": "ÉTÉ Ä Ω Я",
+      "key": "ÉtÉ Ä Ω Я"
+    },
+    {
+      "title": "İIı",
+      "key": "İiı"
+    }
+  ],
+  "descriptors": {
+    "remote": {
+      "mediaId": "movie-a",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "same": {
+      "mediaId": "local-a",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "renamed": {
+      "mediaId": "local-b",
+      "title": "Another title",
+      "titleKey": "another title",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "copy": {
+      "mediaId": "local-z",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "weak": {
+      "mediaId": "local-c",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": null
+    },
+    "other-edition": {
+      "mediaId": "local-d",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 5000,
+      "durationMs": 61000,
+      "fullHashSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "unknown-duration": {
+      "mediaId": "local-e",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": null,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "zero-duration": {
+      "mediaId": "local-f",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 0,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "unrelated": {
+      "mediaId": "local-g",
+      "title": "Other movie",
+      "titleKey": "other movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "conflicting-size": {
+      "mediaId": "local-h",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4097,
+      "durationMs": 60000,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "conflicting-duration": {
+      "mediaId": "local-i",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 59999,
+      "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "duplicate-id": {
+      "mediaId": "local-a",
+      "title": "Example Movie",
+      "titleKey": "example movie",
+      "fileSizeBytes": 4096,
+      "durationMs": 60000,
+      "fullHashSha256": null
+    }
+  },
+  "cases": [
+    {
+      "name": "identical-content",
+      "remote": "remote",
+      "local": [
+        "same"
+      ],
+      "status": "matched",
+      "candidateIds": [
+        "local-a"
+      ],
+      "error": null
+    },
+    {
+      "name": "renamed-identical-content",
+      "remote": "remote",
+      "local": [
+        "renamed"
+      ],
+      "status": "matched",
+      "candidateIds": [
+        "local-b"
+      ],
+      "error": null
+    },
+    {
+      "name": "duplicate-identical-copies",
+      "remote": "remote",
+      "local": [
+        "copy",
+        "same"
+      ],
+      "status": "ambiguous",
+      "candidateIds": [
+        "local-a",
+        "local-z"
+      ],
+      "error": null
+    },
+    {
+      "name": "full-hash-outranks-title",
+      "remote": "remote",
+      "local": [
+        "weak",
+        "renamed"
+      ],
+      "status": "matched",
+      "candidateIds": [
+        "local-b"
+      ],
+      "error": null
+    },
+    {
+      "name": "missing-hash-requires-confirmation",
+      "remote": "remote",
+      "local": [
+        "weak"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-c"
+      ],
+      "error": null
+    },
+    {
+      "name": "different-encoding-requires-confirmation",
+      "remote": "remote",
+      "local": [
+        "other-edition"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-d"
+      ],
+      "error": null
+    },
+    {
+      "name": "unknown-duration-does-not-enable-playback",
+      "remote": "remote",
+      "local": [
+        "unknown-duration"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-e"
+      ],
+      "error": null
+    },
+    {
+      "name": "zero-duration-does-not-enable-playback",
+      "remote": "zero-duration",
+      "local": [
+        "zero-duration"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-f"
+      ],
+      "error": null
+    },
+    {
+      "name": "no-title-or-content-match",
+      "remote": "remote",
+      "local": [
+        "unrelated"
+      ],
+      "status": "missing",
+      "candidateIds": [],
+      "error": null
+    },
+    {
+      "name": "empty-library",
+      "remote": "remote",
+      "local": [],
+      "status": "missing",
+      "candidateIds": [],
+      "error": null
+    },
+    {
+      "name": "weak-candidates-are-stable",
+      "remote": "remote",
+      "local": [
+        "other-edition",
+        "weak"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-c",
+        "local-d"
+      ],
+      "error": null
+    },
+    {
+      "name": "same-hash-conflicting-size",
+      "remote": "remote",
+      "local": [
+        "conflicting-size"
+      ],
+      "status": null,
+      "candidateIds": [],
+      "error": "malformed"
+    },
+    {
+      "name": "same-hash-conflicting-duration",
+      "remote": "remote",
+      "local": [
+        "conflicting-duration"
+      ],
+      "status": null,
+      "candidateIds": [],
+      "error": "malformed"
+    },
+    {
+      "name": "duplicate-local-identifiers",
+      "remote": "remote",
+      "local": [
+        "same",
+        "duplicate-id"
+      ],
+      "status": null,
+      "candidateIds": [],
+      "error": "malformed"
+    },
+    {
+      "name": "renamed-content-with-unknown-duration",
+      "remote": "unknown-duration",
+      "local": [
+        "renamed"
+      ],
+      "status": "confirmationRequired",
+      "candidateIds": [
+        "local-b"
+      ],
+      "error": null
+    }
+  ],
+  "validation": [
+    {
+      "name": "empty-id",
+      "value": {
+        "mediaId": "",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "path-as-id",
+      "value": {
+        "mediaId": "/Users/local/movie.avi",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "empty-title",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "control-title",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Movie\n",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "incorrect-key",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "EXAMPLE MOVIE",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "zero-size",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 0,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "oversized-counter",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 9007199254740992,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "negative-duration",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": -1,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "excessive-duration",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 604800001,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "uppercase-hash",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "short-hash",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "Example Movie",
+        "titleKey": "example movie",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "long-title",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "titleKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": "malformed"
+    },
+    {
+      "name": "unicode-scalar-title-limit",
+      "value": {
+        "mediaId": "movie-a",
+        "title": "🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬",
+        "titleKey": "🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬",
+        "fileSizeBytes": 4096,
+        "durationMs": 60000,
+        "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "error": null
+    }
+  ]
+}
