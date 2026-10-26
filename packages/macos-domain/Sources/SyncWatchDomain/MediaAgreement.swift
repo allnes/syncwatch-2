@@ -18,7 +18,7 @@ public struct MediaDescriptor: Sendable, Equatable {
             (1...256).contains(value.unicodeScalars.count)
                 && value.unicodeScalars.allSatisfy { $0.value >= 32 && $0.value != 127 }
         }
-        guard text(title), text(titleKey), titleKey == Self.normalizedTitleKey(title),
+        guard text(title), text(titleKey), titleKey.utf8.elementsEqual(Self.normalizedTitleKey(title).utf8),
             (1...Int64(PlaybackScope.maximumGeneration)).contains(fileSizeBytes),
             durationMs.map({ (0...WatchSession.maximumPositionMs).contains($0) }) ?? true,
             fullHashSha256.map({ $0.range(of: "\\A[0-9a-f]{64}\\z", options: .regularExpression) != nil }) ?? true

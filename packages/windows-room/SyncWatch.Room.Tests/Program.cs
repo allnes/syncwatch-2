@@ -4,6 +4,22 @@ using SyncWatch.Room;
 
 using var fixture = JsonDocument.Parse(File.ReadAllBytes(args[0]));
 var identity = new RoomIdentity("run-room-client", "Room User");
+var bootstrap = RoomBootstrap.Decode(Encoding.UTF8.GetBytes(fixture.RootElement.GetProperty("catalogBootstrap").GetString()!));
+foreach (var entry in fixture.RootElement.GetProperty("catalogs").EnumerateArray())
+{
+    bool valid = entry.GetProperty("valid").GetBoolean(), accepted = false;
+    RoomCatalogPage? page = null;
+    try
+    {
+        page = RoomCatalogPage.Decode(Encoding.UTF8.GetBytes(entry.GetProperty("wire").GetString()!), bootstrap, entry.GetProperty("cursor").GetString()!);
+        accepted = true;
+    }
+    catch (RoomProtocolException) { }
+    if (valid != accepted) throw new Exception("catalog: " + entry.GetProperty("name").GetString());
+    if (page is not null && (page.Epoch != bootstrap.Snapshot.Epoch || page.Sequence != bootstrap.Snapshot.Sequence
+        || page.Items.Count != entry.GetProperty("count").GetInt32() || page.NextCursor != entry.GetProperty("nextCursor").GetString()))
+        throw new Exception("catalog page facts");
+}
 foreach (var entry in fixture.RootElement.GetProperty("invitations").EnumerateArray())
 {
     bool valid = entry.GetProperty("valid").GetBoolean(), accepted = false;

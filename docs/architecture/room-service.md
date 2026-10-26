@@ -33,6 +33,10 @@ Admission fields are `roomId`, `memberId`, `token`, `expiresAt`, `bootstrap`, an
 
 Catalog pages are stable at the bootstrap sequence. Their cursor expires after 60 seconds or a newer bootstrap for the same member. Fetch pages, then replay events after that sequence. A replay gap requires a new bootstrap and discarding obsolete partial state.
 
+The Swift/macOS, C#/Windows and Kotlin/Linux Room SDKs expose bounded catalog-page requests tied to an explicit bootstrap. They validate the view cursor, epoch, sequence, member bindings, descriptor fields and forward pagination before returning an immutable page. Descriptors reuse the native Domain model, including exact canonical title-key validation. A media ID is unique within a member's catalog; the same ID from another member is a separate entry.
+
+Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. Page transport alone does not implement that coordinator, metadata commands, media admission or playback activation. Normal shared Start remains gated until those application paths are verified on all three operating systems.
+
 ## Commands and ordering
 
 HTTP and WebSocket commands share this envelope:

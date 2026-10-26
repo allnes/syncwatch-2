@@ -51,6 +51,12 @@ public sealed class RoomClient : IAsyncDisposable
     }
     public async Task<RoomBootstrap> SnapshotAsync(RoomAdmission admission, CancellationToken cancellation = default) =>
         RoomBootstrap.Decode(await RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/snapshot", admission.Token, null, cancellation));
+    public async Task<RoomCatalogPage> CatalogAsync(RoomAdmission admission, RoomBootstrap bootstrap, string cursor, CancellationToken cancellation = default)
+    {
+        if (bootstrap.Snapshot.Epoch != admission.Bootstrap.Snapshot.Epoch) throw RoomWire.Bad();
+        _ = new RoomCatalogPosition(cursor, bootstrap);
+        return RoomCatalogPage.Decode(await RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/catalog", admission.Token, null, cancellation, cursor), bootstrap, cursor);
+    }
     public async Task LeaveAsync(RoomAdmission admission, CancellationToken cancellation = default)
     {
         using var document = RoomWire.Parse(await RequestAsync(HttpMethod.Post, $"v1/rooms/{admission.RoomId}/leave", admission.Token, null, cancellation));
@@ -107,7 +113,7 @@ public sealed class RoomClient : IAsyncDisposable
         }
         catch (Exception) { completion.SetException(new RoomProtocolException("transport")); }
     }
-    private async Task<byte[]> RequestAsync(HttpMethod method, string path, RoomSecret? credential, byte[]? body, CancellationToken cancellation)
+    private async Task<byte[]> RequestAsync(HttpMethod method, string path, RoomSecret? credential, byte[]? body, CancellationToken cancellation, string? cursor = null)
     {
         cancellation.ThrowIfCancellationRequested();
         TaskCompletionSource completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -119,7 +125,9 @@ public sealed class RoomClient : IAsyncDisposable
         }
         try
         {
-            using var request = new HttpRequestMessage(method, Address.Endpoint(path));
+            var uri = Address.Endpoint(path);
+            if (cursor is not null) uri = new UriBuilder(uri) { Query = "cursor=" + Uri.EscapeDataString(cursor) }.Uri;
+            using var request = new HttpRequestMessage(method, uri);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             if (credential is not null) request.Headers.Authorization = new("Bearer", credential.Value);
             if (body is not null) { request.Content = new ByteArrayContent(body); request.Content.Headers.ContentType = new("application/json"); }
@@ -131,7 +139,7 @@ public sealed class RoomClient : IAsyncDisposable
                 using var document = RoomWire.Parse(bytes); var value = document.RootElement;
                 RoomWire.Keys(value, "error"); var error = value.GetProperty("error"); RoomWire.Keys(error, "code");
                 string code = RoomWire.String(error, "code");
-                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" ? code : "transport");
+                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" or "snapshotRequired" ? code : "transport");
             }
             stop.Token.ThrowIfCancellationRequested(); return bytes;
         }

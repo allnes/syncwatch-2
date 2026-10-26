@@ -29,6 +29,11 @@ class RoomClient(val address: RoomAddress) {
         return RoomAdmission.decode(request("POST", "v1/rooms/$roomId/join", body = body), identity, false)
     }
     suspend fun snapshot(admission: RoomAdmission): RoomBootstrap = RoomBootstrap.decode(request("GET", "v1/rooms/${admission.roomId}/snapshot", admission.token))
+    suspend fun catalog(admission: RoomAdmission, bootstrap: RoomBootstrap, cursor: String): RoomCatalogPage {
+        if (bootstrap.snapshot.epoch != admission.bootstrap.snapshot.epoch) throw RoomWire.bad()
+        RoomCatalogPosition(cursor, bootstrap)
+        return RoomCatalogPage.decode(request("GET", "v1/rooms/${admission.roomId}/catalog", admission.token, cursor = cursor), bootstrap, cursor)
+    }
     suspend fun leave(admission: RoomAdmission) {
         val value = RoomWire.parse(request("POST", "v1/rooms/${admission.roomId}/leave", admission.token))
         RoomWire.keys(value, "v", "status")
@@ -68,9 +73,11 @@ class RoomClient(val address: RoomAddress) {
         }
         completion.await()
     }
-    private suspend fun request(method: String, path: String, credential: RoomSecret? = null, body: ByteArray? = null): ByteArray {
+    private suspend fun request(method: String, path: String, credential: RoomSecret? = null, body: ByteArray? = null, cursor: String? = null): ByteArray {
         currentCoroutineContext().ensureActive()
-        val builder = HttpRequest.newBuilder(address.endpoint(path)).timeout(Duration.ofSeconds(20)).header("Accept", "application/json")
+        val endpoint = address.endpoint(path)
+        val uri = if (cursor == null) endpoint else java.net.URI(endpoint.scheme, endpoint.rawAuthority, endpoint.path, "cursor=$cursor", null)
+        val builder = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(20)).header("Accept", "application/json")
         credential?.let { builder.header("Authorization", "Bearer ${it.value}") }
         if (body != null) builder.header("Content-Type", "application/json")
         val request = builder.method(method, body?.let(HttpRequest.BodyPublishers::ofByteArray) ?: HttpRequest.BodyPublishers.noBody()).build()
@@ -88,7 +95,7 @@ class RoomClient(val address: RoomAddress) {
             if (response.statusCode() !in 200..299) {
                 val value = RoomWire.parse(bytes); RoomWire.keys(value, "error")
                 val error = RoomWire.obj(value["error"]); RoomWire.keys(error, "code"); val code = RoomWire.string(error["code"])
-                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal")
+                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal", "snapshotRequired")
                 throw RoomProtocolException(if (code in allowed) code else "transport")
             }
             return bytes

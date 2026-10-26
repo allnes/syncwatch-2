@@ -4,6 +4,40 @@ import XCTest
 @testable import SyncWatchRoom
 
 final class RoomTransportTests: XCTestCase, @unchecked Sendable {
+    func testSeededCatalogWalk() async throws {
+        let environment = ProcessInfo.processInfo.environment
+        guard let address = environment["SYNCWATCH_ROOM_SERVICE"], let room = environment["SYNCWATCH_CATALOG_ROOM"],
+            let invitation = environment["SYNCWATCH_CATALOG_INVITATION"]
+        else { throw XCTSkip("Requires an owned service with the 250-entry catalog fixture") }
+        let client = try RoomClient(address: RoomAddress(address))
+        do {
+            let admission = try await client.join(
+                roomID: room, invitation: RoomSecret(invitation),
+                identity: RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS catalog"))
+            let events = try await client.openEvents(admission)
+            let bootstrap = try RoomBootstrap.initialEvent(await events.receive(), admission: admission)
+            var cursor: String? = bootstrap.catalogCursor
+            var ids = Set<String>()
+            var pages = 0
+            while let current = cursor {
+                guard pages < 3 else { throw RoomProtocolFailure.malformed }
+                let page = try await client.catalog(admission, bootstrap: bootstrap, cursor: current)
+                for entry in page.items {
+                    XCTAssertNotEqual(entry.memberID, admission.memberID)
+                    XCTAssertTrue(ids.insert(entry.media.mediaID).inserted)
+                }
+                pages += 1
+                cursor = page.nextCursor
+            }
+            XCTAssertEqual(pages, 3)
+            XCTAssertEqual(ids, Set((0..<250).map { "movie-\($0)" }))
+            try await client.leave(admission)
+            await client.close()
+        } catch {
+            await client.close()
+            throw error
+        }
+    }
     func testDelegateCompletionReleasesAnIdleReceive() async throws {
         let delegate = RoomSessionDelegate()
         let session = URLSession(configuration: .ephemeral)
@@ -92,6 +126,15 @@ final class RoomTransportTests: XCTestCase, @unchecked Sendable {
             let events = try await owner.openEvents(admission)
             let initial = try RoomBootstrap.initialEvent(await events.receive(), admission: admission)
             XCTAssertEqual(initial.snapshot.members.count, 1)
+            let empty = try await owner.catalog(admission, bootstrap: initial, cursor: initial.catalogCursor)
+            XCTAssertTrue(empty.items.isEmpty)
+            XCTAssertNil(empty.nextCursor)
+            let refreshed = try await owner.snapshot(admission)
+            do {
+                _ = try await owner.catalog(admission, bootstrap: initial, cursor: initial.catalogCursor)
+                XCTFail("A new bootstrap must invalidate the preceding catalog view")
+            } catch RoomProtocolFailure.rejected("snapshotRequired") {}
+            _ = try await owner.catalog(admission, bootstrap: refreshed, cursor: refreshed.catalogCursor)
             let joined = try await guest.join(
                 roomID: admission.roomID, invitation: XCTUnwrap(admission.invitation),
                 identity: RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS guest"))

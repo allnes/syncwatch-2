@@ -7,6 +7,17 @@ import syncwatch.ipc.Json
 fun main(args: Array<String>) {
     val fixture = RoomWire.obj(Json.parse(Files.readString(Path.of(args[0]))))
     val identity = RoomIdentity("run-room-client", "Room User")
+    val bootstrap = RoomBootstrap.decode((fixture["catalogBootstrap"] as String).toByteArray(Charsets.UTF_8))
+    for (entry in fixture["catalogs"] as List<*>) {
+        val item = RoomWire.obj(entry)
+        val result = runCatching { RoomCatalogPage.decode((item["wire"] as String).toByteArray(Charsets.UTF_8), bootstrap, item["cursor"] as String) }
+        check(result.isSuccess == item["valid"]) { "catalog: ${item["name"]}" }
+        if (!result.isSuccess) check(result.exceptionOrNull() is RoomProtocolException)
+        result.getOrNull()?.let {
+            check(it.epoch == bootstrap.snapshot.epoch && it.sequence == bootstrap.snapshot.sequence &&
+                it.items.size.toLong() == item["count"] && it.nextCursor == item["nextCursor"])
+        }
+    }
     for (entry in fixture["invitations"] as List<*>) {
         val item = RoomWire.obj(entry)
         val result = runCatching { RoomInvitation.parse(item["text"] as String) }

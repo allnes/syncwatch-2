@@ -77,6 +77,17 @@ public actor RoomClient {
         try RoomBootstrap.decode(
             await request("GET", "v1/rooms/\(admission.roomID)/snapshot", credential: admission.token))
     }
+    public func catalog(_ admission: RoomAdmission, bootstrap: RoomBootstrap, cursor: String) async throws
+        -> RoomCatalogPage
+    {
+        guard bootstrap.snapshot.epoch == admission.bootstrap.snapshot.epoch else {
+            throw RoomProtocolFailure.malformed
+        }
+        _ = try RoomCatalogPosition(cursor, bootstrap: bootstrap)
+        return try RoomCatalogPage.decode(
+            await request("GET", "v1/rooms/\(admission.roomID)/catalog", credential: admission.token, cursor: cursor),
+            bootstrap: bootstrap, cursor: cursor)
+    }
     public func leave(_ admission: RoomAdmission) async throws {
         let bytes = try await request("POST", "v1/rooms/\(admission.roomID)/leave", credential: admission.token)
         let value = try RoomWire.object(bytes)
@@ -113,12 +124,16 @@ public actor RoomClient {
         if let eventStream { await eventStream.close() }
         for task in pending { _ = await task.result }
     }
-    private func request(_ method: String, _ path: String, credential: RoomSecret? = nil, body: Data? = nil)
+    private func request(
+        _ method: String, _ path: String, credential: RoomSecret? = nil, body: Data? = nil, cursor: String? = nil
+    )
         async throws -> Data
     {
         try Task.checkCancellation()
         guard !closed else { throw RoomProtocolFailure.closed }
-        var request = URLRequest(url: address.endpoint(path))
+        var parts = URLComponents(url: address.endpoint(path), resolvingAgainstBaseURL: false)!
+        if let cursor { parts.queryItems = [URLQueryItem(name: "cursor", value: cursor)] }
+        var request = URLRequest(url: parts.url!)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let credential { request.setValue("Bearer \(credential.value)", forHTTPHeaderField: "Authorization") }
@@ -159,7 +174,7 @@ public actor RoomClient {
             let code = try RoomWire.string(error["code"])
             let allowed = [
                 "unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed",
-                "frameTooLarge", "internal",
+                "frameTooLarge", "internal", "snapshotRequired",
             ]
             throw RoomProtocolFailure.rejected(allowed.contains(code) ? code : "transport")
         }
