@@ -10,6 +10,21 @@ final class RoomProtocolTests: XCTestCase {
         ).standardized
         let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: Any])
         let identity = try RoomIdentity(clientRunID: "run-room-client", syncplayUsername: "Room User")
+        let bootstrap = try RoomBootstrap.decode(Data(try XCTUnwrap(root["catalogBootstrap"] as? String).utf8))
+        for entry in try XCTUnwrap(root["catalogs"] as? [[String: Any]]) {
+            let name = try XCTUnwrap(entry["name"] as? String)
+            let wire = Data(try XCTUnwrap(entry["wire"] as? String).utf8)
+            let cursor = try XCTUnwrap(entry["cursor"] as? String)
+            if try XCTUnwrap(entry["valid"] as? Bool) {
+                let page = try RoomCatalogPage.decode(wire, bootstrap: bootstrap, cursor: cursor)
+                XCTAssertEqual(page.epoch, bootstrap.snapshot.epoch, name)
+                XCTAssertEqual(page.sequence, bootstrap.snapshot.sequence, name)
+                XCTAssertEqual(page.items.count, entry["count"] as? Int, name)
+                XCTAssertEqual(page.nextCursor, entry["nextCursor"] as? String, name)
+            } else {
+                XCTAssertThrowsError(try RoomCatalogPage.decode(wire, bootstrap: bootstrap, cursor: cursor), name)
+            }
+        }
         for entry in try XCTUnwrap(root["invitations"] as? [[String: Any]]) {
             let name = try XCTUnwrap(entry["name"] as? String)
             let text = try XCTUnwrap(entry["text"] as? String)

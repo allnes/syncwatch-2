@@ -332,5 +332,248 @@
       "text": "room-invitation\néééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
       "valid": false
     }
+  ],
+  "catalogBootstrap": "{\"snapshot\":{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"watchGeneration\":0,\"watch\":{\"status\":\"idle\",\"mediaId\":null},\"members\":[{\"memberId\":\"member-owner\",\"clientRunId\":\"run-room-client\",\"syncplayUsername\":\"Room User\"},{\"memberId\":\"member-guest\",\"clientRunId\":\"run-guest\",\"syncplayUsername\":\"Guest\"}],\"meetUri\":null},\"connection\":{\"host\":\"syncplay.example.com\",\"port\":8999,\"room\":\"Movie night\",\"requireTls\":true},\"catalogCursor\":\"view-1:0\",\"missingMembers\":[]}",
+  "catalogs": [
+    {
+      "name": "hashed entry",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": true,
+      "count": 1,
+      "nextCursor": null
+    },
+    {
+      "name": "empty final",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": true,
+      "count": 0,
+      "nextCursor": null
+    },
+    {
+      "name": "unknown duration and absent hash",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":null}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": true,
+      "count": 1,
+      "nextCursor": null
+    },
+    {
+      "name": "same media ID from distinct members",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-guest\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": true,
+      "count": 2,
+      "nextCursor": null
+    },
+    {
+      "name": "next page offset",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:101\"}",
+      "cursor": "view-1:100",
+      "valid": true,
+      "count": 1,
+      "nextCursor": "view-1:101"
+    },
+    {
+      "name": "unicode normalization",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"É Movie\",\"titleKey\":\"É movie\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": true,
+      "count": 1,
+      "nextCursor": null
+    },
+    {
+      "name": "wrong v True",
+      "wire": "{\"v\":true,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "wrong v 1.0",
+      "wire": "{\"v\":1.0,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "wrong roomEpoch other-epoch",
+      "wire": "{\"v\":1,\"roomEpoch\":\"other-epoch\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "wrong sequence 8",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":8,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "wrong extra value",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null,\"extra\":\"value\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "unknown member",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-foreign\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "duplicate member media pair",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media v True",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":true,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media mediaId /local/movie",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"/local/movie\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media titleKey bad",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"bad\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media fileSizeBytes 0",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":0,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media fileSizeBytes True",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":true,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media durationMs 604800001",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":604800001,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media fullHashSha256 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media fullHashSha256 None",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":null}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid media path /local/movie",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"path\":\"/local/movie\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:0",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:0\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:2",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:2\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next other-view:1",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"other-view:1\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:-1",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:-1\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:01",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:01\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:9007199254740992",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:9007199254740992\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid next view-1:1&token=secret",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1&token=secret\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "empty nonfinal",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[],\"nextCursor\":\"view-1:1\"}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "101 entries",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-0\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-1\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-2\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-3\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-4\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-5\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-6\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-7\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-8\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-9\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-10\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-11\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-12\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-13\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-14\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-15\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-16\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-17\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-18\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-19\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-20\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-21\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-22\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-23\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-24\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-25\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-26\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-27\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-28\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-29\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-30\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-31\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-32\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-33\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-34\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-35\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-36\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-37\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-38\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-39\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-40\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-41\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-42\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-43\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-44\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-45\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-46\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-47\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-48\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-49\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-50\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-51\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-52\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-53\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-54\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-55\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-56\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-57\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-58\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-59\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-60\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-61\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-62\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-63\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-64\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-65\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-66\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-67\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-68\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-69\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-70\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-71\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-72\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-73\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-74\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-75\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-76\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-77\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-78\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-79\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-80\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-81\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-82\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-83\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-84\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-85\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-86\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-87\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-88\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-89\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-90\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-91\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-92\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-93\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-94\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-95\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-96\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-97\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-98\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-99\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}},{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-100\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "invalid request cursor other-view:0",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "other-view:0",
+      "valid": false
+    },
+    {
+      "name": "invalid request cursor view-1:-1",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:-1",
+      "valid": false
+    },
+    {
+      "name": "invalid request cursor view-1:00",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:00",
+      "valid": false
+    },
+    {
+      "name": "invalid request cursor view-1:9007199254740992",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:9007199254740992",
+      "valid": false
+    },
+    {
+      "name": "invalid request cursor view-1:0?redirect=evil",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0?redirect=evil",
+      "valid": false
+    },
+    {
+      "name": "duplicate escaped object key",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"seque\\u006ece\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    },
+    {
+      "name": "title key must be canonical NFC bytes",
+      "wire": "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"É Movie\",\"titleKey\":\"É movie\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}",
+      "cursor": "view-1:0",
+      "valid": false
+    }
   ]
 }
