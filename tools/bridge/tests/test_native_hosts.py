@@ -25,7 +25,13 @@ class NativeHostTests(unittest.TestCase):
         with patch.object(ci, "target", return_value="linux-x64"), patch.object(ci.subprocess, "run") as run:
             ci.provision()
         tools = [Path(call.args[0][1]).name for call in run.call_args_list[1:]]
-        self.assertEqual(tools, ["jdk.py", "kotlin.py"])
+        self.assertEqual(tools, ["jdk.py", "kotlin.py", "build.py"])
+        self.assertIn("kotlin-stdlib", run.call_args_list[-1].args[0])
+
+    def test_explicit_owned_runtime_reuses_artifact_before_probe_verification(self):
+        with patch.object(ci, "target", return_value="linux-x64"), patch.object(ci.subprocess, "run") as run:
+            ci.provision(Path("owned-stdlib-artifact"))
+        self.assertEqual(len(run.call_args_list), 3)
 
     def test_kotlin_probe_rejects_foreign_host_before_loading_client(self):
         for target in ("darwin", "win32"):

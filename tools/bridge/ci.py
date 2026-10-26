@@ -19,13 +19,18 @@ def target():
             ("Windows", "AMD64"): "windows-x64"}[(platform.system(), platform.machine())]
 
 
-def provision():
+def provision(kotlin_runtime=None):
+    if kotlin_runtime is not None and target() != "linux-x64":
+        raise ValueError("The Kotlin bridge runtime is only used on Linux")
     subprocess.run(["git", "submodule", "update", "--init", "--checkout", "--depth=1", "--", "3rdparty/fastjsonschema"], cwd=ROOT, check=True)
     if target() == "macos-arm64":
         return
     if target() == "linux-x64":
         for tool in ("jdk", "kotlin"):
             subprocess.run([sys.executable, str(ROOT / "tools/jvm" / (tool + ".py")), "--provision"], cwd=ROOT, check=True)
+        if kotlin_runtime is None:
+            subprocess.run([sys.executable, "tools/dependencies/build.py", "build", "--component", "kotlin-stdlib",
+                            "--platform", "linux-x64"], cwd=ROOT, check=True)
         return
     spec = importlib.util.spec_from_file_location("server_sdk", ROOT / "tools/server/check.py")
     module = importlib.util.module_from_spec(spec)
@@ -75,4 +80,4 @@ if __name__ == "__main__":
     parser.add_argument("--dotnet")
     parser.add_argument("--kotlin-runtime", type=Path, help="Owned kotlin-stdlib artifact directory (Linux only)")
     args = parser.parse_args()
-    provision() if args.operation == "provision" else verify(args.dotnet, args.kotlin_runtime)
+    provision(args.kotlin_runtime) if args.operation == "provision" else verify(args.dotnet, args.kotlin_runtime)
