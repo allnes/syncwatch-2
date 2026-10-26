@@ -17,6 +17,7 @@ import tempfile
 import zipfile
 
 from git_objects import read_blobs
+from git_transport import run as run_git
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -68,7 +69,7 @@ def digest(path):
 def git(root, *arguments):
     # Checkout already enables this option. Reads must use the same filesystem
     # semantics or Git for Windows reports unchanged long source paths as modified.
-    return subprocess.check_output(["git", "-c", "core.longpaths=true", *arguments], cwd=root)
+    return run_git(["-c", "core.longpaths=true", *arguments], cwd=root, capture_output=True).stdout
 
 
 def member(value):
@@ -337,12 +338,12 @@ def initialize_export_source(root, path, specification, url):
     created = not (source / ".git").exists()
     if created:
         require(not source.exists() or (source.is_dir() and not any(source.iterdir())), "Uninitialized source path must be empty")
-        subprocess.run(["git", "clone", "--no-checkout", "--filter=blob:none", "--depth=1", "--no-tags", "--", url, str(source)], cwd=root, check=True)
+        run_git(["clone", "--no-checkout", "--filter=blob:none", "--depth=1", "--no-tags", "--", url, str(source)], cwd=root)
         subprocess.run(["git", "submodule", "absorbgitdirs", "--", path], cwd=root, check=True)
     revision = specification["revision"]
     # Object-existence probes can trigger an unbounded promisor fetch of missing history.
     if created or git(source, "rev-parse", "HEAD").decode().strip() != revision:
-        subprocess.run(["git", "-c", "fetch.recurseSubmodules=false", "fetch", "--filter=blob:none", "--depth=1", "--no-tags", "origin", revision], cwd=source, check=True)
+        run_git(["-c", "fetch.recurseSubmodules=false", "fetch", "--filter=blob:none", "--depth=1", "--no-tags", "origin", revision], cwd=source)
     if created:
         # No worktree/index exists yet: detach at the exact pin before materializing files.
         subprocess.run(["git", "update-ref", "--no-deref", "HEAD", revision], cwd=source, check=True)
@@ -356,10 +357,10 @@ def initialize_export_source(root, path, specification, url):
     else:
         patterns = "".join("/" + name + "\n" for name in export_paths(specification))
         mode = ["--no-cone"]
-    subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
-                    "sparse-checkout", "set", *mode, "--stdin"], cwd=source, input=patterns, text=True, check=True)
-    subprocess.run(["git", "-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
-                    "checkout", "--detach", revision], cwd=source, check=True)
+    run_git(["-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+             "sparse-checkout", "set", *mode, "--stdin"], cwd=source, input=patterns)
+    run_git(["-c", "core.longpaths=true", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+             "checkout", "--detach", revision], cwd=source)
 
 
 def initialize_sources(root, sources, directory):
@@ -375,7 +376,7 @@ def initialize_sources(root, sources, directory):
     subprocess.run(["git", "submodule", "init", "--", *sources], cwd=root, check=True)
     whole = [path for path, specification in sources.items() if export_paths(specification) is None]
     if whole:
-        subprocess.run(["git", "-c", "submodule.recurse=false", "-c", "fetch.recurseSubmodules=false", "submodule", "update", "--init", "--checkout", "--depth=1", "--", *whole], cwd=root, check=True)
+        run_git(["-c", "submodule.recurse=false", "-c", "fetch.recurseSubmodules=false", "submodule", "update", "--init", "--checkout", "--depth=1", "--", *whole], cwd=root)
     for path, specification in sources.items():
         if export_paths(specification) is not None:
             initialize_export_source(root, path, specification, urls[path])

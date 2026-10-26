@@ -4,7 +4,7 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 
 ## Source object acquisition
 
-Partial Git clones can fetch promised objects while exporting their original blobs. An HTTP 500, 502, 503, or 504 failure in that read is retried at most three times with bounded backoff. Each attempt repeats the same immutable object IDs, discards partial output and retains the original diagnostic. Permission errors, missing revisions, corrupt objects and validation failures are not retried. Successful transport still passes the existing exact Git-blob, inventory, license and revision checks; no alternate source or archive fallback is used.
+Partial Git clones can fetch promised objects during sparse checkout, detached checkout or original blob export. Clone, fetch, checkout and object reads share one retry policy for HTTP 500, 502, 503 and 504: at most three executions of the identical operation, with one and two second backoff. Arguments, URLs, immutable revisions and UTF8 sparse patterns remain unchanged. Blob reads discard partial output and every attempt retains its original diagnostic. Permission errors, missing revisions, corrupt objects, cancellation and validation failures are not retried; a permanent error also stops a mixed-error operation. Successful transport still passes the existing exact Git-blob, inventory, license and revision checks; no alternate source or archive fallback is used.
 
 ## Pinned source modules
 
