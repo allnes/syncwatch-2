@@ -14,7 +14,8 @@ enum DesignBindings {
             "selectedLocation": p.selected?.location ?? "",
             "emptyMessage": p.state == .scanning ? "scanning" : "empty",
             "missingMedia": String(p.state == .missingMedia),
-            "roomMessage": p.state == .reconnecting ? "reconnecting" : "disconnected",
+            "roomMessage": !p.roomStatus.isEmpty
+                ? p.roomStatus : p.state == .reconnecting ? "reconnecting" : "disconnected",
         ]) { _, v in v }
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {
             DesignContext(["id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID)])

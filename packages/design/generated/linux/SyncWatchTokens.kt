@@ -389,6 +389,28 @@ object SyncWatchCopy {
         "en" to "playbackFailed" -> "Could not open this movie."
         "en" to "libraryUnavailable" -> "Could not access the movie folder. Choose it again or check its permissions."
         "en" to "librarySaveFailed" -> "The folder is available for this session, but its access could not be saved."
+        "en" to "openRoom" -> "Room connection"
+        "en" to "createRoom" -> "Create room"
+        "en" to "joinRoom" -> "Join room"
+        "en" to "createRoomHint" -> "Create a room using your service creation key."
+        "en" to "joinRoomHint" -> "Join using a room ID and invitation."
+        "en" to "roomService" -> "Room service URL"
+        "en" to "roomCreationKey" -> "Creation key"
+        "en" to "roomSyncplayPort" -> "Syncplay port"
+        "en" to "roomIdentifier" -> "Room ID"
+        "en" to "roomInvitation" -> "Invitation"
+        "en" to "roomConnecting" -> "Connecting to the room…"
+        "en" to "roomMetadataConnected" -> "Connected to room"
+        "en" to "roomDisconnected" -> "Room connection interrupted"
+        "en" to "roomConnectionFailed" -> "Could not connect. Check the service, credentials and username."
+        "en" to "leaveRoom" -> "Leave room"
+        "en" to "copyInvitation" -> "Copy invitation"
+        "en" to "roomInvitationCopied" -> "Room ID and invitation copied"
+        "en" to "roomMembers" -> "Room members"
+        "en" to "roomInvalidInput" -> "Complete the connection fields."
+        "en" to "roomConnectionHint" -> "Create a room or join with an invitation."
+        "en" to "pasteInvitation" -> "Paste invitation"
+        "en" to "roomInvitationInvalid" -> "Copy a complete room invitation and try again."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -585,10 +607,32 @@ object SyncWatchCopy {
         "ru" to "playbackFailed" -> "Не удалось открыть фильм."
         "ru" to "libraryUnavailable" -> "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа."
         "ru" to "librarySaveFailed" -> "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось."
+        "ru" to "openRoom" -> "Подключение к комнате"
+        "ru" to "createRoom" -> "Создать комнату"
+        "ru" to "joinRoom" -> "Войти в комнату"
+        "ru" to "createRoomHint" -> "Создайте комнату с ключом сервиса."
+        "ru" to "joinRoomHint" -> "Войдите по идентификатору и приглашению."
+        "ru" to "roomService" -> "Адрес сервиса комнат"
+        "ru" to "roomCreationKey" -> "Ключ создания"
+        "ru" to "roomSyncplayPort" -> "Порт Syncplay"
+        "ru" to "roomIdentifier" -> "Идентификатор комнаты"
+        "ru" to "roomInvitation" -> "Приглашение"
+        "ru" to "roomConnecting" -> "Подключение к комнате…"
+        "ru" to "roomMetadataConnected" -> "Подключено к комнате"
+        "ru" to "roomDisconnected" -> "Соединение с комнатой прервано"
+        "ru" to "roomConnectionFailed" -> "Не удалось подключиться. Проверьте сервис, ключи и имя участника."
+        "ru" to "leaveRoom" -> "Выйти из комнаты"
+        "ru" to "copyInvitation" -> "Копировать приглашение"
+        "ru" to "roomInvitationCopied" -> "Идентификатор и приглашение скопированы"
+        "ru" to "roomMembers" -> "Участников в комнате"
+        "ru" to "roomInvalidInput" -> "Заполните данные подключения."
+        "ru" to "roomConnectionHint" -> "Создайте комнату или войдите по приглашению."
+        "ru" to "pasteInvitation" -> "Вставить приглашение"
+        "ru" to "roomInvitationInvalid" -> "Скопируйте приглашение комнаты целиком и повторите вставку."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
-    val libraryActions = setOf("chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall")
+    val libraryActions = setOf("chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom")
     val galleryMovies = listOf("Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4")
 }
 
@@ -624,6 +668,33 @@ object SyncWatchSettings {
         SyncWatchSettingsField("syncServer", "connection", "text", "syncServer", listOf(), 256),
         SyncWatchSettingsField("roomName", "connection", "text", "roomName", listOf(), 128),
         SyncWatchSettingsField("username", "connection", "text", "username", listOf(), 128),
+    )
+}
+
+data class SyncWatchRoomFormField(val id: String, val section: String, val kind: String, val label: String, val options: List<String>, val maxLength: Int)
+
+object SyncWatchRoomForm {
+    val sections = listOf("connection", "createRoom", "joinRoom")
+    val states = listOf("disconnected", "connecting", "connected", "failed")
+    val defaults = mapOf(
+        "serviceAddress" to "",
+        "username" to "",
+        "creationKey" to "",
+        "syncplayHost" to "",
+        "syncplayPort" to "8999",
+        "roomName" to "",
+        "roomID" to "",
+        "invitation" to "",
+    )
+    val fields = listOf(
+        SyncWatchRoomFormField("serviceAddress", "connection", "text", "roomService", listOf(), 256),
+        SyncWatchRoomFormField("username", "connection", "text", "username", listOf(), 64),
+        SyncWatchRoomFormField("creationKey", "createRoom", "secret", "roomCreationKey", listOf(), 256),
+        SyncWatchRoomFormField("syncplayHost", "createRoom", "text", "syncServer", listOf(), 253),
+        SyncWatchRoomFormField("syncplayPort", "createRoom", "text", "roomSyncplayPort", listOf(), 5),
+        SyncWatchRoomFormField("roomName", "createRoom", "text", "roomName", listOf(), 64),
+        SyncWatchRoomFormField("roomID", "joinRoom", "text", "roomIdentifier", listOf(), 64),
+        SyncWatchRoomFormField("invitation", "joinRoom", "secret", "roomInvitation", listOf(), 256),
     )
 }
 
@@ -751,7 +822,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c"
+    const val sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -960,6 +1031,7 @@ object SyncWatchLayouts {
         "SelectionMenu" to makeSelectionMenu(),
         "selectionFixture" to makeselectionFixture(),
         "Application" to makeApplication(),
+        "Room" to makeRoom(),
     )
     private fun makeLibrary(): DesignNode {
         val node62 = DesignNode("node62", "icon", mapOf(
@@ -1880,6 +1952,37 @@ object SyncWatchLayouts {
             "automation" to "{namespace}.openCall",
             "label" to "~openCall",
         ), listOf(node92))
+        val libraryOpenRoomLabel = DesignNode("libraryOpenRoomLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~openRoom",
+        ), listOf())
+        val libraryOpenRoom = DesignNode("libraryOpenRoom", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "openRoom",
+            "automation" to "{namespace}.openRoom",
+            "enabled" to "\$can.openRoom",
+            "label" to "~openRoom",
+        ), listOf(libraryOpenRoomLabel))
         val node94 = DesignNode("node94", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1896,7 +1999,7 @@ object SyncWatchLayouts {
             "padding" to "@layout.panelPadding",
             "width" to "fill",
             "height" to "fill",
-        ), listOf(node89, node90, node91, node93))
+        ), listOf(node89, node90, node91, node93, libraryOpenRoom))
         val node95 = DesignNode("node95", "text", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -4748,5 +4851,440 @@ object SyncWatchLayouts {
             "clip" to "true",
         ), listOf(applicationLibrary, applicationPlayer))
         return applicationRoot
+    }
+    private fun makeRoom(): DesignNode {
+        val roomTitle = DesignNode("roomTitle", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "fontSize" to "@type.settingsTitleSize",
+            "weight" to "bold",
+            "text" to "~openRoom",
+            "width" to "fill",
+        ), listOf())
+        val roomCloseLabel = DesignNode("roomCloseLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~close",
+        ), listOf())
+        val roomClose = DesignNode("roomClose", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "close",
+            "automation" to "{namespace}.close",
+            "enabled" to "\$can.close",
+            "label" to "~close",
+            "shortcut" to "cancel",
+        ), listOf(roomCloseLabel))
+        val roomHeader = DesignNode("roomHeader", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "padding" to "@layout.settingsCardPadding",
+            "gap" to "@control.compactGap",
+        ), listOf(roomTitle, roomClose))
+        val roomDivider = DesignNode("roomDivider", "line", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "background" to "theme.border",
+            "thickness" to "@control.borderWidth",
+            "axis" to "horizontal",
+        ), listOf())
+        val roomHint = DesignNode("roomHint", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~roomConnectionHint",
+        ), listOf())
+        val roomCreateModeLabel = DesignNode("roomCreateModeLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~createRoom",
+        ), listOf())
+        val roomCreateMode = DesignNode("roomCreateMode", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "chooseRoomMode",
+            "automation" to "{namespace}.chooseRoomMode",
+            "enabled" to "\$can.chooseRoomMode",
+            "label" to "~createRoom",
+            "value" to "createRoom",
+            "payload" to "createRoom",
+            "selected" to "\$createMode",
+        ), listOf(roomCreateModeLabel))
+        val roomJoinModeLabel = DesignNode("roomJoinModeLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~joinRoom",
+        ), listOf())
+        val roomJoinMode = DesignNode("roomJoinMode", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "chooseRoomMode",
+            "automation" to "{namespace}.chooseRoomMode",
+            "enabled" to "\$can.chooseRoomMode",
+            "label" to "~joinRoom",
+            "value" to "joinRoom",
+            "payload" to "joinRoom",
+            "selected" to "\$joinMode",
+        ), listOf(roomJoinModeLabel))
+        val roomModeSelector = DesignNode("roomModeSelector", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "gap" to "@control.compactGap",
+            "when" to "\$showForm",
+        ), listOf(roomCreateMode, roomJoinMode))
+        val roomFieldLabel = DesignNode("roomFieldLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~{label}",
+        ), listOf())
+        val roomFieldInput = DesignNode("roomFieldInput", "input", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accent",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "placeholderFill" to "theme.textSecondary",
+            "height" to "@control.fieldHeight",
+            "paddingX" to "@layout.panelPadding",
+            "radius" to "@control.fieldRadius",
+            "background" to "theme.inputFill",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "action" to "editRoomField",
+            "payload" to "\$id",
+            "label" to "~{label}",
+            "value" to "\$value",
+            "secret" to "\$secret",
+            "enabled" to "\$editable",
+            "automation" to "room.field.{id}",
+            "width" to "fill",
+        ), listOf())
+        val roomField = DesignNode("roomField", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "gap" to "@control.compactGap",
+            "paddingY" to "@control.compactGap",
+        ), listOf(roomFieldLabel, roomFieldInput))
+        val roomFields = DesignNode("roomFields", "repeat", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "items" to "fields",
+            "when" to "\$showForm",
+        ), listOf(roomField))
+        val roomConnectedLabel = DesignNode("roomConnectedLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~roomMetadataConnected",
+        ), listOf())
+        val roomIdFact = DesignNode("roomIdFact", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "{~roomIdentifier}: {roomID}",
+        ), listOf())
+        val roomMembersFact = DesignNode("roomMembersFact", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "{~roomMembers}: {memberCount}",
+        ), listOf())
+        val roomConnectedFacts = DesignNode("roomConnectedFacts", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "when" to "\$connected",
+            "gap" to "@control.compactGap",
+        ), listOf(roomConnectedLabel, roomIdFact, roomMembersFact))
+        val roomStatus = DesignNode("roomStatus", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~{status}",
+        ), listOf())
+        val roomBodyContent = DesignNode("roomBodyContent", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "padding" to "@layout.settingsCardPadding",
+            "gap" to "@layout.settingsCardPadding",
+        ), listOf(roomHint, roomModeSelector, roomFields, roomConnectedFacts, roomStatus))
+        val roomBody = DesignNode("roomBody", "scroll", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "barWidth" to "@control.compactGap",
+            "thumbMinimum" to "@control.iconSize",
+            "thumbRadius" to "@control.buttonRadius",
+            "thumbFill" to "theme.border",
+            "axis" to "vertical",
+            "height" to "fill",
+        ), listOf(roomBodyContent))
+        val roomFooterSpace = DesignNode("roomFooterSpace", "spacer", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+        ), listOf())
+        val roomPasteLabel = DesignNode("roomPasteLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~pasteInvitation",
+        ), listOf())
+        val roomPaste = DesignNode("roomPaste", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "pasteInvitation",
+            "automation" to "{namespace}.pasteInvitation",
+            "enabled" to "\$can.pasteInvitation",
+            "label" to "~pasteInvitation",
+            "when" to "\$can.pasteInvitation",
+        ), listOf(roomPasteLabel))
+        val roomCopyLabel = DesignNode("roomCopyLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~copyInvitation",
+        ), listOf())
+        val roomCopy = DesignNode("roomCopy", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "copyInvitation",
+            "automation" to "{namespace}.copyInvitation",
+            "enabled" to "\$can.copyInvitation",
+            "label" to "~copyInvitation",
+            "when" to "\$can.copyInvitation",
+        ), listOf(roomCopyLabel))
+        val roomLeaveLabel = DesignNode("roomLeaveLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~leaveRoom",
+        ), listOf())
+        val roomLeave = DesignNode("roomLeave", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "leaveRoom",
+            "automation" to "{namespace}.leaveRoom",
+            "enabled" to "\$can.leaveRoom",
+            "label" to "~leaveRoom",
+            "when" to "\$can.leaveRoom",
+        ), listOf(roomLeaveLabel))
+        val roomConnectLabel = DesignNode("roomConnectLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~{connectLabel}",
+        ), listOf())
+        val roomConnect = DesignNode("roomConnect", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "connectRoom",
+            "automation" to "{namespace}.connectRoom",
+            "enabled" to "\$can.connectRoom",
+            "label" to "~{connectLabel}",
+            "when" to "\$showForm",
+            "shortcut" to "default",
+        ), listOf(roomConnectLabel))
+        val roomFooter = DesignNode("roomFooter", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "padding" to "@layout.settingsCardPadding",
+            "gap" to "@control.compactGap",
+        ), listOf(roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect))
+        val roomDialog = DesignNode("roomDialog", "column", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "width" to "@layout.settingsWidth",
+            "height" to "@layout.settingsHeight",
+            "fontSize" to "@type.settingsBodySize",
+            "foreground" to "theme.text",
+            "background" to "theme.surface",
+            "radius" to "@control.compactDialogRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "clip" to "true",
+            "cycleFocus" to "true",
+        ), listOf(roomHeader, roomDivider, roomBody, roomFooter))
+        return roomDialog
     }
 }

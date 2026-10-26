@@ -13,6 +13,7 @@
         <Page Include="../../windows/SyncWatchComponents.xaml" Link="SyncWatchComponents.xaml" />
         <None Include="../../generated/design-manifest.json" Link="design-manifest.json" CopyToOutputDirectory="PreserveNewest" />
         <Compile Include="../../windows/SettingsDialog.cs" Link="SettingsDialog.cs" />
+        <Compile Include="../../windows/RoomDialog.cs" Link="RoomDialog.cs" />
         <Compile Include="../../windows/PlayerSettingsDialog.cs" Link="PlayerSettingsDialog.cs" />
         <Compile Include="../../windows/PlayerChrome.cs" Link="PlayerChrome.cs" />
         <ProjectReference Include="../../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />

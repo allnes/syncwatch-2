@@ -564,6 +564,28 @@ public enum SyncWatchCopy {
             "playbackFailed": "Could not open this movie.",
             "libraryUnavailable": "Could not access the movie folder. Choose it again or check its permissions.",
             "librarySaveFailed": "The folder is available for this session, but its access could not be saved.",
+            "openRoom": "Room connection",
+            "createRoom": "Create room",
+            "joinRoom": "Join room",
+            "createRoomHint": "Create a room using your service creation key.",
+            "joinRoomHint": "Join using a room ID and invitation.",
+            "roomService": "Room service URL",
+            "roomCreationKey": "Creation key",
+            "roomSyncplayPort": "Syncplay port",
+            "roomIdentifier": "Room ID",
+            "roomInvitation": "Invitation",
+            "roomConnecting": "Connecting to the room…",
+            "roomMetadataConnected": "Connected to room",
+            "roomDisconnected": "Room connection interrupted",
+            "roomConnectionFailed": "Could not connect. Check the service, credentials and username.",
+            "leaveRoom": "Leave room",
+            "copyInvitation": "Copy invitation",
+            "roomInvitationCopied": "Room ID and invitation copied",
+            "roomMembers": "Room members",
+            "roomInvalidInput": "Complete the connection fields.",
+            "roomConnectionHint": "Create a room or join with an invitation.",
+            "pasteInvitation": "Paste invitation",
+            "roomInvitationInvalid": "Copy a complete room invitation and try again.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -763,6 +785,28 @@ public enum SyncWatchCopy {
             "libraryUnavailable":
                 "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
             "librarySaveFailed": "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось.",
+            "openRoom": "Подключение к комнате",
+            "createRoom": "Создать комнату",
+            "joinRoom": "Войти в комнату",
+            "createRoomHint": "Создайте комнату с ключом сервиса.",
+            "joinRoomHint": "Войдите по идентификатору и приглашению.",
+            "roomService": "Адрес сервиса комнат",
+            "roomCreationKey": "Ключ создания",
+            "roomSyncplayPort": "Порт Syncplay",
+            "roomIdentifier": "Идентификатор комнаты",
+            "roomInvitation": "Приглашение",
+            "roomConnecting": "Подключение к комнате…",
+            "roomMetadataConnected": "Подключено к комнате",
+            "roomDisconnected": "Соединение с комнатой прервано",
+            "roomConnectionFailed": "Не удалось подключиться. Проверьте сервис, ключи и имя участника.",
+            "leaveRoom": "Выйти из комнаты",
+            "copyInvitation": "Копировать приглашение",
+            "roomInvitationCopied": "Идентификатор и приглашение скопированы",
+            "roomMembers": "Участников в комнате",
+            "roomInvalidInput": "Заполните данные подключения.",
+            "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
+            "pasteInvitation": "Вставить приглашение",
+            "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -779,6 +823,7 @@ public enum SyncWatchCopy {
         "endWatching",
         "openSettings",
         "openCall",
+        "openRoom",
     ]
     public static let galleryMovies = [
         "Example Movie 01.mkv",
@@ -850,6 +895,56 @@ public enum SyncWatchSettings {
         SyncWatchSettingsField(
             id: "username", section: "connection", kind: "text", label: "username",
             options: [], maxLength: 128),
+    ]
+}
+
+public struct SyncWatchRoomFormField: Sendable {
+    public let id: String
+    public let section: String
+    public let kind: String
+    public let label: String
+    public let options: [String]
+    public let maxLength: Int
+}
+
+public enum SyncWatchRoomForm {
+    public static let sections = ["connection", "createRoom", "joinRoom"]
+    public static let states = ["disconnected", "connecting", "connected", "failed"]
+    public static let defaults: [String: String] = [
+        "serviceAddress": "",
+        "username": "",
+        "creationKey": "",
+        "syncplayHost": "",
+        "syncplayPort": "8999",
+        "roomName": "",
+        "roomID": "",
+        "invitation": "",
+    ]
+    public static let fields: [SyncWatchRoomFormField] = [
+        SyncWatchRoomFormField(
+            id: "serviceAddress", section: "connection", kind: "text", label: "roomService",
+            options: [], maxLength: 256),
+        SyncWatchRoomFormField(
+            id: "username", section: "connection", kind: "text", label: "username",
+            options: [], maxLength: 64),
+        SyncWatchRoomFormField(
+            id: "creationKey", section: "createRoom", kind: "secret", label: "roomCreationKey",
+            options: [], maxLength: 256),
+        SyncWatchRoomFormField(
+            id: "syncplayHost", section: "createRoom", kind: "text", label: "syncServer",
+            options: [], maxLength: 253),
+        SyncWatchRoomFormField(
+            id: "syncplayPort", section: "createRoom", kind: "text", label: "roomSyncplayPort",
+            options: [], maxLength: 5),
+        SyncWatchRoomFormField(
+            id: "roomName", section: "createRoom", kind: "text", label: "roomName",
+            options: [], maxLength: 64),
+        SyncWatchRoomFormField(
+            id: "roomID", section: "joinRoom", kind: "text", label: "roomIdentifier",
+            options: [], maxLength: 64),
+        SyncWatchRoomFormField(
+            id: "invitation", section: "joinRoom", kind: "secret", label: "roomInvitation",
+            options: [], maxLength: 256),
     ]
 }
 
@@ -1962,7 +2057,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c"
+    public static let sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -2979,6 +3074,7 @@ public enum SyncWatchLayouts {
         "SelectionMenu": makeSelectionMenu(),
         "selectionFixture": makeselectionFixture(),
         "Application": makeApplication(),
+        "Room": makeRoom(),
     ]
     private static func makeLibrary() -> DesignNode {
         let node62 = DesignNode(
@@ -4140,6 +4236,43 @@ public enum SyncWatchLayouts {
                 "label": "~openCall",
             ],
             children: [node92])
+        let libraryOpenRoomLabel = DesignNode(
+            id: "libraryOpenRoomLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~openRoom",
+            ],
+            children: [])
+        let libraryOpenRoom = DesignNode(
+            id: "libraryOpenRoom", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "openRoom",
+                "automation": "{namespace}.openRoom",
+                "enabled": "$can.openRoom",
+                "label": "~openRoom",
+            ],
+            children: [libraryOpenRoomLabel])
         let node94 = DesignNode(
             id: "node94", kind: "column",
             props: [
@@ -4159,7 +4292,7 @@ public enum SyncWatchLayouts {
                 "width": "fill",
                 "height": "fill",
             ],
-            children: [node89, node90, node91, node93])
+            children: [node89, node90, node91, node93, libraryOpenRoom])
         let node95 = DesignNode(
             id: "node95", kind: "text",
             props: [
@@ -7703,5 +7836,539 @@ public enum SyncWatchLayouts {
             ],
             children: [applicationLibrary, applicationPlayer])
         return applicationRoot
+    }
+    private static func makeRoom() -> DesignNode {
+        let roomTitle = DesignNode(
+            id: "roomTitle", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "fontSize": "@type.settingsTitleSize",
+                "weight": "bold",
+                "text": "~openRoom",
+                "width": "fill",
+            ],
+            children: [])
+        let roomCloseLabel = DesignNode(
+            id: "roomCloseLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~close",
+            ],
+            children: [])
+        let roomClose = DesignNode(
+            id: "roomClose", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "close",
+                "automation": "{namespace}.close",
+                "enabled": "$can.close",
+                "label": "~close",
+                "shortcut": "cancel",
+            ],
+            children: [roomCloseLabel])
+        let roomHeader = DesignNode(
+            id: "roomHeader", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "padding": "@layout.settingsCardPadding",
+                "gap": "@control.compactGap",
+            ],
+            children: [roomTitle, roomClose])
+        let roomDivider = DesignNode(
+            id: "roomDivider", kind: "line",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "background": "theme.border",
+                "thickness": "@control.borderWidth",
+                "axis": "horizontal",
+            ],
+            children: [])
+        let roomHint = DesignNode(
+            id: "roomHint", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~roomConnectionHint",
+            ],
+            children: [])
+        let roomCreateModeLabel = DesignNode(
+            id: "roomCreateModeLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~createRoom",
+            ],
+            children: [])
+        let roomCreateMode = DesignNode(
+            id: "roomCreateMode", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "chooseRoomMode",
+                "automation": "{namespace}.chooseRoomMode",
+                "enabled": "$can.chooseRoomMode",
+                "label": "~createRoom",
+                "value": "createRoom",
+                "payload": "createRoom",
+                "selected": "$createMode",
+            ],
+            children: [roomCreateModeLabel])
+        let roomJoinModeLabel = DesignNode(
+            id: "roomJoinModeLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~joinRoom",
+            ],
+            children: [])
+        let roomJoinMode = DesignNode(
+            id: "roomJoinMode", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "chooseRoomMode",
+                "automation": "{namespace}.chooseRoomMode",
+                "enabled": "$can.chooseRoomMode",
+                "label": "~joinRoom",
+                "value": "joinRoom",
+                "payload": "joinRoom",
+                "selected": "$joinMode",
+            ],
+            children: [roomJoinModeLabel])
+        let roomModeSelector = DesignNode(
+            id: "roomModeSelector", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "gap": "@control.compactGap",
+                "when": "$showForm",
+            ],
+            children: [roomCreateMode, roomJoinMode])
+        let roomFieldLabel = DesignNode(
+            id: "roomFieldLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~{label}",
+            ],
+            children: [])
+        let roomFieldInput = DesignNode(
+            id: "roomFieldInput", kind: "input",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accent",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "placeholderFill": "theme.textSecondary",
+                "height": "@control.fieldHeight",
+                "paddingX": "@layout.panelPadding",
+                "radius": "@control.fieldRadius",
+                "background": "theme.inputFill",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "action": "editRoomField",
+                "payload": "$id",
+                "label": "~{label}",
+                "value": "$value",
+                "secret": "$secret",
+                "enabled": "$editable",
+                "automation": "room.field.{id}",
+                "width": "fill",
+            ],
+            children: [])
+        let roomField = DesignNode(
+            id: "roomField", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "gap": "@control.compactGap",
+                "paddingY": "@control.compactGap",
+            ],
+            children: [roomFieldLabel, roomFieldInput])
+        let roomFields = DesignNode(
+            id: "roomFields", kind: "repeat",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "items": "fields",
+                "when": "$showForm",
+            ],
+            children: [roomField])
+        let roomConnectedLabel = DesignNode(
+            id: "roomConnectedLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~roomMetadataConnected",
+            ],
+            children: [])
+        let roomIdFact = DesignNode(
+            id: "roomIdFact", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "{~roomIdentifier}: {roomID}",
+            ],
+            children: [])
+        let roomMembersFact = DesignNode(
+            id: "roomMembersFact", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "{~roomMembers}: {memberCount}",
+            ],
+            children: [])
+        let roomConnectedFacts = DesignNode(
+            id: "roomConnectedFacts", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "when": "$connected",
+                "gap": "@control.compactGap",
+            ],
+            children: [roomConnectedLabel, roomIdFact, roomMembersFact])
+        let roomStatus = DesignNode(
+            id: "roomStatus", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~{status}",
+            ],
+            children: [])
+        let roomBodyContent = DesignNode(
+            id: "roomBodyContent", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "padding": "@layout.settingsCardPadding",
+                "gap": "@layout.settingsCardPadding",
+            ],
+            children: [roomHint, roomModeSelector, roomFields, roomConnectedFacts, roomStatus])
+        let roomBody = DesignNode(
+            id: "roomBody", kind: "scroll",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "barWidth": "@control.compactGap",
+                "thumbMinimum": "@control.iconSize",
+                "thumbRadius": "@control.buttonRadius",
+                "thumbFill": "theme.border",
+                "axis": "vertical",
+                "height": "fill",
+            ],
+            children: [roomBodyContent])
+        let roomFooterSpace = DesignNode(
+            id: "roomFooterSpace", kind: "spacer",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+            ],
+            children: [])
+        let roomPasteLabel = DesignNode(
+            id: "roomPasteLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~pasteInvitation",
+            ],
+            children: [])
+        let roomPaste = DesignNode(
+            id: "roomPaste", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "pasteInvitation",
+                "automation": "{namespace}.pasteInvitation",
+                "enabled": "$can.pasteInvitation",
+                "label": "~pasteInvitation",
+                "when": "$can.pasteInvitation",
+            ],
+            children: [roomPasteLabel])
+        let roomCopyLabel = DesignNode(
+            id: "roomCopyLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~copyInvitation",
+            ],
+            children: [])
+        let roomCopy = DesignNode(
+            id: "roomCopy", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "copyInvitation",
+                "automation": "{namespace}.copyInvitation",
+                "enabled": "$can.copyInvitation",
+                "label": "~copyInvitation",
+                "when": "$can.copyInvitation",
+            ],
+            children: [roomCopyLabel])
+        let roomLeaveLabel = DesignNode(
+            id: "roomLeaveLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~leaveRoom",
+            ],
+            children: [])
+        let roomLeave = DesignNode(
+            id: "roomLeave", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "leaveRoom",
+                "automation": "{namespace}.leaveRoom",
+                "enabled": "$can.leaveRoom",
+                "label": "~leaveRoom",
+                "when": "$can.leaveRoom",
+            ],
+            children: [roomLeaveLabel])
+        let roomConnectLabel = DesignNode(
+            id: "roomConnectLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~{connectLabel}",
+            ],
+            children: [])
+        let roomConnect = DesignNode(
+            id: "roomConnect", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "connectRoom",
+                "automation": "{namespace}.connectRoom",
+                "enabled": "$can.connectRoom",
+                "label": "~{connectLabel}",
+                "when": "$showForm",
+                "shortcut": "default",
+            ],
+            children: [roomConnectLabel])
+        let roomFooter = DesignNode(
+            id: "roomFooter", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "padding": "@layout.settingsCardPadding",
+                "gap": "@control.compactGap",
+            ],
+            children: [roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect])
+        let roomDialog = DesignNode(
+            id: "roomDialog", kind: "column",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "width": "@layout.settingsWidth",
+                "height": "@layout.settingsHeight",
+                "fontSize": "@type.settingsBodySize",
+                "foreground": "theme.text",
+                "background": "theme.surface",
+                "radius": "@control.compactDialogRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "clip": "true",
+                "cycleFocus": "true",
+            ],
+            children: [roomHeader, roomDivider, roomBody, roomFooter])
+        return roomDialog
     }
 }

@@ -2,6 +2,8 @@ using SyncWatch;
 using SyncWatch.Domain;
 using SyncWatch.Library;
 
+await RoomPlaybackGateChecks.RunAsync();
+
 string root = Path.Combine(Path.GetTempPath(), "syncwatch-media-preparation-" + Guid.NewGuid());
 Directory.CreateDirectory(root);
 try

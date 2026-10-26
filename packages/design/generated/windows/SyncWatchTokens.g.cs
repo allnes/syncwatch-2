@@ -560,6 +560,28 @@ public static class SyncWatchCopy
         ("en", "playbackFailed") => "Could not open this movie.",
         ("en", "libraryUnavailable") => "Could not access the movie folder. Choose it again or check its permissions.",
         ("en", "librarySaveFailed") => "The folder is available for this session, but its access could not be saved.",
+        ("en", "openRoom") => "Room connection",
+        ("en", "createRoom") => "Create room",
+        ("en", "joinRoom") => "Join room",
+        ("en", "createRoomHint") => "Create a room using your service creation key.",
+        ("en", "joinRoomHint") => "Join using a room ID and invitation.",
+        ("en", "roomService") => "Room service URL",
+        ("en", "roomCreationKey") => "Creation key",
+        ("en", "roomSyncplayPort") => "Syncplay port",
+        ("en", "roomIdentifier") => "Room ID",
+        ("en", "roomInvitation") => "Invitation",
+        ("en", "roomConnecting") => "Connecting to the room…",
+        ("en", "roomMetadataConnected") => "Connected to room",
+        ("en", "roomDisconnected") => "Room connection interrupted",
+        ("en", "roomConnectionFailed") => "Could not connect. Check the service, credentials and username.",
+        ("en", "leaveRoom") => "Leave room",
+        ("en", "copyInvitation") => "Copy invitation",
+        ("en", "roomInvitationCopied") => "Room ID and invitation copied",
+        ("en", "roomMembers") => "Room members",
+        ("en", "roomInvalidInput") => "Complete the connection fields.",
+        ("en", "roomConnectionHint") => "Create a room or join with an invitation.",
+        ("en", "pasteInvitation") => "Paste invitation",
+        ("en", "roomInvitationInvalid") => "Copy a complete room invitation and try again.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -756,11 +778,33 @@ public static class SyncWatchCopy
         ("ru", "playbackFailed") => "Не удалось открыть фильм.",
         ("ru", "libraryUnavailable") => "Не удалось открыть папку с фильмами. Выберите её заново или проверьте права доступа.",
         ("ru", "librarySaveFailed") => "Папка доступна в этом сеансе, но сохранить доступ к ней не удалось.",
+        ("ru", "openRoom") => "Подключение к комнате",
+        ("ru", "createRoom") => "Создать комнату",
+        ("ru", "joinRoom") => "Войти в комнату",
+        ("ru", "createRoomHint") => "Создайте комнату с ключом сервиса.",
+        ("ru", "joinRoomHint") => "Войдите по идентификатору и приглашению.",
+        ("ru", "roomService") => "Адрес сервиса комнат",
+        ("ru", "roomCreationKey") => "Ключ создания",
+        ("ru", "roomSyncplayPort") => "Порт Syncplay",
+        ("ru", "roomIdentifier") => "Идентификатор комнаты",
+        ("ru", "roomInvitation") => "Приглашение",
+        ("ru", "roomConnecting") => "Подключение к комнате…",
+        ("ru", "roomMetadataConnected") => "Подключено к комнате",
+        ("ru", "roomDisconnected") => "Соединение с комнатой прервано",
+        ("ru", "roomConnectionFailed") => "Не удалось подключиться. Проверьте сервис, ключи и имя участника.",
+        ("ru", "leaveRoom") => "Выйти из комнаты",
+        ("ru", "copyInvitation") => "Копировать приглашение",
+        ("ru", "roomInvitationCopied") => "Идентификатор и приглашение скопированы",
+        ("ru", "roomMembers") => "Участников в комнате",
+        ("ru", "roomInvalidInput") => "Заполните данные подключения.",
+        ("ru", "roomConnectionHint") => "Создайте комнату или войдите по приглашению.",
+        ("ru", "pasteInvitation") => "Вставить приглашение",
+        ("ru", "roomInvitationInvalid") => "Скопируйте приглашение комнаты целиком и повторите вставку.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
     public static string[] GalleryStates => ["empty", "scanning", "selected", "missingMedia", "reconnecting"];
-    public static string[] LibraryActions => ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall"];
+    public static string[] LibraryActions => ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom"];
     public static string[] GalleryMovies => ["Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4"];
 }
 
@@ -799,6 +843,36 @@ public static class SyncWatchSettings
         new("syncServer", "connection", "text", "syncServer", [], 256),
         new("roomName", "connection", "text", "roomName", [], 128),
         new("username", "connection", "text", "username", [], 128),
+    ];
+}
+
+public sealed record SyncWatchRoomFormField(string Id, string Section, string Kind, string Label, string[] Options, int MaxLength);
+
+public static class SyncWatchRoomForm
+{
+    public static string[] Sections => ["connection", "createRoom", "joinRoom"];
+    public static string[] States => ["disconnected", "connecting", "connected", "failed"];
+    public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults => new System.Collections.Generic.Dictionary<string, string>
+    {
+        ["serviceAddress"] = "",
+        ["username"] = "",
+        ["creationKey"] = "",
+        ["syncplayHost"] = "",
+        ["syncplayPort"] = "8999",
+        ["roomName"] = "",
+        ["roomID"] = "",
+        ["invitation"] = "",
+    };
+    public static SyncWatchRoomFormField[] Fields =>
+    [
+        new("serviceAddress", "connection", "text", "roomService", [], 256),
+        new("username", "connection", "text", "username", [], 64),
+        new("creationKey", "createRoom", "secret", "roomCreationKey", [], 256),
+        new("syncplayHost", "createRoom", "text", "syncServer", [], 253),
+        new("syncplayPort", "createRoom", "text", "roomSyncplayPort", [], 5),
+        new("roomName", "createRoom", "text", "roomName", [], 64),
+        new("roomID", "joinRoom", "text", "roomIdentifier", [], 64),
+        new("invitation", "joinRoom", "secret", "roomInvitation", [], 256),
     ];
 }
 
@@ -936,7 +1010,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "c02a30364375bbfbfec0e1e57ec4a3e6af4c40dd1e92c1edb545a19a4c79603c";
+    public const string SourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1133,6 +1207,7 @@ public static class SyncWatchLayouts
         ["SelectionMenu"] = MakeSelectionMenu(),
         ["selectionFixture"] = MakeselectionFixture(),
         ["Application"] = MakeApplication(),
+        ["Room"] = MakeRoom(),
     };
     private static DesignNode MakeLibrary()
     {
@@ -2134,6 +2209,39 @@ public static class SyncWatchLayouts
             ["automation"] = "{namespace}.openCall",
             ["label"] = "~openCall",
         }, [node92]);
+        var libraryOpenRoomLabel = new DesignNode("libraryOpenRoomLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~openRoom",
+        }, []);
+        var libraryOpenRoom = new DesignNode("libraryOpenRoom", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "openRoom",
+            ["automation"] = "{namespace}.openRoom",
+            ["enabled"] = "$can.openRoom",
+            ["label"] = "~openRoom",
+        }, [libraryOpenRoomLabel]);
         var node94 = new DesignNode("node94", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -2151,7 +2259,7 @@ public static class SyncWatchLayouts
             ["padding"] = "@layout.panelPadding",
             ["width"] = "fill",
             ["height"] = "fill",
-        }, [node89, node90, node91, node93]);
+        }, [node89, node90, node91, node93, libraryOpenRoom]);
         var node95 = new DesignNode("node95", "text", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -5243,5 +5351,474 @@ public static class SyncWatchLayouts
             ["clip"] = "true",
         }, [applicationLibrary, applicationPlayer]);
         return applicationRoot;
+    }
+    private static DesignNode MakeRoom()
+    {
+        var roomTitle = new DesignNode("roomTitle", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["fontSize"] = "@type.settingsTitleSize",
+            ["weight"] = "bold",
+            ["text"] = "~openRoom",
+            ["width"] = "fill",
+        }, []);
+        var roomCloseLabel = new DesignNode("roomCloseLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~close",
+        }, []);
+        var roomClose = new DesignNode("roomClose", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "close",
+            ["automation"] = "{namespace}.close",
+            ["enabled"] = "$can.close",
+            ["label"] = "~close",
+            ["shortcut"] = "cancel",
+        }, [roomCloseLabel]);
+        var roomHeader = new DesignNode("roomHeader", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["padding"] = "@layout.settingsCardPadding",
+            ["gap"] = "@control.compactGap",
+        }, [roomTitle, roomClose]);
+        var roomDivider = new DesignNode("roomDivider", "line", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["background"] = "theme.border",
+            ["thickness"] = "@control.borderWidth",
+            ["axis"] = "horizontal",
+        }, []);
+        var roomHint = new DesignNode("roomHint", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~roomConnectionHint",
+        }, []);
+        var roomCreateModeLabel = new DesignNode("roomCreateModeLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~createRoom",
+        }, []);
+        var roomCreateMode = new DesignNode("roomCreateMode", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "chooseRoomMode",
+            ["automation"] = "{namespace}.chooseRoomMode",
+            ["enabled"] = "$can.chooseRoomMode",
+            ["label"] = "~createRoom",
+            ["value"] = "createRoom",
+            ["payload"] = "createRoom",
+            ["selected"] = "$createMode",
+        }, [roomCreateModeLabel]);
+        var roomJoinModeLabel = new DesignNode("roomJoinModeLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~joinRoom",
+        }, []);
+        var roomJoinMode = new DesignNode("roomJoinMode", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "chooseRoomMode",
+            ["automation"] = "{namespace}.chooseRoomMode",
+            ["enabled"] = "$can.chooseRoomMode",
+            ["label"] = "~joinRoom",
+            ["value"] = "joinRoom",
+            ["payload"] = "joinRoom",
+            ["selected"] = "$joinMode",
+        }, [roomJoinModeLabel]);
+        var roomModeSelector = new DesignNode("roomModeSelector", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["when"] = "$showForm",
+        }, [roomCreateMode, roomJoinMode]);
+        var roomFieldLabel = new DesignNode("roomFieldLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{label}",
+        }, []);
+        var roomFieldInput = new DesignNode("roomFieldInput", "input", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accent",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["placeholderFill"] = "theme.textSecondary",
+            ["height"] = "@control.fieldHeight",
+            ["paddingX"] = "@layout.panelPadding",
+            ["radius"] = "@control.fieldRadius",
+            ["background"] = "theme.inputFill",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["action"] = "editRoomField",
+            ["payload"] = "$id",
+            ["label"] = "~{label}",
+            ["value"] = "$value",
+            ["secret"] = "$secret",
+            ["enabled"] = "$editable",
+            ["automation"] = "room.field.{id}",
+            ["width"] = "fill",
+        }, []);
+        var roomField = new DesignNode("roomField", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["gap"] = "@control.compactGap",
+            ["paddingY"] = "@control.compactGap",
+        }, [roomFieldLabel, roomFieldInput]);
+        var roomFields = new DesignNode("roomFields", "repeat", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["items"] = "fields",
+            ["when"] = "$showForm",
+        }, [roomField]);
+        var roomConnectedLabel = new DesignNode("roomConnectedLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~roomMetadataConnected",
+        }, []);
+        var roomIdFact = new DesignNode("roomIdFact", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{~roomIdentifier}: {roomID}",
+        }, []);
+        var roomMembersFact = new DesignNode("roomMembersFact", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "{~roomMembers}: {memberCount}",
+        }, []);
+        var roomConnectedFacts = new DesignNode("roomConnectedFacts", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["when"] = "$connected",
+            ["gap"] = "@control.compactGap",
+        }, [roomConnectedLabel, roomIdFact, roomMembersFact]);
+        var roomStatus = new DesignNode("roomStatus", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{status}",
+        }, []);
+        var roomBodyContent = new DesignNode("roomBodyContent", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["padding"] = "@layout.settingsCardPadding",
+            ["gap"] = "@layout.settingsCardPadding",
+        }, [roomHint, roomModeSelector, roomFields, roomConnectedFacts, roomStatus]);
+        var roomBody = new DesignNode("roomBody", "scroll", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["barWidth"] = "@control.compactGap",
+            ["thumbMinimum"] = "@control.iconSize",
+            ["thumbRadius"] = "@control.buttonRadius",
+            ["thumbFill"] = "theme.border",
+            ["axis"] = "vertical",
+            ["height"] = "fill",
+        }, [roomBodyContent]);
+        var roomFooterSpace = new DesignNode("roomFooterSpace", "spacer", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+        }, []);
+        var roomPasteLabel = new DesignNode("roomPasteLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~pasteInvitation",
+        }, []);
+        var roomPaste = new DesignNode("roomPaste", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "pasteInvitation",
+            ["automation"] = "{namespace}.pasteInvitation",
+            ["enabled"] = "$can.pasteInvitation",
+            ["label"] = "~pasteInvitation",
+            ["when"] = "$can.pasteInvitation",
+        }, [roomPasteLabel]);
+        var roomCopyLabel = new DesignNode("roomCopyLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~copyInvitation",
+        }, []);
+        var roomCopy = new DesignNode("roomCopy", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "copyInvitation",
+            ["automation"] = "{namespace}.copyInvitation",
+            ["enabled"] = "$can.copyInvitation",
+            ["label"] = "~copyInvitation",
+            ["when"] = "$can.copyInvitation",
+        }, [roomCopyLabel]);
+        var roomLeaveLabel = new DesignNode("roomLeaveLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~leaveRoom",
+        }, []);
+        var roomLeave = new DesignNode("roomLeave", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "leaveRoom",
+            ["automation"] = "{namespace}.leaveRoom",
+            ["enabled"] = "$can.leaveRoom",
+            ["label"] = "~leaveRoom",
+            ["when"] = "$can.leaveRoom",
+        }, [roomLeaveLabel]);
+        var roomConnectLabel = new DesignNode("roomConnectLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{connectLabel}",
+        }, []);
+        var roomConnect = new DesignNode("roomConnect", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "connectRoom",
+            ["automation"] = "{namespace}.connectRoom",
+            ["enabled"] = "$can.connectRoom",
+            ["label"] = "~{connectLabel}",
+            ["when"] = "$showForm",
+            ["shortcut"] = "default",
+        }, [roomConnectLabel]);
+        var roomFooter = new DesignNode("roomFooter", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["padding"] = "@layout.settingsCardPadding",
+            ["gap"] = "@control.compactGap",
+        }, [roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect]);
+        var roomDialog = new DesignNode("roomDialog", "column", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["width"] = "@layout.settingsWidth",
+            ["height"] = "@layout.settingsHeight",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["foreground"] = "theme.text",
+            ["background"] = "theme.surface",
+            ["radius"] = "@control.compactDialogRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["clip"] = "true",
+            ["cycleFocus"] = "true",
+        }, [roomHeader, roomDivider, roomBody, roomFooter]);
+        return roomDialog;
     }
 }

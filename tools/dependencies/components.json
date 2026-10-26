@@ -15205,7 +15205,9 @@
         "packages/design/generated/linux",
         "packages/design/tests/linux",
         "packages/design/tests/fixtures",
-        "packages/linux-library"
+        "packages/linux-library",
+        "packages/linux-room",
+        "contracts/fixtures/room-client.json"
       ],
       "watch": [
         "tools/jvm",
@@ -15219,7 +15221,9 @@
         "packages/design/generated/linux",
         "packages/design/tests/linux",
         "packages/design/tests/fixtures",
-        "packages/linux-library"
+        "packages/linux-library",
+        "packages/linux-room",
+        "contracts/fixtures/room-client.json"
       ],
       "targets": {
         "linux-x64": {

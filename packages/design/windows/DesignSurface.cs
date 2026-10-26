@@ -158,8 +158,20 @@ public class DesignSurface : UserControl
                 if (!ReferenceEquals(button.Content, buttonChild)) { Detach(buttonChild); button.Content = buttonChild; }
                 Bind(id, n => { if (n.Children.Length == 0 && button.Content is TextBlock caption) caption.Text = n.Props.GetValueOrDefault("text", n.Text("label")); button.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); button.IsDefault = n.Text("shortcut") == "default"; button.IsCancel = n.Text("shortcut") == "cancel"; button.TabIndex = n.Props.ContainsKey("tabIndex") ? (int)n.Number("tabIndex") : 0; button.HorizontalContentAlignment = n.Text("contentAlign") == "leading" ? HorizontalAlignment.Stretch : HorizontalAlignment.Center; }); if (fresh) button.Click += (_, _) => Emit(id); core = button; break;
             case "input":
-                var input = Existing(() => new TextBox()); input.SetResourceReference(StyleProperty, "Design.Input");
-                Bind(id, n => { if (input.Text != n.Text("value")) input.Text = n.Text("value"); input.Tag = n.Text("label"); input.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); }); if (fresh) input.TextChanged += (_, _) => Emit(id, input.Text); core = input; break;
+                if (node.Flag("secret"))
+                {
+                    var secret = Existing(() => new PasswordBox()); secret.SetResourceReference(StyleProperty, "Design.SecretInput");
+                    Bind(id, n => { if (secret.Password != n.Text("value")) secret.Password = n.Text("value"); secret.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); });
+                    if (previous?.Core is not PasswordBox) secret.PasswordChanged += (_, _) => Emit(id, secret.Password);
+                    core = secret;
+                }
+                else
+                {
+                    var input = Existing(() => new TextBox()); input.SetResourceReference(StyleProperty, "Design.Input");
+                    Bind(id, n => { if (input.Text != n.Text("value")) input.Text = n.Text("value"); input.Tag = n.Text("label"); input.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); });
+                    if (previous?.Core is not TextBox) input.TextChanged += (_, _) => Emit(id, input.Text); core = input;
+                }
+                break;
             case "choice":
                 var choice = Existing(() => new ComboBox { DisplayMemberPath = "Value", SelectedValuePath = "Key" }); choice.SetResourceReference(StyleProperty, "Design.Choice");
                 Bind(id, n => { var options = n.Children.Select(o => new KeyValuePair<string, string>(o.Text("id"), o.Text("label"))).ToArray(); if (choice.ItemsSource is not KeyValuePair<string, string>[] current || !current.SequenceEqual(options)) choice.ItemsSource = options; if (!Equals(choice.SelectedValue, n.Text("value"))) choice.SelectedValue = n.Text("value"); choice.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); }); if (fresh) choice.SelectionChanged += (_, _) => { if (choice.SelectedValue is string value) Emit(id, value); }; core = choice; break;

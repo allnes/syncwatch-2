@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "sections": [
+    "connection",
+    "createRoom",
+    "joinRoom"
+  ],
+  "states": [
+    "disconnected",
+    "connecting",
+    "connected",
+    "failed"
+  ],
+  "fields": [
+    {
+      "id": "serviceAddress",
+      "section": "connection",
+      "kind": "text",
+      "label": "roomService",
+      "options": [],
+      "maxLength": 256
+    },
+    {
+      "id": "username",
+      "section": "connection",
+      "kind": "text",
+      "label": "username",
+      "options": [],
+      "maxLength": 64
+    },
+    {
+      "id": "creationKey",
+      "section": "createRoom",
+      "kind": "secret",
+      "label": "roomCreationKey",
+      "options": [],
+      "maxLength": 256
+    },
+    {
+      "id": "syncplayHost",
+      "section": "createRoom",
+      "kind": "text",
+      "label": "syncServer",
+      "options": [],
+      "maxLength": 253
+    },
+    {
+      "id": "syncplayPort",
+      "section": "createRoom",
+      "kind": "text",
+      "label": "roomSyncplayPort",
+      "options": [],
+      "maxLength": 5
+    },
+    {
+      "id": "roomName",
+      "section": "createRoom",
+      "kind": "text",
+      "label": "roomName",
+      "options": [],
+      "maxLength": 64
+    },
+    {
+      "id": "roomID",
+      "section": "joinRoom",
+      "kind": "text",
+      "label": "roomIdentifier",
+      "options": [],
+      "maxLength": 64
+    },
+    {
+      "id": "invitation",
+      "section": "joinRoom",
+      "kind": "secret",
+      "label": "roomInvitation",
+      "options": [],
+      "maxLength": 256
+    }
+  ],
+  "defaults": {
+    "serviceAddress": "",
+    "username": "",
+    "creationKey": "",
+    "syncplayHost": "",
+    "syncplayPort": "8999",
+    "roomName": "",
+    "roomID": "",
+    "invitation": ""
+  }
+}

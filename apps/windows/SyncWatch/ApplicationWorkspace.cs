@@ -13,6 +13,7 @@ internal sealed class ApplicationWorkspace : UserControl
     private readonly Design.LibraryWorkspace library = new();
     private readonly LibraryController catalog;
     private readonly WatchSessionCoordinator watch;
+    private readonly RoomController room = new();
     private readonly Design.ApplicationChrome chrome;
     private bool started;
 
@@ -25,7 +26,7 @@ internal sealed class ApplicationWorkspace : UserControl
         var fullscreen = new WindowFullscreen(owner);
         watch = new WatchSessionCoordinator(preferences, application.Media!, fullscreen.Toggle);
         chrome = new Design.ApplicationChrome(library); Content = chrome;
-        catalog.Changed += Refresh; watch.Changed += Refresh;
+        catalog.Changed += Refresh; watch.Changed += Refresh; room.Changed += Refresh;
         library.ActionRequested += Action;
         Loaded += async (_, _) =>
         {
@@ -35,10 +36,10 @@ internal sealed class ApplicationWorkspace : UserControl
         };
         Refresh();
     }
-    public async Task CloseAsync() { await watch.CloseAsync(); catalog.Dispose(); }
+    public async Task CloseAsync() { await watch.CloseAsync(); await room.CloseAsync(); catalog.Dispose(); }
     private void Refresh()
     {
-        library.Render(watch.LibraryPresentation(catalog.Presentation), preferences.State.Preferences.Language);
+        library.Render(room.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
         chrome.SetPlayer(watch.Player); chrome.PresentPlayer(watch.PlayerPresented);
         if (WatchAcceptance.Requested) return;
         if ((catalog.ErrorKey ?? watch.ErrorKey) is not string key) return;
@@ -61,24 +62,50 @@ internal sealed class ApplicationWorkspace : UserControl
         else if (action == "startWatching" && catalog.SelectedMedia() is LibraryMediaSelection selection) watch.Start(selection);
         else if (action == "continueWatching") watch.ContinueWatching();
         else if (action == "endWatching") watch.End();
+        else if (action == "openRoom") OpenRoom();
         else if (action == "openSettings") OpenSettings();
     }
+    private void OpenRoom()
+    {
+        var view = new Design.RoomDialog(room.Editor, preferences.State.Preferences.Language);
+        var window = CreateDialog(view); bool released = false;
+        room.Changed += view.Refresh;
+        view.ActionRequested += async action =>
+        {
+            if (action == "connectRoom") room.Connect();
+            else if (action == "leaveRoom") await room.CloseAsync();
+            else if (action == "pasteInvitation")
+            {
+                try { room.PasteInvitation(Clipboard.GetText()); }
+                catch (System.Runtime.InteropServices.ExternalException) { room.PasteInvitation(""); }
+            }
+            else if (action == "copyInvitation" && room.InvitationToCopy() is string invitation) { Clipboard.SetText(invitation); room.InvitationCopied(); }
+            else if (action == "close") { if (room.Editor.Busy) await room.CloseAsync(); released = true; window.Close(); }
+        };
+        window.Closing += async (_, e) =>
+        {
+            if (!released && room.Editor.Busy) { e.Cancel = true; await room.CloseAsync(); released = true; window.Close(); }
+        };
+        try { window.ShowDialog(); }
+        finally { room.Changed -= view.Refresh; room.Editor.ClearSecrets(); }
+    }
+    private Window CreateDialog(UserControl content) => new()
+    {
+        Content = content,
+        Owner = owner,
+        Title = "SyncWatch",
+        WindowStyle = WindowStyle.None,
+        AllowsTransparency = true,
+        Background = System.Windows.Media.Brushes.Transparent,
+        ResizeMode = ResizeMode.NoResize,
+        SizeToContent = SizeToContent.WidthAndHeight,
+        ShowInTaskbar = false,
+        WindowStartupLocation = WindowStartupLocation.CenterOwner
+    };
     private void OpenSettings()
     {
         var view = new Design.SettingsDialog(preferences.CreateEditor(), preferences.State.Preferences.Language);
-        var window = new Window
-        {
-            Content = view,
-            Owner = owner,
-            Title = "SyncWatch",
-            WindowStyle = WindowStyle.None,
-            AllowsTransparency = true,
-            Background = System.Windows.Media.Brushes.Transparent,
-            ResizeMode = ResizeMode.NoResize,
-            SizeToContent = SizeToContent.WidthAndHeight,
-            ShowInTaskbar = false,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner
-        };
+        var window = CreateDialog(view);
         view.CloseRequested += window.Close; view.MoveRequested += window.DragMove;
         view.Persist = values =>
         {

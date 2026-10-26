@@ -18,6 +18,7 @@ public struct LibraryEntry: Identifiable, Equatable, Sendable {
 
 /// Presentation data only. Services supply entries and capabilities; rendering starts no provider or filesystem work.
 public struct LibraryPresentation: Sendable {
+    public var roomStatus = ""
     public var state: LibraryVisualState
     public var entries: [LibraryEntry]
     public var selectedID: String?

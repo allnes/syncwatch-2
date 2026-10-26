@@ -14,6 +14,7 @@ data class LibraryPresentation(
     val entries: List<LibraryEntry> = emptyList(),
     val selectedID: String? = null,
     val enabledActions: Set<String> = emptySet(),
+    val roomStatus: String = "",
 ) {
     val selected: LibraryEntry? get() = entries.firstOrNull { it.id == selectedID }
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchCopy.libraryActions && when (action) {

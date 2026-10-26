@@ -9,6 +9,7 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="../../../packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
+        <ProjectReference Include="../../../packages/windows-room/SyncWatch.Room/SyncWatch.Room.csproj" />
         <ProjectReference Include="../../../packages/windows-library/SyncWatch.Library/SyncWatch.Library.csproj" />
         <ProjectReference Include="../../../packages/windows-playback/SyncWatch.Playback/SyncWatch.Playback.csproj" />
         <ProjectReference Include="../../../packages/windows-bridge/SyncWatch.Bridge/SyncWatch.Bridge.csproj" />
@@ -18,6 +19,7 @@
         <Compile Include="../../../packages/design/windows/ApplicationChrome.cs" Link="Design/ApplicationChrome.cs" />
         <Page Include="../../../packages/design/windows/SyncWatchComponents.xaml" Link="Design/SyncWatchComponents.xaml" />
         <Compile Include="../../../packages/design/windows/SettingsDialog.cs" Link="Design/SettingsDialog.cs" />
+        <Compile Include="../../../packages/design/windows/RoomDialog.cs" Link="Design/RoomDialog.cs" />
         <Compile Include="../../../packages/design/windows/PlayerSettingsDialog.cs" Link="Design/PlayerSettingsDialog.cs" />
         <Compile Include="../../../packages/design/windows/PlayerChrome.cs" Link="Design/PlayerChrome.cs" />
         <Compile Include="../../../packages/design/windows/DesignData.cs" Link="DesignData.cs" />

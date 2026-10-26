@@ -84,6 +84,7 @@ import SyncWatchLibrary
 @MainActor struct ApplicationWorkspace: View {
     @StateObject private var preferences: AppearancePreferences
     @StateObject private var library: LibraryController
+    @StateObject private var room = RoomController()
     @StateObject private var watch: WatchSessionCoordinator
     private let lifecycle: ApplicationLifecycle
     init(lifecycle: ApplicationLifecycle) {
@@ -108,6 +109,7 @@ import SyncWatchLibrary
                         "library-access.json")),
                 selectedID: preferences.state.selectedMediaID))
     }
+    @State private var showRoom = false
     @State private var showSettings = false
     @State private var editor = SettingsEditor()
 
@@ -116,7 +118,7 @@ import SyncWatchLibrary
             playerPresented: watch.playerPresented,
             library: AnyView(
                 LibraryWorkspace(
-                    presentation: watch.libraryPresentation(library.presentation),
+                    presentation: room.libraryPresentation(watch.libraryPresentation(library.presentation)),
                     language: preferences.state.preferences.language
                 ) { action, value in
                     if action == "chooseFolder" {
@@ -131,6 +133,8 @@ import SyncWatchLibrary
                         watch.continueWatching()
                     } else if action == "endWatching" {
                         watch.end()
+                    } else if action == "openRoom" {
+                        showRoom = true
                     } else if action == "openSettings" {
                         editor = preferences.editor
                         showSettings = true
@@ -139,8 +143,10 @@ import SyncWatchLibrary
         )
         .background(WindowCloseGate(close: close))
         .task {
-            lifecycle.prepareForTermination = { [weak sessionOwner = watch, weak catalogOwner = library] in
+            lifecycle.prepareForTermination = {
+                [weak sessionOwner = watch, weak catalogOwner = library, weak roomOwner = room] in
                 await sessionOwner?.close()
+                await roomOwner?.close()
                 catalogOwner?.close()
             }
             library.restore()
@@ -150,8 +156,10 @@ import SyncWatchLibrary
         .onDisappear {
             let sessionOwner = watch
             let catalogOwner = library
+            let roomOwner = room
             Task {
                 await sessionOwner.close()
+                await roomOwner.close()
                 catalogOwner.close()
             }
         }
@@ -185,6 +193,11 @@ import SyncWatchLibrary
                     return saved
                 }, onClose: { showSettings = false })
         }
+        .sheet(isPresented: $showRoom, onDismiss: { room.clearSecrets() }) {
+            RoomConnectionSheet(room: room, language: preferences.state.preferences.language) {
+                showRoom = false
+            }
+        }
         .preferredColorScheme(preferences.colorScheme)
         .environment(\.locale, Locale(identifier: preferences.state.preferences.language))
     }
@@ -200,6 +213,7 @@ import SyncWatchLibrary
         let sessionOwner = watch
         let catalogOwner = library
         await sessionOwner.close()
+        await room.close()
         catalogOwner.close()
     }
     private func chooseFolder() {

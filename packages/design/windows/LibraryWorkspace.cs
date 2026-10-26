@@ -9,6 +9,7 @@ public sealed record LibraryEntry(string Id, string Title, string Location);
 // Presentation/capabilities only: no filesystem, media engine, call or network dependency.
 public sealed record LibraryPresentation
 {
+    public string RoomStatus { get; init; } = "";
     public LibraryVisualState State { get; init; }
     public IReadOnlyList<LibraryEntry> Entries { get; init; } = [];
     public string? SelectedId { get; init; }

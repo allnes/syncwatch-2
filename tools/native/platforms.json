@@ -8,7 +8,8 @@
       "generatedDesign": "packages/design/generated/macos",
       "playback": "packages/macos-playback",
       "bridge": "packages/macos-bridge",
-      "library": "packages/macos-library"
+      "library": "packages/macos-library",
+      "room": "packages/macos-room"
     },
     "windows": {
       "application": "apps/windows",
@@ -17,7 +18,8 @@
       "generatedDesign": "packages/design/generated/windows",
       "playback": "packages/windows-playback",
       "bridge": "packages/windows-bridge",
-      "library": "packages/windows-library"
+      "library": "packages/windows-library",
+      "room": "packages/windows-room"
     },
     "linux": {
       "application": "apps/linux",
@@ -26,7 +28,8 @@
       "generatedDesign": "packages/design/generated/linux",
       "playback": "packages/linux-playback",
       "bridge": "packages/linux-bridge",
-      "library": "packages/linux-library"
+      "library": "packages/linux-library",
+      "room": "packages/linux-room"
     }
   },
   "featureSlices": {

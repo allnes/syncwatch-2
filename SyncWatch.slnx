@@ -1,4 +1,6 @@
 <Solution>
+    <Project Path="packages/windows-room/SyncWatch.Room/SyncWatch.Room.csproj" />
+    <Project Path="packages/windows-room/SyncWatch.Room.Tests/SyncWatch.Room.Tests.csproj" />
     <Project Path="packages/windows-bridge/SyncWatch.Bridge/SyncWatch.Bridge.csproj" />
     <Project Path="packages/windows-bridge/SyncWatch.Bridge.Probe/SyncWatch.Bridge.Probe.csproj" />
     <Project Path="packages/windows-library/SyncWatch.Library/SyncWatch.Library.csproj" />

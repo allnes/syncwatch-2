@@ -1278,6 +1278,31 @@
                               "children": []
                             }
                           ]
+                        },
+                        {
+                          "id": "libraryOpenRoom",
+                          "kind": "button",
+                          "styles": [
+                            "button",
+                            "compact"
+                          ],
+                          "props": {
+                            "action": "openRoom",
+                            "automation": "{namespace}.openRoom",
+                            "enabled": "$can.openRoom",
+                            "label": "~openRoom"
+                          },
+                          "children": [
+                            {
+                              "id": "libraryOpenRoomLabel",
+                              "kind": "text",
+                              "styles": [],
+                              "props": {
+                                "text": "~openRoom"
+                              },
+                              "children": []
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1365,7 +1390,7 @@
                 "dialogTitle"
               ],
               "props": {
-                "text": "{~brand} \u00b7 {~openSettings}",
+                "text": "{~brand} · {~openSettings}",
                 "width": "fill",
                 "moveAction": "moveDialog"
               },
@@ -4023,6 +4048,397 @@
                 "height": "fill"
               },
               "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "Room": {
+      "id": "roomDialog",
+      "kind": "column",
+      "styles": [
+        "dialog"
+      ],
+      "props": {
+        "height": "@layout.settingsHeight"
+      },
+      "children": [
+        {
+          "id": "roomHeader",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "padding": "@layout.settingsCardPadding",
+            "gap": "@control.compactGap"
+          },
+          "children": [
+            {
+              "id": "roomTitle",
+              "kind": "text",
+              "styles": [
+                "dialogTitle"
+              ],
+              "props": {
+                "text": "~openRoom",
+                "width": "fill"
+              },
+              "children": []
+            },
+            {
+              "id": "roomClose",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "close",
+                "automation": "{namespace}.close",
+                "enabled": "$can.close",
+                "label": "~close",
+                "shortcut": "cancel"
+              },
+              "children": [
+                {
+                  "id": "roomCloseLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~close"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roomDivider",
+          "kind": "line",
+          "styles": [
+            "line"
+          ],
+          "props": {
+            "axis": "horizontal"
+          },
+          "children": []
+        },
+        {
+          "id": "roomBody",
+          "kind": "scroll",
+          "styles": [],
+          "props": {
+            "axis": "vertical",
+            "height": "fill"
+          },
+          "children": [
+            {
+              "id": "roomBodyContent",
+              "kind": "column",
+              "styles": [],
+              "props": {
+                "padding": "@layout.settingsCardPadding",
+                "gap": "@layout.settingsCardPadding"
+              },
+              "children": [
+                {
+                  "id": "roomHint",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~roomConnectionHint"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "roomModeSelector",
+                  "kind": "row",
+                  "styles": [],
+                  "props": {
+                    "gap": "@control.compactGap",
+                    "when": "$showForm"
+                  },
+                  "children": [
+                    {
+                      "id": "roomCreateMode",
+                      "kind": "button",
+                      "styles": [
+                        "button",
+                        "compact"
+                      ],
+                      "props": {
+                        "action": "chooseRoomMode",
+                        "automation": "{namespace}.chooseRoomMode",
+                        "enabled": "$can.chooseRoomMode",
+                        "label": "~createRoom",
+                        "value": "createRoom",
+                        "payload": "createRoom",
+                        "selected": "$createMode"
+                      },
+                      "children": [
+                        {
+                          "id": "roomCreateModeLabel",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~createRoom"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "roomJoinMode",
+                      "kind": "button",
+                      "styles": [
+                        "button",
+                        "compact"
+                      ],
+                      "props": {
+                        "action": "chooseRoomMode",
+                        "automation": "{namespace}.chooseRoomMode",
+                        "enabled": "$can.chooseRoomMode",
+                        "label": "~joinRoom",
+                        "value": "joinRoom",
+                        "payload": "joinRoom",
+                        "selected": "$joinMode"
+                      },
+                      "children": [
+                        {
+                          "id": "roomJoinModeLabel",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~joinRoom"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "roomFields",
+                  "kind": "repeat",
+                  "styles": [],
+                  "props": {
+                    "items": "fields",
+                    "when": "$showForm"
+                  },
+                  "children": [
+                    {
+                      "id": "roomField",
+                      "kind": "column",
+                      "styles": [],
+                      "props": {
+                        "gap": "@control.compactGap",
+                        "paddingY": "@control.compactGap"
+                      },
+                      "children": [
+                        {
+                          "id": "roomFieldLabel",
+                          "kind": "text",
+                          "styles": [],
+                          "props": {
+                            "text": "~{label}"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "roomFieldInput",
+                          "kind": "input",
+                          "styles": [
+                            "input"
+                          ],
+                          "props": {
+                            "action": "editRoomField",
+                            "payload": "$id",
+                            "label": "~{label}",
+                            "value": "$value",
+                            "secret": "$secret",
+                            "enabled": "$editable",
+                            "automation": "room.field.{id}",
+                            "width": "fill"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "roomConnectedFacts",
+                  "kind": "column",
+                  "styles": [],
+                  "props": {
+                    "when": "$connected",
+                    "gap": "@control.compactGap"
+                  },
+                  "children": [
+                    {
+                      "id": "roomConnectedLabel",
+                      "kind": "text",
+                      "styles": [],
+                      "props": {
+                        "text": "~roomMetadataConnected"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "roomIdFact",
+                      "kind": "text",
+                      "styles": [],
+                      "props": {
+                        "text": "{~roomIdentifier}: {roomID}"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "roomMembersFact",
+                      "kind": "text",
+                      "styles": [],
+                      "props": {
+                        "text": "{~roomMembers}: {memberCount}"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "roomStatus",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~{status}"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roomFooter",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "padding": "@layout.settingsCardPadding",
+            "gap": "@control.compactGap"
+          },
+          "children": [
+            {
+              "id": "roomFooterSpace",
+              "kind": "spacer",
+              "styles": [],
+              "props": {
+                "width": "fill"
+              },
+              "children": []
+            },
+            {
+              "id": "roomPaste",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "pasteInvitation",
+                "automation": "{namespace}.pasteInvitation",
+                "enabled": "$can.pasteInvitation",
+                "label": "~pasteInvitation",
+                "when": "$can.pasteInvitation"
+              },
+              "children": [
+                {
+                  "id": "roomPasteLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~pasteInvitation"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "roomCopy",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "copyInvitation",
+                "automation": "{namespace}.copyInvitation",
+                "enabled": "$can.copyInvitation",
+                "label": "~copyInvitation",
+                "when": "$can.copyInvitation"
+              },
+              "children": [
+                {
+                  "id": "roomCopyLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~copyInvitation"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "roomLeave",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "leaveRoom",
+                "automation": "{namespace}.leaveRoom",
+                "enabled": "$can.leaveRoom",
+                "label": "~leaveRoom",
+                "when": "$can.leaveRoom"
+              },
+              "children": [
+                {
+                  "id": "roomLeaveLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~leaveRoom"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "roomConnect",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "connectRoom",
+                "automation": "{namespace}.connectRoom",
+                "enabled": "$can.connectRoom",
+                "label": "~{connectLabel}",
+                "when": "$showForm",
+                "shortcut": "default"
+              },
+              "children": [
+                {
+                  "id": "roomConnectLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~{connectLabel}"
+                  },
+                  "children": []
+                }
+              ]
             }
           ]
         }

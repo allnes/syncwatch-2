@@ -52,6 +52,8 @@ const copy = readSource('copy.json');
 validateCopy(copy, components);
 const settings = readSource('settings.json');
 validateSettings(settings, components, copy);
+const room = readSource('room.json');
+validateSettings(room, {components: {SettingsDialog: components.components.RoomDialog}}, copy);
 const player = readSource('player.json');
 validatePlayer(player, components, copy);
 const call = readSource('call.json');
@@ -78,15 +80,15 @@ const generatorRevision = hash(JSON.stringify({files, sourceRevisions}));
 // Load all first-party code and Node builtins above before the guard is installed.
 const {createDictionary, version} = await import(pathToFileURL(join(resolve(runtime), 'runtime.mjs')).href);
 const formats = {
-    'syncwatch/swift': ({dictionary}) => swift(normalized(dictionary), themes) + swiftCopy(copy) + swiftSettings(settings) + swiftPlayer(player) + swiftPlayerSettings(playerSettings) + swiftCall(call) + swiftSelectionMenu(selectionMenu) + swiftLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
-    'syncwatch/csharp': ({dictionary}) => csharp(normalized(dictionary)) + csharpCopy(copy) + csharpSettings(settings) + csharpPlayer(player) + csharpPlayerSettings(playerSettings) + csharpCall(call) + csharpSelectionMenu(selectionMenu) + csharpLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
+    'syncwatch/swift': ({dictionary}) => swift(normalized(dictionary), themes) + swiftCopy(copy) + swiftSettings(settings) + swiftSettings(room).replaceAll("SyncWatchSettings", "SyncWatchRoomForm") + swiftPlayer(player) + swiftPlayerSettings(playerSettings) + swiftCall(call) + swiftSelectionMenu(selectionMenu) + swiftLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
+    'syncwatch/csharp': ({dictionary}) => csharp(normalized(dictionary)) + csharpCopy(copy) + csharpSettings(settings) + csharpSettings(room).replaceAll("SyncWatchSettings", "SyncWatchRoomForm") + csharpPlayer(player) + csharpPlayerSettings(playerSettings) + csharpCall(call) + csharpSelectionMenu(selectionMenu) + csharpLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
     'syncwatch/xaml': ({dictionary}) => xaml(normalized(dictionary), themes),
     'syncwatch/manifest': ({dictionary}) => JSON.stringify({
         schemaVersion: 1, units: 'logical', sourceDigest: hash(JSON.stringify(sources)), sources,
         generatorRevision, generator: {styleDictionary: version, files, sourceRevisions},
-        themes: themes.themes, copy, settings, player, playerSettings, call, selectionMenu, layouts, tokens: normalized(dictionary),
+        themes: themes.themes, copy, settings, room, player, playerSettings, call, selectionMenu, layouts, tokens: normalized(dictionary),
     }, null, 2) + '\n',
-    'syncwatch/kotlin': ({dictionary}) => kotlin(normalized(dictionary), themes, copy) + kotlinSettings(settings) + kotlinPlayer(player) + kotlinPlayerSettings(playerSettings) + kotlinCall(call) + kotlinSelectionMenu(selectionMenu) + kotlinLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
+    'syncwatch/kotlin': ({dictionary}) => kotlin(normalized(dictionary), themes, copy) + kotlinSettings(settings) + kotlinSettings(room).replaceAll("SyncWatchSettings", "SyncWatchRoomForm") + kotlinPlayer(player) + kotlinPlayerSettings(playerSettings) + kotlinCall(call) + kotlinSelectionMenu(selectionMenu) + kotlinLayouts(compileLayouts(layouts, Object.fromEntries(normalized(dictionary).map(t => [t.id, t.value])), player, themes, call), hash(JSON.stringify(layouts))),
 };
 const destinations = ['macos/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 const dictionary = await createDictionary({tokens, usesDtcg: false, log: {verbosity: 'silent', warnings: 'error'}, hooks: {formats}, platforms: {
