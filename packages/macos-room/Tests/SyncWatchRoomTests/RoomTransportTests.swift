@@ -4,6 +4,31 @@ import XCTest
 @testable import SyncWatchRoom
 
 final class RoomTransportTests: XCTestCase, @unchecked Sendable {
+    func testCancellingIdleReceiveJoinsBeforeLeave() async throws {
+        guard let address = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"],
+            let key = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_CREATION_KEY"]
+        else { throw XCTSkip("Requires an owned room metadata service") }
+        let client = try RoomClient(address: RoomAddress(address))
+        do {
+            let identity = try RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS cancellation")
+            let admission = try await client.create(
+                identity: identity,
+                connection: RoomConnection(host: "syncplay.example.com", port: 8999, room: "Cancellation check"),
+                creationKey: RoomSecret(key))
+            let stream = try await client.openEvents(admission)
+            _ = try RoomBootstrap.initialEvent(await stream.receive(), admission: admission)
+            let pending = Task { try await stream.receive() }
+            try await Task.sleep(for: .milliseconds(100))
+            pending.cancel()
+            do { _ = try await pending.value; XCTFail("Cancelled receive returned a message") } catch {}
+            try await client.leave(admission)
+            await client.close()
+            await stream.close()
+        } catch {
+            await client.close()
+            throw error
+        }
+    }
     func testNativeRoomService() async throws {
         guard let address = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"],
             let key = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_CREATION_KEY"]
