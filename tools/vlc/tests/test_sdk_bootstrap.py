@@ -4,6 +4,7 @@ import io
 import os
 from pathlib import Path
 import sys
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -14,6 +15,31 @@ import provision_sdks
 
 
 class SdkBootstrapTests(unittest.TestCase):
+    def test_linux_metadata_refresh_is_bounded_before_package_installation(self):
+        with patch.object(provision_sdks.platform, "system", return_value="Linux"), patch.object(provision_sdks.subprocess, "run") as run:
+            provision_sdks.main()
+        refresh, install = run.call_args_list
+        command = refresh.args[0]
+        self.assertEqual(command[:3], ["sudo", "-n", "timeout"])
+        self.assertIn("--kill-after=10s", command)
+        self.assertIn("300s", command)
+        self.assertLessEqual(refresh.kwargs["timeout"], 330)
+        self.assertIn("update", command)
+        self.assertIn("install", install.args[0])
+        # Downloads remain bounded; installing/configuring packages is not forcibly cut short.
+        for call in (refresh, install):
+            self.assertIn("Acquire::http::Timeout=30", call.args[0])
+            self.assertIn("Acquire::https::Timeout=30", call.args[0])
+            self.assertTrue(call.kwargs["check"])
+        self.assertNotIn("timeout", install.args[0])
+
+    def test_failed_or_timed_out_refresh_cannot_install_from_stale_metadata(self):
+        for failure in (subprocess.CalledProcessError(124, "apt-refresh"), subprocess.TimeoutExpired("apt-refresh", 330)):
+            with self.subTest(failure=type(failure).__name__), patch.object(provision_sdks.platform, "system", return_value="Linux"), patch.object(provision_sdks.subprocess, "run", side_effect=failure) as run:
+                with self.assertRaises(type(failure)):
+                    provision_sdks.main()
+                run.assert_called_once()
+
     def archive(self, directory, name):
         path = directory / "base.tar.xz"
         with tarfile.open(path, "w:xz") as archive:
