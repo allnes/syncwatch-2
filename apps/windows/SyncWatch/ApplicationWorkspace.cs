@@ -79,7 +79,13 @@ internal sealed class ApplicationWorkspace : UserControl
                 try { room.PasteInvitation(Clipboard.GetText()); }
                 catch (System.Runtime.InteropServices.ExternalException) { room.PasteInvitation(""); }
             }
-            else if (action == "copyInvitation" && room.InvitationToCopy() is string invitation) { Clipboard.SetText(invitation); room.InvitationCopied(); }
+            else if (action == "copyInvitation" && room.InvitationToCopy() is string invitation)
+            {
+                bool copied;
+                try { Clipboard.SetText(invitation); copied = true; }
+                catch (System.Runtime.InteropServices.ExternalException) { copied = false; }
+                room.InvitationCopyCompleted(copied);
+            }
             else if (action == "close") { if (room.Editor.Busy) await room.CloseAsync(); released = true; window.Close(); }
         };
         window.Closing += async (_, e) =>

@@ -35,7 +35,9 @@ internal class RoomController(private val scope: CoroutineScope) {
         }
     }
     fun invitationToCopy(): String? = if (connected) admission?.let { value -> value.invitation?.let { RoomInvitation(value.roomId, it).copyText() } } else null
-    fun invitationCopied() { editor = editor.copy(status = "roomInvitationCopied") }
+    fun invitationCopyCompleted(copied: Boolean) {
+        if (connected) editor = editor.copy(status = if (copied) "roomInvitationCopied" else "roomInvitationCopyFailed")
+    }
     suspend fun close() = withContext(NonCancellable) {
         closing?.let { it.await(); return@withContext }
         val completion = CompletableDeferred<Unit>(); closing = completion
