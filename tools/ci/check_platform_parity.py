@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 PLATFORMS = {"macos", "windows", "linux"}
-MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge", "library"}
+MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge", "library", "room"}
 VALIDATION = {"native-tested", "native-boundary-tested", "research-tested", "source-only", "missing"}
 LINUX_COMPONENTS = {"jvm-annotations", "kotlin-stdlib-sources", "kotlin-stdlib", "kotlinx-concurrency",
                     "compose-runtime", "compose-state", "compose-ui-jvm", "skiko-native-objects"}

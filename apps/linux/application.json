@@ -13,7 +13,8 @@
     "packages/linux-bridge",
     "packages/linux-playback/src",
     "packages/linux-state/src",
-    "packages/linux-library/src"
+    "packages/linux-library/src",
+    "packages/linux-room/src"
   ],
   "applicationBuildReady": false,
   "requiredSourceComponents": [

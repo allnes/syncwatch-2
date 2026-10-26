@@ -1,6 +1,6 @@
 # Room metadata service
 
-The ASP.NET Core executable in `services/room-metadata/RoomMetadata` manages ephemeral room metadata using only platform SDK libraries. It does not connect to Syncplay, play media, transport movie bytes, or participate in Meet. The native clients are not yet connected. See [running the service](../room-service.md).
+The ASP.NET Core executable in `services/room-metadata/RoomMetadata` manages ephemeral room metadata using only platform SDK libraries. It does not connect to Syncplay, play media, transport movie bytes, or participate in Meet. The native room modules provide bounded HTTP and event-stream transport on their respective operating systems. Normal desktop workspace integration is in progress. See [running the service](../room-service.md).
 
 ## Authorization and lifetime
 

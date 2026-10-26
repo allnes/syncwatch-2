@@ -354,6 +354,8 @@ def check_native_manifests(root: Path) -> None:
     required_projects = {
         "apps/windows/SyncWatch/SyncWatch.csproj",
         "apps/windows/SyncWatch.Tests/SyncWatch.Tests.csproj",
+        "packages/windows-room/SyncWatch.Room/SyncWatch.Room.csproj",
+        "packages/windows-room/SyncWatch.Room.Tests/SyncWatch.Room.Tests.csproj",
         "packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj",
         "packages/windows-domain/SyncWatch.Domain.Tests/SyncWatch.Domain.Tests.csproj",
         "packages/design/tests/windows/SyncWatch.Design.Tests.csproj",

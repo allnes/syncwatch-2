@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import compose_ui
@@ -13,6 +14,12 @@ from build_support import digest, jar_bytes
 
 
 class ComposeUiArtifactTests(unittest.TestCase):
+    def test_linux_application_consumer_rejects_foreign_hosts_before_sdk_access(self):
+        for target in ("darwin", "win32"):
+            with self.subTest(target=target), patch.object(compose_ui.sys, "platform", target):
+                with self.assertRaisesRegex(SystemExit, "requires Linux"):
+                    compose_ui.probe(None, None, None, None)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
