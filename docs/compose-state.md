@@ -1,6 +1,6 @@
 # Desktop composition state and lifecycle
 
-The `compose-state` component builds nine modules from pinned Git submodules using the same offline recipe on macOS ARM64, Windows x64 and Linux x64. It supplies the state and lifecycle prerequisites for the Linux desktop client. Its parent [Compose runtime](compose-runtime.md) supplies the ten existing owned JVM libraries.
+The `compose-state` component builds nine modules from pinned Git submodules using an offline recipe on Linux x64 only. It supplies the state and lifecycle prerequisites for the Linux desktop client. Its parent [Compose runtime](compose-runtime.md) supplies the ten existing owned JVM libraries.
 
 | Module | Selected version | Responsibility |
 |---|---|---|
@@ -25,7 +25,7 @@ python3 tools/dependencies/build.py build --component compose-state --platform l
 python3 tools/dependencies/build.py build --component compose-state --platform linux-x64
 ```
 
-Use the corresponding target and Python command on macOS or Windows. The same JDK, Kotlin SDK and Windows long-path prerequisites as the parent runtime apply. Preparation and explicit SDK provisioning can access the network. Build and restored-cache verification consume only local reviewed inputs, recheck all nineteen owned runtime libraries, exact binary pins, original sources, resources, notices and parent payloads. Required CI includes all three dependency targets and the cache-tampering regressions.
+Use the same JDK and Kotlin SDK prerequisites as the parent runtime on Linux. Preparation and explicit SDK provisioning can access the network. Build and restored-cache verification consume only local reviewed inputs, recheck all nineteen owned runtime libraries, exact binary pins, original sources, resources, notices and parent payloads. Required CI includes the Linux dependency target and the cache-tampering regressions.
 
 The first-party [state owner](../packages/linux-state/src/syncwatch/state/CompositionStateOwner.kt) owns one future desktop window's lifecycle and saveable registry. The window host must create, resume, stop, snapshot and close it on the Swing event thread, save while its composition providers are alive, and dispose those compositions before closing the owner. The composition provider installs lifecycle, saved-state and saveable locals; it never owns the window lifetime. The host supplies the supported saved-value policy, and content supplies explicit savers for values outside it.
 

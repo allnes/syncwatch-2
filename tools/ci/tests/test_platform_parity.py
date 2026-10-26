@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_platform_parity import check
+from check_platform_parity import LINUX_COMPONENTS, check
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -71,6 +71,17 @@ class PlatformParityTests(unittest.TestCase):
         path.write_text(json.dumps(application))
         with self.assertRaisesRegex(ValueError, "registered source components"):
             check(self.root)
+
+    def test_foreign_host_cannot_execute_linux_consumers(self):
+        path = self.root / "tools/dependencies/components.json"
+        original = json.loads(path.read_text())
+        for name in LINUX_COMPONENTS:
+            for target in ("macos-arm64", "windows-x64"):
+                data = json.loads(json.dumps(original))
+                data["components"][name]["targets"][target] = data["components"][name]["targets"]["linux-x64"]
+                path.write_text(json.dumps(data))
+                with self.subTest(component=name, target=target), self.assertRaisesRegex(ValueError, "only on Linux"):
+                    check(self.root)
 
     def test_unavailable_graph_cannot_claim_build_readiness(self):
         path = self.root / "apps/linux/application.json"

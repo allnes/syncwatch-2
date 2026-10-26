@@ -206,6 +206,16 @@ class RepositoryChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "pinned local sources"):
             check_native_manifests(self.root)
 
+    def test_application_tests_require_windows_framework(self):
+        self.copy_native_manifests()
+        check_native_manifests(self.root)
+        path = self.root / "apps/windows/SyncWatch.Tests/SyncWatch.Tests.csproj"
+        content = ET.parse(path)
+        content.find(".//TargetFramework").text = "net10.0"
+        content.write(path)
+        with self.assertRaisesRegex(ValidationError, "native target framework"):
+            check_native_manifests(self.root)
+
     def test_native_project_reference_cannot_escape_repository(self):
         self.copy_native_manifests()
         path = self.root / "apps/windows/SyncWatch/SyncWatch.csproj"

@@ -16,7 +16,7 @@ The [platform registry](../../tools/native/platforms.json) records implementatio
 | VLC local controls and native video | AppKit surface | Owned HWND surface | Typed coroutine/domain adapter, owned X11 child and shared Player entry; visible/fullscreen/DPI acceptance pending |
 | Owned Syncplay helper transport | Executed Swift pipes | Executed C# pipes | Kotlin transport source; full application integration pending |
 
-The watch domain and local-preferences slice is qualified across the three native clients. Its [Kotlin runtime build](../kotlin-stdlib.md) compiles and executes the domain corpus on each supported developer host, including restored-cache verification.
+The watch domain and local-preferences slice is qualified across the three native clients. Its [Kotlin runtime build](../kotlin-stdlib.md) compiles and executes the Kotlin domain corpus on Linux, including restored-cache verification. Swift runs only on macOS and C# only on Windows.
 
 Linux application readiness is explicitly false in [its build manifest](../../apps/linux/application.json). The required Linux CI lane compiles the Kotlin domain and executes the shared corpus and JVM boundary checks and retains `applicationBuilt: false` and `guiAccepted: false`. The [Linux design assertions](../../packages/design/tests/linux/README.md) cover presentation behavior, offscreen component images and the common geometry/transparency corpus. These research renders do not qualify a product distribution or a desktop window. The complete registered Compose/Skiko/Skia/native/font/runtime graph, required render CI, actual desktop window and native video lifetime remain necessary before Linux GUI acceptance.
 

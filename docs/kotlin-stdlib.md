@@ -1,6 +1,6 @@
 # Kotlin JVM runtime and compiler
 
-The `kotlin-stdlib` component builds the selected Kotlin 2.3.20 standard library and Java Annotations from pinned Git submodules under `3rdparty`. The same recipe runs on macOS ARM64, Windows x64 and Linux x64. It requires no Gradle, Maven, registry libraries or dependency downloads during compilation.
+The `kotlin-stdlib` component builds the selected Kotlin 2.3.20 standard library and Java Annotations from pinned Git submodules under `3rdparty`. The recipe builds and verifies the Linux client dependency on Linux x64 only. It requires no Gradle, Maven, registry libraries or dependency downloads during compilation.
 
 Provision the developer SDKs explicitly, then build on the actual target:
 
@@ -11,7 +11,7 @@ python3 tools/dependencies/build.py build --component kotlin-stdlib --platform l
 python3 tools/native/check_kotlin_domain.py
 ```
 
-Use `macos-arm64` or `windows-x64` on those hosts, and `python` on Windows. Ordinary builds and cache verification never provision SDKs. Optional `--archive` and `--sbom` arguments to the compiler provisioner accept the exact pinned vendor files offline.
+Ordinary builds and cache verification never provision SDKs. Optional `--archive` and `--sbom` arguments to the compiler provisioner accept the exact pinned vendor files offline.
 
 ## Source and runtime boundary
 
@@ -33,4 +33,4 @@ Cold builds and cache reuse verify exact deterministic JAR hashes per native tar
 
 ARM64 and x64 compiler constant folding emit opposite signs for IEEE NaN in five entries; the remaining output bytes match. Target-specific hashes preserve these original compiler outputs. NaN behavior, public API and source/profile correspondence are checked separately; the difference does not introduce platform-specific application or design versions.
 
-The required dependency lane compiles and executes the Kotlin domain on every target against this runtime. It consumes the same 31 local-state cases and six lifecycle scenarios used by the Swift and C# domains, including generation ownership, atomic persistence, future-format preservation and bounded history. A successful domain check does not qualify Compose galleries, a desktop package, native video or physical output. Those remain separate Linux application requirements.
+The required Linux dependency lane compiles and executes the Kotlin domain against this runtime. Swift is checked on macOS and C# on Windows; client code is never compiled or executed on another client's OS. It consumes the same 31 local-state cases and six lifecycle scenarios used by the Swift and C# domains, including generation ownership, atomic persistence, future-format preservation and bounded history. A successful domain check does not qualify Compose galleries, a desktop package, native video or physical output. Those remain separate Linux application requirements.

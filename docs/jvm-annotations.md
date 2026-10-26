@@ -30,7 +30,7 @@ python3 tools/dependencies/build.py build --component jvm-annotations --platform
 python3 -m unittest discover -s tools/jvm/tests -v
 ```
 
-Use `macos-arm64` or `windows-x64` for those platforms. The SDK is installed in the checkout's ignored `.local/toolchains` directory. An official local archive can be supplied with `--provision --archive PATH`; all pinned checks still apply. Provisioning is the explicit online SDK step. Library compilation and verification use the dependency builder's offline environment.
+Build and verify this Linux client dependency on Linux only. The SDK is installed in the checkout's ignored `.local/toolchains` directory. An official local archive can be supplied with `--provision --archive PATH`; all pinned checks still apply. Provisioning is the explicit online SDK step. Library compilation and verification use the dependency builder's offline environment.
 
 The profile compiles 31 API files with Java release 8, UTF-8, no debug information, no processors and isolated class/source paths. The unchanged module descriptor is compiled separately for release 9. Sorted entries, fixed timestamps and stored ZIP bytes produce deterministic multi-release JARs. The source and compiler configuration must reproduce the reviewed output digests.
 
