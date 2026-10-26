@@ -26,7 +26,7 @@ internal sealed class RoomController
     {
         var enabled = new HashSet<string>(source.EnabledActions); if (!stopping) enabled.Add("openRoom");
         // Membership alone cannot authorize an unsynchronized local Start in a room.
-        if (Editor.Connected || Editor.Busy) enabled.Remove("startWatching");
+        if (Editor.State != "disconnected") enabled.Remove("startWatching");
         return source with { EnabledActions = enabled, RoomStatus = Connected ? "roomMetadataConnected" : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
     }
     public string? InvitationToCopy() => Connected && admission?.Invitation is { } invitation ? admission.RoomId + "\n" + invitation.CopyInvitation() : null;

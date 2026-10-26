@@ -56,7 +56,7 @@ public struct RoomEditor: Sendable {
                 "connectLabel": mode,
                 "status": busy ? "roomConnecting" : status, "roomID": roomID, "memberCount": String(memberCount),
                 "can.close": "true", "can.chooseRoomMode": String(!busy && !connected),
-                "can.connectRoom": String(!busy && !connected && isValid), "can.leaveRoom": String(connected),
+                "can.connectRoom": String(!busy && !connected && isValid), "can.leaveRoom": String(connected || state == "failed"),
                 "can.copyInvitation": String(connected && owner),
             ], collections: ["fields": rows])
     }

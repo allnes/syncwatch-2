@@ -4373,7 +4373,7 @@
                 "automation": "{namespace}.leaveRoom",
                 "enabled": "$can.leaveRoom",
                 "label": "~leaveRoom",
-                "when": "$connected"
+                "when": "$can.leaveRoom"
               },
               "children": [
                 {

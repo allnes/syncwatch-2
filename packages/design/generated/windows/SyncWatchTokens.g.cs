@@ -1006,7 +1006,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "74dbb53f2f3fb9310b4195a81a766b6b5eb02eb457bc736537afb51b9945bb3d";
+    public const string SourceDigest = "657ca440a9db2fcb94522831c31680caffa3f0580c73ae0595c27515a4cbf757";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -5715,7 +5715,7 @@ public static class SyncWatchLayouts
             ["automation"] = "{namespace}.leaveRoom",
             ["enabled"] = "$can.leaveRoom",
             ["label"] = "~leaveRoom",
-            ["when"] = "$connected",
+            ["when"] = "$can.leaveRoom",
         }, [roomLeaveLabel]);
         var roomConnectLabel = new DesignNode("roomConnectLabel", "text", new()
         {

@@ -818,7 +818,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "74dbb53f2f3fb9310b4195a81a766b6b5eb02eb457bc736537afb51b9945bb3d"
+    const val sourceDigest = "657ca440a9db2fcb94522831c31680caffa3f0580c73ae0595c27515a4cbf757"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -5187,7 +5187,7 @@ object SyncWatchLayouts {
             "automation" to "{namespace}.leaveRoom",
             "enabled" to "\$can.leaveRoom",
             "label" to "~leaveRoom",
-            "when" to "\$connected",
+            "when" to "\$can.leaveRoom",
         ), listOf(roomLeaveLabel))
         val roomConnectLabel = DesignNode("roomConnectLabel", "text", mapOf(
             "disabledOpacity" to "0.4",

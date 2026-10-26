@@ -23,7 +23,7 @@ internal class RoomController(private val scope: CoroutineScope) {
     }
     fun libraryPresentation(source: syncwatch.design.LibraryPresentation) = source.copy(
         enabledActions = (source.enabledActions + if (stopping) emptySet() else setOf("openRoom")) -
-            if (editor.connected || editor.busy) setOf("startWatching") else emptySet(),
+            if (editor.state != "disconnected") setOf("startWatching") else emptySet(),
         roomStatus = if (connected) "roomMetadataConnected" else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
     fun invitationToCopy(): String? = if (connected) admission?.let { value -> value.invitation?.let { value.roomId + "\n" + it.copyInvitation() } } else null
     fun invitationCopied() { editor = editor.copy(status = "roomInvitationCopied") }

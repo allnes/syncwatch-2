@@ -24,7 +24,7 @@ import SyncWatchRoom
         var result = source
         if !stopping { result.enabledActions.insert("openRoom") }
         // Membership alone cannot authorize an unsynchronized local Start in a room.
-        if editor.connected || editor.busy { result.enabledActions.remove("startWatching") }
+        if editor.state != "disconnected" { result.enabledActions.remove("startWatching") }
         result.roomStatus =
             connected
             ? "roomMetadataConnected"

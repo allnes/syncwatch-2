@@ -21,6 +21,7 @@ fun main() = runBlocking {
     try {
         withContext(MainUIDispatcher) {
             watchPersistenceChecks(scratch)
+            roomPlaybackGateChecks(owner)
             val model = LibraryController(store, owner, null)
             model.restore(); model.settled()
             check(model.presentation.entries.isEmpty())

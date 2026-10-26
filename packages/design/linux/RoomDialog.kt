@@ -26,7 +26,7 @@ class RoomEditor private constructor(initial: Map<String, String>, val mode: Str
         "createMode" to (mode == "createRoom").toString(), "joinMode" to (mode == "joinRoom").toString(), "connectLabel" to mode,
         "status" to if (busy) "roomConnecting" else status, "roomID" to roomId, "memberCount" to memberCount.toString(),
         "can.close" to "true", "can.chooseRoomMode" to (!busy && !connected).toString(), "can.connectRoom" to (!busy && !connected && isValid).toString(),
-        "can.leaveRoom" to connected.toString(), "can.copyInvitation" to (connected && owner).toString()),
+        "can.leaveRoom" to (connected || state == "failed").toString(), "can.copyInvitation" to (connected && owner).toString()),
         mapOf("fields" to fields.map { DesignContext(mapOf("id" to it.id, "label" to it.label, "value" to values[it.id].orEmpty(), "secret" to (it.kind == "secret").toString(), "editable" to (!busy).toString())) }))
 }
 @Composable fun RoomDialog(editor: RoomEditor, onEditorChange: (RoomEditor) -> Unit, language: String = "en", theme: SyncWatchTheme = SyncWatchTheme.dark,

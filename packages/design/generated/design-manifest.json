@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "98749cf8a70293326c9f0239133476949918297a6851c3fe79b713577568bfc1",
+  "sourceDigest": "f11898eaa6070f62f71de368d80221d2054ff0b693c55dca00ea76d97f0ee059",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -14,7 +14,7 @@
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "3d57092649a33521c7d1294d85d07e713c1237826b8da8fec344e9b08abd4364",
+    "layouts.json": "396201011fc0e189de745f874b546b38a5059d9d4702310a0ed0fb20dcc7700f",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "5ee16c9378bc6e3834b0bc3db2a820e2d28297dd27f219cead934b94da737efc",
@@ -6499,7 +6499,7 @@
                   "automation": "{namespace}.leaveRoom",
                   "enabled": "$can.leaveRoom",
                   "label": "~leaveRoom",
-                  "when": "$connected"
+                  "when": "$can.leaveRoom"
                 },
                 "children": [
                   {

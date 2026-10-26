@@ -1,9 +1,23 @@
 import Foundation
+import SyncWatchDesign
 import SyncWatchPlayback
 import SyncWatchRoom
 import Testing
 
 @testable import SyncWatch
+
+@MainActor @Test func roomAttemptRequiresExplicitExitBeforeLocalPlayback() async {
+    let controller = RoomController()
+    let source = LibraryPresentation.gallery(.selected)
+    #expect(source.allows("startWatching"))
+    for state in ["connecting", "connected", "failed"] {
+        controller.editor.state = state
+        #expect(!controller.libraryPresentation(source).allows("startWatching"))
+        if state == "failed" { #expect(controller.editor.context.values["can.leaveRoom"] == "true") }
+        await controller.close()
+        #expect(controller.libraryPresentation(source).allows("startWatching"))
+    }
+}
 
 @MainActor @Test(.enabled(if: ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"] != nil))
 func connectedRoomClosesAndCanConnectAgain() async throws {
