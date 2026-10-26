@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Native Swift/macOS and C#/WPF shells, local watch-state transitions, preferences, resume persistence, and an independent room metadata service are implemented. This document specifies the full application architecture; the shared Library workspace, application-settings dialog, core player chrome, player-settings and call shells and galleries consume a shared declarative component library; source-built headless Syncplay/TLS and development pipe transports are present; native VLC and application provider activation remain incomplete. The shells do not yet expose the domain workflows or connect to the room service.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Swift/macOS, C#/WPF on Windows and Kotlin/Compose on Linux implement local Library/WatchSession ownership, preferences, resume persistence and native VLC playback. The shared declarative design library supplies their Library, settings, player and call surfaces. Each native player can attach an owned Syncplay helper for admitted media; normal room/media admission, canonical installation and Google Meet host integration remain incomplete. The independent room metadata service is implemented, and its native application integration is the next delivery stage.
 
 ## Technology decisions
 
@@ -71,7 +71,7 @@ Each device reads its own movie file. Only play, pause, seek, and movie/playlist
 | ConnectionSupervisor | Independent recovery of playback synchronization, metadata, and call channels |
 | Design renderer | Displays state and emits user actions; contains no networking or media engine logic |
 
-Swift and C# implement the [shared contracts](contracts.md) and use the same acceptance fixtures. The Kotlin Linux domain consumes that same corpus and protocol, including local watch generations and preference persistence. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while each application uses its selected desktop stack.
+Swift, C# and Kotlin implement the [shared contracts](contracts.md) and consume the same acceptance fixtures, including local watch generations and preference persistence. Domain behavior remains independent of UI and provider SDK types. The Python helper adapts the selected Syncplay engine while each application uses its selected desktop stack.
 
 ## Native video integration
 
@@ -111,7 +111,7 @@ Native shells, local domain modules, the room metadata service, the design packa
 ```text
 apps/macos/                 # Swift application and native platform adapters
 apps/windows/               # C# WPF application and native platform adapters
-apps/linux/                 # Kotlin/Compose entry; registered application build pending
+apps/linux/                 # Kotlin/Compose application and native platform adapters
 packages/design/            # Platform-neutral design data and component contracts
 packages/macos-domain/      # Swift domain and use cases, independent of SwiftUI
 packages/windows-domain/    # C# domain and use cases, independent of WPF

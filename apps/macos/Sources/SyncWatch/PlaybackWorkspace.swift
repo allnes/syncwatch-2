@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import SyncWatchBridge
 import SyncWatchDesign
 import SyncWatchDomain
 import SyncWatchPlayback
@@ -22,6 +23,8 @@ struct LocalPlaybackLaunch {
 @MainActor final class PlaybackController: ObservableObject {
     @Published private(set) var presentation = PlayerPresentation()
     @Published private(set) var failed = false
+    @Published private(set) var sharedState: HelperSessionState?
+    private var sharedSession: HelperSession?
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
     private let launch: LocalPlaybackLaunch
@@ -62,6 +65,34 @@ struct LocalPlaybackLaunch {
     }
     private var navigationActions: Set<String> {
         onNavigation == nil ? ["endWatching", "toggleFullscreen"] : ["endWatching", "toggleFullscreen", "showLibrary"]
+    }
+    /// The room coordinator must admit the selected media before transferring
+    /// this transport. Native playback ownership stays with this controller.
+    func connectShared(transport: any HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String)
+        async throws
+    {
+        do {
+            guard !closing, view != nil, sharedSession == nil else { throw HelperSessionFailure.unavailable }
+            let session = try HelperSession(
+                transport: transport, player: player, nativeScope: scope,
+                endpoint: endpoint, media: media, revision: revision
+            ) { [weak self] state in
+                self?.sharedState = state
+                self?.gateSharedActions()
+            }
+            sharedSession = session
+            sharedState = session.state
+            gateSharedActions()
+            try session.start()
+        } catch {
+            await transport.close()
+            throw error
+        }
+    }
+    private func gateSharedActions() {
+        if sharedSession != nil && sharedState?.connection != .connected {
+            presentation.enabledActions.subtract(["playPause", "seek", "skip"])
+        }
     }
     func attach(_ view: NSView) {
         guard self.view == nil, !closing else { return }
@@ -126,6 +157,7 @@ struct LocalPlaybackLaunch {
         presentation.enabledActions = navigationActions.union(["playPause"])
         if value.volume != nil { presentation.enabledActions.formUnion(["setMovieVolume", "muteMovie"]) }
         if value.seekable { presentation.enabledActions.formUnion(["seek", "skip"]) }
+        gateSharedActions()
     }
     func action(_ action: String, value: Double?) {
         guard !closing else { return }
@@ -147,6 +179,18 @@ struct LocalPlaybackLaunch {
                 window?.collectionBehavior.insert(.fullScreenPrimary)
             }
             window?.toggleFullScreen(nil)
+            return
+        }
+        if let sharedSession, action == "playPause" || action == "seek" {
+            do {
+                if action == "playPause" {
+                    try sharedSession.togglePause()
+                } else if let value, value.isFinite, value >= 0, value <= Double(WatchSession.maximumPositionMs) {
+                    try sharedSession.seek(Int64(value))
+                }
+            } catch {
+                // A rejected shared intent leaves the observation authoritative.
+            }
             return
         }
         let paused = presentation.playing
@@ -181,6 +225,8 @@ struct LocalPlaybackLaunch {
         closing = true
         presentation.enabledActions = []
         polling?.cancel()
+        await sharedSession?.close()
+        sharedSession = nil
         await player.close()
         await polling?.value
         polling = nil
