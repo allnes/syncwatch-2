@@ -32,9 +32,23 @@ import SyncWatchRoom
         return result
     }
     func clearSecrets() { editor.clearSecrets() }
+    func pasteInvitation(_ text: String) {
+        guard !stopping, !editor.busy, !editor.connected, editor.mode == "joinRoom" else { return }
+        var next = editor
+        do {
+            let invitation = try RoomInvitation.parse(text)
+            next.edit("roomID", value: invitation.roomID)
+            next.edit("invitation", value: invitation.credential.copyInvitation())
+        } catch {
+            next.clearSecrets()
+            next.edit("roomID", value: "")
+            next.status = "roomInvitationInvalid"
+        }
+        editor = next
+    }
     func invitationToCopy() -> String? {
         guard connected, let admission, let invitation = admission.invitation else { return nil }
-        return admission.roomID + "\n" + invitation.copyInvitation()
+        return try? RoomInvitation(roomID: admission.roomID, credential: invitation).copyText()
     }
     func invitationCopied() { editor.status = "roomInvitationCopied" }
     func close() async {

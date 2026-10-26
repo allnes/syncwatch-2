@@ -4336,6 +4336,32 @@
               "children": []
             },
             {
+              "id": "roomPaste",
+              "kind": "button",
+              "styles": [
+                "button",
+                "compact"
+              ],
+              "props": {
+                "action": "pasteInvitation",
+                "automation": "{namespace}.pasteInvitation",
+                "enabled": "$can.pasteInvitation",
+                "label": "~pasteInvitation",
+                "when": "$can.pasteInvitation"
+              },
+              "children": [
+                {
+                  "id": "roomPasteLabel",
+                  "kind": "text",
+                  "styles": [],
+                  "props": {
+                    "text": "~pasteInvitation"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
               "id": "roomCopy",
               "kind": "button",
               "styles": [

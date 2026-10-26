@@ -584,6 +584,8 @@ public enum SyncWatchCopy {
             "roomMembers": "Room members",
             "roomInvalidInput": "Complete the connection fields.",
             "roomConnectionHint": "Create a room or join with an invitation.",
+            "pasteInvitation": "Paste invitation",
+            "roomInvitationInvalid": "Copy a complete room invitation and try again.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -803,6 +805,8 @@ public enum SyncWatchCopy {
             "roomMembers": "Участников в комнате",
             "roomInvalidInput": "Заполните данные подключения.",
             "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
+            "pasteInvitation": "Вставить приглашение",
+            "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -2053,7 +2057,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "657ca440a9db2fcb94522831c31680caffa3f0580c73ae0595c27515a4cbf757"
+    public static let sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -8179,6 +8183,44 @@ public enum SyncWatchLayouts {
                 "width": "fill",
             ],
             children: [])
+        let roomPasteLabel = DesignNode(
+            id: "roomPasteLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~pasteInvitation",
+            ],
+            children: [])
+        let roomPaste = DesignNode(
+            id: "roomPaste", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "center",
+                "height": "@layout.settingsControlHeight",
+                "action": "pasteInvitation",
+                "automation": "{namespace}.pasteInvitation",
+                "enabled": "$can.pasteInvitation",
+                "label": "~pasteInvitation",
+                "when": "$can.pasteInvitation",
+            ],
+            children: [roomPasteLabel])
         let roomCopyLabel = DesignNode(
             id: "roomCopyLabel", kind: "text",
             props: [
@@ -8305,7 +8347,7 @@ public enum SyncWatchLayouts {
                 "padding": "@layout.settingsCardPadding",
                 "gap": "@control.compactGap",
             ],
-            children: [roomFooterSpace, roomCopy, roomLeave, roomConnect])
+            children: [roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect])
         let roomDialog = DesignNode(
             id: "roomDialog", kind: "column",
             props: [

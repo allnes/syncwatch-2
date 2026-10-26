@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "f11898eaa6070f62f71de368d80221d2054ff0b693c55dca00ea76d97f0ee059",
+  "sourceDigest": "1eb6e52a56e09b26962c54a7c417aed0a76ddd6f95d8d54b91a274393482c694",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "6a4a583d13a2bb53537c93e7be11bfeef208871eed20d18f6d05d75a0287a929",
-    "copy.json": "b7d18bc1abacad0fcb60e4e12550ac98ac743b699661b44058cb327305099b0d",
+    "copy.json": "fff71d52375f6c969568537d5169df9d94f90f767a8cc59250d41d95d26589c0",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "396201011fc0e189de745f874b546b38a5059d9d4702310a0ed0fb20dcc7700f",
+    "layouts.json": "6b19f327da46ffa06ba27bcb197614a8bc4a3e3ffc7491aacabaeafef4b19744",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "5ee16c9378bc6e3834b0bc3db2a820e2d28297dd27f219cead934b94da737efc",
@@ -304,7 +304,9 @@
         "roomInvitationCopied": "Room ID and invitation copied",
         "roomMembers": "Room members",
         "roomInvalidInput": "Complete the connection fields.",
-        "roomConnectionHint": "Create a room or join with an invitation."
+        "roomConnectionHint": "Create a room or join with an invitation.",
+        "pasteInvitation": "Paste invitation",
+        "roomInvitationInvalid": "Copy a complete room invitation and try again."
       },
       "ru": {
         "brand": "SyncWatch",
@@ -522,7 +524,9 @@
         "roomInvitationCopied": "Идентификатор и приглашение скопированы",
         "roomMembers": "Участников в комнате",
         "roomInvalidInput": "Заполните данные подключения.",
-        "roomConnectionHint": "Создайте комнату или войдите по приглашению."
+        "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
+        "pasteInvitation": "Вставить приглашение",
+        "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку."
       }
     },
     "gallery": {
@@ -6460,6 +6464,32 @@
                   "width": "fill"
                 },
                 "children": []
+              },
+              {
+                "id": "roomPaste",
+                "kind": "button",
+                "styles": [
+                  "button",
+                  "compact"
+                ],
+                "props": {
+                  "action": "pasteInvitation",
+                  "automation": "{namespace}.pasteInvitation",
+                  "enabled": "$can.pasteInvitation",
+                  "label": "~pasteInvitation",
+                  "when": "$can.pasteInvitation"
+                },
+                "children": [
+                  {
+                    "id": "roomPasteLabel",
+                    "kind": "text",
+                    "styles": [],
+                    "props": {
+                      "text": "~pasteInvitation"
+                    },
+                    "children": []
+                  }
+                ]
               },
               {
                 "id": "roomCopy",

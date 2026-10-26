@@ -25,7 +25,16 @@ internal class RoomController(private val scope: CoroutineScope) {
         enabledActions = (source.enabledActions + if (stopping) emptySet() else setOf("openRoom")) -
             if (editor.state != "disconnected") setOf("startWatching") else emptySet(),
         roomStatus = if (connected) "roomMetadataConnected" else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
-    fun invitationToCopy(): String? = if (connected) admission?.let { value -> value.invitation?.let { value.roomId + "\n" + it.copyInvitation() } } else null
+    fun pasteInvitation(text: String) {
+        if (stopping || editor.busy || editor.connected || editor.mode != "joinRoom") return
+        editor = try {
+            val invitation = RoomInvitation.parse(text)
+            editor.edit("roomID", invitation.roomId).edit("invitation", invitation.credential.copyInvitation())
+        } catch (_: RoomProtocolException) {
+            editor.clearSecrets().edit("roomID", "").copy(status = "roomInvitationInvalid")
+        }
+    }
+    fun invitationToCopy(): String? = if (connected) admission?.let { value -> value.invitation?.let { RoomInvitation(value.roomId, it).copyText() } } else null
     fun invitationCopied() { editor = editor.copy(status = "roomInvitationCopied") }
     suspend fun close() = withContext(NonCancellable) {
         closing?.let { it.await(); return@withContext }

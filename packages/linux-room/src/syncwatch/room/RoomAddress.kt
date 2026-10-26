@@ -25,7 +25,7 @@ class RoomSecret internal constructor(internal val value: String) {
         if (value.length !in 32..256 || value.any { it.code !in 33..126 }) throw RoomProtocolException("invalidRoomCredential")
     }
     override fun toString(): String = "[redacted]"
-    // The owner explicitly invokes this for the invitation-copy action only.
+    // Expose plaintext only for an explicit invitation transfer.
     fun copyInvitation(): String = value
     companion object { fun fromInput(value: String) = RoomSecret(value) }
 }

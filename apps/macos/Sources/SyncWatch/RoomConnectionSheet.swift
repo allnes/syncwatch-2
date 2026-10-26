@@ -16,6 +16,7 @@ import SyncWatchDesign
         switch action {
         case "connectRoom": room.connect()
         case "leaveRoom": Task { await room.close() }
+        case "pasteInvitation": room.pasteInvitation(NSPasteboard.general.string(forType: .string) ?? "")
         case "copyInvitation":
             if let invitation = room.invitationToCopy() {
                 NSPasteboard.general.clearContents()

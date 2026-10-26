@@ -217,7 +217,9 @@
       "roomInvitationCopied": "Room ID and invitation copied",
       "roomMembers": "Room members",
       "roomInvalidInput": "Complete the connection fields.",
-      "roomConnectionHint": "Create a room or join with an invitation."
+      "roomConnectionHint": "Create a room or join with an invitation.",
+      "pasteInvitation": "Paste invitation",
+      "roomInvitationInvalid": "Copy a complete room invitation and try again."
     },
     "ru": {
       "brand": "SyncWatch",
@@ -435,7 +437,9 @@
       "roomInvitationCopied": "Идентификатор и приглашение скопированы",
       "roomMembers": "Участников в комнате",
       "roomInvalidInput": "Заполните данные подключения.",
-      "roomConnectionHint": "Создайте комнату или войдите по приглашению."
+      "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
+      "pasteInvitation": "Вставить приглашение",
+      "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку."
     }
   },
   "gallery": {

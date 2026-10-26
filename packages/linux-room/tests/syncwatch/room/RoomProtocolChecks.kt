@@ -7,6 +7,15 @@ import syncwatch.ipc.Json
 fun main(args: Array<String>) {
     val fixture = RoomWire.obj(Json.parse(Files.readString(Path.of(args[0]))))
     val identity = RoomIdentity("run-room-client", "Room User")
+    for (entry in fixture["invitations"] as List<*>) {
+        val item = RoomWire.obj(entry)
+        val result = runCatching { RoomInvitation.parse(item["text"] as String) }
+        check(result.isSuccess == item["valid"]) { "invitation: ${item["name"]}" }
+        result.getOrNull()?.let {
+            val credential = item["credential"] as String
+            check(it.roomId == item["roomID"] && it.copyText() == "${item["roomID"]}\n$credential" && !it.toString().contains(credential))
+        }
+    }
     for (entry in fixture["addresses"] as List<*>) {
         val item = RoomWire.obj(entry)
         val accepted = runCatching { RoomAddress(item["value"] as String) }.isSuccess

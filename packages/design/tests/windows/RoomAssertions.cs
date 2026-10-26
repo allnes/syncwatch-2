@@ -9,7 +9,9 @@ internal static class RoomAssertions
         Check(editor.Values["creationKey"] == "" && !editor.IsValid && editor.Context.Values["can.connectRoom"] == "false");
         editor.Edit("creationKey", "creation-secret"); editor.SelectMode("createRoom"); Check(editor.Values["creationKey"] == "creation-secret");
         editor.SelectMode("joinRoom"); Check(editor.Values["creationKey"] == "" && editor.Values["username"] == "Alice");
+        Check(editor.Context.Values["can.pasteInvitation"] == "true");
         editor.Edit("invitation", "invitation-secret"); editor.State = "connecting";
+        Check(editor.Context.Values["can.pasteInvitation"] == "false");
         editor.Edit("username", "Bob"); editor.SelectMode("createRoom"); Check(editor.Values["username"] == "Alice" && editor.Mode == "joinRoom");
         editor.ClearSecrets(); Check(editor.Values["invitation"] == "");
         editor.State = "connected"; editor.Owner = false; Check(editor.Context.Values["can.copyInvitation"] == "false");

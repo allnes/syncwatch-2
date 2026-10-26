@@ -34,6 +34,6 @@ public sealed class RoomSecret
         Value = value;
     }
     public override string ToString() => "[redacted]";
-    // The owner explicitly invokes this for the invitation-copy action only.
+    // Expose plaintext only for an explicit invitation transfer.
     public string CopyInvitation() => Value;
 }

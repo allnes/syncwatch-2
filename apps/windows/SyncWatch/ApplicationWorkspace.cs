@@ -74,6 +74,11 @@ internal sealed class ApplicationWorkspace : UserControl
         {
             if (action == "connectRoom") room.Connect();
             else if (action == "leaveRoom") await room.CloseAsync();
+            else if (action == "pasteInvitation")
+            {
+                try { room.PasteInvitation(Clipboard.GetText()); }
+                catch (System.Runtime.InteropServices.ExternalException) { room.PasteInvitation(""); }
+            }
             else if (action == "copyInvitation" && room.InvitationToCopy() is string invitation) { Clipboard.SetText(invitation); room.InvitationCopied(); }
             else if (action == "close") { if (room.Editor.Busy) await room.CloseAsync(); released = true; window.Close(); }
         };

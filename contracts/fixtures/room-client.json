@@ -247,5 +247,90 @@
       "owner": true,
       "valid": true
     }
+  ],
+  "invitations": [
+    {
+      "name": "canonical LF",
+      "text": "room-invitation\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": true,
+      "roomID": "room-invitation",
+      "credential": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"
+    },
+    {
+      "name": "Windows CRLF",
+      "text": "room-invitation\r\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": true,
+      "roomID": "room-invitation",
+      "credential": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"
+    },
+    {
+      "name": "credential bound 31",
+      "text": "room-invitation\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "valid": false
+    },
+    {
+      "name": "credential bound 32",
+      "text": "room-invitation\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "valid": true,
+      "roomID": "room-invitation",
+      "credential": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    {
+      "name": "credential bound 256",
+      "text": "room-invitation\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "valid": true,
+      "roomID": "room-invitation",
+      "credential": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    {
+      "name": "credential bound 257",
+      "text": "room-invitation\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "valid": false
+    },
+    {
+      "name": "no separator",
+      "text": "room-invitation0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": false
+    },
+    {
+      "name": "no ID",
+      "text": "\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": false
+    },
+    {
+      "name": "no credential",
+      "text": "room-invitation\n",
+      "valid": false
+    },
+    {
+      "name": "third line",
+      "text": "room-invitation\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF\n",
+      "valid": false
+    },
+    {
+      "name": "bare CR",
+      "text": "room-invitation\r0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": false
+    },
+    {
+      "name": "padded ID",
+      "text": " room-invitation\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": false
+    },
+    {
+      "name": "padded credential",
+      "text": "room-invitation\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF ",
+      "valid": false
+    },
+    {
+      "name": "non ASCII ID",
+      "text": "room-α\n0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "valid": false
+    },
+    {
+      "name": "non ASCII credential",
+      "text": "room-invitation\néééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "valid": false
+    }
   ]
 }

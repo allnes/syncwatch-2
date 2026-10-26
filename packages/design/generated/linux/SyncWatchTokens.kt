@@ -409,6 +409,8 @@ object SyncWatchCopy {
         "en" to "roomMembers" -> "Room members"
         "en" to "roomInvalidInput" -> "Complete the connection fields."
         "en" to "roomConnectionHint" -> "Create a room or join with an invitation."
+        "en" to "pasteInvitation" -> "Paste invitation"
+        "en" to "roomInvitationInvalid" -> "Copy a complete room invitation and try again."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -625,6 +627,8 @@ object SyncWatchCopy {
         "ru" to "roomMembers" -> "Участников в комнате"
         "ru" to "roomInvalidInput" -> "Заполните данные подключения."
         "ru" to "roomConnectionHint" -> "Создайте комнату или войдите по приглашению."
+        "ru" to "pasteInvitation" -> "Вставить приглашение"
+        "ru" to "roomInvitationInvalid" -> "Скопируйте приглашение комнаты целиком и повторите вставку."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -818,7 +822,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "657ca440a9db2fcb94522831c31680caffa3f0580c73ae0595c27515a4cbf757"
+    const val sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -5125,6 +5129,38 @@ object SyncWatchLayouts {
             "focusWidth" to "@control.borderWidth",
             "width" to "fill",
         ), listOf())
+        val roomPasteLabel = DesignNode("roomPasteLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~pasteInvitation",
+        ), listOf())
+        val roomPaste = DesignNode("roomPaste", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "center",
+            "height" to "@layout.settingsControlHeight",
+            "action" to "pasteInvitation",
+            "automation" to "{namespace}.pasteInvitation",
+            "enabled" to "\$can.pasteInvitation",
+            "label" to "~pasteInvitation",
+            "when" to "\$can.pasteInvitation",
+        ), listOf(roomPasteLabel))
         val roomCopyLabel = DesignNode("roomCopyLabel", "text", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -5230,7 +5266,7 @@ object SyncWatchLayouts {
             "focusWidth" to "@control.borderWidth",
             "padding" to "@layout.settingsCardPadding",
             "gap" to "@control.compactGap",
-        ), listOf(roomFooterSpace, roomCopy, roomLeave, roomConnect))
+        ), listOf(roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect))
         val roomDialog = DesignNode("roomDialog", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",

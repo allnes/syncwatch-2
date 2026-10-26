@@ -580,6 +580,8 @@ public static class SyncWatchCopy
         ("en", "roomMembers") => "Room members",
         ("en", "roomInvalidInput") => "Complete the connection fields.",
         ("en", "roomConnectionHint") => "Create a room or join with an invitation.",
+        ("en", "pasteInvitation") => "Paste invitation",
+        ("en", "roomInvitationInvalid") => "Copy a complete room invitation and try again.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -796,6 +798,8 @@ public static class SyncWatchCopy
         ("ru", "roomMembers") => "Участников в комнате",
         ("ru", "roomInvalidInput") => "Заполните данные подключения.",
         ("ru", "roomConnectionHint") => "Создайте комнату или войдите по приглашению.",
+        ("ru", "pasteInvitation") => "Вставить приглашение",
+        ("ru", "roomInvitationInvalid") => "Скопируйте приглашение комнаты целиком и повторите вставку.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -1006,7 +1010,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "657ca440a9db2fcb94522831c31680caffa3f0580c73ae0595c27515a4cbf757";
+    public const string SourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -5649,6 +5653,40 @@ public static class SyncWatchLayouts
             ["focusWidth"] = "@control.borderWidth",
             ["width"] = "fill",
         }, []);
+        var roomPasteLabel = new DesignNode("roomPasteLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~pasteInvitation",
+        }, []);
+        var roomPaste = new DesignNode("roomPaste", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "center",
+            ["height"] = "@layout.settingsControlHeight",
+            ["action"] = "pasteInvitation",
+            ["automation"] = "{namespace}.pasteInvitation",
+            ["enabled"] = "$can.pasteInvitation",
+            ["label"] = "~pasteInvitation",
+            ["when"] = "$can.pasteInvitation",
+        }, [roomPasteLabel]);
         var roomCopyLabel = new DesignNode("roomCopyLabel", "text", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -5761,7 +5799,7 @@ public static class SyncWatchLayouts
             ["focusWidth"] = "@control.borderWidth",
             ["padding"] = "@layout.settingsCardPadding",
             ["gap"] = "@control.compactGap",
-        }, [roomFooterSpace, roomCopy, roomLeave, roomConnect]);
+        }, [roomFooterSpace, roomPaste, roomCopy, roomLeave, roomConnect]);
         var roomDialog = new DesignNode("roomDialog", "column", new()
         {
             ["disabledOpacity"] = "0.4",

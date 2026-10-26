@@ -29,7 +29,21 @@ internal sealed class RoomController
         if (Editor.State != "disconnected") enabled.Remove("startWatching");
         return source with { EnabledActions = enabled, RoomStatus = Connected ? "roomMetadataConnected" : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
     }
-    public string? InvitationToCopy() => Connected && admission?.Invitation is { } invitation ? admission.RoomId + "\n" + invitation.CopyInvitation() : null;
+    public void PasteInvitation(string text)
+    {
+        if (stopping || Editor.Busy || Editor.Connected || Editor.Mode != "joinRoom") return;
+        try
+        {
+            var invitation = RoomInvitation.Parse(text);
+            Editor.Edit("roomID", invitation.RoomId); Editor.Edit("invitation", invitation.Credential.CopyInvitation());
+        }
+        catch (RoomProtocolException)
+        {
+            Editor.ClearSecrets(); Editor.Edit("roomID", ""); Editor.Status = "roomInvitationInvalid";
+        }
+        Changed?.Invoke();
+    }
+    public string? InvitationToCopy() => Connected && admission?.Invitation is { } invitation ? new RoomInvitation(admission.RoomId, invitation).CopyText() : null;
     public void InvitationCopied() { Editor.Status = "roomInvitationCopied"; Changed?.Invoke(); }
     public Task CloseAsync() => closing ??= StopAsync();
     private async Task StopAsync()

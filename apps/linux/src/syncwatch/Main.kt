@@ -131,6 +131,9 @@ fun main(arguments: Array<String>) {
             RoomDialog(room.editor, { room.editor = it }, language, theme) { action -> when (action) {
                 "connectRoom" -> room.connect()
                 "leaveRoom" -> roomWork.launch { room.close() }
+                "pasteInvitation" -> room.pasteInvitation(runCatching {
+                    java.awt.Toolkit.getDefaultToolkit().systemClipboard.getData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String
+                }.getOrNull() ?: "")
                 "copyInvitation" -> room.invitationToCopy()?.let { value -> java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(value), null); room.invitationCopied() }
                 "close" -> closeDialog()
             } }

@@ -4,6 +4,19 @@ using SyncWatch.Room;
 
 using var fixture = JsonDocument.Parse(File.ReadAllBytes(args[0]));
 var identity = new RoomIdentity("run-room-client", "Room User");
+foreach (var entry in fixture.RootElement.GetProperty("invitations").EnumerateArray())
+{
+    bool valid = entry.GetProperty("valid").GetBoolean(), accepted = false;
+    RoomInvitation? invitation = null;
+    try { invitation = RoomInvitation.Parse(entry.GetProperty("text").GetString()!); accepted = true; } catch (RoomProtocolException) { }
+    if (accepted != valid) throw new Exception("invitation: " + entry.GetProperty("name").GetString());
+    if (invitation is not null)
+    {
+        string roomId = entry.GetProperty("roomID").GetString()!, credential = entry.GetProperty("credential").GetString()!;
+        if (invitation.RoomId != roomId || invitation.CopyText() != roomId + "\n" + credential || invitation.ToString().Contains(credential, StringComparison.Ordinal))
+            throw new Exception("invitation normalization/redaction");
+    }
+}
 foreach (var entry in fixture.RootElement.GetProperty("addresses").EnumerateArray())
 {
     bool valid = entry.GetProperty("valid").GetBoolean(), accepted = false;

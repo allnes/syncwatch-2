@@ -10,9 +10,11 @@ import Testing
     editor.selectMode("createRoom")
     #expect(editor.values["creationKey"] == "creation-secret")
     editor.selectMode("joinRoom")
+    #expect(editor.context.values["can.pasteInvitation"] == "true")
     #expect(editor.values["creationKey"] == "" && editor.values["username"] == "Alice")
     editor.edit("invitation", value: "invitation-secret")
     editor.state = "connecting"
+    #expect(editor.context.values["can.pasteInvitation"] == "false")
     editor.edit("username", value: "Bob")
     editor.selectMode("createRoom")
     #expect(editor.values["username"] == "Alice" && editor.mode == "joinRoom")

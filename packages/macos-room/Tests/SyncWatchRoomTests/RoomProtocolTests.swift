@@ -10,6 +10,20 @@ final class RoomProtocolTests: XCTestCase {
         ).standardized
         let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: Any])
         let identity = try RoomIdentity(clientRunID: "run-room-client", syncplayUsername: "Room User")
+        for entry in try XCTUnwrap(root["invitations"] as? [[String: Any]]) {
+            let name = try XCTUnwrap(entry["name"] as? String)
+            let text = try XCTUnwrap(entry["text"] as? String)
+            if try XCTUnwrap(entry["valid"] as? Bool) {
+                let invitation = try RoomInvitation.parse(text)
+                let roomID = try XCTUnwrap(entry["roomID"] as? String)
+                let credential = try XCTUnwrap(entry["credential"] as? String)
+                XCTAssertEqual(invitation.roomID, roomID, name)
+                XCTAssertEqual(invitation.copyText(), roomID + "\n" + credential, name)
+                XCTAssertFalse(String(reflecting: invitation).contains(credential), name)
+            } else {
+                XCTAssertThrowsError(try RoomInvitation.parse(text), name)
+            }
+        }
         for entry in try XCTUnwrap(root["addresses"] as? [[String: Any]]) {
             let value = try XCTUnwrap(entry["value"] as? String)
             let valid = try XCTUnwrap(entry["valid"] as? Bool)

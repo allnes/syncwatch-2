@@ -6,6 +6,26 @@ import Testing
 
 @testable import SyncWatch
 
+@MainActor @Test func invitationPasteIsAtomicAndKeepsTheServiceExplicit() {
+    let controller = RoomController()
+    controller.editor.selectMode("joinRoom")
+    controller.editor.edit("serviceAddress", value: "https://rooms.example.com")
+    controller.editor.edit("username", value: "Peer")
+    let credential = String(repeating: "A", count: 64)
+    controller.pasteInvitation("room-paste\r\n" + credential)
+    #expect(controller.editor.values["roomID"] == "room-paste")
+    #expect(controller.editor.values["invitation"] == credential && controller.editor.isValid)
+    #expect(controller.editor.values["serviceAddress"] == "https://rooms.example.com")
+    controller.editor.state = "connecting"
+    controller.pasteInvitation("invalid")
+    #expect(controller.editor.values["invitation"] == credential)
+    controller.editor.state = "disconnected"
+    controller.pasteInvitation("invalid")
+    #expect(controller.editor.values["invitation"] == "" && controller.editor.values["roomID"] == "")
+    #expect(!controller.editor.isValid && controller.editor.status == "roomInvitationInvalid")
+    #expect(controller.editor.values["username"] == "Peer")
+}
+
 @MainActor @Test func roomAttemptRequiresExplicitExitBeforeLocalPlayback() async {
     let controller = RoomController()
     let source = LibraryPresentation.gallery(.selected)

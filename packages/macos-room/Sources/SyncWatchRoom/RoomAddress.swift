@@ -35,6 +35,6 @@ public struct RoomSecret: Sendable, CustomStringConvertible, CustomDebugStringCo
     }
     public var description: String { "[redacted]" }
     public var debugDescription: String { description }
-    // The owner explicitly invokes this for the invitation-copy action only.
+    // Expose plaintext only for an explicit invitation transfer.
     public func copyInvitation() -> String { value }
 }

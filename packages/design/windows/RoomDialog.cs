@@ -52,7 +52,8 @@ public sealed class RoomEditor
             ["can.chooseRoomMode"] = (!Busy && !Connected).ToString().ToLowerInvariant(),
             ["can.connectRoom"] = (!Busy && !Connected && IsValid).ToString().ToLowerInvariant(),
             ["can.leaveRoom"] = (Connected || State == "failed").ToString().ToLowerInvariant(),
-            ["can.copyInvitation"] = (Connected && Owner).ToString().ToLowerInvariant()
+            ["can.copyInvitation"] = (Connected && Owner).ToString().ToLowerInvariant(),
+            ["can.pasteInvitation"] = (!Busy && !Connected && Mode == "joinRoom").ToString().ToLowerInvariant()
         },
         Collections = new()
         {
