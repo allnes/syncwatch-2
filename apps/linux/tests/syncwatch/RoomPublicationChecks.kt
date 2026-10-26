@@ -9,7 +9,7 @@ import syncwatch.ipc.Json
 import syncwatch.library.FileSystemLibrary
 import syncwatch.room.*
 
-internal suspend fun roomPublicationChecks() = withContext(MainUIDispatcher) {
+internal suspend fun roomPublicationChecks(fixtureFile: Path) = withContext(MainUIDispatcher) {
     val directory = Files.createTempDirectory("syncwatch-room-publication-")
     try {
         Files.writeString(directory.resolve("Movie.mkv"), "authored metadata fixture")
@@ -22,7 +22,7 @@ internal suspend fun roomPublicationChecks() = withContext(MainUIDispatcher) {
         map.acknowledge(map.prepare(emptyList())); check(map.localId(id) == null)
 
         @Suppress("UNCHECKED_CAST")
-        val fixture = Json.parse(Files.readString(Path.of("contracts/fixtures/room-client.json"))) as Map<String, Any?>
+        val fixture = Json.parse(Files.readString(fixtureFile)) as Map<String, Any?>
         @Suppress("UNCHECKED_CAST")
         val admitted = (fixture["admissions"] as List<Map<String, Any?>>).first { it["valid"] == true && it["owner"] == true }
         val admission = RoomAdmission.decode((admitted["wire"] as String).toByteArray(Charsets.UTF_8), RoomIdentity("run-room-client", "Room User"), true)
