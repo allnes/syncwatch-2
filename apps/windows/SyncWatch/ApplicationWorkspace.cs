@@ -39,6 +39,7 @@ internal sealed class ApplicationWorkspace : UserControl
     public async Task CloseAsync() { await watch.CloseAsync(); await room.CloseAsync(); catalog.Dispose(); }
     private void Refresh()
     {
+        room.UpdateLibrary(catalog.RoomRevision, () => catalog.RoomFiles);
         library.Render(room.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
         chrome.SetPlayer(watch.Player); chrome.PresentPlayer(watch.PlayerPresented);
         if (WatchAcceptance.Requested) return;

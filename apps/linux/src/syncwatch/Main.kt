@@ -91,6 +91,7 @@ fun main(arguments: Array<String>) {
         WatchAcceptance.run(arguments, workspace, onClose)
     }
     DisposableEffect(library) { onDispose { library.close() } }
+    LaunchedEffect(library.roomRevision) { room.updateLibrary(library.roomRevision, library.roomFiles) }
     val language = state.preferences.language
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light

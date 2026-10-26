@@ -24,7 +24,7 @@ The normal application Library now owns a native folder picker and a cancellable
 
 The Library-to-WatchSession workflow captures the selected local media and its folder-access owner before starting playback. The watch owner retains that access independently of subsequent Library scans and selections until native release. Metadata/sidecar extraction and filesystem watching still require their application integration. On macOS, the access adapter renews stale/moved bookmarks while access is active and reports denied/corrupt grants. A saved path cannot silently replace a failed grant. Windows and Linux retain their own explicit folder selection and revalidate access after restart. These local grant records are separate from the preference/resume format, which deliberately contains no paths or permissions.
 
-The shared Library presentation receives entries and observed capabilities. It performs no filesystem work and starts no media provider. Application controllers map actual catalog state and selection into that presentation; only the existing WatchSession owner allocates or releases playback generations. Scanning alone does not enable shared playback, publish a room catalog or establish practical readiness.
+The shared Library presentation receives entries and observed capabilities. It performs no filesystem work and starts no media provider. Application controllers map actual catalog state and selection into that presentation; only the existing WatchSession owner allocates or releases playback generations. A completed scan supplies a new revision and immutable local file facts to the separate [room publisher](../room-client.md#local-catalog-publication). That owner converts them to path-free descriptors and publishes only while membership is connected. Scanning and catalog exchange do not enable shared playback or establish practical readiness.
 
 ## Shared media preparation
 
@@ -47,6 +47,6 @@ confirmation. Conflicting facts under the same full hash are rejected. A title,
 size or duration alone cannot authorize automatic playback.
 
 The native player exposes preparation for the room coordinator. The explicit
-shared-session check consumes it, but normal room admission, background catalog
-exchange, confirmation UI, file watching and persistent digest-cache invalidation
+shared-session check consumes it, but normal room admission, selection and
+confirmation UI, file watching and persistent digest-cache invalidation
 remain integration work.

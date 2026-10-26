@@ -22,6 +22,8 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     private bool closed;
     public LibraryPresentation Presentation { get; private set; } = new() { EnabledActions = new HashSet<string> { "chooseFolder", "openSettings" } };
     public string? ErrorKey { get; private set; }
+    public Guid RoomRevision { get; private set; } = Guid.NewGuid();
+    public IReadOnlyList<LocalMediaFile> RoomFiles => catalog.Values.OrderBy(p => p.Id, StringComparer.Ordinal).ToArray();
     public event Action? Changed;
     public Task Settled { get; private set; } = Task.CompletedTask;
 
@@ -84,7 +86,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                 .Select(x => new LibraryEntry(x.Id, x.Title, x.File)).ToArray();
             string? selected = new[] { previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
             var nextCatalog = files.ToDictionary(x => x.Id);
-            grant = next; catalog = nextCatalog; Presentation = new()
+            grant = next; catalog = nextCatalog; RoomRevision = Guid.NewGuid(); Presentation = new()
             {
                 State = rows.Length == 0 ? LibraryVisualState.Empty : LibraryVisualState.Selected,
                 Entries = rows,

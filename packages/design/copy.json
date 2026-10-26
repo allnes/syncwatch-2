@@ -220,7 +220,9 @@
       "roomInvalidInput": "Complete the connection fields.",
       "roomConnectionHint": "Create a room or join with an invitation.",
       "pasteInvitation": "Paste invitation",
-      "roomInvitationInvalid": "Copy a complete room invitation and try again."
+      "roomInvitationInvalid": "Copy a complete room invitation and try again.",
+      "roomCatalogPublishing": "Sharing library…",
+      "roomCatalogPublishFailed": "Could not share the library. Rescan the folder to retry."
     },
     "ru": {
       "brand": "SyncWatch",
@@ -441,7 +443,9 @@
       "roomInvalidInput": "Заполните данные подключения.",
       "roomConnectionHint": "Создайте комнату или войдите по приглашению.",
       "pasteInvitation": "Вставить приглашение",
-      "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку."
+      "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
+      "roomCatalogPublishing": "Публикация библиотеки…",
+      "roomCatalogPublishFailed": "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить."
     }
   },
   "gallery": {

@@ -36,6 +36,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private var closed = false
     var presentation by mutableStateOf(LibraryPresentation(enabledActions = setOf("chooseFolder", "openSettings")))
         private set
+    var roomRevision by mutableStateOf(java.util.UUID.randomUUID())
+        private set
+    val roomFiles: List<LocalMediaFile> get() = catalog.values.sortedBy { it.id }
     var errorKey by mutableStateOf<String?>(null)
         private set
     fun restore() = start {
@@ -84,6 +87,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 val selected = listOfNotNull(previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
                 catalog = files.associateBy { it.id }
+                roomRevision = java.util.UUID.randomUUID()
                 presentation = LibraryPresentation(if (rows.isEmpty()) LibraryVisualState.empty else LibraryVisualState.selected,
                     rows, selected, setOf("chooseFolder", "rescan", "search", "selectMovie", "openSettings"))
                 stable = presentation
