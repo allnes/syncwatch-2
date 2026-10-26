@@ -467,9 +467,14 @@ public struct DesignSurface: View {
             result = AnyView(DesignSubtitle(node: node, paint: paint, context: context, language: language))
         default: result = AnyView(EmptyView())
         }
-        return AnyView(
-            result.accessibilityIdentifier(node.string("automation")).accessibilityLabel(node.string("label"))
+        var accessible = AnyView(
+            result.accessibilityIdentifier(node.string("automation"))
                 .accessibilityAddTraits(node.flag("selected") ? .isSelected : []))
+        // An absent override must preserve the native label of text and button content.
+        if !node.string("label").isEmpty {
+            accessible = AnyView(accessible.accessibilityLabel(node.string("label")))
+        }
+        return accessible
     }
     private func contextForOptions(_ node: DesignElement) -> [DesignContext] {
         // Expanded option data is attached to each primitive, keeping field binding separate from view construction.
