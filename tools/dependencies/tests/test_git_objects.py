@@ -11,6 +11,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import build
 import git_objects
+import git_transport
 
 
 class GitObjectReadTests(unittest.TestCase):
@@ -37,8 +38,8 @@ class GitObjectReadTests(unittest.TestCase):
 
             diagnostics = io.StringIO()
             archive = root / "source.tar"
-            with patch.object(git_objects.subprocess, "run", side_effect=transport), \
-                    patch.object(git_objects.time, "sleep") as delay, contextlib.redirect_stderr(diagnostics):
+            with patch.object(git_transport.subprocess, "run", side_effect=transport), \
+                    patch.object(git_transport.time, "sleep") as delay, contextlib.redirect_stderr(diagnostics):
                 build.export_original_blobs(root, archive, entries, revision)
             self.assertEqual(attempts[0], attempts[1])
             self.assertEqual(len(attempts), 2)
@@ -53,8 +54,8 @@ class GitObjectReadTests(unittest.TestCase):
         diagnostics = io.StringIO()
         failures = [subprocess.CompletedProcess(["git"], 128, b"partial", f"fatal: HTTP 503 attempt-{i}\n".encode())
                     for i in range(3)]
-        with patch.object(git_objects.subprocess, "run", side_effect=failures) as run, \
-                patch.object(git_objects.time, "sleep") as delay, contextlib.redirect_stderr(diagnostics):
+        with patch.object(git_transport.subprocess, "run", side_effect=failures) as run, \
+                patch.object(git_transport.time, "sleep") as delay, contextlib.redirect_stderr(diagnostics):
             with self.assertRaises(subprocess.CalledProcessError) as failed:
                 git_objects.read_blobs(Path("."), ["a" * 40])
         self.assertEqual(run.call_count, 3)
@@ -67,8 +68,8 @@ class GitObjectReadTests(unittest.TestCase):
         for message in (b"fatal: URL returned error: 401", b"fatal: URL returned error: 404",
                         b"fatal: permission denied", b"fatal: not our ref", b"fatal: object hash mismatch"):
             with self.subTest(message=message), contextlib.redirect_stderr(io.StringIO()), \
-                    patch.object(git_objects.subprocess, "run", return_value=subprocess.CompletedProcess(["git"], 128, b"", message)) as run, \
-                    patch.object(git_objects.time, "sleep") as delay:
+                    patch.object(git_transport.subprocess, "run", return_value=subprocess.CompletedProcess(["git"], 128, b"", message)) as run, \
+                    patch.object(git_transport.time, "sleep") as delay:
                 with self.assertRaises(subprocess.CalledProcessError):
                     git_objects.read_blobs(Path("."), ["a" * 40])
                 run.assert_called_once()
@@ -77,8 +78,8 @@ class GitObjectReadTests(unittest.TestCase):
     def test_success_is_returned_once_without_reinterpreting_blob_content(self):
         # An upstream source file may itself contain text mentioning HTTP errors.
         contents = b"original source containing HTTP 500\x00\xff"
-        with patch.object(git_objects.subprocess, "run", return_value=subprocess.CompletedProcess(["git"], 0, contents, b"")) as run, \
-                patch.object(git_objects.time, "sleep") as delay:
+        with patch.object(git_transport.subprocess, "run", return_value=subprocess.CompletedProcess(["git"], 0, contents, b"")) as run, \
+                patch.object(git_transport.time, "sleep") as delay:
             self.assertEqual(git_objects.read_blobs(Path("."), ["a" * 40]), contents)
             run.assert_called_once()
             delay.assert_not_called()
@@ -87,8 +88,8 @@ class GitObjectReadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as scratch:
             archive = Path(scratch) / "source.tar"
             response = subprocess.CompletedProcess(["git"], 0, b"wrong-object blob 1\nx\n", b"")
-            with patch.object(git_objects.subprocess, "run", return_value=response) as run, \
-                    patch.object(git_objects.time, "sleep") as delay:
+            with patch.object(git_transport.subprocess, "run", return_value=response) as run, \
+                    patch.object(git_transport.time, "sleep") as delay:
                 with self.assertRaisesRegex(ValueError, "unexpected type"):
                     build.export_original_blobs(Path(scratch), archive, {"LICENSE": ("100644", "a" * 40)}, "b" * 40)
                 self.assertFalse(archive.exists())
