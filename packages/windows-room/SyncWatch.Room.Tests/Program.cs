@@ -50,4 +50,5 @@ foreach (var entry in fixture.RootElement.GetProperty("admissions").EnumerateArr
         || admission.ToString().Contains(new string('A', 64), StringComparison.Ordinal) || admission.ToString().Contains(new string('B', 64), StringComparison.Ordinal))) throw new Exception("admission facts/redaction");
 }
 Console.WriteLine("SYNCWATCH_ROOM_PROTOCOL_OK");
+await CommandChecks.RunAsync(fixture.RootElement);
 await TransportChecks.RunAsync();

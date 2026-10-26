@@ -62,6 +62,10 @@ Descriptors follow the [shared media schema](../../contracts/v1/media-descriptor
 
 Command IDs increase per membership within the shared integer bound. Exact-byte retries of the last 128 commands return retained results. Changed content under the same ID conflicts; evicted older IDs are rejected. Replay retains at most 256 events and 1 MiB per room. Gaps or replay exceeding the stream queue require a snapshot. Slow consumers disconnect instead of losing ordered events silently.
 
+The native SDKs construct typed metadata commands from the admitted room, member, process run and epoch, then retain the encoded bytes. A retry uses the same command value. Responses must match its ID and contain bounded counters and a recognized rejection code. Mutable copies of an encoded body cannot change the retained command.
+
+The application owns the command counter for the membership, including across snapshots and event-stream reconnects. Retain an unresolved command until its outcome is known; a transport failure does not authorize reusing its ID for new content. An acknowledged rejection consumes the ID. Resolve stale generations from authoritative state before constructing a new command and publishing an application transition. Complete application command ownership and media admission remain integration gates on all three desktops.
+
 This API rejects play, pause, seek, speed, volume, camera, and arbitrary settings commands. Watch lifecycle events are bookkeeping and do not authorize remote player start, stop, or close. A Meet URL does not join a call or open audio.
 
 ## Resource bounds and storage

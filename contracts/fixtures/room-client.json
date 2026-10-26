@@ -575,5 +575,435 @@
       "cursor": "view-1:0",
       "valid": false
     }
-  ]
+  ],
+  "commands": {
+    "outgoing": [
+      {
+        "name": "publish hashed catalog",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "batch-a",
+          "offset": 0,
+          "items": [
+            {
+              "v": 1,
+              "mediaId": "movie-a",
+              "title": "Movie A",
+              "titleKey": "movie a",
+              "fileSizeBytes": 1024,
+              "durationMs": 60000,
+              "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "final": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "empty catalog clear",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "batch-a",
+          "offset": 0,
+          "items": [],
+          "final": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "stage unknown duration",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "batch-a",
+          "offset": 100,
+          "items": [
+            {
+              "v": 1,
+              "mediaId": "movie-a",
+              "title": "Movie A",
+              "titleKey": "movie a",
+              "fileSizeBytes": 1024,
+              "durationMs": null
+            }
+          ],
+          "final": false
+        },
+        "number": 2,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "selection.changed",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "watch.started",
+        "type": "watch.started",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "end user",
+        "type": "watch.ended",
+        "payload": {
+          "reason": "user"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "end finished",
+        "type": "watch.ended",
+        "payload": {
+          "reason": "finished"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "missing False",
+        "type": "media.missing",
+        "payload": {
+          "mediaId": "movie-a",
+          "missing": false
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "missing True",
+        "type": "media.missing",
+        "payload": {
+          "mediaId": "movie-a",
+          "missing": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "call None",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": null
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "call https://meet.google.com/abc-defg-hij",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": "https://meet.google.com/abc-defg-hij"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": true
+      },
+      {
+        "name": "invalid number 0",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 0,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "invalid number 9007199254740992",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 9007199254740992,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "safe counters",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 9007199254740991,
+        "generation": 9007199254740991,
+        "valid": true
+      },
+      {
+        "name": "invalid generation",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "movie-a"
+        },
+        "number": 1,
+        "generation": 9007199254740992,
+        "valid": false
+      },
+      {
+        "name": "bad ID selection.changed",
+        "type": "selection.changed",
+        "payload": {
+          "mediaId": "/private/movie"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "bad ID watch.started",
+        "type": "watch.started",
+        "payload": {
+          "mediaId": "/private/movie"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "bad ID media.missing",
+        "type": "media.missing",
+        "payload": {
+          "mediaId": "/private/movie",
+          "missing": false
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "bad catalog 0bad/batch",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "bad/batch",
+          "offset": 0,
+          "items": [],
+          "final": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "bad catalog 9007199254740992batch-a",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "batch-a",
+          "offset": 9007199254740992,
+          "items": [],
+          "final": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "duplicate catalog IDs",
+        "type": "catalog.updated",
+        "payload": {
+          "batchId": "batch-a",
+          "offset": 0,
+          "items": [
+            {
+              "v": 1,
+              "mediaId": "movie-a",
+              "title": "Movie A",
+              "titleKey": "movie a",
+              "fileSizeBytes": 1024,
+              "durationMs": 60000,
+              "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "v": 1,
+              "mediaId": "movie-a",
+              "title": "Movie A",
+              "titleKey": "movie a",
+              "fileSizeBytes": 1024,
+              "durationMs": 60000,
+              "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "final": true
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "unsafe call https://meet.google.com.evil/abc-defg-hij",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": "https://meet.google.com.evil/abc-defg-hij"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "unsafe call https://meet.google.com/abc-defg-hij?authuser=1",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": "https://meet.google.com/abc-defg-hij?authuser=1"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "unsafe call http://meet.google.com/abc-defg-hij",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": "http://meet.google.com/abc-defg-hij"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      },
+      {
+        "name": "unsafe call https://meet.google.com/ABC-defg-hij",
+        "type": "call.linkChanged",
+        "payload": {
+          "meetUri": "https://meet.google.com/ABC-defg-hij"
+        },
+        "number": 1,
+        "generation": 0,
+        "valid": false
+      }
+    ],
+    "results": [
+      {
+        "name": "accepted",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":null}",
+        "valid": true
+      },
+      {
+        "name": "rejected foreignRun",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"foreignRun\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected staleEpoch",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"staleEpoch\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected staleGeneration",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"staleGeneration\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected unavailable",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"unavailable\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected conflict",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"conflict\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected queueFull",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"queueFull\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected invalidState",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"invalidState\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected forbidden",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"forbidden\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected malformed",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"malformed\"}",
+        "valid": true
+      },
+      {
+        "name": "rejected frameTooLarge",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"frameTooLarge\"}",
+        "valid": true
+      },
+      {
+        "name": "invalid result v True",
+        "wire": "{\"v\":true,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result v 2",
+        "wire": "{\"v\":2,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result type room.event",
+        "wire": "{\"v\":1,\"type\":\"room.event\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result id cmd-2",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-2\",\"sequence\":7,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result sequence True",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":true,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result sequence -1",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":-1,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result sequence 1.5",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":1.5,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result sequence 9007199254740992",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":9007199254740992,\"error\":null}",
+        "valid": false
+      },
+      {
+        "name": "invalid result error echoed-private-server-input",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":\"echoed-private-server-input\"}",
+        "valid": false
+      },
+      {
+        "name": "invalid result error {}",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":{}}",
+        "valid": false
+      },
+      {
+        "name": "invalid result extra value",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"error\":null,\"extra\":\"value\"}",
+        "valid": false
+      },
+      {
+        "name": "duplicate result key",
+        "wire": "{\"v\":1,\"type\":\"command.result\",\"id\":\"cmd-1\",\"sequence\":7,\"seque\\u006ece\":7,\"error\":null}",
+        "valid": false
+      }
+    ]
+  }
 }

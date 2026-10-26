@@ -79,6 +79,10 @@ internal static class RoomWire
     {
         if (value.ValueKind != JsonValueKind.Object || !value.EnumerateObject().Select(p => p.Name).ToHashSet(StringComparer.Ordinal).SetEquals(names)) throw Bad();
     }
+    internal static void ValidateMeetUri(string? value)
+    {
+        if (value is not null && !Regex.IsMatch(value, "\\Ahttps://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}\\z", RegexOptions.CultureInvariant)) throw Bad();
+    }
     internal static string String(JsonElement value, string name) => value.GetProperty(name).ValueKind == JsonValueKind.String ? value.GetProperty(name).GetString()! : throw Bad();
     internal static string? OptionalString(JsonElement value) => value.ValueKind == JsonValueKind.Null ? null : value.ValueKind == JsonValueKind.String ? value.GetString()! : throw Bad();
     internal static long Integer(JsonElement value, string name, long maximum = MaximumCounter)
@@ -117,7 +121,7 @@ internal static class RoomWire
         if (status is not ("idle" or "selected" or "active" or "ended") || (media is null) != (status == "idle")) throw Bad();
         if (media is not null) Id(media);
         string? meet = OptionalString(value.GetProperty("meetUri"));
-        if (meet is not null && !Regex.IsMatch(meet, "\\Ahttps://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}\\z", RegexOptions.CultureInvariant)) throw Bad();
+        ValidateMeetUri(meet);
         return new(epoch, Integer(value, "sequence"), Integer(value, "watchGeneration"), status, media, Array.AsReadOnly(bindings), meet);
     }
     internal static byte[] Encode(object value)

@@ -66,6 +66,9 @@ internal object RoomWire {
         catch (_: Exception) { throw bad() }
     }
     fun string(value: Any?): String = value as? String ?: throw bad()
+    fun validateMeetUri(value: String?) {
+        if (value != null && !value.matches(Regex("https://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}"))) throw bad()
+    }
     fun optionalString(value: Any?): String? = if (value == null) null else string(value)
     fun obj(value: Any?): Map<String, Any?> {
         val map = value as? Map<*, *> ?: throw bad()
@@ -100,7 +103,7 @@ internal object RoomWire {
         if (status !in listOf("idle", "selected", "active", "ended") || (media == null) != (status == "idle")) throw bad()
         media?.let(::id)
         val meet = optionalString(value["meetUri"])
-        if (meet != null && !meet.matches(Regex("https://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}"))) throw bad()
+        validateMeetUri(meet)
         return RoomSnapshot(epoch, integer(value["sequence"]), integer(value["watchGeneration"]), status, media, bindings, meet)
     }
     fun encode(value: Map<String, Any?>): ByteArray = Json.write(value).toByteArray(StandardCharsets.UTF_8).also {

@@ -175,17 +175,20 @@ enum RoomWire {
         else { throw RoomProtocolFailure.malformed }
         if let media { try id(media) }
         let meet = try optionalString(value["meetUri"])
+        try validateMeetURI(meet)
+        return RoomSnapshot(
+            epoch: epoch, sequence: try integer(value["sequence"]),
+            watchGeneration: try integer(value["watchGeneration"]),
+            watchStatus: status, mediaID: media, members: bindings, meetURI: meet)
+    }
+    static func validateMeetURI(_ value: String?) throws {
         guard
-            meet.map({
+            value.map({
                 $0.range(
                     of: "\\Ahttps://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}\\z", options: .regularExpression)
                     != nil
             }) ?? true
         else { throw RoomProtocolFailure.malformed }
-        return RoomSnapshot(
-            epoch: epoch, sequence: try integer(value["sequence"]),
-            watchGeneration: try integer(value["watchGeneration"]),
-            watchStatus: status, mediaID: media, members: bindings, meetURI: meet)
     }
     static func encode(_ value: [String: Any]) throws -> Data {
         let bytes = try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys])

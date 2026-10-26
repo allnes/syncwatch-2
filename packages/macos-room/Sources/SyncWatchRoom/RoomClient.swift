@@ -96,6 +96,14 @@ public actor RoomClient {
             throw RoomProtocolFailure.malformed
         }
     }
+    public func execute(_ admission: RoomAdmission, command: RoomCommand) async throws -> RoomCommandResult {
+        try command.verify(admission)
+        return try RoomCommandResult.decode(
+            await request(
+                "POST", "v1/rooms/\(admission.roomID)/commands", credential: admission.token, body: command.encodedBytes
+            ),
+            command: command)
+    }
     /// Attach immediately after admission, before hashing media or performing other long work.
     public func openEvents(_ admission: RoomAdmission) async throws -> RoomEventStream {
         try Task.checkCancellation()
@@ -174,7 +182,7 @@ public actor RoomClient {
             let code = try RoomWire.string(error["code"])
             let allowed = [
                 "unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed",
-                "frameTooLarge", "internal", "snapshotRequired",
+                "frameTooLarge", "internal", "snapshotRequired", "duplicate",
             ]
             throw RoomProtocolFailure.rejected(allowed.contains(code) ? code : "transport")
         }

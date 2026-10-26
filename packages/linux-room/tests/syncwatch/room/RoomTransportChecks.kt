@@ -31,6 +31,7 @@ suspend fun transportChecks() {
         }
         println("SYNCWATCH_ROOM_TRANSPORT_OK")
         seededCatalog(address)
+        commandTransportChecks(address, key)
     } finally { guest.close(); owner.close() }
 }
 
