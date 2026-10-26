@@ -107,6 +107,22 @@ public final class NativePlayback {
         if (!scope.clientRunId().equals(owner.clientRunId())) throw new IllegalArgumentException("foreign-run");
         if (scope.generation() != owner.generation()) throw new IllegalArgumentException("stale");
     }
+    public CompletableFuture<long[]> contentVersion(Scope owner) {
+        return submit(() -> {
+            check(owner); long[] value = contentVersion(player, owner.generation());
+            if (value.length != 8 || value[3] < 0) throw new IllegalStateException("native-identity");
+            return value;
+        });
+    }
+    public CompletableFuture<byte[]> readContent(long offset, int capacity, Scope owner) {
+        return submit(() -> {
+            check(owner);
+            if (offset < 0 || capacity < 1 || capacity > 262144) throw new IllegalArgumentException("invalid");
+            byte[] value = readContent(player, owner.generation(), offset, capacity);
+            if (value.length > capacity) throw new IllegalStateException("native-content");
+            return value;
+        });
+    }
     public CompletableFuture<Observation> observe(Scope owner) {
         return submit(() -> {
             check(owner); long[] v = observe(player, owner.generation());
@@ -162,6 +178,8 @@ public final class NativePlayback {
     private static native long openX11(byte[] library, byte[] revision, long drawable);
     private static native int load(long player, long generation, byte[] file);
     private static native long[] observe(long player, long generation);
+    private static native long[] contentVersion(long player, long generation);
+    private static native byte[] readContent(long player, long generation, long offset, int capacity);
     private static native void pause(long player, long generation, boolean paused);
     private static native void seek(long player, long generation, long position);
     private static native void rate(long player, long generation, double rate);

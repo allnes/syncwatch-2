@@ -16,6 +16,7 @@ import syncwatch.library.FileContentHasher
 internal class SharedMediaPreparation(private val work: CoroutineScope) {
     private var pending: Deferred<MediaDescriptor>? = null
     private var closed = false
+    private var prepared: LoadedMediaVersion? = null
     suspend fun prepare(selection: LibraryMediaSelection, player: PlaybackPort, scope: PlaybackScope): MediaDescriptor {
         check(!closed)
         currentCoroutineContext().ensureActive()
@@ -24,10 +25,17 @@ internal class SharedMediaPreparation(private val work: CoroutineScope) {
             try {
                 val before = player.observe(scope)
                 check(before.status == PlaybackStatus.ready && before.seekable && (before.durationMs ?: 0) > 0)
-                val digest = FileContentHasher().sha256(selection.media)
+                val content = player as? LoadedMediaContentPort ?: error("media-unavailable")
+                val version = content.contentVersion(scope)
+                check(version.sizeBytes == selection.media.sizeBytes) { "media-changed" }
+                val digest = FileContentHasher().sha256(version.sizeBytes) { offset, capacity ->
+                    content.readContent(offset, capacity, scope)
+                }
                 currentCoroutineContext().ensureActive()
                 val after = player.observe(scope)
-                check(after.status == PlaybackStatus.ready && after.seekable && after.durationMs == before.durationMs)
+                check(after.status == PlaybackStatus.ready && after.seekable && after.durationMs == before.durationMs
+                    && content.contentVersion(scope) == version) { "media-changed" }
+                currentCoroutineContext().ensureActive(); prepared = version
                 val title = MediaDescriptor.logicalTitle(selection.media.title)
                 MediaDescriptor(selection.media.id, title, MediaDescriptor.normalizedTitleKey(title),
                     selection.media.sizeBytes, before.durationMs, digest)
@@ -44,5 +52,9 @@ internal class SharedMediaPreparation(private val work: CoroutineScope) {
             throw cancelled
         }
     }
-    suspend fun close() { closed = true; pending?.cancelAndJoin() }
+    suspend fun validate(content: LoadedMediaContentPort, scope: PlaybackScope) {
+        val version = prepared
+        check(!closed && version != null && version.scope == scope && content.contentVersion(scope) == version) { "media-changed" }
+    }
+    suspend fun close() { closed = true; pending?.cancelAndJoin(); prepared = null }
 }

@@ -31,6 +31,17 @@ internal static class Native
         public int Status, Paused, Seekable, Buffering, Ended, VideoOutputs, Width, Height, Volume, Muted;
     }
     private const string Module = "syncwatch_playback";
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct InputVersion
+    {
+        public ulong Word0, Word1, Word2, SizeBytes, Word4, Word5, Word6, Word7;
+        internal readonly string Stamp => string.Concat(new[] { Word0, Word1, Word2, SizeBytes, Word4, Word5, Word6, Word7 }
+            .Select(word => word.ToString("x16", System.Globalization.CultureInfo.InvariantCulture)));
+    }
+    [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_input_version")]
+    internal static extern int ContentVersion(nint player, ulong generation, out InputVersion version);
+    [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_read_at")]
+    internal static extern int ReadContent(nint player, ulong generation, ulong offset, [Out] byte[] buffer, nuint capacity, out nuint count);
     [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_open")]
     internal static extern int Open([MarshalAs(UnmanagedType.LPUTF8Str)] string library, [MarshalAs(UnmanagedType.LPUTF8Str)] string revision, int output, nint surface, out nint player);
     [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_load")]

@@ -35,6 +35,27 @@ public actor FileContentHasher {
     }
     public init() {}
 
+    /// The caller owns and validates the source version; no path is reopened here.
+    public func sha256(
+        sizeBytes: Int64, readChunk: @Sendable (Int64, Int) async throws -> Data
+    ) async throws -> String {
+        guard sizeBytes >= 0 else { throw CocoaError(.fileReadUnknown) }
+        var hash = SHA256()
+        var offset: Int64 = 0
+        while offset < sizeBytes {
+            try Task.checkCancellation()
+            let capacity = Int(min(262_144, sizeBytes - offset))
+            let chunk = try await readChunk(offset, capacity)
+            guard !chunk.isEmpty, chunk.count <= capacity else { throw CocoaError(.fileReadUnknown) }
+            hash.update(data: chunk)
+            offset += Int64(chunk.count)
+        }
+        try Task.checkCancellation()
+        guard try await readChunk(sizeBytes, 1).isEmpty else { throw CocoaError(.fileReadUnknown) }
+        try Task.checkCancellation()
+        return hash.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
     public func sha256(_ media: LocalMediaFile) async throws -> String {
         try Task.checkCancellation()
         let fd = Darwin.open(media.file.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)

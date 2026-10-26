@@ -53,7 +53,7 @@ public actor VLCPlaybackRuntime {
     }
 }
 
-public actor VLCPlayback: PlaybackPort {
+public actor VLCPlayback: PlaybackPort, LoadedMediaContentPort {
     private var owner = NativeOwner()
     private var scope: PlaybackScope?
     private var closed = false
@@ -96,6 +96,23 @@ public actor VLCPlayback: PlaybackPort {
         try check(result)
     }
 
+    public func contentVersion(_ scope: PlaybackScope) throws -> LoadedMediaVersion {
+        var value = sw_input_version()
+        try check(sw_playback_input_version(native(scope), scope.mediaGeneration, &value))
+        let words = withUnsafeBytes(of: value.words) { Array($0.bindMemory(to: UInt64.self)) }
+        guard words.count == 8, words[3] <= UInt64(Int64.max) else { throw PlaybackFailure.engine }
+        let stamp = words.map { String(format: "%016llx", $0) }.joined()
+        return try LoadedMediaVersion(scope: scope, sizeBytes: Int64(words[3]), stamp: stamp)
+    }
+    public func readContent(at offset: Int64, capacity: Int, scope: PlaybackScope) throws -> Data {
+        guard offset >= 0, (1...262_144).contains(capacity) else { throw PlaybackFailure.invalid }
+        var buffer = [UInt8](repeating: 0, count: capacity)
+        var count = 0
+        try check(sw_playback_read_at(native(scope), scope.mediaGeneration, UInt64(offset), &buffer, capacity, &count))
+        try Task.checkCancellation()
+        guard (0...capacity).contains(count) else { throw PlaybackFailure.engine }
+        return Data(buffer.prefix(count))
+    }
     public func observe(_ scope: PlaybackScope) throws -> PlaybackObservation {
         let pointer = try native(scope)
         var value = sw_observation()

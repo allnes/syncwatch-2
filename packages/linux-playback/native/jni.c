@@ -38,6 +38,34 @@ JNIEXPORT jlongArray JNICALL JNI_METHOD(observe)(JNIEnv *env, jclass type, jlong
     if (result) (*env)->SetLongArrayRegion(env, result, 0, 15, values);
     return result;
 }
+JNIEXPORT jlongArray JNICALL JNI_METHOD(contentVersion)(JNIEnv *env, jclass type, jlong player, jlong generation) {
+    (void)type; sw_input_version version;
+    if (!checked(env, sw_playback_input_version((sw_playback *)(intptr_t)player, (uint64_t)generation, &version))) return NULL;
+    jlong values[8];
+    _Static_assert(sizeof(values) == sizeof(version), "Local version JNI layout");
+    memcpy(values, version.words, sizeof(values));
+    jlongArray result = (*env)->NewLongArray(env, 8);
+    if (result) (*env)->SetLongArrayRegion(env, result, 0, 8, values);
+    return result;
+}
+JNIEXPORT jbyteArray JNICALL JNI_METHOD(readContent)(JNIEnv *env, jclass type, jlong player, jlong generation,
+    jlong offset, jint capacity) {
+    (void)type;
+    if (offset < 0 || capacity < 1 || capacity > 262144) { checked(env, SW_INVALID); return NULL; }
+    unsigned char *buffer = malloc((size_t)capacity);
+    if (!buffer) { checked(env, SW_ENGINE); return NULL; }
+    size_t count = 0;
+    int code = sw_playback_read_at((sw_playback *)(intptr_t)player, (uint64_t)generation, (uint64_t)offset,
+        buffer, (size_t)capacity, &count);
+    jbyteArray result = NULL;
+    if (checked(env, code) && count <= (size_t)capacity) {
+        result = (*env)->NewByteArray(env, (jsize)count);
+        if (result) (*env)->SetByteArrayRegion(env, result, 0, (jsize)count, (const jbyte *)buffer);
+    }
+    if (count > (size_t)capacity) checked(env, SW_ENGINE);
+    free(buffer);
+    return result;
+}
 JNIEXPORT void JNICALL JNI_METHOD(pause)(JNIEnv *env, jclass type, jlong p, jlong g, jboolean v) {
     (void)type; checked(env, sw_playback_pause((sw_playback *)(intptr_t)p, (uint64_t)g, v == JNI_TRUE));
 }

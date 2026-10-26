@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using SyncWatch.Domain;
 using SyncWatch.Playback;
@@ -25,6 +26,7 @@ static async Task<PlaybackObservation> Wait(VLCPlayback player, PlaybackScope sc
 }
 
 PlaybackScope scope = new("dotnet-owned-run", 1);
+byte[] expectedHash = SHA256.HashData(File.ReadAllBytes(args[2]));
 for (int iteration = 0; iteration < 3; iteration++)
 {
     VLCPlayback player = new();
@@ -35,6 +37,22 @@ for (int iteration = 0; iteration < 3; iteration++)
         await player.LoadAsync(args[2], scope);
         PlaybackObservation initial = await Wait(player, scope, v => v.Status == PlaybackStatus.Ready && v.Paused && v.Seekable);
         Require(initial.DurationMs == 4000 && initial.PositionMs < 300);
+        ILoadedMediaContentPort content = player;
+        var version = await content.ContentVersionAsync(scope);
+        Require(version.SizeBytes == new FileInfo(args[2]).Length && version.ToString() == "LoadedMediaVersion(redacted)");
+        using (var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256))
+        {
+            long offset = 0;
+            while (offset < version.SizeBytes)
+            {
+                byte[] chunk = await content.ReadContentAsync(offset, 262_144, scope);
+                Require(chunk.Length > 0); hash.AppendData(chunk); offset += chunk.Length;
+            }
+            Require(hash.GetHashAndReset().SequenceEqual(expectedHash));
+            Require((await content.ReadContentAsync(offset, 8, scope)).Length == 0);
+        }
+        Require(version.Equals(await content.ContentVersionAsync(scope)));
+        await Rejected(content.ReadContentAsync(0, 262_145, scope));
         await player.SetPausedAsync(false, scope);
         PlaybackObservation playing = await Wait(player, scope, v => !v.Paused && v.PositionMs >= 450);
         Require(playing.Sequence > initial.Sequence);
@@ -57,16 +75,21 @@ for (int iteration = 0; iteration < 3; iteration++)
         await Rejected(player.SetPausedAsync(false, new("foreign", 1)));
         using CancellationTokenSource cancelled = new();
         cancelled.Cancel();
+        await Rejected(content.ReadContentAsync(0, 8, scope, cancelled.Token));
         await Rejected(player.StopAsync(scope, cancelled.Token));
         Require((await player.ObserveAsync(scope)).Status == PlaybackStatus.Ready);
         await player.StopAsync(scope);
         await player.StopAsync(scope);
         Require((await player.ObserveAsync(scope)).Status == PlaybackStatus.Unloaded);
         await Rejected(player.SetPausedAsync(false, scope));
+        await Rejected(content.ReadContentAsync(0, 8, scope));
         PlaybackScope next = scope.ReplacingMedia();
         await player.LoadAsync(args[2], next);
         await Wait(player, next, v => v.Status == PlaybackStatus.Ready && v.Paused);
         await Rejected(player.ObserveAsync(scope));
+        await Rejected(content.ContentVersionAsync(scope));
+        await Rejected(content.ReadContentAsync(0, 8, scope));
+        Require(!version.Equals(await content.ContentVersionAsync(next)));
         await Rejected(player.LoadAsync(args[2], scope));
     }
     finally { await player.DisposeAsync(); await player.DisposeAsync(); }
@@ -80,6 +103,7 @@ Console.WriteLine(JsonSerializer.Serialize(new
     generationTransaction = true,
     cancellation = true,
     tracks = true,
+    loadedContent = true,
     repeatedClose = true,
     guiAccepted = false,
     physicalOutputAccepted = false,
