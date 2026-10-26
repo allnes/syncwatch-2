@@ -1,8 +1,10 @@
 # Loaded media identity
 
-Status: implementation proposal; normal shared playback admission remains disabled.
+Status: native input primitives implemented; VLC/client integration proposed. Normal shared playback admission remains disabled.
 
 The native player currently opens a local path, while descriptor preparation opens that path again to compute its hash. Matching duration, size and modification time does not establish that these operations read the same file version. A replacement or an in-place write can invalidate an otherwise matching descriptor.
+
+`packages/playback-native/src/media_input.c` supplies the first stage: regular-file ownership, bounded positional reads and local version validation. POSIX detects handle/path replacement and change metadata even when size and modification time are restored; invalidation latches. Windows holds read-only handles that exclude writers and replacement, including a separate read position for hashing. Both paths release their handles explicitly. These primitives do not yet change VLC loading or descriptor preparation.
 
 ## Ownership boundary
 
