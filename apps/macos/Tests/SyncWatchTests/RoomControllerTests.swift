@@ -125,7 +125,9 @@ func roomControllerPublishesOnlyCompleteCatalogs() async throws {
         let events = try await peer.openEvents(joined)
         _ = try RoomBootstrap.initialEvent(await events.receive(), admission: joined)
         let joinedDeadline = ContinuousClock.now + .seconds(10)
-        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) != true && ContinuousClock.now < joinedDeadline {
+        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) != true
+            && ContinuousClock.now < joinedDeadline
+        {
             #expect(controller.catalogView?.items.count == 250)
             try await Task.sleep(for: .milliseconds(10))
         }
@@ -135,7 +137,9 @@ func roomControllerPublishesOnlyCompleteCatalogs() async throws {
         try await peer.leave(joined)
         await peer.close()
         let leftDeadline = ContinuousClock.now + .seconds(10)
-        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) == true && ContinuousClock.now < leftDeadline {
+        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) == true
+            && ContinuousClock.now < leftDeadline
+        {
             #expect(controller.catalogView?.items.count == 250)
             try await Task.sleep(for: .milliseconds(10))
         }
@@ -144,5 +148,9 @@ func roomControllerPublishesOnlyCompleteCatalogs() async throws {
         #expect(controller.catalogView == nil && controller.bootstrap == nil)
         #expect(view.items.count == 250)
         await controller.close()
-    } catch { await peer.close(); await controller.close(); throw error }
+    } catch {
+        await peer.close()
+        await controller.close()
+        throw error
+    }
 }

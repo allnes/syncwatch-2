@@ -10,8 +10,9 @@ private actor CatalogResponses {
     func fetch(_ cursor: String) throws -> Data {
         guard index < pages.count else { throw RoomProtocolFailure.transport }
         let expected: String
-        if index == 0 { expected = "view-1:0" }
-        else {
+        if index == 0 {
+            expected = "view-1:0"
+        } else {
             let previous = try RoomWire.object(pages[index - 1])
             expected = try RoomWire.string(previous["nextCursor"])
         }
@@ -47,10 +48,13 @@ final class RoomCatalogViewTests: XCTestCase {
                 return try RoomWire.encode([
                     "v": 1, "roomEpoch": "epoch-room", "sequence": 7,
                     "items": (start..<end).map { index in
-                        ["memberId": "member-owner", "media": [
-                            "v": 1, "mediaId": "movie-\(index)", "title": "Movie", "titleKey": "movie",
-                            "fileSizeBytes": 1024, "durationMs": NSNull(),
-                        ]] as [String: Any]
+                        [
+                            "memberId": "member-owner",
+                            "media": [
+                                "v": 1, "mediaId": "movie-\(index)", "title": "Movie", "titleKey": "movie",
+                                "fileSizeBytes": 1024, "durationMs": NSNull(),
+                            ],
+                        ] as [String: Any]
                     },
                     "nextCursor": end < count ? "view-1:\(end)" as Any : NSNull(),
                 ])
@@ -71,8 +75,10 @@ final class RoomCatalogViewTests: XCTestCase {
                 return terminal
             }
         }
-        do { _ = try await cancelled.value; XCTFail("Cancelled final page escaped") }
-        catch is CancellationError {}
+        do {
+            _ = try await cancelled.value
+            XCTFail("Cancelled final page escaped")
+        } catch is CancellationError {}
         do {
             _ = try await RoomCatalogView.read(bootstrap: bootstrap) { _ in
                 throw RoomProtocolFailure.rejected("snapshotRequired")

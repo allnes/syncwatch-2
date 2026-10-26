@@ -84,7 +84,9 @@ import SyncWatchRoom
         editor.owner = false
         editor.clearSecrets()
     }
-    private func loadCatalog(_ client: RoomClient, admission: RoomAdmission, bootstrap: RoomBootstrap) async throws -> RoomCatalogView {
+    private func loadCatalog(_ client: RoomClient, admission: RoomAdmission, bootstrap: RoomBootstrap) async throws
+        -> RoomCatalogView
+    {
         // This single membership loop owns snapshots and page walks; events cannot rotate a cursor mid-walk.
         try await withThrowingTaskGroup(of: RoomCatalogView.self) { group in
             group.addTask { try await client.catalogView(admission, bootstrap: bootstrap) }
