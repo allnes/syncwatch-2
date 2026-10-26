@@ -22,6 +22,7 @@ fun main(arguments: Array<String>) = runBlocking {
     val store = FileLibraryAccessStore(scratch.resolve("state/library-access.json"))
     val owner = CoroutineScope(MainUIDispatcher + SupervisorJob())
     try {
+        helperRuntimeChecks()
         withContext(MainUIDispatcher) {
             watchPersistenceChecks(scratch)
             roomPlaybackGateChecks(owner)

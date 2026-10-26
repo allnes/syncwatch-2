@@ -411,6 +411,7 @@ def check_repository(root: Path) -> None:
     check_design(root)
     subprocess.run([sys.executable, "tools/design/check_isolation.py"], cwd=root, check=True)
     check_submodules(root)
+    subprocess.run([sys.executable, "tools/runtime-policy/generate.py", "--check"], cwd=root, check=True)
     check_workflows(root)
     from check_platform_parity import check as check_platform_parity
     check_platform_parity(root)

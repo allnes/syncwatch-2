@@ -3,6 +3,7 @@ using SyncWatch;
 using SyncWatch.Domain;
 using SyncWatch.Library;
 
+HelperRuntimeChecks.Run();
 await RoomDispatcherChecks.RunAsync(async () =>
 {
     await RoomPlaybackGateChecks.RunAsync();

@@ -16,7 +16,7 @@ internal data class MediaConfiguration(val packageDirectory: Path, val bridge: P
         catch (_: LinkageError) { null }
 
     companion object {
-        private fun applicationDirectory(): Path {
+        internal fun applicationDirectory(): Path {
             val location = Path.of(MediaConfiguration::class.java.protectionDomain.codeSource.location.toURI())
             return if (Files.isDirectory(location)) location else location.parent
         }
