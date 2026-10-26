@@ -5,7 +5,7 @@ import Testing
 
 @testable import SyncWatch
 
-private actor WaitingMediaPlayer: PlaybackPort {
+private actor WaitingMediaPlayer: PlaybackPort, LoadedMediaContentPort {
     var entered = false
     var stopped = false
     func observe(_ scope: PlaybackScope) async throws -> PlaybackObservation {
@@ -15,6 +15,12 @@ private actor WaitingMediaPlayer: PlaybackPort {
         throw ContractRejection.malformed
     }
     func load(_ localFile: URL, scope: PlaybackScope) async throws { throw ContractRejection.malformed }
+    func contentVersion(_ scope: PlaybackScope) async throws -> LoadedMediaVersion {
+        throw ContractRejection.malformed
+    }
+    func readContent(at offset: Int64, capacity: Int, scope: PlaybackScope) async throws -> Data {
+        throw ContractRejection.malformed
+    }
     func setPaused(_ paused: Bool, scope: PlaybackScope) async throws { throw ContractRejection.malformed }
     func seek(to positionMs: Int64, scope: PlaybackScope) async throws { throw ContractRejection.malformed }
     func setRate(_ rate: Double, scope: PlaybackScope) async throws { throw ContractRejection.malformed }

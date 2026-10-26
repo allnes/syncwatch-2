@@ -20,6 +20,24 @@ import kotlinx.coroutines.withContext
 class FileContentHasher {
     private data class Snapshot(val key: Any?, val size: Long, val modified: FileTime, val created: FileTime)
     private val pending = Mutex()
+    /** The caller owns and validates the source version; no path is reopened. */
+    suspend fun sha256(sizeBytes: Long, readChunk: suspend (Long, Int) -> ByteArray): String =
+        withContext(Dispatchers.IO) { pending.withLock {
+            require(sizeBytes >= 0)
+            val hash = MessageDigest.getInstance("SHA-256")
+            var offset = 0L
+            while (offset < sizeBytes) {
+                currentCoroutineContext().ensureActive()
+                val capacity = minOf(262144L, sizeBytes - offset).toInt()
+                val chunk = readChunk(offset, capacity)
+                check(chunk.isNotEmpty() && chunk.size <= capacity) { "media-changed" }
+                hash.update(chunk); offset += chunk.size
+            }
+            currentCoroutineContext().ensureActive()
+            check(readChunk(sizeBytes, 1).isEmpty()) { "media-changed" }
+            currentCoroutineContext().ensureActive()
+            hash.digest().joinToString("") { "%02x".format(it.toInt() and 255) }
+        } }
     private fun snapshot(path: Path): Snapshot {
         val facts = Files.readAttributes(path, BasicFileAttributes::class.java, NOFOLLOW_LINKS)
         check(facts.isRegularFile && !facts.isSymbolicLink) { "media-changed" }

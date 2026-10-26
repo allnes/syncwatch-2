@@ -21,8 +21,17 @@ internal suspend fun fileContentHasherChecks(fixture: Path) {
             Files.setLastModifiedTime(file, FileTime.fromMillis(1_600_000_000_000))
             val media = scanner.scan(root, rootId, false).single()
             check(hasher.sha256(media) == p["sha256"]) { p["name"].toString() }; last = media
+            val bytes = (p["content"] as String).repeat(Math.toIntExact(p["repeat"] as Long)).toByteArray(Charsets.UTF_8)
+            check(hasher.sha256(bytes.size.toLong()) { offset, capacity ->
+                val start = offset.toInt()
+                bytes.copyOfRange(start, minOf(bytes.size, start + capacity))
+            } == p["sha256"]) { "Scoped content digest" }
         }
         val selected = checkNotNull(last)
+        for ((size, response) in listOf(1L to byteArrayOf(), 0L to byteArrayOf(1), 1L to byteArrayOf(1, 2))) {
+            try { hasher.sha256(size) { _, _ -> response }; error("Incomplete, oversized or trailing content accepted") }
+            catch (failure: IllegalStateException) { check(failure.message == "media-changed") }
+        }
         Files.writeString(file, "longer")
         try { hasher.sha256(selected); error("Stale catalog accepted") } catch (failure: IllegalStateException) { check(failure.message == "media-changed") }
         Files.delete(file)

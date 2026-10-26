@@ -5,7 +5,7 @@ using SyncWatch.Domain;
 namespace SyncWatch.Playback;
 
 /// <summary>One bounded worker owns all native calls. No native callback enters managed code.</summary>
-public sealed class VLCPlayback : IPlaybackPort
+public sealed class VLCPlayback : IPlaybackPort, ILoadedMediaContentPort
 {
     private sealed record Work(Action Run, Action Reject);
     private readonly Channel<Work> commands = Channel.CreateBounded<Work>(new BoundedChannelOptions(64)
@@ -41,6 +41,21 @@ public sealed class VLCPlayback : IPlaybackPort
         if (result is 0 or 4) scope = incoming;
         Native.Check(result);
         return true;
+    }, cancellation);
+    public Task<LoadedMediaVersion> ContentVersionAsync(PlaybackScope owner, CancellationToken cancellation = default) => Submit(() =>
+    {
+        Check(owner); Native.Check(Native.ContentVersion(player, owner.MediaGeneration, out var value));
+        return new LoadedMediaVersion(owner, checked((long)value.SizeBytes), value.Stamp);
+    }, cancellation);
+    public Task<byte[]> ReadContentAsync(long offset, int capacity, PlaybackScope owner, CancellationToken cancellation = default) => Submit(() =>
+    {
+        Check(owner);
+        if (offset < 0 || capacity is < 1 or > 262_144) throw new PlaybackException("invalid");
+        byte[] buffer = new byte[capacity];
+        Native.Check(Native.ReadContent(player, owner.MediaGeneration, (ulong)offset, buffer, (nuint)capacity, out nuint count));
+        cancellation.ThrowIfCancellationRequested();
+        if (count > (nuint)capacity) throw new PlaybackException("engine");
+        return buffer.AsSpan(0, (int)count).ToArray();
     }, cancellation);
     public Task<PlaybackObservation> ObserveAsync(PlaybackScope owner, CancellationToken cancellation = default) => Submit(() =>
     {

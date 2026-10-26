@@ -66,6 +66,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         try
         {
             if (closing || !attached || sharedSession is not null) throw new InvalidOperationException("Shared playback unavailable");
+            await sharedMediaPreparation.ValidateAsync(player, scope);
+            if (closing || !attached || sharedSession is not null) throw new InvalidOperationException("Shared playback unavailable");
             var session = new HelperSession(transport, player, scope, endpoint, media, revision, state =>
             { SharedState = state; GateSharedActions(); chrome.Render(presentation, language); });
             sharedSession = session; SharedState = session.State; GateSharedActions(); chrome.Render(presentation, language);
