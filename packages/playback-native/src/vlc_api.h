@@ -17,7 +17,7 @@
  X(const char *, libvlc_get_changeset, (void)) \
  X(libvlc_instance_t *, libvlc_new, (int, const char *const *)) \
  X(void, libvlc_release, (libvlc_instance_t *)) \
- X(libvlc_media_t *, libvlc_media_new_path, (libvlc_instance_t *, const char *)) \
+ X(libvlc_media_t *, libvlc_media_new_fd, (libvlc_instance_t *, int)) \
  X(void, libvlc_media_add_option, (libvlc_media_t *, const char *)) \
  X(void, libvlc_media_add_option_flag, (libvlc_media_t *, const char *, unsigned)) \
  X(void, libvlc_media_release, (libvlc_media_t *)) \

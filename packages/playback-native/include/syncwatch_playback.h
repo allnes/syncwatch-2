@@ -3,6 +3,7 @@
 #define SYNCWATCH_PLAYBACK_H
 #include <stdint.h>
 #include <stddef.h>
+#include "syncwatch_media_input.h"
 #ifdef _WIN32
 #define SW_PLAYBACK_API __declspec(dllexport)
 #else
@@ -57,6 +58,12 @@ SW_PLAYBACK_API int sw_playback_open_x11(const char *library, const char *revisi
     uint32_t drawable, sw_playback **result);
 /* Loading starts paused. A request is never reported as an observation. */
 SW_PLAYBACK_API int sw_playback_load(sw_playback *, uint64_t generation, const char *local_path);
+/* Local content readers share the loaded file object. These serialized calls
+ * never expose a path/descriptor or alter VLC's stream position. Version facts
+ * stay local; a changed input becomes failed and cannot be resumed. */
+SW_PLAYBACK_API int sw_playback_input_version(sw_playback *, uint64_t generation, sw_input_version *);
+SW_PLAYBACK_API int sw_playback_read_at(sw_playback *, uint64_t generation, uint64_t offset,
+    unsigned char *buffer, size_t capacity, size_t *count);
 SW_PLAYBACK_API int sw_playback_observe(sw_playback *, uint64_t generation, sw_observation *);
 SW_PLAYBACK_API int sw_playback_pause(sw_playback *, uint64_t generation, int paused);
 SW_PLAYBACK_API int sw_playback_seek(sw_playback *, uint64_t generation, int64_t position_ms);

@@ -76,6 +76,11 @@ def check(package, output):
                        stdin=subprocess.DEVNULL, stdout=log, stderr=errors, env=env, timeout=180, check=True)
     proof = json.loads((output / "native-proof.json").read_bytes())
     assert proof["abiBytes"] == 80 and proof["repeatedRelease"] and proof["failedMedia"] and proof["physicalOutputAccepted"] is False
+    with (output / "player-input-check.log").open("wb") as log:
+        subprocess.run([sys.executable, str(ROOT / "tools/playback/player_input_checks.py"),
+                        str(library), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"],
+                        str(media), str(output)], stdout=log, stderr=subprocess.STDOUT,
+                       stdin=subprocess.DEVNULL, check=True, env=env, timeout=90)
     print(json.dumps(proof, sort_keys=True))
     return library
 
