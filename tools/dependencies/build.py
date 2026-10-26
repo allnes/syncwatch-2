@@ -229,7 +229,8 @@ def registry(root):
         if component.get("status") == "unavailable":
             require(set(component) == {"status", "reason", "plannedIn"} and bool(component["reason"]), "Unavailable component needs its reason and delivery")
             continue
-        require(set(component) == {"status", "always", "roots", "sources", "inputs", "watch", "targets"} and component["status"] == "ready", "Ready component must declare its complete build inputs")
+        required = {"status", "always", "roots", "sources", "inputs", "watch", "targets"}
+        require(set(component) in (required, required | {"verificationInputs"}) and component["status"] == "ready", "Ready component must declare its complete build inputs")
         require(type(component["always"]) is bool, "Invalid baseline selection")
         sources = component["sources"]
         require(isinstance(sources, dict) and sources, "Ready component requires pinned sources")
@@ -264,14 +265,20 @@ def registry(root):
                 reached.add(path)
                 pending.extend(sources[path]["requires"])
         require(reached == set(sources), "Source graph contains unreachable entries")
-        for field in ("inputs", "watch"):
+        for field in ("inputs", "watch", *(["verificationInputs"] if "verificationInputs" in component else [])):
             require(isinstance(component[field], list) and component[field], "Build inputs and watched paths must be explicit")
             for path in component[field]:
                 inside(root, path)
+        for path in component.get("verificationInputs", []):
+            require(not any(path == prefix or path.startswith(prefix + "/") or prefix.startswith(path + "/")
+                            for prefix in (*FRAMEWORK_INPUTS, *component["inputs"])),
+                    "Build and verification inputs must not overlap")
         require(component["targets"] and set(component["targets"]).issubset(PLATFORMS), "Unsupported dependency target")
         for target in component["targets"].values():
             require(set(target) in ({"toolchains", "environment", "flags", "command", "timeoutSeconds"},
                                    {"toolchains", "environment", "flags", "command", "timeoutSeconds", "verifyCommand"}), "Invalid build target")
+            require(not component.get("verificationInputs") or "verifyCommand" in target,
+                    "Verification inputs require a fresh verifier on every target")
             require(isinstance(target["flags"], dict) and isinstance(target["environment"], dict), "Build flags and environment must be explicit")
             require(all(re.fullmatch(r"[A-Z][A-Z0-9_]*", key) and isinstance(value, str) for key, value in target["environment"].items()), "Invalid build environment")
             require(not (set(target["environment"]) & (set(OFFLINE) | {"PATH", "HOME", "PYTHONPATH"})), "Build environment cannot override toolchain or offline controls")
@@ -299,7 +306,7 @@ def selected(components, changes, cold=False):
         if component["status"] == "unavailable":
             unavailable[name] = component["reason"]
             continue
-        watched = [*component["watch"], *component["inputs"], *component["sources"]]
+        watched = [*component["watch"], *component["inputs"], *component.get("verificationInputs", []), *component["sources"]]
         affected = infrastructure or cold or component["always"] or any(
             path == prefix or path.startswith(prefix + "/") for path in (changes or []) for prefix in watched
         )
@@ -308,10 +315,19 @@ def selected(components, changes, cold=False):
     return {"include": builds}, unavailable
 
 
-def input_files(root, component):
+def input_files(root, component, *, verification=False):
+    prefixes = component.get("verificationInputs", []) if verification else (*FRAMEWORK_INPUTS, *component["inputs"])
+    if not prefixes:
+        return {}
     entries = index(root)
+    if verification:
+        # Local checks may include new application sources before they are staged.
+        for name in git(root, "ls-files", "--others", "--exclude-standard", "-z").decode().split("\0"):
+            if name and any(name == prefix or name.startswith(prefix + "/") for prefix in prefixes):
+                path = inside(root, name)
+                entries[name] = ("100755" if os.access(path, os.X_OK) else "100644", "")
     result = {}
-    for prefix in (*FRAMEWORK_INPUTS, *component["inputs"]):
+    for prefix in prefixes:
         matched = [name for name, (mode, _) in entries.items() if mode != "160000" and (name == prefix or name.startswith(prefix + "/"))]
         require(matched, f"Build input has no tracked files: {prefix}")
         for name in matched:
@@ -465,7 +481,8 @@ def prepare(root, name, target):
     if os.environ.get("GITHUB_EVENT_NAME") in {"pull_request", "merge_group"}:
         scope = "untrusted-" + os.environ["GITHUB_RUN_ID"]
     cache = generated_path(root, f".local/dependency-cache/{scope}/{key}.zip")
-    request = {"key": key, "inputs": inputs, "archive": str(directory / "artifact.zip"), "cacheFile": str(cache)}
+    request = {"key": key, "inputs": inputs, "archive": str(directory / "artifact.zip"), "cacheFile": str(cache),
+               "verificationInputs": input_files(root, component, verification=True)}
     (directory / "request.json").write_text(json.dumps(request, indent=2) + "\n", encoding="utf-8")
     return request
 
@@ -501,7 +518,7 @@ def unpack(archive, destination, expected):
     return manifest
 
 
-def pack(directory, manifest):
+def payload_inventory(directory):
     payload = directory / "payload"
     require(not payload.is_symlink(), "Build payload must not be a symbolic link")
     files = {}
@@ -515,6 +532,11 @@ def pack(directory, manifest):
             require(len(files) < 100000 and total <= 1024**3, "Built payload exceeds its bound")
             files[name] = {"sha256": digest(path), "mode": 0o755 if path.stat().st_mode & 0o111 else 0o644}
     require(len(files) == len({name.casefold() for name in files}), "Build output has case-colliding paths")
+    return files
+
+
+def pack(directory, manifest):
+    files = payload_inventory(directory)
     manifest["files"] = files
     output = directory / "artifact.zip"
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -545,6 +567,7 @@ def build(root, name, target, cold=False):
         "verifiedSourceTree": tree, "buildSourceTree": tree,
         "verifiedLocalChanges": dirty, "buildLocalChanges": dirty,
         "runId": os.environ.get("GITHUB_RUN_ID"), "runAttempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+        "verificationInputs": request["verificationInputs"],
     }
     cache = Path(request["cacheFile"])
     specification = request["inputs"]["specification"]
@@ -577,11 +600,16 @@ def build(root, name, target, cold=False):
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(inside(sources / path, notice), destination)
         target_specification = specification["targets"][target]
+        original_payload = payload_inventory(directory) if request["verificationInputs"] else None
         if "verifyCommand" in target_specification:
             subprocess.run(command(target_specification["verifyCommand"]), cwd=root,
                            env=build_environment(target_specification), check=True,
                            timeout=target_specification["timeoutSeconds"])
+        if original_payload is not None:
+            require(payload_inventory(directory) == original_payload, "Verification changed the SDK payload")
         require(input_files(root, specification) == request["inputs"]["files"], "Build changed its declared first-party inputs")
+        require(input_files(root, specification, verification=True) == request["verificationInputs"],
+                "Verification changed its declared application inputs")
         for path, source in specification["sources"].items():
             require(git(root / path, "rev-parse", "HEAD").decode().strip() == source["revision"] and not git(root / path, "status", "--porcelain", "--untracked-files=normal").strip(), "Build changed its source checkout")
         if os.environ.get("GITHUB_ACTIONS") == "true":
@@ -589,7 +617,10 @@ def build(root, name, target, cold=False):
         manifest["result"] = "success"
     finally:
         if manifest["result"] != "success":
-            shutil.rmtree(payload)
+            if payload.is_symlink() or (payload.exists() and not payload.is_dir()):
+                payload.unlink()
+            elif payload.exists():
+                shutil.rmtree(payload)
             payload.mkdir()
         output = pack(directory, manifest)
     if not manifest["cacheHit"]:

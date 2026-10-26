@@ -82,8 +82,13 @@ def main():
                         "bison", "flex", "gperf", "pkgconf", "ninja", "cmake"],
                        env=dict(os.environ, HOMEBREW_NO_AUTO_UPDATE="1"), check=True)
     elif system == "Linux":
-        subprocess.run(["sudo", "-n", "apt-get", "update", "-o", "Acquire::Retries=3"], check=True)
-        subprocess.run(["sudo", "-n", "apt-get", "install", "--yes", "m4", "autoconf", "automake",
+        network = ["-o", "Acquire::Retries=2", "-o", "Acquire::http::Timeout=30",
+                   "-o", "Acquire::https::Timeout=30", "-o", "DPkg::Lock::Timeout=60"]
+        # The privileged timeout owns apt's process group, including download workers.
+        # Bound metadata refresh without interrupting package installation/configuration.
+        subprocess.run(["sudo", "-n", "timeout", "--verbose", "--signal=TERM", "--kill-after=10s", "300s",
+                        "apt-get", *network, "update"], check=True, timeout=330)
+        subprocess.run(["sudo", "-n", "apt-get", *network, "install", "--yes", "m4", "autoconf", "automake",
                         "autotools-dev", "libtool", "libtool-bin", "gettext", "autopoint", "bison", "flex",
                         "gperf", "pkgconf", "ninja-build", "cmake", "nasm", "patchelf"], check=True)
     elif system == "Windows":

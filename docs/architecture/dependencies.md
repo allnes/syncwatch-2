@@ -6,6 +6,14 @@ All external library sources are pinned Git submodules under `3rdparty/`. `.gitm
 
 Partial Git clones can fetch promised objects during sparse checkout, detached checkout or original blob export. Clone, fetch, checkout and object reads share one retry policy for HTTP 500, 502, 503 and 504: at most three executions of the identical operation, with one and two second backoff. Arguments, URLs, immutable revisions and UTF8 sparse patterns remain unchanged. Blob reads discard partial output and every attempt retains its original diagnostic. Permission errors, missing revisions, corrupt objects, cancellation and validation failures are not retried; a permanent error also stops a mixed-error operation. Successful transport still passes the existing exact Git-blob, inventory, license and revision checks; no alternate source or archive fallback is used.
 
+## Artifact identity and current consumers
+
+Component `inputs` bind the SDK's build and correspondence code to its artifact key, together with source pins, compiler/toolchain facts, flags and environment. Optional `verificationInputs` declare separate first-party consumer sources and fixtures. These paths still select the component for validation, but changing their contents does not rebuild an unchanged vendor SDK. The two roles cannot overlap, and every target with verification inputs must declare a verifier that runs on both cold builds and restored payloads.
+
+The request and final build manifest record current consumer file digests and modes separately from the artifact key, including new unignored local sources. Verification must leave those inputs and the SDK payload unchanged. A consumer cannot write new SDK files or replace SDK bytes under an existing artifact key. A cache hit retains the original SDK build provenance and records the current verification commit and inputs; it cannot restore an earlier application's test result as fresh evidence. Failed verification fails the build and clears its success payload. Archive integrity, complete notices, exact source/compiler correspondence and trusted-main cache restrictions remain unchanged.
+
+The Kotlin stdlib's Linux domain checks and the Compose SDK's Linux application/Design checks use this separation. Desktop consumer orchestration lives in `tools/consumers/linux_application.py`; the SDK verifier invokes it against the validated payload on Linux only. Swift and C# client checks remain on macOS and Windows respectively. Existing components without verification inputs retain their build behavior. Introducing the new input metadata changes framework identity once, so existing artifacts can require a first cold build before later consumer-only changes reuse them.
+
 ## Pinned source modules
 
 | Submodule | Version / commit | Responsibility | Source license |
