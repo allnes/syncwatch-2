@@ -9721,11 +9721,7 @@
       },
       "inputs": [
         "tools/jvm",
-        "LICENSE",
-        "tools/native/check_kotlin_domain.py",
-        "packages/linux-domain",
-        "packages/ipc/jvm",
-        "contracts/fixtures/local-domain.json"
+        "LICENSE"
       ],
       "watch": [
         "3rdparty/kotlin-stdlib",
@@ -9778,7 +9774,13 @@
           ],
           "timeoutSeconds": 1200
         }
-      }
+      },
+      "verificationInputs": [
+        "tools/native/check_kotlin_domain.py",
+        "packages/linux-domain",
+        "packages/ipc/jvm",
+        "contracts/fixtures/local-domain.json"
+      ]
     },
     "kotlinx-concurrency": {
       "status": "ready",
@@ -15194,20 +15196,7 @@
         }
       },
       "inputs": [
-        "tools/jvm",
-        "apps/linux",
-        "packages/linux-domain",
-        "packages/linux-state",
-        "packages/linux-bridge",
-        "packages/linux-playback",
-        "packages/ipc/jvm",
-        "packages/design/linux",
-        "packages/design/generated/linux",
-        "packages/design/tests/linux",
-        "packages/design/tests/fixtures",
-        "packages/linux-library",
-        "packages/linux-room",
-        "contracts/fixtures/room-client.json"
+        "tools/jvm"
       ],
       "watch": [
         "tools/jvm",
@@ -15266,7 +15255,23 @@
           ],
           "timeoutSeconds": 5400
         }
-      }
+      },
+      "verificationInputs": [
+        "apps/linux",
+        "packages/linux-domain",
+        "packages/linux-state",
+        "packages/linux-bridge",
+        "packages/linux-playback",
+        "packages/ipc/jvm",
+        "packages/design/linux",
+        "packages/design/generated/linux",
+        "packages/design/tests/linux",
+        "packages/design/tests/fixtures",
+        "packages/linux-library",
+        "packages/linux-room",
+        "contracts/fixtures/room-client.json",
+        "tools/consumers/linux_application.py"
+      ]
     },
     "skiko-native-objects": {
       "status": "ready",

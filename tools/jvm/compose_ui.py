@@ -188,62 +188,13 @@ def verify(payload, files, profile, notices):
 def probe(payload, profile, home, compiler):
     if sys.platform != "linux":
         raise SystemExit("Linux application/design consumer requires Linux")
-    classpath = paths(payload.resolve(), profile)
-    with tempfile.TemporaryDirectory(prefix="compose-ui-consumer-") as temporary:
-        work = Path(temporary).resolve() / "Кино 映画"
-        work.mkdir()
-        classes = work / "classes"
-        classes.mkdir()
-        manifest = json.loads((ROOT / "apps/linux/application.json").read_text())
-        sources = sorted(path for source in manifest["sources"] for path in (ROOT / source).rglob("*")
-                         if path.suffix in {".java", ".kt"})
-        sources += sorted((ROOT / "packages/design/tests/linux").glob("*.kt"))
-        sources += sorted((ROOT / "packages/linux-playback/tests").rglob("*.kt"))
-        sources += sorted((ROOT / "packages/linux-library/tests").rglob("*.kt"))
-        sources += sorted((ROOT / "apps/linux/tests").rglob("*.kt"))
-        sources += sorted((ROOT / "packages/linux-room/tests").rglob("*.kt"))
-        sources.append(ROOT / "tools/jvm/tests/DisplayRefreshChecks.kt")
-        stdlib.javac(["--release", "21", "-g:none", "-proc:none", "-encoding", "UTF-8", "-cp",
-                      os.pathsep.join(map(str, classpath)), "-d", str(classes),
-                      *[str(path) for path in sources if path.suffix == ".java"]], work, home)
-        kotlin.compile(["-jvm-target", "21", "-Werror", "-classpath", os.pathsep.join(map(str, [classes, *classpath])),
-                        "-d", str(classes), *[str(path) for path in sources if path.suffix == ".kt"]],
-                       work, home, compiler, plugins=("compose",))
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.design.tests.PresentationChecksKt", str(ROOT / "packages/design/tests/fixtures")], work, home)
-        if "SYNCWATCH_DESIGN_PRESENTATIONS_OK" not in output:
-            raise ValueError("Desktop UI first-party application/design consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.tests.DisplayRefreshChecksKt"], work, home)
-        if "SYNCWATCH_DISPLAY_REFRESH_OK" not in output:
-            raise ValueError("Display refresh fallback/frame scheduling consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.bridge.PlayerCorrectionChecksKt", str(ROOT / "contracts/fixtures/helper-player.json")], work, home)
-        if "SYNCWATCH_HELPER_PLAYER_OK" not in output:
-            raise ValueError("Helper/player wire boundary consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.playback.KotlinPortChecksKt"], work, home)
-        if "SYNCWATCH_KOTLIN_PLAYBACK_OK" not in output:
-            raise ValueError("Kotlin playback value/cancellation consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.library.LibraryChecksKt", str(ROOT / "contracts/fixtures/library-catalog.json")], work, home)
-        if "SYNCWATCH_LIBRARY_OK" not in output:
-            raise ValueError("Local filesystem library consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.ApplicationLibraryChecksKt", str(ROOT)], work, home)
-        if "SYNCWATCH_APPLICATION_LIBRARY_OK" not in output:
-            raise ValueError("Application library ownership/cancellation consumer failed")
-        print(output.strip())
-        output = kotlin.java(["-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.room.RoomProtocolChecksKt", str(ROOT / "contracts/fixtures/room-client.json")], work, home)
-        if "SYNCWATCH_ROOM_PROTOCOL_OK" not in output:
-            raise ValueError("Room admission protocol consumer failed")
-        print(output.strip())
+    # Application changes are verified freshly without changing the vendor artifact identity.
+    import importlib.util
+    source = ROOT / "tools/consumers/linux_application.py"
+    specification = importlib.util.spec_from_file_location("syncwatch_linux_application", source)
+    consumer = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(consumer)
+    consumer.check(ROOT, paths(payload.resolve(), profile), home, compiler)
 
 
 def main():

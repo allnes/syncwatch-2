@@ -178,6 +178,90 @@ class DependencyBuildTests(unittest.TestCase):
         self.assertTrue(self.run_build()["cacheHit"])
         self.assertEqual((self.root / "artifacts/verifications").read_text(), "2")
 
+    def separate_consumer(self):
+        self.add_verifier()
+        directory = self.root / "consumer"
+        directory.mkdir()
+        verifier = directory / "check.py"
+        (self.root / "verify.py").rename(verifier)
+        self.component["inputs"].remove("verify.py")
+        self.component["verificationInputs"] = ["consumer"]
+        self.component["targets"][TARGET]["verifyCommand"] = ["{python}", "consumer/check.py"]
+        self.write_manifest()
+        self.commit(self.root)
+        return verifier
+
+    def test_consumer_changes_reuse_sdk_but_run_fresh_checks_with_current_provenance(self):
+        verifier = self.separate_consumer()
+        first = self.run_build()
+        verifier.write_text(verifier.read_text() + "\n# New application revision\n", newline="\n")
+        self.commit(self.root)
+        second = self.run_build()
+        self.assertTrue(second["cacheHit"])
+        self.assertEqual(first["key"], second["key"])
+        self.assertEqual(first["files"], second["files"])
+        self.assertNotEqual(first["verificationInputs"], second["verificationInputs"])
+        self.assertEqual(second["buildSourceCommit"], first["buildSourceCommit"])
+        self.assertNotEqual(second["verifiedSourceCommit"], second["buildSourceCommit"])
+        self.assertEqual((self.root / "artifacts/counter").read_text(), "1")
+        self.assertEqual((self.root / "artifacts/verifications").read_text(), "2")
+
+        # New local application sources are recorded even before staging them.
+        (self.root / "consumer/new.py").write_text("# New source\n", newline="\n")
+        third = self.run_build()
+        self.assertTrue(third["cacheHit"])
+        self.assertEqual(third["key"], first["key"])
+        self.assertIn("consumer/new.py", third["verificationInputs"])
+        self.assertTrue(third["verifiedLocalChanges"])
+
+        verifier.write_text(verifier.read_text() + "\nraise SystemExit(7)\n", newline="\n")
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.run_build()
+        with zipfile.ZipFile(self.root / f"artifacts/dependencies/example/{TARGET}/artifact.zip") as archive:
+            failure = json.loads(archive.read("build-manifest.json"))
+            self.assertEqual(failure["result"], "failure")
+            self.assertTrue(failure["cacheHit"])
+            self.assertNotEqual(failure["verificationInputs"], third["verificationInputs"])
+            self.assertEqual(archive.namelist(), ["build-manifest.json"])
+        self.assertEqual((self.root / "artifacts/counter").read_text(), "1")
+
+        # A failed consumer neither succeeds from cache nor destroys the verified SDK cache.
+        verifier.write_text(verifier.read_text().replace("raise SystemExit(7)", "# Corrected consumer"), newline="\n")
+        self.assertTrue(self.run_build()["cacheHit"])
+        self.recipe.write_text(self.recipe.read_text() + "\n# Changed build recipe\n", newline="\n")
+        rebuilt = self.run_build()
+        self.assertFalse(rebuilt["cacheHit"])
+        self.assertNotEqual(rebuilt["key"], first["key"])
+        self.assertEqual((self.root / "artifacts/counter").read_text(), "2")
+
+    def test_verifier_cannot_change_the_inputs_it_claims_to_have_checked(self):
+        verifier = self.separate_consumer()
+        verifier.write_text(verifier.read_text() + "\nsource=Path(__file__)\nsource.write_text(source.read_text()+'\\n# mutation\\n')\n", newline="\n")
+        with self.assertRaisesRegex(ValueError, "Verification changed"):
+            self.run_build()
+        self.assertEqual(list((self.root / f"artifacts/dependencies/example/{TARGET}/payload").iterdir()), [])
+
+    def test_consumer_input_contract_requires_separate_paths_and_fresh_verification(self):
+        original = copy.deepcopy(self.component)
+        for field, value, message in [
+            ("verificationInputs", ["recipe.py"], "must not overlap"),
+            ("verificationInputs", ["consumer"], "fresh verifier"),
+            ("verificationInputs", [], "must be explicit"),
+            ("verificationInputs", ["../foreign"], "Unsafe"),
+        ]:
+            with self.subTest(value=value):
+                self.manifest["components"]["example"] = copy.deepcopy(original)
+                self.manifest["components"]["example"][field] = value
+                self.write_manifest()
+                with self.assertRaisesRegex(ValueError, message):
+                    build.registry(self.root)
+
+    def test_consumer_changes_select_the_component_without_polluting_sdk_identity(self):
+        self.separate_consumer()
+        self.component["always"] = False
+        matrix, _ = build.selected({"example": self.component}, ["consumer/check.py"])
+        self.assertEqual(matrix["include"], [{"component": "example", "platform": TARGET, "cold": False}])
+
     def test_rewritten_cache_manifest_cannot_hide_missing_license_from_verifier(self):
         self.add_verifier();self.run_build(cold=True);request = self.prepare()
         with zipfile.ZipFile(request["cacheFile"]) as archive:members = {n: archive.read(n) for n in archive.namelist()}
