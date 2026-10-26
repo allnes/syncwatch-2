@@ -1,9 +1,13 @@
 using System.Windows.Threading;
 using SyncWatch.Design;
+using SyncWatch.Domain;
 using SyncWatch.Library;
 using SyncWatch.Room;
 
 namespace SyncWatch;
+
+internal sealed record RoomWatchMembership(RoomMembershipSession Owner, string MemberId, RoomIdentity Identity, string Epoch);
+internal sealed record RoomPreparedPublication(Guid Lease, MediaDescriptor Media);
 
 /// <summary>The workspace owns membership independently of the visible dialog.</summary>
 internal sealed class RoomController
@@ -12,6 +16,7 @@ internal sealed class RoomController
     public RoomEditor Editor { get; } = new();
     public RoomCatalogView? CatalogView { get; private set; }
     public RoomBootstrap? Bootstrap => CatalogView?.Bootstrap;
+    internal RoomBootstrap? WatchBootstrap { get; private set; }
     public bool Connected => Editor.Connected && Bootstrap is not null;
     public event Action? Changed;
     private RoomAdmission? admission;
@@ -22,6 +27,8 @@ internal sealed class RoomController
     private Guid? localRevision, acknowledgedRevision;
     private IReadOnlyList<LocalMediaFile> localFiles = [];
     private Task? publisher;
+    private (Guid Lease, MediaDescriptor Media)? prepared;
+    private RoomPreparedPublication? acknowledgedPrepared;
     private bool stopping;
     private Task? closing;
     public void Connect()
@@ -32,12 +39,12 @@ internal sealed class RoomController
         Editor.State = "connecting"; Editor.Status = "";
         stop = new(); work = RunAsync(values, owner, stop.Token); Changed?.Invoke();
     }
-    public LibraryPresentation LibraryPresentation(LibraryPresentation source)
+    public LibraryPresentation LibraryPresentation(LibraryPresentation source, bool sharedStartAvailable = false)
     {
         dispatcher.VerifyAccess();
         var enabled = new HashSet<string>(source.EnabledActions); if (!stopping) enabled.Add("openRoom");
         // Membership alone cannot authorize an unsynchronized local Start in a room.
-        if (Editor.State != "disconnected") enabled.Remove("startWatching");
+        if (Editor.State != "disconnected" && !(Connected && sharedStartAvailable)) enabled.Remove("startWatching");
         return source with { EnabledActions = enabled, RoomStatus = Connected ? (Editor.Status is "roomCatalogPublishing" or "roomCatalogPublishFailed" ? Editor.Status : "roomMetadataConnected") : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
     }
     public void PasteInvitation(string text)
@@ -78,6 +85,60 @@ internal sealed class RoomController
         if (localRevision == revision) return;
         localRevision = revision; localFiles = files().ToArray(); StartPublisher();
     }
+    internal bool IsCurrent(RoomWatchMembership membership)
+    {
+        dispatcher.VerifyAccess();
+        return !stopping && Connected && ReferenceEquals(session, membership.Owner) && admission?.MemberId == membership.MemberId
+            && admission?.Bootstrap.Snapshot.Epoch == membership.Epoch;
+    }
+    internal async Task<(RoomWatchMembership Membership, RoomWatchContext Context)> BeginWatchAsync(CancellationToken cancellation = default)
+    {
+        dispatcher.VerifyAccess();
+        if (session is null || admission is null) throw new RoomProtocolException("closed");
+        var member = admission.Bootstrap.Snapshot.Members.Single(p => p.MemberId == admission.MemberId);
+        var membership = new RoomWatchMembership(session, admission.MemberId, member.Identity, admission.Bootstrap.Snapshot.Epoch);
+        return (membership, await WatchContextAsync(membership, cancellation));
+    }
+    internal async Task<RoomWatchContext> WatchContextAsync(RoomWatchMembership membership, CancellationToken cancellation = default)
+    {
+        if (!IsCurrent(membership)) throw new RoomProtocolException("closed");
+        var value = await membership.Owner.WatchContextAsync(cancellation);
+        cancellation.ThrowIfCancellationRequested();
+        if (!IsCurrent(membership)) throw new RoomProtocolException("closed");
+        RecordWatch(value.Bootstrap);
+        return value;
+    }
+    internal async Task<RoomWatchContext> PerformWatchAsync(RoomCommandAction action, RoomWatchMembership membership, RoomWatchContext expected, CancellationToken cancellation = default)
+    {
+        if (!IsCurrent(membership)) throw new RoomProtocolException("closed");
+        var value = await membership.Owner.PerformAsync(action, expected, cancellation);
+        cancellation.ThrowIfCancellationRequested();
+        if (!IsCurrent(membership)) throw new RoomProtocolException("closed");
+        RecordWatch(value.Bootstrap);
+        return value;
+    }
+    internal async Task<RoomPreparedPublication> PublishPreparedAsync(MediaDescriptor media, RoomWatchMembership membership, CancellationToken cancellation = default)
+    {
+        if (!IsCurrent(membership) || media.FullHashSha256 is null || media.DurationMs is not > 0) throw new RoomProtocolException("malformed");
+        Guid lease = Guid.NewGuid(); prepared = (lease, media); localRevision = Guid.NewGuid(); StartPublisher();
+        try
+        {
+            while (true)
+            {
+                cancellation.ThrowIfCancellationRequested();
+                if (!IsCurrent(membership) || prepared?.Lease != lease) throw new RoomProtocolException("closed");
+                if (acknowledgedPrepared is { } accepted && accepted.Lease == lease) return accepted;
+                if (publisher is null) throw new RoomProtocolException("unavailable");
+                await publisher.WaitAsync(cancellation);
+            }
+        }
+        catch { ClearPrepared(lease, membership); throw; }
+    }
+    internal void ClearPrepared(Guid lease, RoomWatchMembership membership)
+    {
+        if (!IsCurrent(membership) || prepared?.Lease != lease) return;
+        prepared = null; localRevision = Guid.NewGuid(); StartPublisher();
+    }
     private void StartPublisher()
     {
         if (stopping || !Connected || publisher is not null || session is null || localRevision is null || localRevision == acknowledgedRevision || stop is null) return;
@@ -92,10 +153,12 @@ internal sealed class RoomController
             {
                 try
                 {
-                    var publication = catalogMap.Prepare(localFiles); Editor.Status = "roomCatalogPublishing"; Changed?.Invoke();
+                    var loaded = prepared;
+                    var publication = catalogMap.Prepare(localFiles, loaded?.Media); Editor.Status = "roomCatalogPublishing"; Changed?.Invoke();
                     var view = await owner.PublishAsync(publication.Items, cancellation);
                     cancellation.ThrowIfCancellationRequested(); if (stopping || !ReferenceEquals(session, owner)) return;
                     catalogMap.Acknowledge(publication); acknowledgedRevision = revision; Accept(view);
+                    acknowledgedPrepared = loaded is { } entry ? new(entry.Lease, publication.Items.Single(p => p.MediaId == publication.LocalIds[entry.Media.MediaId])) : null;
                     if (Editor.Status is "roomCatalogPublishing" or "roomCatalogPublishFailed") Editor.Status = "";
                     Changed?.Invoke();
                 }
@@ -111,8 +174,13 @@ internal sealed class RoomController
     }
     private void Accept(RoomCatalogView view)
     {
+        RecordWatch(view.Bootstrap);
         if (view.Bootstrap.Snapshot.Sequence < (Bootstrap?.Snapshot.Sequence ?? 0)) return;
         CatalogView = view; Editor.MemberCount = view.Bootstrap.Snapshot.Members.Count;
+    }
+    private void RecordWatch(RoomBootstrap bootstrap)
+    {
+        if (bootstrap.Snapshot.Sequence >= (WatchBootstrap?.Snapshot.Sequence ?? 0)) WatchBootstrap = bootstrap;
     }
     private async Task RunAsync(IReadOnlyDictionary<string, string> values, bool owner, CancellationToken cancellation)
     {
@@ -129,7 +197,8 @@ internal sealed class RoomController
             var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(initialTimeout.Token), admitted);
             var ownerSession = new RoomMembershipSession(current, admitted, identity);
             var firstView = await ownerSession.RefreshAsync(initial, cancellation: cancellation);
-            cancellation.ThrowIfCancellationRequested(); session = ownerSession; catalogMap = new(); acknowledgedRevision = null; CatalogView = firstView;
+            cancellation.ThrowIfCancellationRequested(); session = ownerSession; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; CatalogView = firstView;
+            WatchBootstrap = firstView.Bootstrap;
             Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke(); StartPublisher();
             while (!cancellation.IsCancellationRequested)
             {
@@ -144,7 +213,8 @@ internal sealed class RoomController
         finally
         {
             if (publisher is not null) await publisher;
-            publisher = null; session = null; acknowledgedRevision = null; catalogMap = new();
+            publisher = null; session = null; acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; catalogMap = new();
+            WatchBootstrap = null;
             if (current is not null)
             {
                 if (admitted is not null)

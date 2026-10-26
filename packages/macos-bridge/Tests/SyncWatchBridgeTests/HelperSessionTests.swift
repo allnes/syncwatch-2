@@ -224,6 +224,7 @@ private actor SessionPlayer: PlaybackPort {
     await session.close()
     #expect(!session.state.ready)
     #expect(session.state.acceptedUsername == nil)
+    #expect(session.state.identityRejected)
     #expect(try await peer.userCount() == 0)
     #expect(await player.paused)
     #expect(await player.closes == 0)

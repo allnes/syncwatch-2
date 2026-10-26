@@ -1,12 +1,14 @@
 package syncwatch
 
 import java.util.UUID
+import kotlinx.coroutines.*
 import syncwatch.domain.MediaDescriptor
 import syncwatch.room.*
 
 internal suspend fun roomWatchContextChecks() {
     val address = System.getenv("SYNCWATCH_ROOM_SERVICE") ?: return
     val key = System.getenv("SYNCWATCH_ROOM_CREATION_KEY") ?: return
+    preparedPublication(address, key)
     val client = RoomClient(RoomAddress(address)); val peer = RoomClient(RoomAddress(address))
     try {
         val identity = RoomIdentity("run-" + UUID.randomUUID(), "Linux watch")
@@ -29,8 +31,43 @@ internal suspend fun roomWatchContextChecks() {
         check((runCatching { owner.perform(RoomCommandAction.Start("movie-a"), selected) }.exceptionOrNull() as? RoomProtocolException)?.code == "staleGeneration")
         val active = owner.perform(RoomCommandAction.Start("movie-a"), owner.watchContext())
         check(active.bootstrap.snapshot.watchStatus == "active" && active.definition.selection?.memberId == joined.memberId)
+        val renamed = MediaDescriptor("private-local-id", "Renamed", "renamed", 1000, 60000, "a".repeat(64))
+        RoomWatchCoordinator.requireMatch(renamed, active)
+        check(runCatching { RoomWatchCoordinator.requireMatch(renamed, selected) }.isFailure)
+        check(runCatching { RoomWatchCoordinator.requireSameGeneration(selected, active) }.isFailure)
+        for (changed in listOf(
+            MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, "b".repeat(64)),
+            MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60001, "a".repeat(64)),
+            MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, null))) {
+            check(runCatching { RoomWatchCoordinator.requireMatch(changed, active) }.isFailure)
+        }
         owner.perform(RoomCommandAction.End(RoomWatchEndReason.user), active)
         peer.leave(joined); client.leave(admission)
         println("SYNCWATCH_ROOM_WATCH_CONTEXT_OK")
     } finally { peer.close(); client.close() }
+}
+
+private suspend fun preparedPublication(address: String, key: String) = coroutineScope {
+    val controller = RoomController(this)
+    for ((field, value) in mapOf("serviceAddress" to address, "username" to "Linux prepared publisher", "creationKey" to key,
+        "syncplayHost" to "syncplay.example.com", "roomName" to "Prepared publication lifecycle")) controller.editor = controller.editor.edit(field, value)
+    try {
+        controller.connect()
+        withTimeout(20000) { while (!controller.connected) { check(controller.editor.state != "failed"); delay(20) } }
+        val (ticket, _) = controller.beginWatch()
+        val media = MediaDescriptor("private-loaded-file", "Loaded", "loaded", 1000, 60000, "a".repeat(64))
+        val first = controller.publishPrepared(media, ticket)
+        check(first.media.mediaId != media.mediaId && first.media.fullHashSha256 == media.fullHashSha256)
+        val second = controller.publishPrepared(media, ticket)
+        check(second.media == first.media && second.lease != first.lease)
+        controller.clearPrepared(first.lease, ticket)
+        check(controller.catalogView?.items?.any { it.media == second.media } == true)
+        controller.clearPrepared(second.lease, ticket)
+        withTimeout(20000) { while (controller.catalogView?.items?.isEmpty() != true) delay(20) }
+        controller.close()
+        check(!controller.isCurrent(ticket) && controller.watchBootstrap == null)
+        check(runCatching { controller.publishPrepared(media, ticket) }.isFailure)
+        controller.close()
+        println("SYNCWATCH_PREPARED_PUBLICATION_OK opaque strong ACK/new lease/stale cleanup/leave/repeated close")
+    } finally { controller.close() }
 }

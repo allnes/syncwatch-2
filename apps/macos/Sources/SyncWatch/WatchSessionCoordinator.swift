@@ -11,6 +11,7 @@ import SyncWatchPlayback
     @Published private(set) var runtimeAvailable = false
     @Published private(set) var phase: WatchPhase
     @Published var errorKey: String?
+    var onEndWatching: (@MainActor () -> Void)?
     private var session: WatchSession
     private let preferences: AppearancePreferences
     private let media: MediaConfiguration
@@ -161,7 +162,11 @@ import SyncWatchPlayback
                 onLoaded: { [weak self] in self?.loaded($0) },
                 onObservation: { [weak self] in self?.observed($0) },
                 onNavigation: { [weak self] action in
-                    if action == "showLibrary" { self?.showLibrary() } else if action == "endWatching" { self?.end() }
+                    if action == "showLibrary" {
+                        self?.showLibrary()
+                    } else if action == "endWatching" {
+                        if let handler = self?.onEndWatching { handler() } else { self?.end() }
+                    }
                 },
                 onFailure: { [weak self] in self?.failed(request.scope) })
         }

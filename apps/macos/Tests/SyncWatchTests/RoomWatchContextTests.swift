@@ -6,6 +6,52 @@ import Testing
 @testable import SyncWatch
 
 @MainActor @Test(.enabled(if: ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"] != nil))
+func preparedPublicationCannotEscapeItsMembership() async throws {
+    let environment = ProcessInfo.processInfo.environment
+    let controller = RoomController()
+    for (field, value) in [
+        "serviceAddress": try #require(environment["SYNCWATCH_ROOM_SERVICE"]), "username": "macOS prepared publisher",
+        "creationKey": try #require(environment["SYNCWATCH_ROOM_CREATION_KEY"]),
+        "syncplayHost": "syncplay.example.com", "roomName": "Prepared publication lifecycle",
+    ] { controller.editor.edit(field, value: value) }
+    func wait(_ condition: () -> Bool) async throws {
+        let deadline = ContinuousClock.now + .seconds(20)
+        while !condition() {
+            guard controller.editor.state != "failed", ContinuousClock.now < deadline else {
+                throw RoomProtocolFailure.transport
+            }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+    }
+    do {
+        controller.connect()
+        try await wait { controller.connected }
+        let intent = try await controller.beginWatch()
+        let media = try MediaDescriptor(
+            mediaID: "private-loaded-file", title: "Loaded", titleKey: "loaded",
+            fileSizeBytes: 1000, durationMs: 60000, fullHashSha256: String(repeating: "a", count: 64))
+        let first = try await controller.publishPrepared(media, membership: intent.membership)
+        #expect(first.media.mediaID != media.mediaID && first.media.fullHashSha256 == media.fullHashSha256)
+        let second = try await controller.publishPrepared(media, membership: intent.membership)
+        #expect(second.media == first.media && second.lease != first.lease)
+        controller.clearPrepared(first.lease, membership: intent.membership)
+        #expect(controller.catalogView?.items.contains { $0.media == second.media } == true)
+        controller.clearPrepared(second.lease, membership: intent.membership)
+        try await wait { controller.catalogView?.items.isEmpty == true }
+        await controller.close()
+        #expect(!controller.isCurrent(intent.membership) && controller.watchBootstrap == nil)
+        do {
+            _ = try await controller.publishPrepared(media, membership: intent.membership)
+            Issue.record("Stale membership published")
+        } catch RoomProtocolFailure.malformed {}
+        await controller.close()
+    } catch {
+        await controller.close()
+        throw error
+    }
+}
+
+@MainActor @Test(.enabled(if: ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"] != nil))
 func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
     let environment = ProcessInfo.processInfo.environment
     let address = try RoomAddress(#require(environment["SYNCWATCH_ROOM_SERVICE"]))
@@ -46,6 +92,24 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
         let active = try await owner.perform(.start(mediaID: "movie-a"), expected: current)
         #expect(active.bootstrap.snapshot.watchStatus == "active")
         #expect(active.definition.selection?.memberID == joined.memberID)
+        let renamed = try MediaDescriptor(
+            mediaID: "private-local-id", title: "Renamed", titleKey: "renamed",
+            fileSizeBytes: 1000, durationMs: 60000, fullHashSha256: String(repeating: "a", count: 64))
+        try RoomWatchCoordinator.requireMatch(renamed, active)
+        #expect(throws: (any Error).self) { try RoomWatchCoordinator.requireMatch(renamed, selected) }
+        #expect(throws: (any Error).self) { try RoomWatchCoordinator.requireSameGeneration(selected, active) }
+        for (duration, hash) in [
+            (Int64(60000), String(repeating: "b", count: 64)), (Int64(60001), String(repeating: "a", count: 64)),
+        ] {
+            let changed = try MediaDescriptor(
+                mediaID: "private-local-id", title: "Movie", titleKey: "movie",
+                fileSizeBytes: 1000, durationMs: duration, fullHashSha256: hash)
+            #expect(throws: (any Error).self) { try RoomWatchCoordinator.requireMatch(changed, active) }
+        }
+        let weak = try MediaDescriptor(
+            mediaID: "private-local-id", title: "Movie", titleKey: "movie",
+            fileSizeBytes: 1000, durationMs: 60000, fullHashSha256: nil)
+        #expect(throws: (any Error).self) { try RoomWatchCoordinator.requireMatch(weak, active) }
         _ = try await owner.perform(.end(reason: .user), expected: active)
         try await peer.leave(joined)
         try await client.leave(admission)

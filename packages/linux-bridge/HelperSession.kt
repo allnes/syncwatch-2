@@ -35,7 +35,7 @@ data class SyncplayEndpoint(val host: String, val port: Int, val room: String, v
 data class SyncplayParticipant(val username: String, val ready: Boolean)
 enum class HelperConnection { starting, connecting, connected, failed, stopped }
 data class HelperSessionState(val connection: HelperConnection = HelperConnection.starting, val ready: Boolean = false,
-    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList())
+    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList(), val identityRejected: Boolean = false)
 
 /** Admit matching media first. The supplied single-thread owner context serializes
  * UI intents, one writer and immutable observations; Syncplay retains timing policy.
@@ -245,8 +245,8 @@ class HelperSession(
         when (kind) {
             "sync.identity" -> {
                 PlayerCorrection.keys(payload, setOf("username")); val username = text(payload["username"], 64)
-                if (requireDeclaredIdentity && username != endpoint.username) bad()
-                if (state.acceptedUsername != null && state.acceptedUsername != username) bad()
+                if (requireDeclaredIdentity && username != endpoint.username) { state = state.copy(identityRejected = true); bad() }
+                if (state.acceptedUsername != null && state.acceptedUsername != username) { state = state.copy(identityRejected = true); bad() }
                 state = state.copy(acceptedUsername = username)
             }
             "sync.connection" -> {

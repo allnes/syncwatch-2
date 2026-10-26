@@ -42,6 +42,7 @@ public struct HelperSessionState: Sendable, Equatable {
     public var connection: Connection = .starting
     public var ready = false
     public var acceptedUsername: String?
+    public var identityRejected = false
     public var participants: [SyncplayParticipant] = []
 }
 public enum HelperSessionFailure: String, Error { case malformed, unavailable, queueFull, timeout }
@@ -408,9 +409,11 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
             try HelperJSON.keys(payload, required: ["username"])
             let username = try text(payload["username"], maximum: 64)
             guard !requireDeclaredIdentity || username == endpoint.username else {
+                state.identityRejected = true
                 throw HelperSessionFailure.unavailable
             }
             guard state.acceptedUsername == nil || state.acceptedUsername == username else {
+                state.identityRejected = true
                 throw HelperSessionFailure.unavailable
             }
             state.acceptedUsername = username

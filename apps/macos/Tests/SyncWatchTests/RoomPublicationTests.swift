@@ -22,6 +22,21 @@ import Testing
     map.acknowledge(publication)
     #expect(map.localID(for: id) == files.first?.id)
     #expect(try RoomLocalCatalog().prepare(files).items.first?.mediaID != id)
+    let local = try #require(files.first)
+    let strong = try MediaDescriptor(
+        mediaID: local.id, title: "Movie", titleKey: "movie",
+        fileSizeBytes: local.sizeBytes, durationMs: 1234, fullHashSha256: String(repeating: "a", count: 64))
+    let loaded = try map.prepare(files, prepared: strong)
+    #expect(loaded.items.first?.mediaID == id && loaded.items.first?.fullHashSha256 == strong.fullHashSha256)
+    #expect(loaded.items.first?.durationMs == 1234 && loaded.localIDs[local.id] == id)
+    map.acknowledge(loaded)
+    let retained = try map.prepare([], prepared: strong)
+    #expect(retained.items == loaded.items)
+    #expect(try map.prepare(files).items.first?.fullHashSha256 == nil)
+    let weak = try MediaDescriptor(
+        mediaID: local.id, title: "Movie", titleKey: "movie",
+        fileSizeBytes: local.sizeBytes, durationMs: 1234, fullHashSha256: nil)
+    #expect(throws: ContractRejection.self) { try map.prepare(files, prepared: weak) }
     let empty = try map.prepare([])
     map.acknowledge(empty)
     #expect(map.localID(for: id) == nil)

@@ -137,7 +137,7 @@ internal static class HelperSessionChecks
             await player.SetPausedAsync(false, native);
             session.Start(); await Eventually(() => session.State.Connection == HelperConnection.Failed);
             await session.DisposeAsync(); await session.DisposeAsync();
-            Require(!session.State.Ready && session.State.AcceptedUsername is null && peer.UserCount == 0 && player.Paused && player.Closes == 0);
+            Require(!session.State.Ready && session.State.IdentityRejected && session.State.AcceptedUsername is null && peer.UserCount == 0 && player.Paused && player.Closes == 0);
             return;
         }
         session.Start(); await Eventually(() => session.State.Ready);

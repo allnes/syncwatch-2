@@ -5,6 +5,7 @@ import SyncWatchDesign
 /// Observe membership inside the presentation host as well as the owning workspace.
 @MainActor struct RoomConnectionSheet: View {
     @ObservedObject var room: RoomController
+    let shared: RoomWatchCoordinator
     var language: String
     var dismiss: () -> Void
 
@@ -15,7 +16,7 @@ import SyncWatchDesign
     private func action(_ action: String) {
         switch action {
         case "connectRoom": room.connect()
-        case "leaveRoom": Task { await room.close() }
+        case "leaveRoom": Task { await shared.leave() }
         case "pasteInvitation": room.pasteInvitation(NSPasteboard.general.string(forType: .string) ?? "")
         case "copyInvitation":
             if let invitation = room.invitationToCopy() {

@@ -19,6 +19,13 @@ internal suspend fun roomPublicationChecks(fixtureFile: Path) = withContext(Main
         check(map.prepare(files).items.single().mediaId == id && map.localId(id) == null)
         map.acknowledge(publication)
         check(map.localId(id) == files.single().id && RoomLocalCatalog().prepare(files).items.single().mediaId != id)
+        val local = files.single()
+        val strong = MediaDescriptor(local.id, "Movie", "movie", local.sizeBytes, 1234, "a".repeat(64))
+        val loaded = map.prepare(files, strong)
+        check(loaded.items.single().mediaId == id && loaded.items.single().fullHashSha256 == strong.fullHashSha256 && loaded.items.single().durationMs == 1234L && loaded.localIds[local.id] == id)
+        map.acknowledge(loaded)
+        check(map.prepare(emptyList(), strong).items == loaded.items && map.prepare(files).items.single().fullHashSha256 == null)
+        check(runCatching { map.prepare(files, MediaDescriptor(local.id, "Movie", "movie", local.sizeBytes, 1234, null)) }.isFailure)
         map.acknowledge(map.prepare(emptyList())); check(map.localId(id) == null)
 
         @Suppress("UNCHECKED_CAST")

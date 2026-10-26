@@ -84,8 +84,9 @@ import SyncWatchLibrary
 @MainActor struct ApplicationWorkspace: View {
     @StateObject private var preferences: AppearancePreferences
     @StateObject private var library: LibraryController
-    @StateObject private var room = RoomController()
+    @StateObject private var room: RoomController
     @StateObject private var watch: WatchSessionCoordinator
+    @StateObject private var shared: RoomWatchCoordinator
     private let lifecycle: ApplicationLifecycle
     init(lifecycle: ApplicationLifecycle) {
         self.lifecycle = lifecycle
@@ -99,9 +100,15 @@ import SyncWatchLibrary
         }
         let preferences = AppearancePreferences(store: FileLocalStateStore(url: stateURL))
         _preferences = StateObject(wrappedValue: preferences)
-        _watch = StateObject(
-            wrappedValue: WatchSessionCoordinator(
-                preferences: preferences, media: MediaConfiguration.read(CommandLine.arguments)))
+        let room = RoomController()
+        let watch = WatchSessionCoordinator(
+            preferences: preferences, media: MediaConfiguration.read(CommandLine.arguments))
+        let shared = RoomWatchCoordinator(
+            room: room, watch: watch, helper: HelperConfiguration.read(CommandLine.arguments))
+        _room = StateObject(wrappedValue: room)
+        _watch = StateObject(wrappedValue: watch)
+        _shared = StateObject(wrappedValue: shared)
+        watch.onEndWatching = { [weak shared] in Task { await shared?.end() } }
         _library = StateObject(
             wrappedValue: LibraryController(
                 store: FileLibraryAccessStore(
@@ -118,7 +125,7 @@ import SyncWatchLibrary
             playerPresented: watch.playerPresented,
             library: AnyView(
                 LibraryWorkspace(
-                    presentation: room.libraryPresentation(watch.libraryPresentation(library.presentation)),
+                    presentation: shared.libraryPresentation(watch.libraryPresentation(library.presentation)),
                     language: preferences.state.preferences.language
                 ) { action, value in
                     if action == "chooseFolder" {
@@ -128,11 +135,11 @@ import SyncWatchLibrary
                     } else if action == "selectMovie", let value {
                         library.select(value)
                     } else if action == "startWatching", let selection = library.selectedMedia() {
-                        watch.start(selection)
+                        shared.start(selection)
                     } else if action == "continueWatching" {
                         watch.continueWatching()
                     } else if action == "endWatching" {
-                        watch.end()
+                        Task { await shared.end() }
                     } else if action == "openRoom" {
                         showRoom = true
                     } else if action == "openSettings" {
@@ -145,9 +152,14 @@ import SyncWatchLibrary
         .onReceive(library.$roomRevision) { revision in
             room.updateLibrary(revision: revision, files: library.roomFiles)
         }
+        .onChange(of: room.connected) { _ in shared.membershipChanged() }
         .task {
             lifecycle.prepareForTermination = {
-                [weak sessionOwner = watch, weak catalogOwner = library, weak roomOwner = room] in
+                [
+                    weak sessionOwner = watch, weak catalogOwner = library, weak roomOwner = room,
+                    weak sharedOwner = shared
+                ] in
+                await sharedOwner?.close()
                 await sessionOwner?.close()
                 await roomOwner?.close()
                 catalogOwner?.close()
@@ -160,7 +172,9 @@ import SyncWatchLibrary
             let sessionOwner = watch
             let catalogOwner = library
             let roomOwner = room
+            let sharedOwner = shared
             Task {
+                await sharedOwner.close()
                 await sessionOwner.close()
                 await roomOwner.close()
                 catalogOwner.close()
@@ -169,22 +183,27 @@ import SyncWatchLibrary
         .alert(
             SyncWatchCopy.text("brand", language: preferences.state.preferences.language),
             isPresented: Binding(
-                get: { !WatchAcceptance.requested && (library.errorKey != nil || watch.errorKey != nil) },
+                get: {
+                    !WatchAcceptance.requested
+                        && (library.errorKey != nil || watch.errorKey != nil || shared.errorKey != nil)
+                },
                 set: {
                     if !$0 {
                         library.errorKey = nil
                         watch.errorKey = nil
+                        shared.errorKey = nil
                     }
                 })
         ) {
             Button(SyncWatchCopy.text("close", language: preferences.state.preferences.language)) {
                 library.errorKey = nil
                 watch.errorKey = nil
+                shared.errorKey = nil
             }
         } message: {
             Text(
                 SyncWatchCopy.text(
-                    library.errorKey ?? watch.errorKey ?? "libraryUnavailable",
+                    library.errorKey ?? watch.errorKey ?? shared.errorKey ?? "libraryUnavailable",
                     language: preferences.state.preferences.language))
         }
         .sheet(isPresented: $showSettings) {
@@ -197,7 +216,7 @@ import SyncWatchLibrary
                 }, onClose: { showSettings = false })
         }
         .sheet(isPresented: $showRoom, onDismiss: { room.clearSecrets() }) {
-            RoomConnectionSheet(room: room, language: preferences.state.preferences.language) {
+            RoomConnectionSheet(room: room, shared: shared, language: preferences.state.preferences.language) {
                 showRoom = false
             }
         }
@@ -215,6 +234,7 @@ import SyncWatchLibrary
     private func close() async {
         let sessionOwner = watch
         let catalogOwner = library
+        await shared.close()
         await sessionOwner.close()
         await room.close()
         catalogOwner.close()

@@ -8,6 +8,7 @@ internal static class RoomWatchContextChecks
     {
         string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), key = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_CREATION_KEY");
         if (address is null || key is null) return;
+        await PreparedPublicationAsync(address, key);
         await using var client = new RoomClient(new(address)); await using var peer = new RoomClient(new(address));
         var identity = new RoomIdentity("run-" + Guid.NewGuid().ToString("N"), "Windows watch");
         var admission = await client.CreateAsync(identity, new("syncplay.example.com", 8999, "Watch context"), new(key));
@@ -35,8 +36,48 @@ internal static class RoomWatchContextChecks
         if (!stale) throw new Exception("Stale user intent overwrote peer generation");
         var active = await owner.PerformAsync(new RoomCommandAction.Start("movie-a"), await owner.WatchContextAsync());
         if (active.Bootstrap.Snapshot.WatchStatus != "active" || active.Definition.Selection?.MemberId != joined.MemberId) throw new Exception("Start definition");
+        var renamed = new MediaDescriptor("private-local-id", "Renamed", "renamed", 1000, 60000, new string('a', 64));
+        RoomWatchCoordinator.RequireMatch(renamed, active);
+        void Reject(Action action)
+        {
+            bool rejected = false; try { action(); } catch (Exception) { rejected = true; }
+            if (!rejected) throw new Exception("Invalid shared admission accepted");
+        }
+        Reject(() => RoomWatchCoordinator.RequireMatch(renamed, selected));
+        Reject(() => RoomWatchCoordinator.RequireSameGeneration(selected, active));
+        foreach (var changed in new[] {
+            new MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, new string('b', 64)),
+            new MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60001, new string('a', 64)),
+            new MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, null) })
+            Reject(() => RoomWatchCoordinator.RequireMatch(changed, active));
         _ = await owner.PerformAsync(new RoomCommandAction.End(RoomWatchEndReason.User), active);
         await peer.LeaveAsync(joined); await client.LeaveAsync(admission);
         Console.WriteLine("SYNCWATCH_ROOM_WATCH_CONTEXT_OK");
+    }
+    private static async Task PreparedPublicationAsync(string address, string key)
+    {
+        var controller = new RoomController();
+        foreach (var (field, value) in new[] { ("serviceAddress", address), ("username", "Windows prepared publisher"), ("creationKey", key), ("syncplayHost", "syncplay.example.com"), ("roomName", "Prepared publication lifecycle") }) controller.Editor.Edit(field, value);
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        try
+        {
+            controller.Connect(); while (!controller.Connected) { if (controller.Editor.State == "failed") throw new Exception("Connect failed"); await Task.Delay(20, deadline.Token); }
+            var intent = await controller.BeginWatchAsync(deadline.Token);
+            var media = new MediaDescriptor("private-loaded-file", "Loaded", "loaded", 1000, 60000, new string('a', 64));
+            var first = await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token);
+            if (first.Media.MediaId == media.MediaId || first.Media.FullHashSha256 != media.FullHashSha256) throw new Exception("Strong publication lost opaque identity or hash");
+            var second = await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token);
+            if (second.Media != first.Media || second.Lease == first.Lease) throw new Exception("Publication lease identity");
+            controller.ClearPrepared(first.Lease, intent.Membership);
+            if (controller.CatalogView?.Items.Any(p => p.Media == second.Media) != true) throw new Exception("Stale cleanup removed newer lease");
+            controller.ClearPrepared(second.Lease, intent.Membership);
+            while (controller.CatalogView?.Items.Count != 0) await Task.Delay(20, deadline.Token);
+            await controller.CloseAsync();
+            if (controller.IsCurrent(intent.Membership) || controller.WatchBootstrap is not null) throw new Exception("Membership retained authority");
+            bool rejected = false; try { await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token); } catch (RoomProtocolException) { rejected = true; }
+            if (!rejected) throw new Exception("Stale membership published");
+            Console.WriteLine("SYNCWATCH_PREPARED_PUBLICATION_OK opaque strong ACK/new lease/stale cleanup/leave/repeated close");
+        }
+        finally { await controller.CloseAsync(); }
     }
 }

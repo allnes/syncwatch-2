@@ -24,6 +24,7 @@ internal sealed class WatchSessionCoordinator
     public long PositionMs => session.PositionMs;
     public string? ErrorKey { get; private set; }
     public event Action? Changed;
+    internal Action? OnEndWatching { get; set; }
 
     public WatchSessionCoordinator(AppearancePreferences preferences, MediaConfiguration media, Action fullscreen)
     {
@@ -131,7 +132,7 @@ internal sealed class WatchSessionCoordinator
             if (token.IsCancellationRequested || closing || session.Scope != request.Scope || session.Phase != WatchPhase.Preparing) return;
             Player = new PlaybackWorkspace(new(selection.Media.File, media.Package, media.Bridge, null, false),
                 preferences.State.Preferences.Language, request.Scope, request.PositionMs, selection,
-                Loaded, Observed, action => { if (action == "showLibrary") ShowLibrary(); else if (action == "endWatching") End(); },
+                Loaded, Observed, action => { if (action == "showLibrary") ShowLibrary(); else if (action == "endWatching") { if (OnEndWatching is { } handler) handler(); else End(); } },
                 () => Failed(request.Scope), fullscreen, requiresSharedAdmission);
             Changed?.Invoke();
         }

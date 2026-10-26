@@ -114,7 +114,7 @@ private suspend fun scenario(owner: CoroutineScope, eof: Boolean, strict: Boolea
         if (strict) {
             player.setPaused(false, native)
             session.start(); eventually { session.state.connection == HelperConnection.failed }
-            check(!session.state.ready && session.state.acceptedUsername == null && peer.userCount() == 0)
+            check(!session.state.ready && session.state.identityRejected && session.state.acceptedUsername == null && peer.userCount() == 0)
             return
         }
         session.start(); eventually { session.state.ready }

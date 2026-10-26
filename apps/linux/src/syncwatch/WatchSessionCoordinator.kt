@@ -28,6 +28,7 @@ internal class WatchSessionCoordinator(
         private set
     val scope get() = session.scope
     val positionMs get() = session.positionMs
+    var onEndWatching: (() -> Unit)? = null
     private var pendingLoad: Job? = null
     private var pendingScope: PlaybackScope? = null
     private var releaseJob: Deferred<Unit>? = null
@@ -108,7 +109,7 @@ internal class WatchSessionCoordinator(
                 player = PlaybackController(LocalPlaybackLaunch(selection.media.file, media.packageDirectory, media.bridge, null, false),
                     requireNotNull(display), work, requestedScope = request.scope, initialPositionMs = request.positionMs,
                     selection = selection, requiresSharedAdmission = requiresSharedAdmission, onLoaded = ::loaded, onObservation = ::observed,
-                    onNavigation = { if (it == "showLibrary") showLibrary() else if (it == "endWatching") end() },
+                    onNavigation = { if (it == "showLibrary") showLibrary() else if (it == "endWatching") { onEndWatching?.invoke() ?: end() } },
                     onFailure = { failed(request.scope) })
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { failed(request.scope) }

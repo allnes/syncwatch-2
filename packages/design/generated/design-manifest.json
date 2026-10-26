@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "6a635c97546e06fe3847a35696b8e751ef67afff8223cd10f79365f349a3a21a",
+  "sourceDigest": "01cecc1c88b3f77a2f60aacf768c1b03cee7247e61d04ac3c9e618830b42bd09",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "6a4a583d13a2bb53537c93e7be11bfeef208871eed20d18f6d05d75a0287a929",
-    "copy.json": "462cee6d3900587ae2c1b3e7c0c594339e2934108cef0f6795537cba1366793f",
+    "copy.json": "b1267d5d86d8d5966935b0af8f4ac197b955348d0228accdba0883297f519c38",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
     "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
@@ -309,7 +309,11 @@
         "pasteInvitation": "Paste invitation",
         "roomInvitationInvalid": "Copy a complete room invitation and try again.",
         "roomCatalogPublishing": "Sharing library…",
-        "roomCatalogPublishFailed": "Could not share the library. Rescan the folder to retry."
+        "roomCatalogPublishFailed": "Could not share the library. Rescan the folder to retry.",
+        "sharedWatchPreparing": "Preparing shared playback…",
+        "sharedWatchConnected": "Shared playback connected",
+        "sharedWatchFailed": "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
+        "sharedWatchIdentityRejected": "Syncplay changed your name. Leave the room and reconnect with a shorter or different name."
       },
       "ru": {
         "brand": "SyncWatch",
@@ -532,7 +536,11 @@
         "pasteInvitation": "Вставить приглашение",
         "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
         "roomCatalogPublishing": "Публикация библиотеки…",
-        "roomCatalogPublishFailed": "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить."
+        "roomCatalogPublishFailed": "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить.",
+        "sharedWatchPreparing": "Подготовка совместного просмотра…",
+        "sharedWatchConnected": "Совместный просмотр подключён",
+        "sharedWatchFailed": "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
+        "sharedWatchIdentityRejected": "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем."
       }
     },
     "gallery": {

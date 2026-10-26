@@ -15,7 +15,7 @@ public sealed record SyncplayEndpoint(string Host, int Port, string Room, string
 public sealed record SyncplayParticipant(string Username, bool Ready);
 public enum HelperConnection { Starting, Connecting, Connected, Failed, Stopped }
 public sealed record HelperSessionState(HelperConnection Connection = HelperConnection.Starting, bool Ready = false,
-    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null);
+    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null, bool IdentityRejected = false);
 
 /// <summary>One context owns native intents and one writer. Admit matching media before construction.</summary>
 public sealed class HelperSession : IAsyncDisposable
@@ -257,8 +257,8 @@ public sealed class HelperSession : IAsyncDisposable
         {
             case "sync.identity":
                 PlayerCorrection.Keys(payload, ["username"]); string username = Text(payload.GetProperty("username"), 64);
-                if (requireDeclaredIdentity && username != endpoint.Username) throw Bad();
-                if (State.AcceptedUsername is not null && State.AcceptedUsername != username) throw Bad();
+                if (requireDeclaredIdentity && username != endpoint.Username) { State = State with { IdentityRejected = true }; throw Bad(); }
+                if (State.AcceptedUsername is not null && State.AcceptedUsername != username) { State = State with { IdentityRejected = true }; throw Bad(); }
                 State = State with { AcceptedUsername = username }; break;
             case "sync.connection":
                 PlayerCorrection.Keys(payload, ["state"], ["error"]);
