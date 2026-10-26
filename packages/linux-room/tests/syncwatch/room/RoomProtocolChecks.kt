@@ -42,5 +42,5 @@ fun main(args: Array<String>) {
         }
     }
     println("SYNCWATCH_ROOM_PROTOCOL_OK")
-    kotlinx.coroutines.runBlocking { transportChecks() }
+    kotlinx.coroutines.runBlocking { commandChecks(fixture); transportChecks() }
 }

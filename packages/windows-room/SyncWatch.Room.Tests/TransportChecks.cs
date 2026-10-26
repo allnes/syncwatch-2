@@ -35,6 +35,7 @@ internal static class TransportChecks
         if (!closed) throw new Exception("closed client accepted work");
         Console.WriteLine("SYNCWATCH_ROOM_TRANSPORT_OK");
         await SeededCatalogAsync(address);
+        await CommandTransportChecks.RunAsync(address, key);
     }
     private static async Task SeededCatalogAsync(string address)
     {

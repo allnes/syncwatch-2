@@ -39,6 +39,10 @@ class RoomClient(val address: RoomAddress) {
         RoomWire.keys(value, "v", "status")
         if (RoomWire.integer(value["v"], 1) != 1L || value["status"] != "left") throw RoomWire.bad()
     }
+    suspend fun execute(admission: RoomAdmission, command: RoomCommand): RoomCommandResult {
+        command.verify(admission)
+        return RoomCommandResult.decode(request("POST", "v1/rooms/${admission.roomId}/commands", admission.token, command.encodedBytes), command)
+    }
     /** Attach immediately after admission, before hashing media. */
     suspend fun openEvents(admission: RoomAdmission): RoomEventStream {
         currentCoroutineContext().ensureActive()
@@ -95,7 +99,7 @@ class RoomClient(val address: RoomAddress) {
             if (response.statusCode() !in 200..299) {
                 val value = RoomWire.parse(bytes); RoomWire.keys(value, "error")
                 val error = RoomWire.obj(value["error"]); RoomWire.keys(error, "code"); val code = RoomWire.string(error["code"])
-                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal", "snapshotRequired")
+                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal", "snapshotRequired", "duplicate")
                 throw RoomProtocolException(if (code in allowed) code else "transport")
             }
             return bytes

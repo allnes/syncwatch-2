@@ -63,6 +63,11 @@ public sealed class RoomClient : IAsyncDisposable
         var value = document.RootElement; RoomWire.Keys(value, "v", "status");
         if (RoomWire.Integer(value, "v", 1) != 1 || RoomWire.String(value, "status") != "left") throw RoomWire.Bad();
     }
+    public async Task<RoomCommandResult> ExecuteAsync(RoomAdmission admission, RoomCommand command, CancellationToken cancellation = default)
+    {
+        command.Verify(admission);
+        return RoomCommandResult.Decode(await RequestAsync(HttpMethod.Post, $"v1/rooms/{admission.RoomId}/commands", admission.Token, command.EncodedBytes, cancellation), command);
+    }
     /// <summary>Attach immediately after admission, before hashing media.</summary>
     public async Task<RoomEventStream> OpenEventsAsync(RoomAdmission admission, CancellationToken cancellation = default)
     {
@@ -139,7 +144,7 @@ public sealed class RoomClient : IAsyncDisposable
                 using var document = RoomWire.Parse(bytes); var value = document.RootElement;
                 RoomWire.Keys(value, "error"); var error = value.GetProperty("error"); RoomWire.Keys(error, "code");
                 string code = RoomWire.String(error, "code");
-                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" or "snapshotRequired" ? code : "transport");
+                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" or "snapshotRequired" or "duplicate" ? code : "transport");
             }
             stop.Token.ThrowIfCancellationRequested(); return bytes;
         }
