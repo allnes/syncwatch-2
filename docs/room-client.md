@@ -24,6 +24,10 @@ An unavailable system clipboard is a recoverable copy failure. Native adapters r
 
 ## Local catalog publication
 
+The Room SDKs read a frozen selected descriptor against an explicit bootstrap. They require the same epoch and watch generation, a nondecreasing sequence, and the selected media ID from that bootstrap. Descriptor validation is shared with catalog pages. A historical publishing member may have left. Basic membership and catalog refresh do not require this additive endpoint; shared admission must report an unsupported or unavailable endpoint as a recoverable setup failure.
+
+The application membership session serializes watch-context reads and explicit metadata actions with catalog publication. Unknown command outcomes retain their original bytes and counter. An explicit user action keeps its expected generation: a peer change requires a new decision rather than an automatic overwrite. These operations expose metadata only; local media authorization, native-version revalidation and accepted Syncplay identity remain separate requirements.
+
 The normal workspace feeds each completed Library scan to its membership controller. On connection, and after a new scan revision, one publisher replaces the member's catalog. Revisions arriving during publication coalesce into a subsequent replacement. Scans that fail do not publish a partial catalog. The shared Design package owns the localized publication and rescan feedback; publication failure preserves membership and the preceding complete view. Refreshing the folder retries with the latest completed scan.
 
 `RoomMembershipSession` serializes authoritative snapshot/catalog walks and outgoing commands for one membership. Its command counter survives refreshes. If a response is lost, it retains the immutable command and resolves that same ID and body before sending a new replacement, even when local files changed in the meantime. An authoritative rejection consumes its command ID. A stale-generation rejection permits one new batch after reading fresh metadata; persistent rejection is surfaced rather than retried indefinitely.

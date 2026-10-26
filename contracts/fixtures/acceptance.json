@@ -1238,5 +1238,64 @@
       "clientRunId": "run-7",
       "mediaGeneration": 3
     }
+  },
+  {
+    "name": "selection-idle",
+    "schema": "room-selection",
+    "value": {
+      "v": 1,
+      "roomEpoch": "epoch-room",
+      "sequence": 7,
+      "watchGeneration": 0,
+      "selection": null
+    },
+    "error": null
+  },
+  {
+    "name": "selection-frozen",
+    "schema": "room-selection",
+    "value": {
+      "v": 1,
+      "roomEpoch": "epoch-room",
+      "sequence": 7,
+      "watchGeneration": 3,
+      "selection": {
+        "memberId": "departed-member",
+        "media": {
+          "v": 1,
+          "mediaId": "movie-a",
+          "title": "Кино 映画",
+          "titleKey": "Кино 映画",
+          "fileSizeBytes": 1000,
+          "durationMs": 10000,
+          "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "error": null
+  },
+  {
+    "name": "selection-private-path",
+    "schema": "room-selection",
+    "value": {
+      "v": 1,
+      "roomEpoch": "epoch-room",
+      "sequence": 7,
+      "watchGeneration": 3,
+      "selection": {
+        "memberId": "departed-member",
+        "media": {
+          "v": 1,
+          "mediaId": "movie-a",
+          "title": "Кино 映画",
+          "titleKey": "Кино 映画",
+          "fileSizeBytes": 1000,
+          "durationMs": 10000,
+          "fullHashSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "localPath": "/private/movie"
+    },
+    "error": "malformed"
   }
 ]

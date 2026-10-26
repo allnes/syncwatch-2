@@ -58,6 +58,15 @@ final class RoomCommandTransportTests: XCTestCase, @unchecked Sendable {
             let replay = try await owner.execute(admission, command: selection)
             XCTAssertNil(selected.errorCode)
             XCTAssertEqual(selected, replay)
+            let selectedView = try await owner.snapshot(admission)
+            let definition = try await owner.selection(admission, bootstrap: selectedView)
+            XCTAssertEqual(definition.selection?.memberID, admission.memberID)
+            XCTAssertEqual(definition.selection?.media, catalog[0])
+            _ = try await owner.catalogView(admission, bootstrap: selectedView)
+            do {
+                _ = try await owner.selection(admission, bootstrap: view)
+                XCTFail("Stale selection lookup was accepted")
+            } catch RoomProtocolFailure.rejected("staleGeneration") {}
             do {
                 _ = try await owner.execute(
                     admission,

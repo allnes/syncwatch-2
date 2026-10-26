@@ -98,6 +98,16 @@ public actor RoomClient {
                 "GET", "v1/rooms/\(admission.roomID)/catalog", credential: admission.token, cursor: cursor)
         }
     }
+    public func selection(_ admission: RoomAdmission, bootstrap: RoomBootstrap) async throws -> RoomSelectionDefinition
+    {
+        guard bootstrap.snapshot.epoch == admission.bootstrap.snapshot.epoch else {
+            throw RoomProtocolFailure.malformed
+        }
+        return try RoomSelectionDefinition.decode(
+            await request(
+                "GET", "v1/rooms/\(admission.roomID)/selection", credential: admission.token,
+                generation: bootstrap.snapshot.watchGeneration), bootstrap: bootstrap)
+    }
     public func leave(_ admission: RoomAdmission) async throws {
         let bytes = try await request("POST", "v1/rooms/\(admission.roomID)/leave", credential: admission.token)
         let value = try RoomWire.object(bytes)
@@ -143,7 +153,8 @@ public actor RoomClient {
         for task in pending { _ = await task.result }
     }
     private func request(
-        _ method: String, _ path: String, credential: RoomSecret? = nil, body: Data? = nil, cursor: String? = nil
+        _ method: String, _ path: String, credential: RoomSecret? = nil, body: Data? = nil, cursor: String? = nil,
+        generation: UInt64? = nil
     )
         async throws -> Data
     {
@@ -151,6 +162,7 @@ public actor RoomClient {
         guard !closed else { throw RoomProtocolFailure.closed }
         var parts = URLComponents(url: address.endpoint(path), resolvingAgainstBaseURL: false)!
         if let cursor { parts.queryItems = [URLQueryItem(name: "cursor", value: cursor)] }
+        if let generation { parts.queryItems = [URLQueryItem(name: "watchGeneration", value: String(generation))] }
         var request = URLRequest(url: parts.url!)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -192,7 +204,7 @@ public actor RoomClient {
             let code = try RoomWire.string(error["code"])
             let allowed = [
                 "unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed",
-                "frameTooLarge", "internal", "snapshotRequired", "duplicate",
+                "frameTooLarge", "internal", "snapshotRequired", "duplicate", "staleGeneration",
             ]
             throw RoomProtocolFailure.rejected(allowed.contains(code) ? code : "transport")
         }

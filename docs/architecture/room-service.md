@@ -23,6 +23,7 @@ Bodies are UTF-8 JSON bounded to 64 KiB, with exact fields and integer `v: 1`. U
 | `GET /v1/rooms/{id}/snapshot` | Member | Bootstrap: room snapshot, TLS-required Syncplay binding, missing members, catalog cursor |
 | `GET /v1/rooms/{id}/catalog?cursor=...` | Member | Up to 100 descriptors, snapshot sequence, next cursor |
 | `POST /v1/rooms/{id}/commands` | Member | Metadata command and result |
+| `GET /v1/rooms/{id}/selection?watchGeneration=N` | Member | Frozen selected descriptor at the expected watch generation |
 | `POST /v1/rooms/{id}/invitation` | Owner | Rotate invitation; return invitation and expiry |
 | `POST /v1/rooms/{id}/revoke` | Owner | `v`, `memberId`; remove that member |
 | `POST /v1/rooms/{id}/leave` | Member | Remove caller; no body |
@@ -32,6 +33,10 @@ Bodies are UTF-8 JSON bounded to 64 KiB, with exact fields and integer `v: 1`. U
 Admission fields are `roomId`, `memberId`, `token`, `expiresAt`, `bootstrap`, and the owner's invitation (null for guests). The bootstrap contains a [v1 snapshot](../../contracts/v1/room-snapshot.schema.json), connection binding, missing-member IDs, and a catalog cursor. Returned credentials and invitations are private application data.
 
 Catalog pages are stable at the bootstrap sequence. Their cursor expires after 60 seconds or a newer bootstrap for the same member. Fetch pages, then replay events after that sequence. A replay gap requires a new bootstrap and discarding obsolete partial state.
+
+Selection acceptance captures the origin member ID and complete descriptor. Later catalog replacement or origin departure cannot redefine that edition. Starting and ending a watch retain this definition; selecting again replaces it. A selection command with an ID published by multiple members is rejected with `conflict`, requiring an unambiguous choice. Starting uses the captured edition even if its originating catalog is no longer available.
+
+The additive [selection response](../../contracts/v1/room-selection.schema.json) contains `v`, `roomEpoch`, `sequence`, `watchGeneration` and a nullable `selection` with `memberId` and `media`. Lookup requires a canonical decimal `watchGeneration`; a changed generation returns HTTP 409 `staleGeneration`. It neither creates nor invalidates catalog cursors. The historical origin need not remain a room member. This endpoint does not change existing snapshot or event schemas and does not authorize playback.
 
 The Swift/macOS, C#/Windows and Kotlin/Linux Room SDKs expose bounded catalog-page requests tied to an explicit bootstrap. They validate the view cursor, epoch, sequence, member bindings, descriptor fields and forward pagination before returning an immutable page. Descriptors reuse the native Domain model, including exact canonical title-key validation. A media ID is unique within a member's catalog; the same ID from another member is a separate entry.
 

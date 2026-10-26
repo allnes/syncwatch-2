@@ -3,6 +3,8 @@ using SyncWatch.Room;
 
 namespace SyncWatch;
 
+internal sealed record RoomWatchContext(RoomBootstrap Bootstrap, RoomSelectionDefinition Definition);
+
 /// <summary>One application-owned membership serializes bootstrap walks and command numbering.</summary>
 internal sealed class RoomMembershipSession(RoomClient client, RoomAdmission admission, RoomIdentity identity)
 {
@@ -43,6 +45,48 @@ internal sealed class RoomMembershipSession(RoomClient client, RoomAdmission adm
             throw new RoomProtocolException("staleGeneration");
         }
         finally { gate.Release(); }
+    }
+    internal async Task<RoomWatchContext> WatchContextAsync(CancellationToken cancellation = default)
+    {
+        await gate.WaitAsync(cancellation);
+        try
+        {
+            if (unresolved is not null) await AcknowledgeAsync(cancellation);
+            return await ReadWatchContextAsync(cancellation);
+        }
+        finally { gate.Release(); }
+    }
+    // A peer generation change requires an explicit new user decision.
+    internal async Task<RoomWatchContext> PerformAsync(RoomCommandAction action, RoomWatchContext expected, CancellationToken cancellation = default)
+    {
+        await gate.WaitAsync(cancellation);
+        try
+        {
+            if (unresolved is not null) await AcknowledgeAsync(cancellation);
+            var current = await ValidatedSnapshotAsync(null, cancellation);
+            if (current.Snapshot.Epoch != expected.Bootstrap.Snapshot.Epoch || current.Snapshot.WatchGeneration != expected.Bootstrap.Snapshot.WatchGeneration)
+                throw new RoomProtocolException("staleGeneration");
+            var command = new RoomCommand(admission, number + 1, current.Snapshot.WatchGeneration, action);
+            number++; unresolved = command;
+            await AcknowledgeAsync(cancellation);
+            return await ReadWatchContextAsync(cancellation);
+        }
+        finally { gate.Release(); }
+    }
+    private async Task<RoomWatchContext> ReadWatchContextAsync(CancellationToken cancellation)
+    {
+        for (int attempt = 0; attempt < 2; attempt++)
+        {
+            var bootstrap = await ValidatedSnapshotAsync(null, cancellation);
+            try
+            {
+                var definition = await client.SelectionAsync(admission, bootstrap, cancellation);
+                cancellation.ThrowIfCancellationRequested(); minimumSequence = Math.Max(minimumSequence, definition.Sequence);
+                return new(bootstrap, definition);
+            }
+            catch (RoomProtocolException error) when (error.Message == "staleGeneration" && attempt == 0) { }
+        }
+        throw new RoomProtocolException("staleGeneration");
     }
     internal static (RoomCommand Command, int Count) CatalogCommand(RoomAdmission admission, long number, long generation, string batch, IReadOnlyList<MediaDescriptor> items, int offset)
     {

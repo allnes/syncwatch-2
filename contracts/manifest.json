@@ -10,6 +10,7 @@
     "call-capabilities": "v1/call-capabilities.schema.json",
     "room-event": "v1/room-event.schema.json",
     "room-snapshot": "v1/room-snapshot.schema.json",
-    "helper-ipc": "v1/helper-ipc.schema.json"
+    "helper-ipc": "v1/helper-ipc.schema.json",
+    "room-selection": "v1/room-selection.schema.json"
   }
 }

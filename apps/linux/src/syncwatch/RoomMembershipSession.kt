@@ -6,6 +6,8 @@ import kotlinx.coroutines.sync.withLock
 import syncwatch.domain.MediaDescriptor
 import syncwatch.room.*
 
+internal data class RoomWatchContext(val bootstrap: RoomBootstrap, val definition: RoomSelectionDefinition)
+
 /** One application-owned membership serializes bootstrap walks and command numbering. */
 internal class RoomMembershipSession(private val client: RoomClient, private val admission: RoomAdmission, private val identity: RoomIdentity) {
     private val gate = Mutex()
@@ -31,6 +33,34 @@ internal class RoomMembershipSession(private val client: RoomClient, private val
                     acknowledge(); offset += command.second
                 } while (offset < items.size)
                 return@withLock read(null)
+            } catch (error: RoomProtocolException) {
+                if (error.code != "staleGeneration" || attempt != 0) throw error
+            }
+        }
+        throw RoomProtocolException("staleGeneration")
+    }
+    suspend fun watchContext(): RoomWatchContext = gate.withLock {
+        if (unresolved != null) acknowledge()
+        readWatchContext()
+    }
+    /** A peer generation change requires an explicit new user decision. */
+    suspend fun perform(action: RoomCommandAction, expected: RoomWatchContext): RoomWatchContext = gate.withLock {
+        if (unresolved != null) acknowledge()
+        val current = validatedSnapshot()
+        if (current.snapshot.epoch != expected.bootstrap.snapshot.epoch || current.snapshot.watchGeneration != expected.bootstrap.snapshot.watchGeneration)
+            throw RoomProtocolException("staleGeneration")
+        val command = RoomCommand(admission, number + 1, current.snapshot.watchGeneration, action)
+        number++; unresolved = command
+        acknowledge()
+        readWatchContext()
+    }
+    private suspend fun readWatchContext(): RoomWatchContext {
+        for (attempt in 0 until 2) {
+            val bootstrap = validatedSnapshot()
+            try {
+                val definition = client.selection(admission, bootstrap)
+                currentCoroutineContext().ensureActive(); minimumSequence = maxOf(minimumSequence, definition.sequence)
+                return RoomWatchContext(bootstrap, definition)
             } catch (error: RoomProtocolException) {
                 if (error.code != "staleGeneration" || attempt != 0) throw error
             }

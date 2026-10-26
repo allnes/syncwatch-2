@@ -2,6 +2,11 @@ import Foundation
 import SyncWatchDomain
 import SyncWatchRoom
 
+struct RoomWatchContext: Sendable {
+    let bootstrap: RoomBootstrap
+    let definition: RoomSelectionDefinition
+}
+
 /// One application-owned membership serializes bootstrap walks and command numbering.
 @MainActor final class RoomMembershipSession {
     private let client: RoomClient
@@ -54,6 +59,44 @@ import SyncWatchRoom
                 // The NACK consumed its ID. Start a new atomic batch from authoritative metadata.
                 continue
             }
+        }
+        throw RoomProtocolFailure.rejected("staleGeneration")
+    }
+
+    func watchContext() async throws -> RoomWatchContext {
+        try await enter()
+        defer { leave() }
+        if unresolved != nil { try await acknowledge() }
+        return try await readWatchContext()
+    }
+
+    /// A peer generation change requires an explicit new user decision.
+    func perform(_ action: RoomCommandAction, expected: RoomWatchContext) async throws -> RoomWatchContext {
+        try await enter()
+        defer { leave() }
+        if unresolved != nil { try await acknowledge() }
+        let current = try await validatedSnapshot()
+        guard current.snapshot.epoch == expected.bootstrap.snapshot.epoch,
+            current.snapshot.watchGeneration == expected.bootstrap.snapshot.watchGeneration
+        else { throw RoomProtocolFailure.rejected("staleGeneration") }
+        let command = try RoomCommand(
+            admission: admission, number: number + 1,
+            watchGeneration: current.snapshot.watchGeneration, action: action)
+        number += 1
+        unresolved = command
+        try await acknowledge()
+        return try await readWatchContext()
+    }
+
+    private func readWatchContext() async throws -> RoomWatchContext {
+        for attempt in 0..<2 {
+            let bootstrap = try await validatedSnapshot()
+            do {
+                let definition = try await client.selection(admission, bootstrap: bootstrap)
+                try Task.checkCancellation()
+                minimumSequence = max(minimumSequence, definition.sequence)
+                return RoomWatchContext(bootstrap: bootstrap, definition: definition)
+            } catch RoomProtocolFailure.rejected("staleGeneration") where attempt == 0 { continue }
         }
         throw RoomProtocolFailure.rejected("staleGeneration")
     }

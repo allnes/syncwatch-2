@@ -22,6 +22,7 @@ public sealed record SyncplayBinding(string Host, int Port, string Room, bool Re
 public sealed record MediaDescriptor(int V, string MediaId, string Title, string TitleKey, long FileSizeBytes,
     long? DurationMs, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? FullHashSha256);
 public sealed record CatalogEntry(string MemberId, MediaDescriptor Media);
+public sealed record SelectionDefinition(int V, string RoomEpoch, long Sequence, long WatchGeneration, CatalogEntry? Selection);
 public sealed record CatalogPage(int V, string RoomEpoch, long Sequence, CatalogEntry[] Items, string? NextCursor);
 public sealed record Bootstrap(RoomSnapshot Snapshot, SyncplayBinding Connection, string CatalogCursor, string[] MissingMembers);
 public sealed record Admission(string RoomId, string MemberId, string Token, DateTimeOffset ExpiresAt,

@@ -27,6 +27,7 @@ fun main(arguments: Array<String>) = runBlocking {
             roomPlaybackGateChecks(owner)
             roomPublicationChecks(repository.resolve("contracts/fixtures/room-client.json"))
             roomPublicationLiveChecks(owner)
+            roomWatchContextChecks()
             val model = LibraryController(store, owner, null)
             model.restore(); model.settled()
             check(model.presentation.entries.isEmpty())

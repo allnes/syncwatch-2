@@ -190,6 +190,7 @@ Reject(() => Wire.Parse(new byte[Wire.MaximumBytes + 1]), "frameTooLarge");
 Reject(() => Wire.ReadCommand(Encoding.UTF8.GetBytes("{\"v\":1}")), "malformed");
 
 // Real Kestrel HTTP and WebSocket transport, with header-only credentials.
+SelectionChecks.Run();
 string creationKey = Wire.Secret();
 await using var app = RoomApplication.Build(["--urls", "http://127.0.0.1:0"], creationKey: creationKey);
 await app.StartAsync();
@@ -212,6 +213,13 @@ Admission networkOwner = JsonSerializer.Deserialize<Admission>(admitted, Wire.Js
 string roomPath = "/v1/rooms/" + networkOwner.RoomId;
 JsonElement joined = await Request(HttpMethod.Post, roomPath + "/join", JoinBody(networkOwner));
 Admission networkGuest = JsonSerializer.Deserialize<Admission>(joined, Wire.Json)!;
+JsonElement idleSelection = await Request(HttpMethod.Get, roomPath + "/selection?watchGeneration=0", token: networkOwner.Token);
+Check(idleSelection.GetProperty("selection").ValueKind == JsonValueKind.Null, "Initial selection is absent");
+observed.Add(new { schema = "room-selection", value = idleSelection });
+await Request(HttpMethod.Get, roomPath + "/selection?watchGeneration=1", token: networkOwner.Token, status: HttpStatusCode.Conflict);
+await Request(HttpMethod.Get, roomPath + "/selection?watchGeneration=00", token: networkOwner.Token, status: HttpStatusCode.BadRequest);
+await Request(HttpMethod.Get, roomPath + "/selection", token: networkOwner.Token, status: HttpStatusCode.BadRequest);
+await Request(HttpMethod.Get, roomPath + "/selection?watchGeneration=0", token: creationKey, status: HttpStatusCode.Unauthorized);
 await Request(HttpMethod.Get, roomPath + "/snapshot", token: creationKey, status: HttpStatusCode.Unauthorized);
 await Request(HttpMethod.Post, roomPath + "/invitation", new { v = 2 }, networkOwner.Token, HttpStatusCode.BadRequest);
 await Request(HttpMethod.Post, roomPath + "/commands", new { v = 1, padding = new string('x', Wire.MaximumBytes) }, networkOwner.Token, HttpStatusCode.RequestEntityTooLarge);

@@ -72,6 +72,13 @@ public static class RoomApplication
         app.MapGet("/v1/rooms/{roomId}/snapshot", context => Write(context, rooms.Snapshot(RoomId(context), Bearer(context))));
         app.MapGet("/v1/rooms/{roomId}/catalog", context => Write(context,
             rooms.Catalog(RoomId(context), Bearer(context), context.Request.Query["cursor"].ToString())));
+        app.MapGet("/v1/rooms/{roomId}/selection", context =>
+        {
+            string raw = context.Request.Query["watchGeneration"].ToString();
+            Wire.Need(long.TryParse(raw, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture,
+                out long generation) && generation.ToString(System.Globalization.CultureInfo.InvariantCulture) == raw);
+            return Write(context, rooms.Selection(RoomId(context), Bearer(context), generation));
+        });
         app.MapPost("/v1/rooms/{roomId}/invitation", context =>
         {
             EmptyBody(context);
