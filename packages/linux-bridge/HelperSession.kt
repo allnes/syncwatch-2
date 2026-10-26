@@ -119,7 +119,7 @@ class HelperSession(
         enqueue(Intent.Seek(positionMs))
     }
     private fun enqueue(intent: Intent) {
-        checkOwner(); if (closed || state.connection != HelperConnection.connected || !state.ready) bad()
+        checkOwner(); if (closed || state.connection != HelperConnection.connected) bad()
         if (users.size >= 64) throw WatchFailure("queueFull")
         users.addLast(fence.beginUserAction(nativeScope) to intent); applying?.cancel(); signal()
     }

@@ -73,7 +73,7 @@ public sealed class HelperSession : IAsyncDisposable
     }
     private void Enqueue(IntentKind kind, bool paused = true, long position = 0)
     {
-        CheckOwner(); if (closed || State.Connection != HelperConnection.Connected || !State.Ready) throw Bad();
+        CheckOwner(); if (closed || State.Connection != HelperConnection.Connected) throw Bad();
         if (users.Count >= 64) throw new IOException("queueFull");
         users.Enqueue(new(fence.BeginUserAction(nativeScope), kind, paused, position)); applying?.Cancel(); Signal();
     }

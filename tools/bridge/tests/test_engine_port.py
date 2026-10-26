@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "packages/ipc"), str(ROOT / "packages/syncplay-helper")]
@@ -73,6 +74,25 @@ class EnginePortTests(unittest.TestCase):
         self.assertLess(self.events.index(identity), self.events.index(("sync.connection", {"state": "connected"})))
         self.engine.tick()
         self.assertEqual(self.events.count(identity), 1)
+
+    def test_application_play_uses_the_upstream_direct_unpause_policy(self):
+        settings = {}
+        connected = []
+        class Session:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def getConfig(self):
+                return settings
+
+            def connect(self):
+                connected.append(dict(settings))
+        engine = Engine(SimpleNamespace(event=lambda *args: None, pending={}))
+        with patch.dict(sys.modules, {
+                "syncwatch_syncplay.session": SimpleNamespace(Session=Session),
+                "syncplay": SimpleNamespace(constants=SimpleNamespace(UNPAUSE_ALWAYS_MODE="Always"))}):
+            engine.connect({"host": "localhost", "port": 8999, "username": "viewer", "room": "room"})
+        self.assertEqual(connected, [{"sharedPlaylistEnabled": False, "unpauseAction": "Always"}])
 
     def test_released_native_port_cannot_publish_again(self):
         self.engine.port.release()

@@ -150,7 +150,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         try enqueue(.seek(positionMs))
     }
     private func enqueue(_ intent: Intent) throws {
-        guard !closed, state.connection == .connected, state.ready else { throw HelperSessionFailure.unavailable }
+        guard !closed, state.connection == .connected else { throw HelperSessionFailure.unavailable }
         guard users.count < 64 else { throw HelperSessionFailure.queueFull }
         users.append((try fence.beginUserAction(nativeScope), intent))
         applying?.cancel()

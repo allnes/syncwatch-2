@@ -81,6 +81,7 @@ internal static class HelperSessionChecks
         }
         public Task<byte[]> ReadAsync(CancellationToken cancellation = default) => incoming.Reader.ReadAsync(cancellation).AsTask();
         public ValueTask DisposeAsync() { incoming.Writer.TryComplete(); writing?.TrySetCanceled(); return ValueTask.CompletedTask; }
+        internal void Readiness(bool value) => Event("sync.readiness", new { ready = value });
         internal void GateUserWrite() => holdUser = true;
         internal void ReleaseUserWrite() { holdUser = false; writing?.TrySetResult(); writing = null; }
         internal void Correction(int id, int after, long position)
@@ -146,9 +147,11 @@ internal static class HelperSessionChecks
             peer.ReleaseUserWrite(); await Eventually(() => peer.ReplyCount(1, "player.result") == 1);
             peer.Correction(1, 1, 2400); await Eventually(() => peer.ReplyCount(1, "player.result") == 2);
             Require(player.Seeks == 1);
+            peer.Readiness(false); await Eventually(() => !session.State.Ready);
+            session.Seek(3000); await Eventually(() => peer.UserCount == 2);
             peer.Correction(2, 0, 0); await Eventually(() => peer.ReplyCount(2, "bridge.error") == 1);
-            Require(player.Position == 2400 && peer.UserCount == 1);
-            peer.Correction(3, 2, 0); await Eventually(() => session.State.Connection == HelperConnection.Failed);
+            Require(player.Position == 3000 && peer.UserCount == 2);
+            peer.Correction(3, 3, 0); await Eventually(() => session.State.Connection == HelperConnection.Failed);
         }
         await session.DisposeAsync(); await session.DisposeAsync(); Require(player.Paused && player.Closes == 0);
     }

@@ -20,6 +20,8 @@ The current helper accepts public trusted TLS endpoints. `secretHandle` fails as
 
 Each session has one bounded reader and one serialized writer/operation owner. Explicit UI intents enter synchronously on the owning UI context. An incoming correction may queue while a user observation write is in flight; publication advances only after that write succeeds. Superseded corrections receive cancellation only after the newer actual observation is sent. Completed corrections and replies have bounded replay caches, and contradictory reuse fails closed. The helper likewise accepts identical completed native results without applying them again.
 
+Syncplay readiness is participant state, not permission to use playback controls: an explicit pause can legitimately clear the initiating participant's readiness. Authenticated connected sessions continue accepting explicit actions in that state. The adapter selects Syncplay's upstream `UNPAUSE_ALWAYS_MODE` for the application's direct play control, rather than combining play with the stock client's readiness toggle. Syncplay still owns canonical state, timing and corrections; the native application never invents a local synchronization policy.
+
 Missing replies, malformed input, queue exhaustion and helper EOF stop the session. Cleanup pauses the borrowed player through an independent cancellation context and closes the owned transport. Await session close before replacing it or releasing the native player. Session close is repeatable and does not close the borrowed player. These lifecycle and ordering checks run in all three native language lanes; they do not establish room/media agreement or physical cross-platform acceptance.
 
 Build and exercise a previously source-built engine payload:

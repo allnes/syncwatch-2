@@ -65,6 +65,7 @@ private class SessionPeer : HelperTransport {
         ended = true; reading?.completeExceptionally(IllegalStateException("EOF")); reading = null
         writing?.completeExceptionally(IllegalStateException("EOF")); writing = null
     }
+    @Synchronized fun readiness(value: Boolean) { emit("sync.readiness", mapOf("ready" to value)) }
     @Synchronized fun gateUserWrite() { holdUser = true }
     @Synchronized fun releaseUserWrite() { holdUser = false; val current = writing; writing = null; current?.complete(Unit) }
     @Synchronized fun correction(id: Long, after: Long, position: Long) {
@@ -122,9 +123,11 @@ private suspend fun scenario(owner: CoroutineScope, eof: Boolean) {
             peer.releaseUserWrite(); eventually { peer.replyCount(1, "player.result") == 1 }
             peer.correction(1, 1, 2400); eventually { peer.replyCount(1, "player.result") == 2 }
             check(player.seeks == 1)
+            peer.readiness(false); eventually { !session.state.ready }
+            session.seek(3000); eventually { peer.userCount() == 2 }
             peer.correction(2, 0, 0); eventually { peer.replyCount(2, "bridge.error") == 1 }
-            check(player.position == 2400L && peer.userCount() == 1)
-            peer.correction(3, 2, 0); eventually { session.state.connection == HelperConnection.failed }
+            check(player.position == 3000L && peer.userCount() == 2)
+            peer.correction(3, 3, 0); eventually { session.state.connection == HelperConnection.failed }
         }
     } finally { session.close(); session.close() }
     check(player.paused && player.closes == 0)

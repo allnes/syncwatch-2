@@ -77,6 +77,7 @@ private actor SessionPeer: HelperTransport {
         writing?.resume()
         writing = nil
     }
+    func readiness(_ value: Bool) throws { try emit("sync.readiness", ["ready": value]) }
     func gateUserWrite() { holdUser = true }
     func releaseUserWrite() {
         holdUser = false
@@ -170,12 +171,16 @@ private actor SessionPlayer: PlaybackPort {
     try await peer.correction(1, after: 1, position: 2400)
     try await eventually { try await peer.replyCount(1, kind: "player.result") == 2 }
     #expect(await player.seeks == 1)
+    try await peer.readiness(false)
+    try await eventually { !session.state.ready }
+    try session.seek(3000)
+    try await eventually { try await peer.userCount() == 2 }
     try await peer.correction(2, after: 0, position: 0)
     try await eventually { try await peer.replyCount(2, kind: "bridge.error") == 1 }
-    #expect(await player.position == 2400)
-    #expect(try await peer.userCount() == 1)
+    #expect(await player.position == 3000)
+    #expect(try await peer.userCount() == 2)
     // An authority watermark that was never issued must fail closed.
-    try await peer.correction(3, after: 2, position: 0)
+    try await peer.correction(3, after: 3, position: 0)
     try await eventually { session.state.connection == .failed }
     await session.close()
     #expect(await player.paused)
