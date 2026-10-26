@@ -15,12 +15,12 @@ The Unicode tools repository warns against using its development data in product
 
 ## Build and verify
 
-Run from the repository root, choosing `macos-arm64`, `linux-x64` or `windows-x64` for the host:
+Run from the repository root on Linux:
 
 ```sh
-python3 tools/dependencies/build.py build --component kotlin-stdlib-sources --platform macos-arm64 --cold
-python3 tools/dependencies/build.py build --component kotlin-stdlib-sources --platform macos-arm64
-python3 tools/jvm/stdlib_sources.py verify --platform macos-arm64
+python3 tools/dependencies/build.py build --component kotlin-stdlib-sources --platform linux-x64 --cold
+python3 tools/dependencies/build.py build --component kotlin-stdlib-sources --platform linux-x64
+python3 tools/jvm/stdlib_sources.py verify --platform linux-x64
 python3 -m unittest discover -s tools/jvm/tests -v
 ```
 

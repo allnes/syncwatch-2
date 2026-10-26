@@ -7,6 +7,8 @@ from pathlib import Path
 PLATFORMS = {"macos", "windows", "linux"}
 MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge", "library"}
 VALIDATION = {"native-tested", "native-boundary-tested", "research-tested", "source-only", "missing"}
+LINUX_COMPONENTS = {"jvm-annotations", "kotlin-stdlib-sources", "kotlin-stdlib", "kotlinx-concurrency",
+                    "compose-runtime", "compose-state", "compose-ui-jvm", "skiko-native-objects"}
 
 
 def check(root: Path) -> None:
@@ -33,6 +35,9 @@ def check(root: Path) -> None:
             raise ValueError(f"{name}: source, research and native boundary checks cannot complete a three-client feature")
     application = json.loads((root / "apps/linux/application.json").read_text(encoding="utf-8"))
     components = json.loads((root / "tools/dependencies/components.json").read_text(encoding="utf-8"))["components"]
+    for name in LINUX_COMPONENTS:
+        if set(components.get(name, {}).get("targets", {})) != {"linux-x64"}:
+            raise ValueError(f"{name}: Kotlin client dependencies must build and verify only on Linux")
     required = application.get("requiredSourceComponents", [])
     if not required or not set(required) <= set(components):
         raise ValueError("Linux application prerequisites must name registered source components")

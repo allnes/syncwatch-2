@@ -1,6 +1,6 @@
 # Desktop UI JVM source profile
 
-`compose-ui-jvm` builds sixteen original JVM modules: Skiko AWT, five Compose UI primitives, three lifecycle/viewmodel modules, two navigation-event modules, UI, animation core, foundation layout, animation and foundation. The same owned offline recipe and application/design consumer run on macOS arm64, Windows x64 and Linux x64. Native clients retain SwiftUI on macOS and WPF on Windows; the JVM build on these hosts qualifies source/compiler portability for the Linux client.
+`compose-ui-jvm` builds sixteen original JVM modules: Skiko AWT, five Compose UI primitives, three lifecycle/viewmodel modules, two navigation-event modules, UI, animation core, foundation layout, animation and foundation. The owned offline recipe and application/design consumer run only on Linux x64. SwiftUI client checks run only on macOS and WPF client checks only on Windows.
 
 All enabled upstream source files, build metadata and license inputs are inventoried in `tools/jvm/compose_ui.json`. External sources are pinned Git submodules under `3rdparty/`. The UI, lifecycle UI, navigation-event and Skiko selections are Apache-2.0; the complete inherited composition-state, serialization, concurrency, annotations, Unicode and standard-library grants remain in their parent profiles. The original root grants and selected build declarations accompany every artifact. The profile records the selected files that rely on the repository grant rather than an initial Apache block header. Original source headers are retained without rewriting.
 

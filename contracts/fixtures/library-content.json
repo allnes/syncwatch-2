@@ -1,0 +1,39 @@
+{
+  "cases": [
+    {
+      "name": "empty",
+      "content": "",
+      "repeat": 1,
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "unicode",
+      "content": "Синк 🎬 café é\n",
+      "repeat": 7,
+      "sizeBytes": 168,
+      "sha256": "dc28c3f08398ca88d91ac0e80838f2e11c4921e527af82b427b18d13a3449475"
+    },
+    {
+      "name": "chunk-boundary",
+      "content": "0123456789abcdef",
+      "repeat": 20000,
+      "sizeBytes": 320000,
+      "sha256": "2f869ec6ab78d5d9f9d3a9d4a251b98e9f87daebb730d3124691e118ae812a62"
+    },
+    {
+      "name": "changed-original",
+      "content": "abc",
+      "repeat": 1,
+      "sizeBytes": 3,
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    },
+    {
+      "name": "changed-replacement",
+      "content": "xyz",
+      "repeat": 1,
+      "sizeBytes": 3,
+      "sha256": "3608bca1e44ea6c4d268eb6db02260269892c0b42b86bbf1e77a6fa16c3c9282"
+    }
+  ]
+}

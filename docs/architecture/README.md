@@ -75,6 +75,11 @@ Swift, C# and Kotlin implement the [shared contracts](contracts.md) and consume 
 
 ## Native video integration
 
+Compile, test and run each desktop client only on its target OS: Swift on macOS,
+C# on Windows, and Kotlin on Linux. This includes client domain and UI consumer
+checks. Shared contract fixtures run through each native implementation on its
+own OS; interoperability uses those three actual clients in all six directions.
+
 On macOS, pass an AppKit `NSView` to `libvlc_media_player_set_nsobject`. Keep the view alive until rendering stops. Use an AppKit container and native window manager with SwiftUI controls. Validate compositing, clipping, fullscreen transitions, and hardware decoding.
 
 On Windows, pass a native HWND to `libvlc_media_player_set_hwnd`. WPF controls cannot simply overlap another HWND because of airspace restrictions. The planned video host uses an owned overlay window for player controls and popovers, with coordinated position, DPI, focus, minimize, and fullscreen behavior. Validate this before implementing the full player UI. CPU-copy video callbacks require performance measurements before adoption for 4K playback. See [WPF technology regions](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/technology-regions-overview).

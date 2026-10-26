@@ -36,7 +36,12 @@ owned helper to an authored movie selected through Library. It requires the
 existing watch-check media/report/state-directory arguments and
 `--shared-check-config` pointing to an authored configuration. The configuration
 provides absolute `runtime`, `executable`, `control` and `state` paths, plus the
-TLS `host`, `port`, `room` and `username`. This fixture admission is separate from
+TLS `host`, `port`, `room` and `username`. Its `expectedMedia` object contains
+`mediaId`, `title`, `titleKey`, `fileSizeBytes`, `durationMs` and
+`fullHashSha256`. The native owner hashes the selected file, checks observed
+duration, and requires an unambiguous full-content match before launching its
+helper. Weak/missing/ambiguous media cannot connect through this check.
+This fixture admission is separate from
 normal room/media admission and does not qualify the application for deployment.
 
 The state file contains actual VLC observations and authenticated session state.

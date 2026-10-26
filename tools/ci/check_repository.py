@@ -353,20 +353,21 @@ def check_native_manifests(root: Path) -> None:
     projects = solution.findall(".//Project")
     required_projects = {
         "apps/windows/SyncWatch/SyncWatch.csproj",
+        "apps/windows/SyncWatch.Tests/SyncWatch.Tests.csproj",
         "packages/windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj",
         "packages/windows-domain/SyncWatch.Domain.Tests/SyncWatch.Domain.Tests.csproj",
         "packages/design/tests/windows/SyncWatch.Design.Tests.csproj",
     }
     project_paths = {project.attrib["Path"] for project in projects}
     require(required_projects <= project_paths and len(project_paths) == len(projects),
-            "native solution must include the shell, domain, and both executable test suites without duplicates")
+            "native solution must include the shell, domain, and executable test suites without duplicates")
     resolved_projects = {(root / name).resolve() for name in project_paths}
     for project in projects:
         path = (root / project.attrib["Path"]).resolve()
         require(path.is_relative_to(root.resolve()) and path.is_file(), "native project must be a repository file")
         content = ET.parse(path).getroot()
         require(not content.findall(".//PackageReference"), "native libraries must use pinned local sources")
-        expected = toolchains["windows"]["targetFramework"] if path.stem in {"SyncWatch", "SyncWatch.Design.Tests"} else "net10.0"
+        expected = toolchains["windows"]["targetFramework"] if path.stem in {"SyncWatch", "SyncWatch.Tests", "SyncWatch.Design.Tests"} else "net10.0"
         require(content.findtext(".//TargetFramework") == expected, "native target framework does not match its manifest")
         for reference in content.findall(".//ProjectReference"):
             target = (path.parent / reference.attrib["Include"]).resolve()

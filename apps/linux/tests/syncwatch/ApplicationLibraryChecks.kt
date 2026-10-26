@@ -33,6 +33,7 @@ fun main() = runBlocking {
             val ids = model.presentation.entries.map { it.id }
             model.select(ids.last())
             val owned = checkNotNull(model.selectedMedia())
+            sharedMediaPreparationChecks(owned, owner)
             check(owned.media.id == ids.last() && owned.media.title == "B.mp4")
             model.rescan(); model.settled()
             check(model.presentation.selectedID == ids.last() && model.presentation.entries.map { it.id } == ids)

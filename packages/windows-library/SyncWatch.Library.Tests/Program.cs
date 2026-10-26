@@ -1,6 +1,8 @@
 using System.Text.Json;
 using SyncWatch.Library;
 
+await FileContentHasherTests.RunAsync(args.Single());
+
 using var corpus = JsonDocument.Parse(File.ReadAllBytes(args.Single()));
 var data = corpus.RootElement;
 string id = data.GetProperty("rootId").GetString()!;
