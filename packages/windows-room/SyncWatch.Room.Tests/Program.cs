@@ -53,4 +53,5 @@ Console.WriteLine("SYNCWATCH_ROOM_PROTOCOL_OK");
 SelectionChecks.Run(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[0]))!, "room-selection.json"));
 await CatalogViewChecks.RunAsync(fixture.RootElement);
 await CommandChecks.RunAsync(fixture.RootElement);
+await EventStreamChecks.RunAsync(bootstrap);
 await TransportChecks.RunAsync();
