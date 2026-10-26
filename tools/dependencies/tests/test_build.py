@@ -241,6 +241,28 @@ class DependencyBuildTests(unittest.TestCase):
             self.run_build()
         self.assertEqual(list((self.root / f"artifacts/dependencies/example/{TARGET}/payload").iterdir()), [])
 
+    def test_consumer_cannot_modify_or_poison_the_sdk_under_an_unchanged_artifact_key(self):
+        verifier = self.separate_consumer()
+        first = self.run_build()
+        request = self.prepare()
+        original = verifier.read_text()
+        for target in ("library.txt", "unexpected-report.txt", "replace-directory"):
+            with self.subTest(target=target):
+                mutation = ("import shutil\nshutil.rmtree(payload)\npayload.write_text('consumer mutation')\n"
+                            if target == "replace-directory" else f"(payload/{target!r}).write_text('consumer mutation')\n")
+                verifier.write_text(original + "\n" + mutation, newline="\n")
+                with self.assertRaisesRegex(ValueError, "Verification changed the SDK payload"):
+                    self.run_build()
+                with zipfile.ZipFile(request["cacheFile"]) as cache:
+                    self.assertEqual(cache.read("payload/library.txt"), b"source payload\n")
+                    self.assertNotIn("payload/unexpected-report.txt", cache.namelist())
+        with self.assertRaisesRegex(ValueError, "Verification changed the SDK payload"):
+            self.run_build(cold=True)
+        verifier.write_text(original, newline="\n")
+        recovered = self.run_build()
+        self.assertTrue(recovered["cacheHit"])
+        self.assertEqual(recovered["key"], first["key"])
+
     def test_consumer_input_contract_requires_separate_paths_and_fresh_verification(self):
         original = copy.deepcopy(self.component)
         for field, value, message in [

@@ -518,7 +518,7 @@ def unpack(archive, destination, expected):
     return manifest
 
 
-def pack(directory, manifest):
+def payload_inventory(directory):
     payload = directory / "payload"
     require(not payload.is_symlink(), "Build payload must not be a symbolic link")
     files = {}
@@ -532,6 +532,11 @@ def pack(directory, manifest):
             require(len(files) < 100000 and total <= 1024**3, "Built payload exceeds its bound")
             files[name] = {"sha256": digest(path), "mode": 0o755 if path.stat().st_mode & 0o111 else 0o644}
     require(len(files) == len({name.casefold() for name in files}), "Build output has case-colliding paths")
+    return files
+
+
+def pack(directory, manifest):
+    files = payload_inventory(directory)
     manifest["files"] = files
     output = directory / "artifact.zip"
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -595,10 +600,13 @@ def build(root, name, target, cold=False):
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(inside(sources / path, notice), destination)
         target_specification = specification["targets"][target]
+        original_payload = payload_inventory(directory) if request["verificationInputs"] else None
         if "verifyCommand" in target_specification:
             subprocess.run(command(target_specification["verifyCommand"]), cwd=root,
                            env=build_environment(target_specification), check=True,
                            timeout=target_specification["timeoutSeconds"])
+        if original_payload is not None:
+            require(payload_inventory(directory) == original_payload, "Verification changed the SDK payload")
         require(input_files(root, specification) == request["inputs"]["files"], "Build changed its declared first-party inputs")
         require(input_files(root, specification, verification=True) == request["verificationInputs"],
                 "Verification changed its declared application inputs")
@@ -609,7 +617,10 @@ def build(root, name, target, cold=False):
         manifest["result"] = "success"
     finally:
         if manifest["result"] != "success":
-            shutil.rmtree(payload)
+            if payload.is_symlink() or (payload.exists() and not payload.is_dir()):
+                payload.unlink()
+            elif payload.exists():
+                shutil.rmtree(payload)
             payload.mkdir()
         output = pack(directory, manifest)
     if not manifest["cacheHit"]:
