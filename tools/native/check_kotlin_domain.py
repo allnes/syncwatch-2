@@ -1,4 +1,4 @@
-"""Compile the Kotlin domain against owned runtime JARs on each native host."""
+"""Compile the Linux Kotlin domain against owned runtime JARs on Linux."""
 
 import json
 import os
@@ -17,6 +17,8 @@ from build_support import digest
 
 
 def check(payload, output):
+    if sys.platform != "linux":
+        raise SystemExit("Linux Kotlin client checks require Linux")
     home, compiler = jdk.home(), kotlin.home()
     if output.exists():
         shutil.rmtree(output)
@@ -50,6 +52,8 @@ def check(payload, output):
 
 
 def main():
+    if sys.platform != "linux":
+        raise SystemExit("Linux Kotlin client checks require Linux")
     payload = ROOT / "artifacts/dependencies/kotlin-stdlib" / jdk.current_target() / "payload"
     # Verify cached runtime/source correspondence before executing any application code.
     import subprocess
