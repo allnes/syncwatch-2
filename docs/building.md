@@ -85,6 +85,8 @@ The [bootstrap standard-library component](python-stdlib.md) packages pinned enc
 
 The [native libVLC SDK](libvlc.md) registers the `libvlc` source component for macOS arm64, Windows x64 and Linux x64. Its developer tools are provisioned explicitly before the offline build. Cold and restored payloads undergo source/license, native import and fresh media-consumer verification. The application playback adapters and physical output are separate acceptance work.
 
+Linux developer provisioning bounds repository metadata refresh to five minutes, with a ten-second termination grace for its process group. HTTP/HTTPS download waits and retries are bounded. A failed refresh stops before installation; package installation and configuration are not forcibly interrupted by the refresh deadline. Provisioning failures require a successful retry before the source build can continue.
+
 ## Source and contract validation
 
 Repository checks require Git, Python 3.12 or newer, and Node.js 22 or newer. Contract validation imports only the pinned validator source:
