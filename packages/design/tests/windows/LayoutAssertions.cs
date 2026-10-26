@@ -67,6 +67,25 @@ internal static class LayoutAssertions
             Check(pane.IsEnabled == presented && pane.IsHitTestVisible == presented, "hidden pane rejects input");
             Check(nativeLeaf.ActualWidth > 0 && nativeLeaf.ActualHeight > 0, "hidden pane keeps native geometry");
         }
+        var libraryButton = new Button { Content = "Library" };
+        var playerButton = new Button { Content = "Player" };
+        var inputHost = new ApplicationChrome(libraryButton, playerButton);
+        var inputWindow = new Window { Content = inputHost, SizeToContent = SizeToContent.WidthAndHeight, ShowInTaskbar = false };
+        try
+        {
+            inputWindow.Show();
+            foreach (bool presented in new[] { false, true, false, true, false })
+            {
+                inputHost.PresentPlayer(presented); Layout(inputHost, 800, 600);
+                var target = inputHost.InputHitTest(new Point(inputHost.ActualWidth / 2, inputHost.ActualHeight / 2)) as DependencyObject;
+                var expected = presented ? playerButton : libraryButton;
+                bool reachedVisiblePane = false;
+                for (var ancestor = target; ancestor is not null; ancestor = VisualTreeHelper.GetParent(ancestor))
+                    if (ReferenceEquals(ancestor, expected)) { reachedVisiblePane = true; break; }
+                Check(reachedVisiblePane, $"pointer input reaches the visible pane through the entire retained frame: presented={presented}, target={target?.GetType().Name}, visible={expected.IsVisible}");
+            }
+        }
+        finally { inputWindow.Close(); }
         Console.WriteLine("Verified document-driven axis/order/spacing pixels and stable native input controls");
     }
 }

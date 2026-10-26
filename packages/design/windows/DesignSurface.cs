@@ -240,6 +240,13 @@ public class DesignSurface : UserControl
 
         Bind(id, n =>
         {
+            // The retained frame itself participates in WPF hit testing even with a transparent brush.
+            if (n.Kind == "retained")
+            {
+                bool presented = n.Flag("presented");
+                border.Visibility = presented ? Visibility.Visible : Visibility.Hidden;
+                border.IsEnabled = presented; border.IsHitTestVisible = presented;
+            }
             Frame(border, n); border.RenderTransform = new TranslateTransform(n.Number("offsetX"), n.Number("offsetY")); border.Padding = Insets(n); border.CornerRadius = Radius(n); border.BorderThickness = new Thickness(n.Number("borderWidth")); Paint(border, Border.BackgroundProperty, n.Text("background")); Paint(border, Border.BorderBrushProperty, n.Text("border"));
             if (!n.Text("gradient").Equals("", StringComparison.Ordinal)) { var brush = new LinearGradientBrush { StartPoint = PointValue(n.Text("gradientStart")), EndPoint = PointValue(n.Text("gradientEnd")) }; var colors = n.Text("gradient").Split('|'); var offsets = n.Text("gradientOffsets").Split('|'); for (int i = 0; i < Math.Min(colors.Length, offsets.Length); i++) brush.GradientStops.Add(new GradientStop(((SolidColorBrush)Brush(colors[i], border)).Color, DesignContext.Number(offsets[i]))); border.Background = brush; }
             if (core is TextBlock t) { t.VerticalAlignment = n.Text("height") == "fill" && n.Text("align") != "top" ? VerticalAlignment.Center : VerticalAlignment.Stretch; t.FontSize = Math.Max(1, n.Number("fontSize")); t.FontWeight = Weight(n.Text("weight")); t.LineHeight = t.FontFamily.LineSpacing * t.FontSize; t.LineStackingStrategy = LineStackingStrategy.BlockLineHeight; t.MaxHeight = n.Props.ContainsKey("lines") ? t.LineHeight * Math.Max(1, n.Number("lines")) : double.PositiveInfinity; Paint(t, TextBlock.ForegroundProperty, n.Text("foreground")); AutomationProperties.SetAutomationId(t, n.Text("automation")); }
