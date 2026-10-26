@@ -1,6 +1,7 @@
 """Build or freshly revalidate the owned libVLC SDK on its native host."""
 
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,15 @@ def codec_check(context, package):
     output = subprocess.check_output([sys.executable, str(ROOT / "tools/vlc/ffmpeg_checks.py"),
         str(package), "8.1.2"], env=environment(package, context.target), timeout=60)
     return json.loads(output)
+
+
+def playback_check(context, package):
+    # Consumer source is verified freshly against this checkout, separately from
+    # the SDK payload/cache identity. The native compiler SDK is already active.
+    spec = importlib.util.spec_from_file_location("syncwatch_playback_sdk_check", ROOT / "tools/playback/sdk_check.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.verify(package, context.work / "first-party-playback")
 
 
 def source_identity(profile):
@@ -74,11 +84,15 @@ def run(operation, directory, payload, original, profile):
         if (set(proof["media"]) != set(retained["proof"]["media"]) or
                 set(proof["effects"]) != set(retained["proof"]["effects"])):
             raise ValueError("Cached media fixture coverage changed")
+    consumer = None
+    if operation == "verify":
+        consumer = playback_check(context, payload)
         package_report.verify(payload, sdk, sources, contents)
     return {"component": "libvlc", "target": context.target, "profile": profile["profile"],
             "sources": len(original), "nativeFiles": len(imports), "fixtures": sorted(proof["media"]),
             "effects": sorted(proof["effects"]),
             "physicalOutputAccepted": False, "applicationIntegrationReady": False,
+            "firstPartyPlayback": consumer,
             "sourceInventorySha256": digest(contents["sources/inventory.json"])}
 
 

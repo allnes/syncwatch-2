@@ -63,7 +63,7 @@ dotnet run --project packages/design/tests/windows --no-build --no-restore --con
 
 Domain tests use an executable assertion harness; `dotnet test` is not their entry point. The framework-dependent application needs a compatible .NET Desktop Runtime. Closing its main window shuts down the WPF application.
 
-The macOS and Windows native test entry points consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; watch-session and resume operations still await their UI and media adapters.
+The macOS, Windows and Linux native test entry points consume `contracts/fixtures/local-domain.json` beside the wire fixtures. They exercise local watch transitions and preference/resume persistence using only SDK libraries. The [local-state architecture](architecture/local-state.md) describes the API. Native application settings use its preference store for language and theme; native local watch-session and resume operations are wired, while normal shared-room admission remains incomplete.
 
 The shells consume the committed resources in `packages/design/generated/`. Native builds need no Node runtime. After changing design inputs, use the [native resource generation commands](design-generator.md#native-resource-generation) and include the resulting resources in the change.
 
@@ -77,7 +77,7 @@ python3 tools/dependencies/build.py plan
 python3 tools/dependencies/build.py build --component fastjsonschema --platform macos-arm64 --cold
 ```
 
-The ready components are the dependency-free fastjsonschema source package, the native Node design-generator profile, [JVM annotations](jvm-annotations.md), [JBR API](jbr-api.md) the [Kotlin stdlib source package](kotlin-stdlib-sources.md) [source-built Kotlin runtime](kotlin-stdlib.md), [JVM concurrency](jvm-concurrency.md) [Compose composition runtime](compose-runtime.md) and [desktop composition state](compose-state.md), with `macos-arm64`, `linux-x64`, and `windows-x64` targets. The design tool requires Node 24.3 or newer within 24.x; see [building the design tools](design-generator.md). Binary JVM profiles require their explicitly provisioned, pinned developer JDK. The Kotlin runtime additionally uses its verified developer compiler SDK; the source-only package uses Python and Git. The headless Syncplay runtime and bridge and the native libVLC SDK have registered source builds; their guides describe the validation boundaries. Browser-host and full Linux Compose dependency graphs remain unavailable until their sources and real build recipes are registered. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
+The ready components are the dependency-free fastjsonschema source package, the native Node design-generator profile, [JVM annotations](jvm-annotations.md), [JBR API](jbr-api.md) the [Kotlin stdlib source package](kotlin-stdlib-sources.md) [source-built Kotlin runtime](kotlin-stdlib.md), [JVM concurrency](jvm-concurrency.md) [Compose composition runtime](compose-runtime.md) and [desktop composition state](compose-state.md), with `macos-arm64`, `linux-x64`, and `windows-x64` targets. The design tool requires Node 24.3 or newer within 24.x; see [building the design tools](design-generator.md). Binary JVM profiles require their explicitly provisioned, pinned developer JDK. The Kotlin runtime additionally uses its verified developer compiler SDK; the source-only package uses Python and Git. The headless Syncplay runtime and bridge and the native libVLC SDK have registered source builds; their guides describe the validation boundaries. Selected Linux desktop/native profiles have registered source builds and real application consumers. Browser-host source closure and canonical application packaging remain incomplete. Outputs under `artifacts/` and caches under `.local/` are generated and ignored by Git.
 
 Components may use [explicit source exports](architecture/dependencies.md#complete-source-graph) to snapshot reviewed files/directories from a pinned submodule, including all declared notices. Exported bytes are checked against Git before cold compilation or cache reuse. The annotations profile exercises this path on every supported build platform while retaining its reviewed JAR digests. Run the dependency infrastructure regression tests with `python3 -m unittest discover -s tools/dependencies/tests -v`.
 
@@ -100,7 +100,7 @@ A successful shell build or source check does not establish functioning media, s
 
 ## Library component gallery
 
-The macOS and Windows shells display the shared Library workspace with unavailable service actions disabled. Launch the fixture gallery to select visual state, theme and language:
+The macOS, Windows and Linux clients display the shared Library workspace with unavailable service actions disabled. Launch the fixture gallery to select visual state, theme and language:
 
 ```sh
 artifacts/macos/SyncWatch.app/Contents/MacOS/SyncWatch --design-gallery
@@ -147,7 +147,7 @@ Resource generation and repository validation run the design-isolation check. Na
 
 Launch the native executable with `--call-gallery` to inspect the compact call shell, remote/self-view slots and call/window controls. Choose a host/preview case, English or Russian, and a dark or light theme. The gallery simulates microphone, camera, volume, pin/fullscreen/minimized and closed observations in memory. Move/resize requests are recorded; the gallery does not operate an OS call window.
 
-The shell enables media controls only after explicit joined observations and capabilities are supplied. Missing camera content stays a placeholder. These fixtures do not access normal preferences, open Google Meet, initialize a browser, request device permission or start/stop capture/audio. The Linux renderer/gallery remains source-only until its complete dependency/compiler/native/font/license build is available.
+The shell enables media controls only after explicit joined observations and capabilities are supplied. Missing camera content stays a placeholder. These fixtures do not access normal preferences, open Google Meet, initialize a browser, request device permission or start/stop capture/audio. The Linux renderer and presentation consumers build against the registered desktop/native profiles; their fixtures do not qualify a Meet host or complete workflow parity.
 
 
 ## Selection-menu component gallery
