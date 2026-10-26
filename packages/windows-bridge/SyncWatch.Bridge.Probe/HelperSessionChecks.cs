@@ -127,11 +127,19 @@ internal static class HelperSessionChecks
         public ValueTask DisposeAsync() { Closes++; return ValueTask.CompletedTask; }
     }
 
-    private static async Task Scenario(bool eof)
+    private static async Task Scenario(bool eof, bool strict = false)
     {
         var native = PlaybackScope.Create().ReplacingMedia(); var player = new Player(native); var peer = new Peer();
         await using var session = new HelperSession(peer, player, native, new("localhost", 8999, "room", "Viewer"),
-            new("media-1", "Movie.mkv", 60000, 1234), Revision);
+            new("media-1", "Movie.mkv", 60000, 1234), Revision, requireDeclaredIdentity: strict);
+        if (strict)
+        {
+            await player.SetPausedAsync(false, native);
+            session.Start(); await Eventually(() => session.State.Connection == HelperConnection.Failed);
+            await session.DisposeAsync(); await session.DisposeAsync();
+            Require(!session.State.Ready && session.State.AcceptedUsername is null && peer.UserCount == 0 && player.Paused && player.Closes == 0);
+            return;
+        }
         session.Start(); await Eventually(() => session.State.Ready);
         Require(session.State.AcceptedUsername == "Viewer_2" && player.Paused && peer.UserCount == 0);
         if (eof)
@@ -157,7 +165,7 @@ internal static class HelperSessionChecks
     }
     internal static void Run()
     {
-        new OwnerContext().Run(async () => { await Scenario(false); await Scenario(true); });
+        new OwnerContext().Run(async () => { await Scenario(false); await Scenario(true); await Scenario(false, strict: true); });
         Console.WriteLine("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup");
     }
 }

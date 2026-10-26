@@ -43,7 +43,7 @@ data class HelperSessionState(val connection: HelperConnection = HelperConnectio
 class HelperSession(
     private val transport: HelperTransport, private val player: PlaybackPort, private val nativeScope: PlaybackScope,
     private val endpoint: SyncplayEndpoint, private val media: SharedMedia, private val revision: String,
-    owner: CoroutineScope, private val changed: (HelperSessionState) -> Unit = {},
+    owner: CoroutineScope, private val requireDeclaredIdentity: Boolean = false, private val changed: (HelperSessionState) -> Unit = {},
 ) {
     val wireScope = PlaybackScope.fresh().replacingMedia()
     var state = HelperSessionState()
@@ -245,6 +245,7 @@ class HelperSession(
         when (kind) {
             "sync.identity" -> {
                 PlayerCorrection.keys(payload, setOf("username")); val username = text(payload["username"], 64)
+                if (requireDeclaredIdentity && username != endpoint.username) bad()
                 if (state.acceptedUsername != null && state.acceptedUsername != username) bad()
                 state = state.copy(acceptedUsername = username)
             }

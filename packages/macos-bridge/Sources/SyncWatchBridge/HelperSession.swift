@@ -58,6 +58,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     private let endpoint: SyncplayEndpoint
     private let media: SharedMedia
     private let revision: String
+    private let requireDeclaredIdentity: Bool
     private let changed: @MainActor (HelperSessionState) -> Void
     private var fence: PlaybackActionFence
     private let commands: HelperCommands
@@ -90,7 +91,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
 
     public init(
         transport: any HelperTransport, player: any PlaybackPort, nativeScope: PlaybackScope,
-        endpoint: SyncplayEndpoint, media: SharedMedia, revision: String,
+        endpoint: SyncplayEndpoint, media: SharedMedia, revision: String, requireDeclaredIdentity: Bool = false,
         changed: @escaping @MainActor (HelperSessionState) -> Void = { _ in }
     ) throws {
         let scope = try PlaybackScope.fresh().replacingMedia()
@@ -108,6 +109,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         self.endpoint = endpoint
         self.media = media
         self.revision = revision
+        self.requireDeclaredIdentity = requireDeclaredIdentity
         self.changed = changed
         wireScope = scope
         commands = encoder
@@ -405,6 +407,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         case "sync.identity":
             try HelperJSON.keys(payload, required: ["username"])
             let username = try text(payload["username"], maximum: 64)
+            guard !requireDeclaredIdentity || username == endpoint.username else {
+                throw HelperSessionFailure.unavailable
+            }
             guard state.acceptedUsername == nil || state.acceptedUsername == username else {
                 throw HelperSessionFailure.unavailable
             }

@@ -61,7 +61,7 @@ import SyncWatchPlayback
         if preferences.savingWatchState { result.enabledActions.remove("openSettings") }
         return result
     }
-    func start(_ selection: LibraryMediaSelection) {
+    func start(_ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false) {
         guard runtimeAvailable, !closing else { return }
         do {
             for effect in try session.select(selection.media.id) {
@@ -73,7 +73,8 @@ import SyncWatchPlayback
             for effect in effects {
                 switch effect {
                 case .release(let owner): release(owner)
-                case .load(let request): load(request, selection: selection)
+                case .load(let request):
+                    load(request, selection: selection, requiresSharedAdmission: requiresSharedAdmission)
                 }
             }
             publish()
@@ -137,7 +138,7 @@ import SyncWatchPlayback
         phase = session.phase
         playerPresented = !closing && session.playerPresented
     }
-    private func load(_ request: WatchLoad, selection: LibraryMediaSelection) {
+    private func load(_ request: WatchLoad, selection: LibraryMediaSelection, requiresSharedAdmission: Bool) {
         pendingLoad?.cancel()
         pendingScope = request.scope
         let prior = releaseTask
@@ -156,6 +157,7 @@ import SyncWatchPlayback
                 launch: LocalPlaybackLaunch(file: selection.media.file, package: media.package, report: nil),
                 runtime: runtime,
                 scope: request.scope, positionMs: request.positionMs, selection: selection,
+                requiresSharedAdmission: requiresSharedAdmission,
                 onLoaded: { [weak self] in self?.loaded($0) },
                 onObservation: { [weak self] in self?.observed($0) },
                 onNavigation: { [weak self] action in

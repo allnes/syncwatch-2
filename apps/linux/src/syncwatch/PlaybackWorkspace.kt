@@ -51,6 +51,7 @@ internal class PlaybackController(
     requestedScope: PlaybackScope? = null,
     private val initialPositionMs: Long = 0,
     private var selection: LibraryMediaSelection? = null,
+    private var requiresSharedAdmission: Boolean = false,
     private val onLoaded: ((PlaybackScope) -> Unit)? = null,
     private val onObservation: ((PlaybackObservation) -> Unit)? = null,
     private val onNavigation: ((String) -> Unit)? = null,
@@ -85,20 +86,21 @@ internal class PlaybackController(
         return descriptor
     }
     /** The room coordinator admits local media before transferring this transport. */
-    suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String) {
+    suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String, requireDeclaredIdentity: Boolean = false) {
         check(EventQueue.isDispatchThread())
         try {
             check(!closing && started && sharedSession == null)
             sharedMediaPreparation.validate(player, scope)
             check(!closing && started && sharedSession == null)
-            val session = HelperSession(transport, player, scope, endpoint, media, revision, work) { state ->
+            val session = HelperSession(transport, player, scope, endpoint, media, revision, work, requiresSharedAdmission || requireDeclaredIdentity) { state ->
                 sharedState = state; gateSharedActions()
             }
             sharedSession = session; sharedState = session.state; gateSharedActions(); session.start()
         } catch (error: Exception) { withContext(NonCancellable + Dispatchers.IO) { transport.close() }; throw error }
     }
     private fun gateSharedActions() {
-        if (sharedSession != null && sharedState?.connection != HelperConnection.connected)
+        if ((requiresSharedAdmission || sharedSession != null) &&
+            (sharedState?.connection != HelperConnection.connected || (requiresSharedAdmission && sharedState?.ready != true)))
             presentation = presentation.copy(enabledActions = presentation.enabledActions - setOf("playPause", "seek", "skip"))
     }
 

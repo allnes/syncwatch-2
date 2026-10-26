@@ -106,11 +106,17 @@ private suspend fun eventually(predicate: () -> Boolean) {
     while (!predicate()) { check(System.nanoTime() < end) { "Session check timeout" }; delay(10) }
 }
 
-private suspend fun scenario(owner: CoroutineScope, eof: Boolean) {
+private suspend fun scenario(owner: CoroutineScope, eof: Boolean, strict: Boolean = false) {
     val native = PlaybackScope.fresh().replacingMedia(); val player = SessionPlayer(native); val peer = SessionPeer()
     val session = HelperSession(peer, player, native, SyncplayEndpoint("localhost", 8999, "room", "Viewer"),
-        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner)
+        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner, requireDeclaredIdentity = strict)
     try {
+        if (strict) {
+            player.setPaused(false, native)
+            session.start(); eventually { session.state.connection == HelperConnection.failed }
+            check(!session.state.ready && session.state.acceptedUsername == null && peer.userCount() == 0)
+            return
+        }
         session.start(); eventually { session.state.ready }
         check(session.state.acceptedUsername == "Viewer_2" && player.paused && peer.userCount() == 0)
         if (eof) {
@@ -129,13 +135,13 @@ private suspend fun scenario(owner: CoroutineScope, eof: Boolean) {
             check(player.position == 3000L && peer.userCount() == 2)
             peer.correction(3, 3, 0); eventually { session.state.connection == HelperConnection.failed }
         }
-    } finally { session.close(); session.close() }
+    } finally { session.close(); session.close(); check(player.paused && player.closes == 0) }
     check(player.paused && player.closes == 0)
 }
 
 internal fun helperSessionChecks() {
     Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { dispatcher ->
-        runBlocking(dispatcher) { scenario(this, false); scenario(this, true) }
+        runBlocking(dispatcher) { scenario(this, false); scenario(this, true); scenario(this, false, strict = true) }
     }
     println("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup")
 }

@@ -25,6 +25,7 @@ struct LocalPlaybackLaunch {
     @Published private(set) var failed = false
     @Published private(set) var sharedState: HelperSessionState?
     private var sharedSession: HelperSession?
+    private var requiresSharedAdmission: Bool
     private let sharedMediaPreparation = SharedMediaPreparation()
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
@@ -47,6 +48,7 @@ struct LocalPlaybackLaunch {
         launch: LocalPlaybackLaunch, runtime: VLCPlaybackRuntime? = nil, scope: PlaybackScope? = nil,
         positionMs: Int64 = 0,
         selection: LibraryMediaSelection? = nil,
+        requiresSharedAdmission: Bool = false,
         onLoaded: @escaping @MainActor (PlaybackScope) -> Void = { _ in },
         onObservation: @escaping @MainActor (PlaybackObservation) -> Void = { _ in },
         onNavigation: (@MainActor (String) -> Void)? = nil, onFailure: (@MainActor () -> Void)? = nil
@@ -57,6 +59,7 @@ struct LocalPlaybackLaunch {
         allocateScope = scope == nil
         initialPositionMs = positionMs
         self.selection = selection
+        self.requiresSharedAdmission = requiresSharedAdmission
         self.onLoaded = onLoaded
         self.onObservation = onObservation
         self.onNavigation = onNavigation
@@ -75,7 +78,10 @@ struct LocalPlaybackLaunch {
     }
     /// The room coordinator must admit the selected media before transferring
     /// this transport. Native playback ownership stays with this controller.
-    func connectShared(transport: any HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String)
+    func connectShared(
+        transport: any HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String,
+        requireDeclaredIdentity: Bool = false
+    )
         async throws
     {
         do {
@@ -84,7 +90,8 @@ struct LocalPlaybackLaunch {
             guard !closing, sharedSession == nil else { throw HelperSessionFailure.unavailable }
             let session = try HelperSession(
                 transport: transport, player: player, nativeScope: scope,
-                endpoint: endpoint, media: media, revision: revision
+                endpoint: endpoint, media: media, revision: revision,
+                requireDeclaredIdentity: requiresSharedAdmission || requireDeclaredIdentity
             ) { [weak self] state in
                 self?.sharedState = state
                 self?.gateSharedActions()
@@ -99,7 +106,9 @@ struct LocalPlaybackLaunch {
         }
     }
     private func gateSharedActions() {
-        if sharedSession != nil && sharedState?.connection != .connected {
+        if (requiresSharedAdmission || sharedSession != nil)
+            && (sharedState?.connection != .connected || (requiresSharedAdmission && sharedState?.ready != true))
+        {
             presentation.enabledActions.subtract(["playPause", "seek", "skip"])
         }
     }

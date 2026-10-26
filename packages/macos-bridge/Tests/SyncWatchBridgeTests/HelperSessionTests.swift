@@ -207,3 +207,24 @@ private actor SessionPlayer: PlaybackPort {
     #expect(await player.paused)
     #expect(await player.closes == 0)
 }
+
+@Test @MainActor func roomIdentityCannotBeSilentlyRenamed() async throws {
+    let native = try PlaybackScope.fresh().replacingMedia()
+    let player = SessionPlayer(native)
+    await player.setPaused(false, scope: native)
+    let peer = SessionPeer()
+    let session = try HelperSession(
+        transport: peer, player: player, nativeScope: native,
+        endpoint: SyncplayEndpoint(host: "localhost", port: 8999, room: "room", username: "Viewer"),
+        media: SharedMedia(handle: "media-1", name: "Movie.mkv", durationMs: 60000, fileSizeBytes: 1234),
+        revision: sessionRevision, requireDeclaredIdentity: true)
+    try session.start()
+    try await eventually { session.state.connection == .failed }
+    await session.close()
+    await session.close()
+    #expect(!session.state.ready)
+    #expect(session.state.acceptedUsername == nil)
+    #expect(try await peer.userCount() == 0)
+    #expect(await player.paused)
+    #expect(await player.closes == 0)
+}

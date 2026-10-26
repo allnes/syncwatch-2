@@ -26,6 +26,7 @@ public sealed class HelperSession : IAsyncDisposable
     private readonly IPlaybackPort player;
     private readonly PlaybackScope nativeScope;
     private readonly SyncplayEndpoint endpoint;
+    private readonly bool requireDeclaredIdentity;
     private readonly SharedMedia media;
     private readonly string revision;
     private readonly Action<HelperSessionState> changed;
@@ -49,10 +50,11 @@ public sealed class HelperSession : IAsyncDisposable
     private long? deadline;
 
     public HelperSession(IHelperTransport transport, IPlaybackPort player, PlaybackScope nativeScope,
-        SyncplayEndpoint endpoint, SharedMedia media, string revision, Action<HelperSessionState>? changed = null)
+        SyncplayEndpoint endpoint, SharedMedia media, string revision, Action<HelperSessionState>? changed = null, bool requireDeclaredIdentity = false)
     {
         owner = SynchronizationContext.Current ?? throw new InvalidOperationException("An owning synchronization context is required");
         this.transport = transport; this.player = player; this.nativeScope = nativeScope; this.endpoint = endpoint;
+        this.requireDeclaredIdentity = requireDeclaredIdentity;
         this.media = media; this.revision = revision; this.changed = changed ?? (_ => { });
         commands = new(WireScope); fence = new(nativeScope);
         _ = commands.Connect(1, endpoint.Host, endpoint.Port, endpoint.Room, endpoint.Username);
@@ -255,6 +257,7 @@ public sealed class HelperSession : IAsyncDisposable
         {
             case "sync.identity":
                 PlayerCorrection.Keys(payload, ["username"]); string username = Text(payload.GetProperty("username"), 64);
+                if (requireDeclaredIdentity && username != endpoint.Username) throw Bad();
                 if (State.AcceptedUsername is not null && State.AcceptedUsername != username) throw Bad();
                 State = State with { AcceptedUsername = username }; break;
             case "sync.connection":
