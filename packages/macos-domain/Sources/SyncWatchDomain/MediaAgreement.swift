@@ -31,6 +31,13 @@ public struct MediaDescriptor: Sendable, Equatable {
         self.fullHashSha256 = fullHashSha256
     }
 
+    /// Derive a logical title from a local basename, preserving dotfiles.
+    public static func logicalTitle(_ filename: String) -> String {
+        let value = filename.precomposedStringWithCanonicalMapping
+        guard let dot = value.lastIndex(of: "."), dot != value.startIndex else { return value }
+        return String(value[..<dot])
+    }
+
     /// The v1 service folds ASCII case only, after NFC and ASCII-space collapse.
     public static func normalizedTitleKey(_ title: String) -> String {
         let collapsed = title.precomposedStringWithCanonicalMapping.split(separator: " ").joined(separator: " ")

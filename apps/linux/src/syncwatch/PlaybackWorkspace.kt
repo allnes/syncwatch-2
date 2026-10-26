@@ -66,6 +66,7 @@ internal class PlaybackController(
     private var closing = false
     private var shutdown: CompletableFuture<Void>? = null
     private var sharedSession: HelperSession? = null
+    private val sharedMediaPreparation = SharedMediaPreparation(work)
     var sharedState by mutableStateOf<HelperSessionState?>(null)
         private set
     private val navigationActions get() = if (onNavigation == null) setOf("endWatching", "toggleFullscreen")
@@ -77,6 +78,12 @@ internal class PlaybackController(
     var failed by mutableStateOf(false)
         private set
 
+    suspend fun prepareSharedMedia(): MediaDescriptor {
+        check(!closing)
+        val descriptor = sharedMediaPreparation.prepare(checkNotNull(selection), player, scope)
+        check(!closing)
+        return descriptor
+    }
     /** The room coordinator admits local media before transferring this transport. */
     suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String) {
         check(EventQueue.isDispatchThread())
@@ -189,7 +196,7 @@ internal class PlaybackController(
         val cleanup = CoroutineScope(work.coroutineContext.minusKey(Job) + cleanupJob)
         cleanup.launch(start = CoroutineStart.UNDISPATCHED) {
             var helperFailure: Exception? = null
-            try { sharedSession?.close() } catch (error: Exception) { helperFailure = error }
+            try { sharedMediaPreparation.close(); sharedSession?.close() } catch (error: Exception) { helperFailure = error }
             finally {
                 sharedSession = null; ownerJob.cancel()
                 player.closeAsync().whenComplete { _, error -> EventQueue.invokeLater {

@@ -11,6 +11,9 @@ internal fun mediaAgreementChecks(directory: Path) {
         return MediaDescriptor(p["mediaId"] as String, p["title"] as String, p["titleKey"] as String,
             p["fileSizeBytes"] as Long, p["durationMs"] as Long?, p["fullHashSha256"] as String?)
     }
+    for (raw in root["fileNames"] as List<*>) {
+        val p = Json.`object`(raw); check(MediaDescriptor.logicalTitle(p["filename"] as String) == p["title"])
+    }
     for (raw in root["normalization"] as List<*>) {
         val p = Json.`object`(raw); check(MediaDescriptor.normalizedTitleKey(p["title"] as String) == p["key"])
     }

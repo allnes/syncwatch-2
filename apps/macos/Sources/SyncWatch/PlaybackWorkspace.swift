@@ -25,6 +25,7 @@ struct LocalPlaybackLaunch {
     @Published private(set) var failed = false
     @Published private(set) var sharedState: HelperSessionState?
     private var sharedSession: HelperSession?
+    private let sharedMediaPreparation = SharedMediaPreparation()
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
     private let launch: LocalPlaybackLaunch
@@ -65,6 +66,12 @@ struct LocalPlaybackLaunch {
     }
     private var navigationActions: Set<String> {
         onNavigation == nil ? ["endWatching", "toggleFullscreen"] : ["endWatching", "toggleFullscreen", "showLibrary"]
+    }
+    func prepareSharedMedia() async throws -> MediaDescriptor {
+        guard !closing, let selection else { throw HelperSessionFailure.unavailable }
+        let descriptor = try await sharedMediaPreparation.prepare(selection, player: player, scope: scope)
+        guard !closing else { throw CancellationError() }
+        return descriptor
     }
     /// The room coordinator must admit the selected media before transferring
     /// this transport. Native playback ownership stays with this controller.
@@ -225,6 +232,7 @@ struct LocalPlaybackLaunch {
         closing = true
         presentation.enabledActions = []
         polling?.cancel()
+        await sharedMediaPreparation.close()
         await sharedSession?.close()
         sharedSession = nil
         await player.close()

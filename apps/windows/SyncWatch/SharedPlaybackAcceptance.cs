@@ -9,7 +9,7 @@ namespace SyncWatch;
 // the exported observation is always read from VLC, never from command targets.
 internal static class SharedPlaybackAcceptance
 {
-    internal static async Task RunAsync(PlaybackWorkspace controller, string file, string configuration)
+    internal static async Task RunAsync(PlaybackWorkspace controller, string configuration)
     {
         using var document = JsonDocument.Parse(File.ReadAllBytes(configuration)); var config = document.RootElement;
         string Text(string key) => config.GetProperty(key).GetString() ?? throw new InvalidDataException(key);
@@ -23,11 +23,18 @@ internal static class SharedPlaybackAcceptance
             if (DateTime.UtcNow >= expires) throw new TimeoutException();
             if (observation.Status != PlaybackStatus.Ready || !observation.Seekable) await Task.Delay(40);
         } while (observation.Status != PlaybackStatus.Ready || !observation.Seekable);
-        long duration = observation.DurationMs ?? throw new InvalidDataException("duration");
+        var descriptor = await controller.PrepareSharedMediaAsync();
+        var expected = config.GetProperty("expectedMedia");
+        var remote = new MediaDescriptor(expected.GetProperty("mediaId").GetString()!, expected.GetProperty("title").GetString()!,
+            expected.GetProperty("titleKey").GetString()!, expected.GetProperty("fileSizeBytes").GetInt64(),
+            expected.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : expected.GetProperty("durationMs").GetInt64(),
+            expected.GetProperty("fullHashSha256").GetString());
+        if (MediaAgreement.Resolve(remote, new[] { descriptor }).Status != MediaAgreementStatus.Matched) throw new InvalidDataException("media-agreement-required");
+        long duration = descriptor.DurationMs ?? throw new InvalidDataException("duration");
         string revision = File.ReadAllText(Path.Combine(runtime, "app", "syncplay-revision.txt")).Trim();
         var transport = await Task.Run(() => HelperProcess.Start(executable, runtime));
         await controller.ConnectSharedAsync(transport, endpoint,
-            new("fixture-media", Path.GetFileName(file), duration, checked((ulong)new FileInfo(file).Length)), revision);
+            new(descriptor.MediaId, remote.Title, duration, checked((ulong)descriptor.FileSizeBytes)), revision);
         int sequence = 0;
         while (DateTime.UtcNow < expires)
         {
@@ -47,7 +54,14 @@ internal static class SharedPlaybackAcceptance
                     sequence = actual.Sequence,
                     controlSequence = sequence,
                     guiObserved = false,
-                    physicalOutputAccepted = false
+                    physicalOutputAccepted = false,
+                    mediaId = descriptor.MediaId,
+                    localTitle = descriptor.Title,
+                    sharedTitle = remote.Title,
+                    agreedMediaId = remote.MediaId,
+                    fullHashSha256 = descriptor.FullHashSha256,
+                    fileSizeBytes = descriptor.FileSizeBytes,
+                    durationMs = duration
                 });
                 string temporary = output + ".tmp"; File.WriteAllBytes(temporary, value); File.Move(temporary, output, true);
             }

@@ -34,6 +34,11 @@ private struct AgreementCorpus: Decodable {
         let value: Descriptor
         let error: String?
     }
+    struct Filename: Decodable {
+        let filename: String
+        let title: String
+    }
+    let fileNames: [Filename]
     let normalization: [Normalization]
     let descriptors: [String: Descriptor]
     let cases: [Case]
@@ -44,6 +49,7 @@ private struct AgreementCorpus: Decodable {
     let fixtures = try #require(ProcessInfo.processInfo.environment["SYNCWATCH_CONTRACT_FIXTURES"])
     let path = URL(fileURLWithPath: fixtures).deletingLastPathComponent().appendingPathComponent("media-agreement.json")
     let corpus = try JSONDecoder().decode(AgreementCorpus.self, from: Data(contentsOf: path))
+    for item in corpus.fileNames { #expect(MediaDescriptor.logicalTitle(item.filename) == item.title) }
     for item in corpus.normalization { #expect(MediaDescriptor.normalizedTitleKey(item.title) == item.key) }
     for fixture in corpus.validation {
         var error: String?

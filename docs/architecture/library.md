@@ -25,3 +25,28 @@ The normal application Library now owns a native folder picker and a cancellable
 The Library-to-WatchSession workflow captures the selected local media and its folder-access owner before starting playback. The watch owner retains that access independently of subsequent Library scans and selections until native release. Metadata/sidecar extraction and filesystem watching still require their application integration. On macOS, the access adapter renews stale/moved bookmarks while access is active and reports denied/corrupt grants. A saved path cannot silently replace a failed grant. Windows and Linux retain their own explicit folder selection and revalidate access after restart. These local grant records are separate from the preference/resume format, which deliberately contains no paths or permissions.
 
 The shared Library presentation receives entries and observed capabilities. It performs no filesystem work and starts no media provider. Application controllers map actual catalog state and selection into that presentation; only the existing WatchSession owner allocates or releases playback generations. Scanning alone does not enable shared playback, publish a room catalog or establish practical readiness.
+
+## Shared media preparation
+
+The application retains its selected folder grant while a cancellable preparation
+reads the local file in bounded chunks. SHA-256 uses platform SDK implementations;
+the read checks the scanned size/modification facts and checks for observable
+changes before publication. All handles close on success, failure or cancellation.
+A new preparation reads the bytes again, including when a replacement preserves
+size and modification time; no persistent digest cache is enabled yet. These
+checks do not create an immutable filesystem snapshot. Preparation is canceled
+and awaited before the native owner releases its selection.
+
+`MediaDescriptor` in each domain contains only catalog facts, never a local path
+or access grant. Its title key uses NFC, ASCII-space collapse and ASCII-only
+case folding, matching the room service. `MediaAgreement` accepts at most 256
+unique local IDs. A unique full SHA-256 match with consistent size and a positive
+known duration can resolve automatically. Duplicate copies remain ambiguous;
+missing hashes, unknown duration and other encodings require explicit edition
+confirmation. Conflicting facts under the same full hash are rejected. A title,
+size or duration alone cannot authorize automatic playback.
+
+The native player exposes preparation for the room coordinator. The explicit
+shared-session check consumes it, but normal room admission, background catalog
+exchange, confirmation UI, file watching and persistent digest-cache invalidation
+remain integration work.

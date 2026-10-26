@@ -16,6 +16,10 @@ data class MediaDescriptor(val mediaId: String, val title: String, val titleKey:
             (fullHashSha256 != null && !fullHashSha256.matches(Regex("[0-9a-f]{64}")))) throw WatchFailure("malformed")
     }
     companion object {
+        fun logicalTitle(filename: String): String {
+            val value = Normalizer.normalize(filename, Normalizer.Form.NFC); val dot = value.lastIndexOf('.')
+            return if (dot > 0) value.substring(0, dot) else value
+        }
         fun normalizedTitleKey(title: String): String = Normalizer.normalize(title, Normalizer.Form.NFC)
             .split(' ').filter { it.isNotEmpty() }.joinToString(" ")
             .map { if (it in 'A'..'Z') it + 32 else it }.joinToString("")

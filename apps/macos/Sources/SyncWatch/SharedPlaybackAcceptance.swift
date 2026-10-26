@@ -5,7 +5,16 @@ import SyncWatchDomain
 /// Explicit, authored-fixture application check. Control files dispatch the same
 /// controller actions as PlayerChrome; exported state always comes from VLC.
 @MainActor enum SharedPlaybackAcceptance {
-    static func run(controller: PlaybackController, file: URL, configuration: URL) async throws {
+    private enum Failure: Error { case mediaAgreementRequired }
+    static func run(controller: PlaybackController, configuration: URL) async throws {
+        struct ExpectedMedia: Decodable {
+            let mediaId: String
+            let title: String
+            let titleKey: String
+            let fileSizeBytes: Int64
+            let durationMs: Int64?
+            let fullHashSha256: String?
+        }
         struct Configuration: Decodable {
             let runtime: String
             let executable: String
@@ -15,6 +24,7 @@ import SyncWatchDomain
             let port: Int
             let room: String
             let username: String
+            let expectedMedia: ExpectedMedia
         }
         let config = try JSONDecoder().decode(Configuration.self, from: Data(contentsOf: configuration))
         let runtime = URL(filePath: config.runtime)
@@ -30,10 +40,16 @@ import SyncWatchDomain
             guard ContinuousClock.now < expires else { throw HelperSessionFailure.timeout }
             if observation.status != .ready || !observation.seekable { try await Task.sleep(for: .milliseconds(40)) }
         } while observation.status != .ready || !observation.seekable
-        guard let duration = observation.durationMs, duration > 0 else { throw HelperSessionFailure.unavailable }
-        guard let size = try FileManager.default.attributesOfItem(atPath: file.path)[.size] as? NSNumber else {
-            throw HelperSessionFailure.malformed
+        let descriptor = try await controller.prepareSharedMedia()
+        let expected = config.expectedMedia
+        let remote = try MediaDescriptor(
+            mediaID: expected.mediaId, title: expected.title, titleKey: expected.titleKey,
+            fileSizeBytes: expected.fileSizeBytes, durationMs: expected.durationMs,
+            fullHashSha256: expected.fullHashSha256)
+        guard try MediaAgreement.resolve(remote, local: [descriptor]).status == .matched else {
+            throw Failure.mediaAgreementRequired
         }
+        guard let duration = descriptor.durationMs else { throw HelperSessionFailure.unavailable }
         let revision = try String(
             contentsOf: runtime.appendingPathComponent("app/syncplay-revision.txt"), encoding: .ascii
         )
@@ -42,8 +58,8 @@ import SyncWatchDomain
         try await controller.connectShared(
             transport: transport, endpoint: endpoint,
             media: SharedMedia(
-                handle: "fixture-media", name: file.lastPathComponent, durationMs: duration,
-                fileSizeBytes: size.uint64Value), revision: revision)
+                handle: descriptor.mediaID, name: remote.title, durationMs: duration,
+                fileSizeBytes: UInt64(descriptor.fileSizeBytes)), revision: revision)
         var sequence = 0
         while ContinuousClock.now < expires {
             if let shared = controller.sharedState {
@@ -56,6 +72,9 @@ import SyncWatchDomain
                     "positionMs": actual.positionMs, "paused": actual.paused, "rate": actual.rate,
                     "sequence": actual.sequence, "controlSequence": sequence, "guiObserved": false,
                     "physicalOutputAccepted": false,
+                    "mediaId": descriptor.mediaID, "fullHashSha256": descriptor.fullHashSha256 ?? "",
+                    "localTitle": descriptor.title, "sharedTitle": remote.title, "agreedMediaId": remote.mediaID,
+                    "fileSizeBytes": descriptor.fileSizeBytes, "durationMs": duration,
                 ]
                 try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]).write(
                     to: output, options: .atomic)

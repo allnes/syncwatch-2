@@ -32,6 +32,11 @@ public sealed record MediaDescriptor
         return value.EnumerateRunes().Count() is >= 1 and <= 256 && !value.Any(c => c < 32 || c == 127);
     }
 
+    public static string LogicalTitle(string filename)
+    {
+        string value = filename.Normalize(NormalizationForm.FormC); int dot = value.LastIndexOf('.');
+        return dot > 0 ? value[..dot] : value;
+    }
     public static string NormalizedTitleKey(string title) => new(string.Join(' ',
         title.Normalize(NormalizationForm.FormC).Split(' ', StringSplitOptions.RemoveEmptyEntries))
         .Select(c => c is >= 'A' and <= 'Z' ? (char)(c + 32) : c).ToArray());
@@ -39,8 +44,11 @@ public sealed record MediaDescriptor
 
 public enum MediaAgreementStatus { Matched, ConfirmationRequired, Ambiguous, Missing }
 
-public sealed record MediaAgreement(MediaAgreementStatus Status, IReadOnlyList<string> CandidateIds)
+public sealed record MediaAgreement
 {
+    public MediaAgreementStatus Status { get; }
+    public IReadOnlyList<string> CandidateIds { get; }
+    private MediaAgreement(MediaAgreementStatus status, IReadOnlyList<string> candidateIds) { Status = status; CandidateIds = candidateIds; }
     /// <summary>Weak or ambiguous candidates cannot authorize automatic playback.</summary>
     public static MediaAgreement Resolve(MediaDescriptor remote, IReadOnlyList<MediaDescriptor> local)
     {

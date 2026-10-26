@@ -87,8 +87,7 @@ import SyncWatchDomain
                         throw Failure.condition
                     }
                     try await SharedPlaybackAcceptance.run(
-                        controller: current, file: URL(filePath: file),
-                        configuration: URL(filePath: configuration))
+                        controller: current, configuration: URL(filePath: configuration))
                     result["nativeSharedSession"] = true
                     result["helperConnectionAccepted"] = true
                 } else if mode == "helper-correction" {

@@ -58,7 +58,7 @@ internal object WatchAcceptance {
                 } else if (mode == "shared-session") {
                     until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }
                     val current = checkNotNull(watch.player)
-                    SharedPlaybackAcceptance.run(current, file, Path.of(checkNotNull(value("--shared-check-config"))), {})
+                    SharedPlaybackAcceptance.run(current, Path.of(checkNotNull(value("--shared-check-config"))), {})
                     result["nativeSharedSession"] = true; result["helperConnectionAccepted"] = true
                 } else if (mode == "helper-correction") {
                     until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }

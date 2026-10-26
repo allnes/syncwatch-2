@@ -42,6 +42,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
     private HelperSession? sharedSession;
+    private readonly SharedMediaPreparation sharedMediaPreparation = new();
     internal HelperSessionState? SharedState { get; private set; }
     private bool closing;
     private bool attached;
@@ -52,6 +53,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     internal PlaybackScope Scope => scope;
     internal NativeVideoHost Surface => surface;
     internal void RequestAction(string action, double? value = null) => Action(action, value);
+    internal async Task<MediaDescriptor> PrepareSharedMediaAsync()
+    {
+        if (closing || selection is null) throw new InvalidOperationException("media-unavailable");
+        var descriptor = await sharedMediaPreparation.PrepareAsync(selection, player, scope);
+        if (closing) throw new OperationCanceledException();
+        return descriptor;
+    }
     // Transfer only after the room coordinator admits the selected local media.
     internal async Task ConnectSharedAsync(IHelperTransport transport, SyncplayEndpoint endpoint, SharedMedia media, string revision)
     {
@@ -201,6 +209,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         cancellation.Cancel();
         presentation = presentation with { EnabledActions = new HashSet<string>() };
         chrome.Render(presentation, language);
+        await sharedMediaPreparation.CloseAsync();
         try { if (sharedSession is not null) await sharedSession.DisposeAsync(); }
         finally { sharedSession = null; await player.DisposeAsync(); }
         if (polling is not null) await polling;

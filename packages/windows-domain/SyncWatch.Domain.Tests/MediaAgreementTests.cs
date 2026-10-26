@@ -7,6 +7,8 @@ internal static class MediaAgreementTests
     {
         using var document = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(directory, "media-agreement.json")));
         var root = document.RootElement;
+        foreach (var item in root.GetProperty("fileNames").EnumerateArray())
+            Require(MediaDescriptor.LogicalTitle(item.GetProperty("filename").GetString()!) == item.GetProperty("title").GetString(), "logical title");
         foreach (var item in root.GetProperty("normalization").EnumerateArray())
             Require(MediaDescriptor.NormalizedTitleKey(item.GetProperty("title").GetString()!) == item.GetProperty("key").GetString(), "title normalization");
         foreach (var fixture in root.GetProperty("validation").EnumerateArray())

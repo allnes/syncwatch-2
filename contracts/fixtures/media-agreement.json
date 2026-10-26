@@ -448,5 +448,31 @@
       },
       "error": null
     }
+  ],
+  "fileNames": [
+    {
+      "filename": "Movie.MKV",
+      "title": "Movie"
+    },
+    {
+      "filename": "Movie.final.mp4",
+      "title": "Movie.final"
+    },
+    {
+      "filename": ".avi",
+      "title": ".avi"
+    },
+    {
+      "filename": ".movie.avi",
+      "title": ".movie"
+    },
+    {
+      "filename": "Movie",
+      "title": "Movie"
+    },
+    {
+      "filename": "Café 🎬.mkv",
+      "title": "Café 🎬"
+    }
   ]
 }
