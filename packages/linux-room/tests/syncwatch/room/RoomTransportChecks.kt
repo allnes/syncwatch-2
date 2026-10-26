@@ -53,6 +53,8 @@ private suspend fun seededCatalog(address: String) {
                 cursor = page.nextCursor
             }
             check(pages == 3 && ids == (0 until 250).map { "movie-$it" }.toSet())
+            val complete = client.catalogView(admission, bootstrap)
+            check(complete.bootstrap == bootstrap && complete.items.size == 250 && complete.items.map { it.media.mediaId }.toSet() == ids)
             client.leave(admission)
         }
         println("SYNCWATCH_ROOM_CATALOG_TRANSPORT_OK")

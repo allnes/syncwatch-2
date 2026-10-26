@@ -8,8 +8,9 @@ import syncwatch.room.*
 /** The workspace owns membership independently of the visible dialog. */
 internal class RoomController(private val scope: CoroutineScope) {
     var editor by mutableStateOf(RoomEditor())
-    var bootstrap by mutableStateOf<RoomBootstrap?>(null)
+    var catalogView by mutableStateOf<RoomCatalogView?>(null)
         private set
+    val bootstrap: RoomBootstrap? get() = catalogView?.bootstrap
     val connected: Boolean get() = editor.connected && bootstrap != null
     private var admission: RoomAdmission? = null
     private var work: Job? = null
@@ -43,7 +44,7 @@ internal class RoomController(private val scope: CoroutineScope) {
         val completion = CompletableDeferred<Unit>(); closing = completion
         stopping = true
         work?.cancelAndJoin()
-        work = null; admission = null; bootstrap = null
+        work = null; admission = null; catalogView = null
         editor = editor.clearSecrets().copy(state = "disconnected", status = "", roomId = "", memberCount = 0, owner = false)
         stopping = false; completion.complete(Unit); closing = null
     }
@@ -58,7 +59,8 @@ internal class RoomController(private val scope: CoroutineScope) {
             admitted = value; admission = value; editor = editor.clearSecrets()
             val stream = next.openEvents(value)
             val initial = withTimeout(20000) { RoomBootstrap.initialEvent(stream.receive(), value) }
-            currentCoroutineContext().ensureActive(); bootstrap = initial
+            val firstView = withTimeout(20000) { next.catalogView(value, initial) }
+            currentCoroutineContext().ensureActive(); catalogView = firstView
             editor = editor.copy(state = "connected", roomId = value.roomId, memberCount = initial.snapshot.members.size, owner = owner)
             while (currentCoroutineContext().isActive) {
                 val update = RoomInvalidation.decode(stream.receive()); val previous = bootstrap ?: throw RoomProtocolException("malformed")
@@ -68,14 +70,20 @@ internal class RoomController(private val scope: CoroutineScope) {
                 if (snapshot.snapshot.epoch != previous.snapshot.epoch || snapshot.snapshot.sequence < update.sequence || snapshot.connection.host != initial.connection.host ||
                     snapshot.connection.port != initial.connection.port || snapshot.connection.room != initial.connection.room ||
                     snapshot.snapshot.members.none { it.memberId == value.memberId && it.identity == identity }) throw RoomProtocolException("malformed")
-                bootstrap = snapshot; editor = editor.copy(memberCount = snapshot.snapshot.members.size)
+                // One loop owns snapshot creation and page walks; queued events cannot rotate the cursor.
+                val complete = withTimeout(20000) { next.catalogView(value, snapshot) }
+                currentCoroutineContext().ensureActive(); catalogView = complete; editor = editor.copy(memberCount = snapshot.snapshot.members.size)
             }
-        } catch (error: CancellationException) { throw error }
+        } catch (error: CancellationException) {
+            // A bounded receive/page timeout is an attempt failure; owner cancellation still propagates.
+            currentCoroutineContext().ensureActive()
+            failed = true; editor = editor.copy(state = "connecting")
+        }
         catch (_: Exception) { failed = true; editor = editor.copy(state = "connecting") }
         finally {
             withContext(NonCancellable) {
                 current?.let { target -> admitted?.let { value -> withTimeoutOrNull(3000) { runCatching { target.leave(value) } } }; target.close() }
-                admission = null; bootstrap = null; editor = editor.clearSecrets().copy(memberCount = 0, owner = false); work = null
+                admission = null; catalogView = null; editor = editor.clearSecrets().copy(memberCount = 0, owner = false); work = null
                 if (failed) editor = editor.copy(state = "failed", status = "roomConnectionFailed")
             }
         }

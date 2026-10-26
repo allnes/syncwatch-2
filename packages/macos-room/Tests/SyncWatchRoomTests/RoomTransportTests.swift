@@ -31,6 +31,10 @@ final class RoomTransportTests: XCTestCase, @unchecked Sendable {
             }
             XCTAssertEqual(pages, 3)
             XCTAssertEqual(ids, Set((0..<250).map { "movie-\($0)" }))
+            let complete = try await client.catalogView(admission, bootstrap: bootstrap)
+            XCTAssertEqual(complete.items.count, 250)
+            XCTAssertEqual(complete.bootstrap, bootstrap)
+            XCTAssertEqual(Set(complete.items.map { $0.media.mediaID }), ids)
             try await client.leave(admission)
             await client.close()
         } catch {

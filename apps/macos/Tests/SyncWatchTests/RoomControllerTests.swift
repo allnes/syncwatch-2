@@ -93,3 +93,56 @@ func connectedRoomClosesAndCanConnectAgain() async throws {
     }
     await runtime.close()
 }
+
+@MainActor @Test(.enabled(if: ProcessInfo.processInfo.environment["SYNCWATCH_CATALOG_ROOM"] != nil))
+func roomControllerPublishesOnlyCompleteCatalogs() async throws {
+    let environment = ProcessInfo.processInfo.environment
+    let address = try #require(environment["SYNCWATCH_ROOM_SERVICE"])
+    let controller = RoomController()
+    controller.editor.selectMode("joinRoom")
+    for (field, value) in [
+        "serviceAddress": address, "username": "macOS workspace catalog",
+        "roomID": try #require(environment["SYNCWATCH_CATALOG_ROOM"]),
+        "invitation": try #require(environment["SYNCWATCH_CATALOG_INVITATION"]),
+    ] { controller.editor.edit(field, value: value) }
+    let peer = try RoomClient(address: RoomAddress(address))
+    do {
+        controller.connect()
+        let deadline = ContinuousClock.now + .seconds(20)
+        while controller.editor.busy && ContinuousClock.now < deadline {
+            #expect(controller.catalogView == nil)
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(controller.connected)
+        let view = try #require(controller.catalogView)
+        #expect(view.items.count == 250)
+        #expect(view.bootstrap == controller.bootstrap)
+        #expect(Set(view.items.map { $0.media.mediaID }) == Set((0..<250).map { "movie-\($0)" }))
+        let joined = try await peer.join(
+            roomID: try #require(environment["SYNCWATCH_CATALOG_ROOM"]),
+            invitation: RoomSecret(try #require(environment["SYNCWATCH_CATALOG_INVITATION"])),
+            identity: RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS catalog refresh"))
+        let events = try await peer.openEvents(joined)
+        _ = try RoomBootstrap.initialEvent(await events.receive(), admission: joined)
+        let joinedDeadline = ContinuousClock.now + .seconds(10)
+        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) != true && ContinuousClock.now < joinedDeadline {
+            #expect(controller.catalogView?.items.count == 250)
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) == true)
+        #expect(controller.catalogView?.items.count == 250)
+        #expect((controller.bootstrap?.snapshot.sequence ?? 0) > view.bootstrap.snapshot.sequence)
+        try await peer.leave(joined)
+        await peer.close()
+        let leftDeadline = ContinuousClock.now + .seconds(10)
+        while controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) == true && ContinuousClock.now < leftDeadline {
+            #expect(controller.catalogView?.items.count == 250)
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(controller.bootstrap?.snapshot.members.contains(where: { $0.memberID == joined.memberID }) == false)
+        await controller.close()
+        #expect(controller.catalogView == nil && controller.bootstrap == nil)
+        #expect(view.items.count == 250)
+        await controller.close()
+    } catch { await peer.close(); await controller.close(); throw error }
+}

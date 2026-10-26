@@ -1005,5 +1005,124 @@
         "valid": false
       }
     ]
-  }
+  },
+  "catalogViews": [
+    {
+      "name": "empty complete view",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[],\"nextCursor\":null}"
+      ],
+      "valid": true,
+      "count": 0
+    },
+    {
+      "name": "two pages assembled",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": true,
+      "count": 2
+    },
+    {
+      "name": "same media ID across members",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-guest\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": true,
+      "count": 2
+    },
+    {
+      "name": "duplicate across pages",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "duplicate after distinct page",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:2\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late sequence change",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":8,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late epoch change",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-other\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late cursor view change",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-other:2\"}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late cursor gap",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:3\"}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late nonprogressing cursor",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late unknown member",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-foreign\",\"media\":{\"v\":1,\"mediaId\":\"movie-b\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":null}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "late malformed body",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{}"
+      ],
+      "valid": false,
+      "count": 0
+    },
+    {
+      "name": "empty final page after content",
+      "pages": [
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[{\"memberId\":\"member-owner\",\"media\":{\"v\":1,\"mediaId\":\"movie-a\",\"title\":\"Movie A\",\"titleKey\":\"movie a\",\"fileSizeBytes\":1024,\"durationMs\":60000,\"fullHashSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}],\"nextCursor\":\"view-1:1\"}",
+        "{\"v\":1,\"roomEpoch\":\"epoch-room\",\"sequence\":7,\"items\":[],\"nextCursor\":null}"
+      ],
+      "valid": true,
+      "count": 1
+    }
+  ]
 }

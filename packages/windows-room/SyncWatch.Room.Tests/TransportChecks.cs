@@ -55,6 +55,8 @@ internal static class TransportChecks
             cursor = page.NextCursor;
         }
         if (pages != 3 || !ids.SetEquals(Enumerable.Range(0, 250).Select(i => "movie-" + i))) throw new Exception("catalog pages incomplete");
+        var complete = await client.CatalogViewAsync(admission, bootstrap);
+        if (complete.Bootstrap != bootstrap || complete.Items.Count != 250 || !ids.SetEquals(complete.Items.Select(p => p.Media.MediaId))) throw new Exception("Complete HTTP catalog");
         await client.LeaveAsync(admission);
         Console.WriteLine("SYNCWATCH_ROOM_CATALOG_TRANSPORT_OK");
     }

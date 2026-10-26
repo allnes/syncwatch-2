@@ -7,7 +7,8 @@ namespace SyncWatch;
 internal sealed class RoomController
 {
     public RoomEditor Editor { get; } = new();
-    public RoomBootstrap? Bootstrap { get; private set; }
+    public RoomCatalogView? CatalogView { get; private set; }
+    public RoomBootstrap? Bootstrap => CatalogView?.Bootstrap;
     public bool Connected => Editor.Connected && Bootstrap is not null;
     public event Action? Changed;
     private RoomAdmission? admission;
@@ -55,9 +56,16 @@ internal sealed class RoomController
         await Task.Yield();
         stopping = true; stop?.Cancel();
         if (work is not null) await work;
-        work = null; stop?.Dispose(); stop = null; admission = null; Bootstrap = null;
+        work = null; stop?.Dispose(); stop = null; admission = null; CatalogView = null;
         Editor.State = "disconnected"; Editor.Status = ""; Editor.RoomId = ""; Editor.MemberCount = 0; Editor.Owner = false; Editor.ClearSecrets();
         stopping = false; closing = null; Changed?.Invoke();
+    }
+    private static async Task<RoomCatalogView> LoadCatalogAsync(RoomClient client, RoomAdmission admission, RoomBootstrap bootstrap, CancellationToken cancellation)
+    {
+        // One membership loop owns snapshots and page walks; events cannot rotate a cursor mid-walk.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        deadline.CancelAfter(TimeSpan.FromSeconds(20));
+        return await client.CatalogViewAsync(admission, bootstrap, deadline.Token);
     }
     private async Task RunAsync(IReadOnlyDictionary<string, string> values, bool owner, CancellationToken cancellation)
     {
@@ -72,7 +80,8 @@ internal sealed class RoomController
             var stream = await current.OpenEventsAsync(admitted, cancellation);
             using var initialTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation); initialTimeout.CancelAfter(TimeSpan.FromSeconds(20));
             var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(initialTimeout.Token), admitted);
-            cancellation.ThrowIfCancellationRequested(); Bootstrap = initial;
+            var firstView = await LoadCatalogAsync(current, admitted, initial, cancellation);
+            cancellation.ThrowIfCancellationRequested(); CatalogView = firstView;
             Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke();
             while (!cancellation.IsCancellationRequested)
             {
@@ -82,7 +91,8 @@ internal sealed class RoomController
                 var snapshot = await current.SnapshotAsync(admitted, cancellation);
                 if (snapshot.Snapshot.Epoch != previous.Snapshot.Epoch || snapshot.Snapshot.Sequence < update.Sequence || snapshot.Connection != initial.Connection
                     || !snapshot.Snapshot.Members.Any(p => p.MemberId == admitted.MemberId && p.Identity == identity)) throw new RoomProtocolException("malformed");
-                Bootstrap = snapshot; Editor.MemberCount = snapshot.Snapshot.Members.Count; Changed?.Invoke();
+                var complete = await LoadCatalogAsync(current, admitted, snapshot, cancellation);
+                cancellation.ThrowIfCancellationRequested(); CatalogView = complete; Editor.MemberCount = snapshot.Snapshot.Members.Count; Changed?.Invoke();
             }
         }
         catch (Exception) { failed = !cancellation.IsCancellationRequested; Editor.State = "connecting"; Changed?.Invoke(); }
@@ -97,7 +107,7 @@ internal sealed class RoomController
                 }
                 await current.DisposeAsync();
             }
-            admission = null; Bootstrap = null; Editor.ClearSecrets(); Editor.MemberCount = 0; Editor.Owner = false; work = null; stop?.Dispose(); stop = null; if (failed) { Editor.State = "failed"; Editor.Status = "roomConnectionFailed"; }
+            admission = null; CatalogView = null; Editor.ClearSecrets(); Editor.MemberCount = 0; Editor.Owner = false; work = null; stop?.Dispose(); stop = null; if (failed) { Editor.State = "failed"; Editor.Status = "roomConnectionFailed"; }
             Changed?.Invoke();
         }
     }

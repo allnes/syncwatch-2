@@ -37,6 +37,8 @@ The Swift/macOS, C#/Windows and Kotlin/Linux Room SDKs expose bounded catalog-pa
 
 Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. Page transport alone does not implement that coordinator, metadata commands, media admission or playback activation. Normal shared Start remains gated until those application paths are verified on all three operating systems.
 
+The SDKs also assemble a complete catalog view with its bootstrap. They validate duplicates across pages and the service maximum of 2048 items per member, check cancellation before publishing the final page, and expose no partial replacement. The normal desktop membership loop serializes snapshots with page walks and bounds each walk to 20 seconds. It publishes metadata and catalog together, retaining the previous complete view while a refresh is pending; failed or cancelled attempts cannot authorize playback. Cursor expiry requires a new bootstrap. Local catalog publication and media admission remain separate application work.
+
 ## Commands and ordering
 
 HTTP and WebSocket commands share this envelope:

@@ -6,6 +6,37 @@ public struct RoomCatalogEntry: Sendable, Equatable {
     public let media: MediaDescriptor
 }
 
+/// A bootstrap and its complete catalog are published together. No partial view escapes.
+public struct RoomCatalogView: Sendable {
+    public let bootstrap: RoomBootstrap
+    public let items: [RoomCatalogEntry]
+
+    public static func read(
+        bootstrap: RoomBootstrap, fetch: @Sendable (String) async throws -> Data
+    ) async throws -> Self {
+        _ = try RoomCatalogPosition(bootstrap.catalogCursor, bootstrap: bootstrap)
+        var cursor = bootstrap.catalogCursor
+        var items: [RoomCatalogEntry] = []
+        var seen = Set<String>()
+        var counts: [String: Int] = [:]
+        while true {
+            try Task.checkCancellation()
+            let page = try RoomCatalogPage.decode(await fetch(cursor), bootstrap: bootstrap, cursor: cursor)
+            try Task.checkCancellation()
+            for item in page.items {
+                let key = item.memberID + ":" + item.media.mediaID
+                let count = (counts[item.memberID] ?? 0) + 1
+                // The service permits at most 2048 catalog items per member.
+                guard seen.insert(key).inserted, count <= 2048 else { throw RoomProtocolFailure.malformed }
+                counts[item.memberID] = count
+            }
+            items.append(contentsOf: page.items)
+            guard let next = page.nextCursor else { return Self(bootstrap: bootstrap, items: items) }
+            cursor = next
+        }
+    }
+}
+
 /// One bounded page of a bootstrap's stable catalog view, never a partial replacement catalog.
 public struct RoomCatalogPage: Sendable {
     public let epoch: String

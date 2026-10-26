@@ -6,7 +6,8 @@ import SyncWatchRoom
 /// The workspace owns membership independently of the visible connection sheet.
 @MainActor final class RoomController: ObservableObject {
     @Published var editor = RoomEditor()
-    @Published private(set) var bootstrap: RoomBootstrap?
+    @Published private(set) var catalogView: RoomCatalogView?
+    var bootstrap: RoomBootstrap? { catalogView?.bootstrap }
     private var admission: RoomAdmission?
     private var work: Task<Void, Never>?
     private var stopping = false
@@ -74,7 +75,7 @@ import SyncWatchRoom
         if let work { await work.value }
         self.work = nil
         stopping = false
-        bootstrap = nil
+        catalogView = nil
         admission = nil
         editor.state = "disconnected"
         editor.status = ""
@@ -82,6 +83,18 @@ import SyncWatchRoom
         editor.memberCount = 0
         editor.owner = false
         editor.clearSecrets()
+    }
+    private func loadCatalog(_ client: RoomClient, admission: RoomAdmission, bootstrap: RoomBootstrap) async throws -> RoomCatalogView {
+        // This single membership loop owns snapshots and page walks; events cannot rotate a cursor mid-walk.
+        try await withThrowingTaskGroup(of: RoomCatalogView.self) { group in
+            group.addTask { try await client.catalogView(admission, bootstrap: bootstrap) }
+            group.addTask {
+                try await Task.sleep(for: .seconds(20))
+                throw RoomProtocolFailure.transport
+            }
+            defer { group.cancelAll() }
+            return try await group.next()!
+        }
     }
     private func run(_ values: [String: String], owner: Bool) async {
         var current: RoomClient?
@@ -119,7 +132,9 @@ import SyncWatchRoom
                 return try await group.next()!
             }
             try Task.checkCancellation()
-            bootstrap = initial
+            let firstView = try await loadCatalog(next, admission: value, bootstrap: initial)
+            try Task.checkCancellation()
+            catalogView = firstView
             editor.state = "connected"
             editor.roomID = value.roomID
             editor.memberCount = initial.snapshot.members.count
@@ -137,7 +152,9 @@ import SyncWatchRoom
                         $0.memberID == value.memberID && $0.identity == identity
                     })
                 else { throw RoomProtocolFailure.malformed }
-                bootstrap = snapshot
+                let complete = try await loadCatalog(next, admission: value, bootstrap: snapshot)
+                try Task.checkCancellation()
+                catalogView = complete
                 editor.memberCount = snapshot.snapshot.members.count
             }
         } catch {
@@ -159,7 +176,7 @@ import SyncWatchRoom
             await current.close()
         }
         admission = nil
-        bootstrap = nil
+        catalogView = nil
         editor.clearSecrets()
         editor.memberCount = 0
         editor.owner = false

@@ -88,6 +88,16 @@ public actor RoomClient {
             await request("GET", "v1/rooms/\(admission.roomID)/catalog", credential: admission.token, cursor: cursor),
             bootstrap: bootstrap, cursor: cursor)
     }
+    /// The caller serializes bootstrap creation with this walk and bounds its overall lifetime.
+    public func catalogView(_ admission: RoomAdmission, bootstrap: RoomBootstrap) async throws -> RoomCatalogView {
+        guard bootstrap.snapshot.epoch == admission.bootstrap.snapshot.epoch else {
+            throw RoomProtocolFailure.malformed
+        }
+        return try await RoomCatalogView.read(bootstrap: bootstrap) { cursor in
+            try await self.request(
+                "GET", "v1/rooms/\(admission.roomID)/catalog", credential: admission.token, cursor: cursor)
+        }
+    }
     public func leave(_ admission: RoomAdmission) async throws {
         let bytes = try await request("POST", "v1/rooms/\(admission.roomID)/leave", credential: admission.token)
         let value = try RoomWire.object(bytes)

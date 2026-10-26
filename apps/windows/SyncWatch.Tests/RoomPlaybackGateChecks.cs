@@ -28,5 +28,45 @@ internal static class RoomPlaybackGateChecks
         }
         Console.WriteLine("SYNCWATCH_ROOM_PLAYBACK_GATE_OK explicit exit after failure");
         Console.WriteLine("SYNCWATCH_ROOM_INVITATION_OK atomic paste with an explicit service destination");
+        await CompleteCatalogAsync();
+    }
+
+    private static async Task CompleteCatalogAsync()
+    {
+        string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), room = Environment.GetEnvironmentVariable("SYNCWATCH_CATALOG_ROOM"), invitation = Environment.GetEnvironmentVariable("SYNCWATCH_CATALOG_INVITATION");
+        if (address is null || room is null || invitation is null) return;
+        var controller = new RoomController(); controller.Editor.SelectMode("joinRoom");
+        foreach (var (field, value) in new[] { ("serviceAddress", address), ("username", "Windows workspace catalog"), ("roomID", room), ("invitation", invitation) }) controller.Editor.Edit(field, value);
+        try
+        {
+            controller.Connect();
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            while (controller.Editor.Busy) await Task.Delay(10, deadline.Token);
+            var view = controller.CatalogView ?? throw new Exception("Missing complete controller catalog");
+            if (!controller.Connected || view.Bootstrap != controller.Bootstrap || view.Items.Count != 250
+                || !view.Items.Select(p => p.Media.MediaId).ToHashSet().SetEquals(Enumerable.Range(0, 250).Select(i => $"movie-{i}"))) throw new Exception("Incomplete controller catalog");
+            await using var peer = new SyncWatch.Room.RoomClient(new(address));
+            var joined = await peer.JoinAsync(room, new(invitation), new("run-" + Guid.NewGuid().ToString("N"), "Windows catalog refresh"));
+            var events = await peer.OpenEventsAsync(joined);
+            _ = SyncWatch.Room.RoomBootstrap.InitialEvent(await events.ReceiveAsync(), joined);
+            using var updates = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            while (controller.Bootstrap?.Snapshot.Members.Any(p => p.MemberId == joined.MemberId) != true)
+            {
+                if (controller.CatalogView?.Items.Count != 250) throw new Exception("Partial catalog during join refresh");
+                await Task.Delay(10, updates.Token);
+            }
+            if (controller.CatalogView?.Items.Count != 250 || (controller.Bootstrap ?? throw new Exception("Lost refreshed bootstrap")).Snapshot.Sequence <= view.Bootstrap.Snapshot.Sequence) throw new Exception("Catalog refresh did not advance atomically");
+            await peer.LeaveAsync(joined);
+            while (controller.Bootstrap?.Snapshot.Members.Any(p => p.MemberId == joined.MemberId) == true)
+            {
+                if (controller.CatalogView?.Items.Count != 250) throw new Exception("Partial catalog during leave refresh");
+                await Task.Delay(10, updates.Token);
+            }
+            await controller.CloseAsync();
+            if (controller.CatalogView is not null || controller.Bootstrap is not null || view.Items.Count != 250) throw new Exception("Controller catalog lifetime");
+            await controller.CloseAsync();
+            Console.WriteLine("SYNCWATCH_ROOM_CONTROLLER_CATALOG_OK native 250-item view/join refresh/leave refresh/close/repeated close");
+        }
+        finally { await controller.CloseAsync(); }
     }
 }
