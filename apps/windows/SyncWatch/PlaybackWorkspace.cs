@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using SyncWatch.Bridge;
 using SyncWatch.Design;
 using SyncWatch.Domain;
 using SyncWatch.Playback;
@@ -40,6 +41,9 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private readonly CancellationTokenSource cancellation = new();
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
+    private HelperSession? sharedSession;
+    internal HelperSessionState? SharedState { get; private set; }
+    private bool closing;
     private bool attached;
     private bool fullscreen;
     private WindowState savedWindowState;
@@ -48,6 +52,24 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     internal PlaybackScope Scope => scope;
     internal NativeVideoHost Surface => surface;
     internal void RequestAction(string action, double? value = null) => Action(action, value);
+    // Transfer only after the room coordinator admits the selected local media.
+    internal async Task ConnectSharedAsync(IHelperTransport transport, SyncplayEndpoint endpoint, SharedMedia media, string revision)
+    {
+        try
+        {
+            if (closing || !attached || sharedSession is not null) throw new InvalidOperationException("Shared playback unavailable");
+            var session = new HelperSession(transport, player, scope, endpoint, media, revision, state =>
+            { SharedState = state; GateSharedActions(); chrome.Render(presentation, language); });
+            sharedSession = session; SharedState = session.State; GateSharedActions(); chrome.Render(presentation, language);
+            session.Start();
+        }
+        catch { await transport.DisposeAsync(); throw; }
+    }
+    private void GateSharedActions()
+    {
+        if (sharedSession is not null && SharedState is not { Connection: HelperConnection.Connected })
+            presentation = presentation with { EnabledActions = presentation.EnabledActions.Except(["playPause", "seek", "skip"]).ToHashSet() };
+    }
     internal void DetachSurface()
     {
         chrome.VideoSurface = null;
@@ -84,7 +106,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
             while (!cancellation.IsCancellationRequested)
             {
                 PlaybackObservation value = await player.ObserveAsync(scope, cancellation.Token);
-                if (cancellation.IsCancellationRequested) break;
+                if (closing || cancellation.IsCancellationRequested) break;
                 if (value.Status == PlaybackStatus.Failed) throw new PlaybackException("media");
                 if (resumePending && value.Status == PlaybackStatus.Ready)
                 {
@@ -108,7 +130,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                     Muted = value.Muted,
                     EnabledActions = enabled,
                 };
-                chrome.Render(presentation, language);
+                GateSharedActions(); chrome.Render(presentation, language);
                 onObservation?.Invoke(value);
                 await Task.Delay(100, cancellation.Token);
             }
@@ -134,7 +156,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     }
     private async void Action(string action, double? value)
     {
-        if (cancellation.IsCancellationRequested) return;
+        if (closing || cancellation.IsCancellationRequested) return;
         if ((action is "endWatching" or "showLibrary") && onNavigation is not null) { onNavigation(action); return; }
         if (action == "endWatching")
         {
@@ -156,6 +178,12 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         }
         try
         {
+            if (sharedSession is not null && action is "playPause" or "seek")
+            {
+                if (action == "playPause") sharedSession.TogglePause();
+                else if (value is double position) sharedSession.Seek(checked((long)position));
+                return;
+            }
             switch (action)
             {
                 case "playPause": await player.SetPausedAsync(presentation.Playing, scope, cancellation.Token); break;
@@ -169,10 +197,12 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     public Task CloseAsync() => shutdown ??= CloseCoreAsync();
     private async Task CloseCoreAsync()
     {
+        closing = true;
         cancellation.Cancel();
         presentation = presentation with { EnabledActions = new HashSet<string>() };
         chrome.Render(presentation, language);
-        await player.DisposeAsync();
+        try { if (sharedSession is not null) await sharedSession.DisposeAsync(); }
+        finally { sharedSession = null; await player.DisposeAsync(); }
         if (polling is not null) await polling;
         GC.KeepAlive(selection);
         selection = null;

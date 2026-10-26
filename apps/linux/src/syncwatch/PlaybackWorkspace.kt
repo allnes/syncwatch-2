@@ -8,13 +8,18 @@ import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import syncwatch.design.*
 import syncwatch.domain.*
+import syncwatch.bridge.*
 import syncwatch.playback.VLCPlayback
 import syncwatch.playback.X11Display
 import syncwatch.playback.X11VideoCanvas
@@ -60,6 +65,9 @@ internal class PlaybackController(
     private var started = false
     private var closing = false
     private var shutdown: CompletableFuture<Void>? = null
+    private var sharedSession: HelperSession? = null
+    var sharedState by mutableStateOf<HelperSessionState?>(null)
+        private set
     private val navigationActions get() = if (onNavigation == null) setOf("endWatching", "toggleFullscreen")
         else setOf("endWatching", "toggleFullscreen", "showLibrary")
     val canvas = X11VideoCanvas(display, ::closeNative)
@@ -68,6 +76,22 @@ internal class PlaybackController(
         private set
     var failed by mutableStateOf(false)
         private set
+
+    /** The room coordinator admits local media before transferring this transport. */
+    suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String) {
+        check(EventQueue.isDispatchThread())
+        try {
+            check(!closing && started && sharedSession == null)
+            val session = HelperSession(transport, player, scope, endpoint, media, revision, work) { state ->
+                sharedState = state; gateSharedActions()
+            }
+            sharedSession = session; sharedState = session.state; gateSharedActions(); session.start()
+        } catch (error: Exception) { withContext(NonCancellable + Dispatchers.IO) { transport.close() }; throw error }
+    }
+    private fun gateSharedActions() {
+        if (sharedSession != null && sharedState?.connection != HelperConnection.connected)
+            presentation = presentation.copy(enabledActions = presentation.enabledActions - setOf("playPause", "seek", "skip"))
+    }
 
     fun start() {
         check(EventQueue.isDispatchThread())
@@ -119,6 +143,7 @@ internal class PlaybackController(
         presentation = presentation.copy(state = state, positionMs = value.positionMs,
             durationMs = value.durationMs ?: 0, volume = value.volume ?: presentation.volume,
             muted = value.muted, enabledActions = enabled)
+        gateSharedActions()
     }
 
     fun action(action: String, value: Double?, close: () -> Unit, fullscreen: () -> Unit) {
@@ -126,6 +151,13 @@ internal class PlaybackController(
         presentation.dispatch(action, value) { accepted, number ->
             if (accepted in setOf("endWatching", "showLibrary") && onNavigation != null) {
                 onNavigation.invoke(accepted)
+                return@dispatch
+            }
+            val shared = sharedSession
+            if (shared != null && accepted in setOf("playPause", "seek")) {
+                try {
+                    if (accepted == "playPause") shared.togglePause() else if (number != null) shared.seek(number.toLong())
+                } catch (_: Exception) { /* A rejected intent cannot acknowledge playback state. */ }
                 return@dispatch
             }
             when (accepted) {
@@ -151,14 +183,26 @@ internal class PlaybackController(
         closing = true
         loaded.completeExceptionally(CancellationException("closed"))
         presentation = presentation.copy(enabledActions = emptySet())
-        ownerJob.cancel()
-        return player.closeAsync().also {
-            shutdown = it
-            it.whenComplete { _, error -> if (error == null) EventQueue.invokeLater {
-                java.lang.ref.Reference.reachabilityFence(selection)
-                selection = null
-            } }
-        }.copy()
+        val result = CompletableFuture<Void>(); shutdown = result
+        // The shutdown receipt owns this cleanup job after the view scope ends.
+        val cleanupJob = Job()
+        val cleanup = CoroutineScope(work.coroutineContext.minusKey(Job) + cleanupJob)
+        cleanup.launch(start = CoroutineStart.UNDISPATCHED) {
+            var helperFailure: Exception? = null
+            try { sharedSession?.close() } catch (error: Exception) { helperFailure = error }
+            finally {
+                sharedSession = null; ownerJob.cancel()
+                player.closeAsync().whenComplete { _, error -> EventQueue.invokeLater {
+                    if (error == null) {
+                        java.lang.ref.Reference.reachabilityFence(selection); selection = null
+                    }
+                    val failure = error ?: helperFailure
+                    if (failure == null) result.complete(null) else result.completeExceptionally(failure)
+                    cleanupJob.complete()
+                } }
+            }
+        }
+        return result.copy()
     }
 
     fun requestClose(onClosed: () -> Unit) {

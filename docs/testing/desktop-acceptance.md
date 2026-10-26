@@ -30,3 +30,20 @@ with its desktop observation and result. A missing client implementation, failed
 case or missing receiver observation leaves the feature incomplete. Preserve
 failures alongside corrected results. CI exercises the common contracts and
 available automated native checks; it does not imply this desktop acceptance.
+
+The explicit application check `--watch-check-mode shared-session` attaches an
+owned helper to an authored movie selected through Library. It requires the
+existing watch-check media/report/state-directory arguments and
+`--shared-check-config` pointing to an authored configuration. The configuration
+provides absolute `runtime`, `executable`, `control` and `state` paths, plus the
+TLS `host`, `port`, `room` and `username`. This fixture admission is separate from
+normal room/media admission and does not qualify the application for deployment.
+
+The state file contains actual VLC observations and authenticated session state.
+Optional sequenced control instructions dispatch the same player-controller
+actions as the visible controls; `finish` closes the owned watch session. Check
+the final report and process exit independently. Automated controller dispatch
+and interactive control checks are separate evidence. Observation files are
+replaced atomically; Windows readers must share deletion while reading them so
+they cannot prevent replacement. Keep test trust-store derivatives separate from
+the immutable runtime and retain their original receipts and changed-file hashes.

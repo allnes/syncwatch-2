@@ -81,6 +81,16 @@ import SyncWatchDomain
                     await watch.close()
                     try require(watch.player == nil && !watch.playerPresented)
                     result["closeDuringPreparation"] = true
+                } else if mode == "shared-session" {
+                    try await until { watch.player?.view?.window != nil && watch.phase == .active }
+                    guard let current = watch.player, let configuration = value("--shared-check-config") else {
+                        throw Failure.condition
+                    }
+                    try await SharedPlaybackAcceptance.run(
+                        controller: current, file: URL(filePath: file),
+                        configuration: URL(filePath: configuration))
+                    result["nativeSharedSession"] = true
+                    result["helperConnectionAccepted"] = true
                 } else if mode == "helper-correction" {
                     try await until { watch.player?.view?.window != nil && watch.phase == .active }
                     guard let current = watch.player else { throw Failure.condition }

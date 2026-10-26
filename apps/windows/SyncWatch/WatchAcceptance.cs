@@ -57,6 +57,13 @@ internal static class WatchAcceptance
                     await watch.CloseAsync(); await watch.CloseAsync(); Require(watch.Player is null && !watch.PlayerPresented);
                     result["closeDuringPreparation"] = true;
                 }
+                else if (mode == "shared-session")
+                {
+                    await Until(() => Task.FromResult(watch.Player is not null && watch.Phase == WatchPhase.Active));
+                    var current = watch.Player ?? throw new InvalidOperationException("player");
+                    await SharedPlaybackAcceptance.RunAsync(current, file, Value("--shared-check-config") ?? throw new InvalidOperationException("configuration"));
+                    result["nativeSharedSession"] = true; result["helperConnectionAccepted"] = true;
+                }
                 else if (mode == "helper-correction")
                 {
                     await Until(() => Task.FromResult(watch.Player is not null && watch.Phase == WatchPhase.Active));

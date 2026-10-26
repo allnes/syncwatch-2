@@ -20,7 +20,7 @@ Volume, mute, audio/subtitle selection, subtitle styling, image settings, normal
 
 ## Player and input
 
-The common PlayerChrome receives actual VLC observations and a native surface from the local WatchSession owner on all three platforms. Play/pause, seek, volume, mute, Library navigation, End, and fullscreen use that owner. Shared watch activation, track/playlist/settings menus, complete input policies, and video overlays await their integrations.
+The common PlayerChrome receives actual VLC observations and a native surface from the local WatchSession owner on all three platforms. Play/pause, seek, volume, mute, Library navigation, End, and fullscreen use that owner. The owner can attach an admitted shared session: play/pause and seek then enter the Syncplay coordinator synchronously, while volume and mute continue using the local player. The helper session closes before the native player is released. User-facing room/media admission, track/playlist/settings menus, complete input policies, and video overlays await their integrations.
 
 Preserve the compact top controls, centered skip-back/play-pause/skip-forward controls, timeline, previous/next media, playlist, audio/subtitle menus, settings, library navigation, and call-window focus. Timeline previews use a separately owned decoder and bounded cache; they must not seek the movie, publish playback actions, or display canceled generations.
 
