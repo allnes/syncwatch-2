@@ -4,7 +4,7 @@ using System.Text;
 namespace SyncWatch.Bridge;
 
 /// <summary>Owns a single helper and its inherited pipes. It does not interpret playback.</summary>
-public sealed class HelperProcess : IAsyncDisposable
+public sealed class HelperProcess : IHelperTransport
 {
     private const int MaximumFrameBytes = 65536; // contracts/manifest.json, including LF
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);

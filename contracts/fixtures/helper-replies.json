@@ -1,0 +1,257 @@
+{
+  "formatVersion": 1,
+  "cases": [
+    {
+      "name": "applied",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": true,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "ready",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.ready\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"syncplayRevision\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}\n",
+      "accepted": true,
+      "expectedKind": "ready",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "stopped",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.stopped\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{}}\n",
+      "accepted": true,
+      "expectedKind": "stopped",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "rejected",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"unavailable\",\"message\":\"Provider private text\",\"retryable\":true}}\n",
+      "accepted": true,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "version",
+      "frame": "{\"v\":2,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "bool-version",
+      "frame": "{\"v\":true,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "reply-correlation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-8\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "foreign-run",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"other\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "stale-generation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":6,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "future-generation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":8,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "bool-generation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":true,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "extra-id",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"},\"id\":\"cmd-9\"}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "extra-origin",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"},\"origin\":\"user\"}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "wrong-response-kind",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.stopped\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-v",
+      "frame": "{\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-replyTo",
+      "frame": "{\"v\":1,\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-type",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-clientRunId",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-mediaGeneration",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-payload",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "wrong-status",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"expected\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "bool-status",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":true}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "extra-target",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\",\"positionMs\":2000}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "null-payload",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":null}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "array-payload",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":[]}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "wrong-engine-pin",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.ready\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"syncplayRevision\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}}\n",
+      "accepted": false,
+      "expectedKind": "ready",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "missing-trusted-pin",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.ready\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"syncplayRevision\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}\n",
+      "accepted": false,
+      "expectedKind": "ready",
+      "expectedRevision": null
+    },
+    {
+      "name": "wrong-ready-expectation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.ready\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"syncplayRevision\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "unknown-error",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"private-code\",\"message\":\"Provider private text\",\"retryable\":true}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "number-retry",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"unavailable\",\"message\":\"Provider private text\",\"retryable\":1}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "control-message",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"unavailable\",\"message\":\"private\\ntext\",\"retryable\":true}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "empty-message",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"unavailable\",\"message\":\"\",\"retryable\":true}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "long-message",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.error\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"code\":\"unavailable\",\"message\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"retryable\":true}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "duplicate-correlation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"replyTo\":\"cmd-8\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "duplicate-status",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\",\"status\":\"expected\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "escaped-duplicate-correlation",
+      "frame": "{\"v\":1,\"replyTo\":\"cmd-9\",\"\\u0072eplyTo\":\"cmd-8\",\"type\":\"bridge.result\",\"clientRunId\":\"helper-run\",\"mediaGeneration\":7,\"payload\":{\"status\":\"applied\"}}\n",
+      "accepted": false,
+      "expectedKind": "applied",
+      "expectedRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

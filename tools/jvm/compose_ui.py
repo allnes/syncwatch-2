@@ -217,6 +217,11 @@ def probe(payload, profile, home, compiler):
             raise ValueError("Display refresh fallback/frame scheduling consumer failed")
         print(output.strip())
         output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
+                              "syncwatch.bridge.PlayerCorrectionChecksKt", str(ROOT / "contracts/fixtures/helper-player.json")], work, home)
+        if "SYNCWATCH_HELPER_PLAYER_OK" not in output:
+            raise ValueError("Helper/player wire boundary consumer failed")
+        print(output.strip())
+        output = kotlin.java(["-Djava.awt.headless=true", "-cp", os.pathsep.join(map(str, [classes, *classpath])),
                               "syncwatch.playback.KotlinPortChecksKt"], work, home)
         if "SYNCWATCH_KOTLIN_PLAYBACK_OK" not in output:
             raise ValueError("Kotlin playback value/cancellation consumer failed")

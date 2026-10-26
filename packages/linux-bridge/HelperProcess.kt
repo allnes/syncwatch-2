@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /** Owns inherited pipes only. Compose and playback state are separate consumers.
  * Source-only until the Linux compiler/native/font closure is accepted.
  */
-class HelperProcess private constructor(private val process: Process) : AutoCloseable {
+class HelperProcess private constructor(private val process: Process) : HelperTransport {
     private val closed = AtomicBoolean(false)
     private val reading = AtomicBoolean(false)
     private val writing = AtomicBoolean(false)
@@ -32,7 +32,7 @@ class HelperProcess private constructor(private val process: Process) : AutoClos
         }, "syncwatch-helper-diagnostics").apply { isDaemon = true; start() }
     }
 
-    fun read(): CompletableFuture<ByteArray> = submit(reader, reading) {
+    override fun read(): CompletableFuture<ByteArray> = submit(reader, reading) {
         val frame = ByteArrayOutputStream()
         while (true) {
             val byte = process.inputStream.read()
@@ -44,7 +44,7 @@ class HelperProcess private constructor(private val process: Process) : AutoClos
         frame.toByteArray().also(::validate)
     }
 
-    fun send(frame: ByteArray): CompletableFuture<Unit> {
+    override fun send(frame: ByteArray): CompletableFuture<Unit> {
         validate(frame)
         val owned = frame.copyOf()
         return submit(writer, writing) {

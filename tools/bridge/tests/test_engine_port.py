@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "packages/ipc"), str(ROOT / "packages/syncplay-helper")]
@@ -20,6 +21,7 @@ class EnginePortTests(unittest.TestCase):
                       "paused": False, "rate": 1, "seekable": True}
         user = SimpleNamespace(username="player-a", room="room", isReady=lambda: False)
         self.engine.session = SimpleNamespace(_protocol=None, has_initial_state=True,
+            getUsername=lambda: user.username,
             userlist=SimpleNamespace(currentUser=user, _users={}),
             changeReadyState=self.requests.append)
 
@@ -59,6 +61,38 @@ class EnginePortTests(unittest.TestCase):
         self.engine.port.controller.pending["cmd-1"] = ({"paused": False}, 1)
         self.assertTrue(self.engine.port.state_pending())
         self.assertIsNone(self.engine.port.state)
+
+    def test_identity_waits_for_authenticated_initial_state_and_uses_accepted_name(self):
+        self.engine.session.has_initial_state = False
+        self.engine.tick()
+        self.assertFalse(any(kind == "sync.identity" for kind, _ in self.events))
+        self.engine.session.userlist.currentUser.username = "player-a_2"
+        self.engine.session.has_initial_state = True
+        self.engine.tick()
+        identity = ("sync.identity", {"username": "player-a_2"})
+        self.assertEqual(self.events.count(identity), 1)
+        self.assertLess(self.events.index(identity), self.events.index(("sync.connection", {"state": "connected"})))
+        self.engine.tick()
+        self.assertEqual(self.events.count(identity), 1)
+
+    def test_application_play_uses_the_upstream_direct_unpause_policy(self):
+        settings = {}
+        connected = []
+        class Session:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def getConfig(self):
+                return settings
+
+            def connect(self):
+                connected.append(dict(settings))
+        engine = Engine(SimpleNamespace(event=lambda *args: None, pending={}))
+        with patch.dict(sys.modules, {
+                "syncwatch_syncplay.session": SimpleNamespace(Session=Session),
+                "syncplay": SimpleNamespace(constants=SimpleNamespace(UNPAUSE_ALWAYS_MODE="Always"))}):
+            engine.connect({"host": "localhost", "port": 8999, "username": "viewer", "room": "room"})
+        self.assertEqual(connected, [{"sharedPlaylistEnabled": False, "unpauseAction": "Always"}])
 
     def test_released_native_port_cannot_publish_again(self):
         self.engine.port.release()

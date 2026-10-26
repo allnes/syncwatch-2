@@ -55,6 +55,12 @@ internal object WatchAcceptance {
                     until { watch.player != null }; check(watch.phase == WatchPhase.preparing)
                     watch.close(); watch.close(); check(watch.player == null && !watch.playerPresented)
                     result["closeDuringPreparation"] = true
+                } else if (mode == "helper-correction") {
+                    until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }
+                    val current = checkNotNull(watch.player)
+                    HelperPlaybackAcceptance.run(current.player, current.scope)
+                    result["nativeHelperCorrections"] = true
+                    result["helperConnectionAccepted"] = false
                 } else if (mode == "cancel-correction") {
                     until { watch.player?.canvas?.isShowing == true && watch.phase == WatchPhase.active }
                     val current = checkNotNull(watch.player)

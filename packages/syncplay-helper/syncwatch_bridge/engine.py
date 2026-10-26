@@ -49,9 +49,11 @@ class Engine:
         self.status = None
         self.last_participants = None
         self.last_ready = None
+        self.last_identity = None
 
     def connect(self, payload):
         from syncwatch_syncplay.session import Session
+        from syncplay import constants
         if self.session is not None:
             raise ContractError("invalidState")
         self.port = PlayerPort(self.controller)
@@ -60,6 +62,10 @@ class Engine:
         # The application selection coordinator owns native media. The stock
         # playlist must not independently reopen/rewind an already owned file.
         self.session.getConfig()["sharedPlaylistEnabled"] = False
+        # The application's play button is an explicit shared playback action,
+        # not the stock client's combined play/readiness toggle. Use the upstream
+        # policy for direct unpause; leave all timing/correction logic upstream.
+        self.session.getConfig()["unpauseAction"] = constants.UNPAUSE_ALWAYS_MODE
         if self.media is not None:
             self.apply_media()
         self.connection("connecting")
@@ -69,6 +75,7 @@ class Engine:
         # Raw upstream text may contain room/user/file data. It is never
         # forwarded to stderr or mistaken for a wire frame.
         if kind == "sync.disconnected":
+            self.last_identity = None
             self.connection("disconnected")
             self.controller.event("sync.readiness", {"ready": False})
 
@@ -120,6 +127,12 @@ class Engine:
         if session is None:
             return
         if session.has_initial_state:
+            # getUsername is updated by the authenticated upstream Hello, including
+            # a server-assigned suffix. The entered display name is not identity.
+            username = session.getUsername()
+            if username != self.last_identity:
+                self.controller.event("sync.identity", {"username": username})
+                self.last_identity = username
             self.connection("connected")
         ready = session.userlist.currentUser.isReady() is True
         if ready != self.last_ready:

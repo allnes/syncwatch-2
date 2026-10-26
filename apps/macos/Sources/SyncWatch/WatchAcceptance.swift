@@ -81,6 +81,12 @@ import SyncWatchDomain
                     await watch.close()
                     try require(watch.player == nil && !watch.playerPresented)
                     result["closeDuringPreparation"] = true
+                } else if mode == "helper-correction" {
+                    try await until { watch.player?.view?.window != nil && watch.phase == .active }
+                    guard let current = watch.player else { throw Failure.condition }
+                    try await HelperPlaybackAcceptance.run(player: current.player, scope: current.scope)
+                    result["nativeHelperCorrections"] = true
+                    result["helperConnectionAccepted"] = false
                 } else if mode == "cancel-correction" {
                     try await until { watch.player?.view?.window != nil && watch.phase == .active }
                     guard let current = watch.player else { throw Failure.condition }

@@ -603,6 +603,25 @@
     }
   },
   {
+    "name": "ipc-sync.identity",
+    "schema": "helper-ipc",
+    "value": {
+      "v": 1,
+      "id": "cmd-42",
+      "type": "sync.identity",
+      "clientRunId": "run-7",
+      "mediaGeneration": 3,
+      "payload": {
+        "username": "Viewer_2"
+      }
+    },
+    "error": null,
+    "context": {
+      "clientRunId": "run-7",
+      "mediaGeneration": 3
+    }
+  },
+  {
     "name": "ipc-sync.readiness",
     "schema": "helper-ipc",
     "value": {

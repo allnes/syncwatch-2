@@ -10,6 +10,7 @@ let package = Package(
         .package(path: "../../packages/macos-library"),
         .package(path: "../../packages/design"),
         .package(path: "../../packages/macos-playback"),
+        .package(path: "../../packages/macos-bridge"),
     ],
     targets: [
         .executableTarget(
@@ -19,6 +20,7 @@ let package = Package(
                 .product(name: "SyncWatchLibrary", package: "macos-library"),
                 .product(name: "SyncWatchDesign", package: "design"),
                 .product(name: "SyncWatchPlayback", package: "macos-playback"),
+                .product(name: "SyncWatchBridge", package: "macos-bridge"),
             ]
         ),
         .testTarget(name: "SyncWatchTests", dependencies: ["SyncWatch"]),
