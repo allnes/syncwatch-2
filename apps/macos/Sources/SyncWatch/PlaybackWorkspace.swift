@@ -188,7 +188,9 @@ struct LocalPlaybackLaunch {
                 } else if let value, value.isFinite, value >= 0, value <= Double(WatchSession.maximumPositionMs) {
                     try sharedSession.seek(Int64(value))
                 }
-            } catch { /* A rejected shared intent leaves the observation authoritative. */  }
+            } catch {
+                // A rejected shared intent leaves the observation authoritative.
+            }
             return
         }
         let paused = presentation.playing
