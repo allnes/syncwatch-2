@@ -4,13 +4,58 @@ import XCTest
 @testable import SyncWatchRoom
 
 final class RoomTransportTests: XCTestCase, @unchecked Sendable {
+    func testDelegateCompletionReleasesAnIdleReceive() async throws {
+        let delegate = RoomSessionDelegate()
+        let session = URLSession(configuration: .ephemeral)
+        let socket = session.webSocketTask(with: URL(string: "ws://127.0.0.1:1/events")!)
+        let stream = RoomEventStream(socket: socket)
+        delegate.termination.bind(stream)
+        let finished = expectation(description: "Delegate releases the pending receive")
+        let reader = Task {
+            do {
+                _ = try await stream.receive()
+                XCTFail("Closed transport returned data")
+            } catch RoomProtocolFailure.transport {} catch { XCTFail("Unexpected termination failure") }
+            finished.fulfill()
+        }
+        await Task.yield()
+        delegate.urlSession(session, task: socket, didCompleteWithError: URLError(.networkConnectionLost))
+        delegate.urlSession(session, webSocketTask: socket, didCloseWith: .abnormalClosure, reason: nil)
+        await fulfillment(of: [finished], timeout: 2)
+        reader.cancel()
+        await stream.close()
+        await reader.value
+        session.invalidateAndCancel()
+    }
+    func testDelegateCompletionBeforeBindingIsRetained() async throws {
+        let delegate = RoomSessionDelegate()
+        let session = URLSession(configuration: .ephemeral)
+        let socket = session.webSocketTask(with: URL(string: "ws://127.0.0.1:1/events")!)
+        let stream = RoomEventStream(socket: socket)
+        delegate.urlSession(session, task: socket, didCompleteWithError: nil)
+        delegate.termination.bind(stream)
+        let finished = expectation(description: "Early completion reaches a later receiver")
+        let reader = Task {
+            do {
+                _ = try await stream.receive()
+                XCTFail("Ended transport returned data")
+            } catch RoomProtocolFailure.transport {} catch { XCTFail("Unexpected termination failure") }
+            finished.fulfill()
+        }
+        await fulfillment(of: [finished], timeout: 2)
+        reader.cancel()
+        await stream.close()
+        await reader.value
+        session.invalidateAndCancel()
+    }
     func testCancellingIdleReceiveJoinsBeforeLeave() async throws {
         guard let address = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_SERVICE"],
             let key = ProcessInfo.processInfo.environment["SYNCWATCH_ROOM_CREATION_KEY"]
         else { throw XCTSkip("Requires an owned room metadata service") }
         let client = try RoomClient(address: RoomAddress(address))
         do {
-            let identity = try RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS cancellation")
+            let identity = try RoomIdentity(
+                clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS cancellation")
             let admission = try await client.create(
                 identity: identity,
                 connection: RoomConnection(host: "syncplay.example.com", port: 8999, room: "Cancellation check"),
@@ -20,7 +65,10 @@ final class RoomTransportTests: XCTestCase, @unchecked Sendable {
             let pending = Task { try await stream.receive() }
             try await Task.sleep(for: .milliseconds(100))
             pending.cancel()
-            do { _ = try await pending.value; XCTFail("Cancelled receive returned a message") } catch {}
+            do {
+                _ = try await pending.value
+                XCTFail("Cancelled receive returned a message")
+            } catch {}
             try await client.leave(admission)
             await client.close()
             await stream.close()

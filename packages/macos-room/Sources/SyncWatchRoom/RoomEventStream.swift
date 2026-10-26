@@ -9,7 +9,7 @@ public actor RoomEventStream {
     private var failure: RoomProtocolFailure?
     init(socket: URLSessionWebSocketTask) { self.socket = socket }
     func start() {
-        guard pump == nil else { return }
+        guard pump == nil, failure == nil else { return }
         socket.maximumMessageSize = RoomWire.maximumBytes
         socket.resume()
         pump = Task { await read() }
@@ -26,6 +26,11 @@ public actor RoomEventStream {
     }
     public func close() async {
         finish(.closed)
+        pump?.cancel()
+        if let pump { await pump.value }
+    }
+    func transportEnded() async {
+        finish(.transport)
         pump?.cancel()
         if let pump { await pump.value }
     }
@@ -58,7 +63,8 @@ public actor RoomEventStream {
                         socket.receive { pending.complete($0) }
                     }
                 }
-            }, onCancel: {
+            },
+            onCancel: {
                 // Foundation can retain an idle async receive after socket cancellation.
                 // Own the continuation so joining the reader never depends on that callback.
                 pending.complete(.failure(CancellationError()))
@@ -95,11 +101,40 @@ private final class RoomSocketRead: @unchecked Sendable {
     }
     func complete(_ result: Result<URLSessionWebSocketTask.Message, Error>) {
         lock.lock()
-        guard self.result == nil else { lock.unlock(); return }
+        guard self.result == nil else {
+            lock.unlock()
+            return
+        }
         self.result = result
         let pending = continuation
         continuation = nil
         lock.unlock()
         pending?.resume(with: result)
+    }
+}
+
+/// URLSession can finish a socket without completing an idle receive callback.
+/// A weak binding avoids retaining the client through its SDK delegate.
+final class RoomSocketTermination: @unchecked Sendable {
+    private let lock = NSLock()
+    private var ended = false
+    private weak var stream: RoomEventStream?
+    func bind(_ stream: RoomEventStream) {
+        lock.lock()
+        self.stream = stream
+        let ended = ended
+        lock.unlock()
+        if ended { Task { await stream.transportEnded() } }
+    }
+    func finish() {
+        lock.lock()
+        guard !ended else {
+            lock.unlock()
+            return
+        }
+        ended = true
+        let stream = stream
+        lock.unlock()
+        if let stream { Task { await stream.transportEnded() } }
     }
 }

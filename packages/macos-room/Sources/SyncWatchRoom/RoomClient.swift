@@ -1,6 +1,19 @@
 import Foundation
 
-private final class RoomSessionDelegate: NSObject, URLSessionTaskDelegate {
+final class RoomSessionDelegate: NSObject, URLSessionWebSocketDelegate {
+    let termination = RoomSocketTermination()
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard task is URLSessionWebSocketTask else { return }
+        termination.finish()
+    }
+    func urlSession(
+        _ session: URLSession, webSocketTask: URLSessionWebSocketTask,
+        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?
+    ) {
+        termination.finish()
+    }
+
     func urlSession(
         _ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
         newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void
@@ -13,11 +26,24 @@ private final class RoomSessionDelegate: NSObject, URLSessionTaskDelegate {
 public actor RoomClient {
     public let address: RoomAddress
     private let session: URLSession
+    private let eventSession: URLSession
+    private let delegate: RoomSessionDelegate
     private var requests: [UUID: Task<Data, Error>] = [:]
     private var closed = false
     private var eventStream: RoomEventStream?
     public init(address: RoomAddress) {
         self.address = address
+        let configuration = Self.configuration()
+        configuration.timeoutIntervalForRequest = 15
+        configuration.timeoutIntervalForResource = 20
+        let delegate = RoomSessionDelegate()
+        self.delegate = delegate
+        session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+        // A live event stream must not inherit the short whole-response HTTP deadline.
+        // Bootstrap is bounded by the controller; the SDK retains its normal stream limits.
+        eventSession = URLSession(configuration: Self.configuration(), delegate: delegate, delegateQueue: nil)
+    }
+    private static func configuration() -> URLSessionConfiguration {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = false
         configuration.httpCookieStorage = nil
@@ -25,10 +51,9 @@ public actor RoomClient {
         configuration.urlCache = nil
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         configuration.httpMaximumConnectionsPerHost = 2
-        configuration.timeoutIntervalForRequest = 15
-        configuration.timeoutIntervalForResource = 20
-        session = URLSession(configuration: configuration, delegate: RoomSessionDelegate(), delegateQueue: nil)
+        return configuration
     }
+
     public func create(identity: RoomIdentity, connection: RoomConnection, creationKey: RoomSecret) async throws
         -> RoomAdmission
     {
@@ -69,8 +94,9 @@ public actor RoomClient {
         parts.scheme = address.origin.scheme == "https" ? "wss" : "ws"
         var request = URLRequest(url: parts.url!)
         request.setValue("Bearer \(admission.token.value)", forHTTPHeaderField: "Authorization")
-        let stream = RoomEventStream(socket: session.webSocketTask(with: request))
+        let stream = RoomEventStream(socket: eventSession.webSocketTask(with: request))
         eventStream = stream
+        delegate.termination.bind(stream)
         await stream.start()
         guard !closed else {
             await stream.close()
@@ -83,6 +109,7 @@ public actor RoomClient {
         let pending = Array(requests.values)
         for task in pending { task.cancel() }
         session.invalidateAndCancel()
+        eventSession.invalidateAndCancel()
         if let eventStream { await eventStream.close() }
         for task in pending { _ = await task.result }
     }
