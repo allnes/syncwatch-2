@@ -44,7 +44,11 @@ internal sealed class RoomController
         Changed?.Invoke();
     }
     public string? InvitationToCopy() => Connected && admission?.Invitation is { } invitation ? new RoomInvitation(admission.RoomId, invitation).CopyText() : null;
-    public void InvitationCopied() { Editor.Status = "roomInvitationCopied"; Changed?.Invoke(); }
+    public void InvitationCopyCompleted(bool copied)
+    {
+        if (!Connected) return;
+        Editor.Status = copied ? "roomInvitationCopied" : "roomInvitationCopyFailed"; Changed?.Invoke();
+    }
     public Task CloseAsync() => closing ??= StopAsync();
     private async Task StopAsync()
     {

@@ -20,9 +20,7 @@ import SyncWatchDesign
         case "copyInvitation":
             if let invitation = room.invitationToCopy() {
                 NSPasteboard.general.clearContents()
-                if NSPasteboard.general.setString(invitation, forType: .string) {
-                    room.invitationCopied()
-                }
+                room.invitationCopyCompleted(NSPasteboard.general.setString(invitation, forType: .string))
             }
         case "close":
             if room.editor.busy {

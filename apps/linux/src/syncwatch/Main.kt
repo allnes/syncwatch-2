@@ -134,7 +134,12 @@ fun main(arguments: Array<String>) {
                 "pasteInvitation" -> room.pasteInvitation(runCatching {
                     java.awt.Toolkit.getDefaultToolkit().systemClipboard.getData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String
                 }.getOrNull() ?: "")
-                "copyInvitation" -> room.invitationToCopy()?.let { value -> java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(value), null); room.invitationCopied() }
+                "copyInvitation" -> room.invitationToCopy()?.let { value ->
+                    val copied = try { java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(value), null); true }
+                        catch (_: IllegalStateException) { false }
+                        catch (_: SecurityException) { false }
+                    room.invitationCopyCompleted(copied)
+                }
                 "close" -> closeDialog()
             } }
         }

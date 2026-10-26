@@ -50,7 +50,10 @@ import SyncWatchRoom
         guard connected, let admission, let invitation = admission.invitation else { return nil }
         return try? RoomInvitation(roomID: admission.roomID, credential: invitation).copyText()
     }
-    func invitationCopied() { editor.status = "roomInvitationCopied" }
+    func invitationCopyCompleted(_ copied: Bool) {
+        guard connected else { return }
+        editor.status = copied ? "roomInvitationCopied" : "roomInvitationCopyFailed"
+    }
     func close() async {
         if let closing {
             await closing.value
