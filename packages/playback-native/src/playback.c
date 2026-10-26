@@ -21,6 +21,7 @@ struct sw_playback {
     sw_vlc_api api;
     sw_runtime *runtime;
     libvlc_media_player_t *player;
+    sw_media_input *input;
     libvlc_event_manager_t *events;
     unsigned attached;
     uint64_t generation;
@@ -43,10 +44,27 @@ static void changed(const libvlc_event_t *event, void *opaque) {
     /* No allocation, locks, UI, managed delegate or libVLC reentry here. */
     atomic_fetch_add_explicit(&owner->sequence, 1, memory_order_relaxed);
 }
+static void release_input(sw_playback *p) {
+    /* Stop joins VLC's input before its borrowed descriptor is released. */
+    p->api.libvlc_media_player_stop(p->player);
+    p->api.libvlc_media_player_set_media(p->player, NULL);
+    sw_media_input_close(p->input);
+    p->input = NULL;
+    p->loaded = 0;
+}
+static int valid_input(sw_playback *p) {
+    sw_input_version version;
+    if (p->loaded && sw_media_input_version(p->input, &version) == SW_INPUT_OK) return 1;
+    if (p->loaded) {
+        release_input(p);
+        p->failed = 1;
+    }
+    return 0;
+}
 static int check(sw_playback *p, uint64_t generation) {
     if (!p) return SW_INVALID;
     if (generation != p->generation) return SW_STALE;
-    return p->loaded ? SW_OK : SW_UNAVAILABLE;
+    return valid_input(p) ? SW_OK : SW_UNAVAILABLE;
 }
 int sw_runtime_open(const char *path, const char *revision, int output, sw_runtime **result) {
     if (!result) return SW_INVALID;
@@ -147,13 +165,15 @@ int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
 #else
     if (path[0] != '/') return SW_INVALID;
 #endif
-    p->api.libvlc_media_player_stop(p->player);
-    p->api.libvlc_media_player_set_media(p->player, NULL);
+    release_input(p);
     p->generation = generation;
     p->loaded = 0;
     p->failed = 0;
-    libvlc_media_t *media = p->api.libvlc_media_new_path(p->runtime->instance, path);
-    if (!media) { p->failed = 1; return SW_ENGINE; }
+    if (sw_media_input_open(path, &p->input) != SW_INPUT_OK) { p->failed = 1; return SW_ENGINE; }
+    int descriptor = sw_media_input_descriptor(p->input);
+    if (descriptor < 0) { release_input(p); p->failed = 1; return SW_ENGINE; }
+    libvlc_media_t *media = p->api.libvlc_media_new_fd(p->runtime->instance, descriptor);
+    if (!media) { release_input(p); p->failed = 1; return SW_ENGINE; }
     p->api.libvlc_media_add_option(media, ":start-paused");
     /* Surface setters reset inherited VLC options. Fixed trusted per-media
      * options preserve software decoding and forbid a standalone HWND fallback. */
@@ -168,8 +188,26 @@ int sw_playback_load(sw_playback *p, uint64_t generation, const char *path) {
     p->api.libvlc_media_player_set_media(p->player, media);
     p->api.libvlc_media_release(media);
     p->loaded = 1;
-    if (p->api.libvlc_media_player_play(p->player)) { p->loaded = 0; p->failed = 1; return SW_ENGINE; }
+    if (p->api.libvlc_media_player_play(p->player)) { release_input(p); p->failed = 1; return SW_ENGINE; }
     return SW_OK;
+}
+int sw_playback_input_version(sw_playback *p, uint64_t generation, sw_input_version *result) {
+    if (!result) return SW_INVALID;
+    memset(result, 0, sizeof(*result));
+    int code = check(p, generation); if (code) return code;
+    if (sw_media_input_version(p->input, result) == SW_INPUT_OK) return SW_OK;
+    release_input(p); p->failed = 1;
+    return SW_UNAVAILABLE;
+}
+int sw_playback_read_at(sw_playback *p, uint64_t generation, uint64_t offset,
+    unsigned char *buffer, size_t capacity, size_t *count) {
+    if (count) *count = 0;
+    int code = check(p, generation); if (code) return code;
+    int status = sw_media_input_read_at(p->input, offset, buffer, capacity, count);
+    if (status == SW_INPUT_OK) return SW_OK;
+    if (status == SW_INPUT_INVALID) return SW_INVALID;
+    release_input(p); p->failed = 1;
+    return SW_UNAVAILABLE;
 }
 int sw_playback_observe(sw_playback *p, uint64_t generation, sw_observation *result) {
     if (!p || !result) return SW_INVALID;
@@ -178,7 +216,7 @@ int sw_playback_observe(sw_playback *p, uint64_t generation, sw_observation *res
     result->generation = p->generation;
     result->sequence = atomic_load_explicit(&p->sequence, memory_order_relaxed);
     result->duration_ms = -1; result->rate = 1; result->paused = 1;
-    if (!p->loaded) { if (p->failed) result->status = SW_FAILED; return SW_OK; }
+    if (!valid_input(p)) { if (p->failed) result->status = SW_FAILED; return SW_OK; }
     libvlc_state_t state = p->api.libvlc_media_player_get_state(p->player);
     result->status = state == libvlc_Error ? SW_FAILED :
         (state == libvlc_Playing || state == libvlc_Paused || state == libvlc_Ended) ? SW_READY : SW_LOADING;
@@ -236,9 +274,8 @@ int sw_playback_volume(sw_playback *p, uint64_t generation, double volume, int m
 int sw_playback_stop(sw_playback *p, uint64_t generation) {
     if (!p) return SW_INVALID;
     if (generation != p->generation) return SW_STALE;
-    if (p->loaded) p->api.libvlc_media_player_stop(p->player);
-    p->api.libvlc_media_player_set_media(p->player, NULL);
-    p->loaded = 0; p->failed = 0; return SW_OK;
+    release_input(p);
+    p->failed = 0; return SW_OK;
 }
 static libvlc_track_description_t *tracks(sw_playback *p, int subtitles) {
     return subtitles ? p->api.libvlc_video_get_spu_description(p->player) : p->api.libvlc_audio_get_track_description(p->player);
@@ -282,8 +319,7 @@ void sw_playback_close(sw_playback *p) {
     /* detach synchronizes against in-flight callbacks before freeing opaque. */
     while (p->attached) p->api.libvlc_event_detach(p->events, event_types[--p->attached], changed, p);
     if (p->player) {
-        p->api.libvlc_media_player_stop(p->player);
-        p->api.libvlc_media_player_set_media(p->player, NULL);
+        release_input(p);
         if (p->api.set_surface) p->api.set_surface(p->player, NULL);
         if (p->api.set_xwindow) p->api.set_xwindow(p->player, 0);
         p->api.libvlc_media_player_release(p->player);
