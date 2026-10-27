@@ -35,5 +35,6 @@
         <Compile Include="../../windows/SelectionMenu.cs" Link="Design/SelectionMenu.cs" />
         <Compile Include="../../windows/SelectionMenuGallery.cs" Link="Design/SelectionMenuGallery.cs" />
         <None Include="../fixtures/selection-menu.json" Link="selection-menu.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="../fixtures/library-metadata.json" Link="library-metadata.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

@@ -418,6 +418,11 @@ object SyncWatchCopy {
         "en" to "sharedWatchConnected" -> "Shared playback connected"
         "en" to "sharedWatchFailed" -> "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again."
         "en" to "sharedWatchIdentityRejected" -> "Syncplay changed your name. Leave the room and reconnect with a shorter or different name."
+        "en" to "metadataLoading" -> "Reading movie information…"
+        "en" to "metadataUnavailable" -> "Movie information is unavailable. Refresh to try again."
+        "en" to "metadataResolutionFormat" -> "{width}×{height}"
+        "en" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
+        "en" to "metadataNoSubtitles" -> "No subtitles"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -643,6 +648,11 @@ object SyncWatchCopy {
         "ru" to "sharedWatchConnected" -> "Совместный просмотр подключён"
         "ru" to "sharedWatchFailed" -> "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск."
         "ru" to "sharedWatchIdentityRejected" -> "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем."
+        "ru" to "metadataLoading" -> "Чтение сведений о фильме…"
+        "ru" to "metadataUnavailable" -> "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить."
+        "ru" to "metadataResolutionFormat" -> "{width}×{height}"
+        "ru" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
+        "ru" to "metadataNoSubtitles" -> "Нет субтитров"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -836,7 +846,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
+    const val sourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -1435,8 +1445,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataDuration",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataDuration",
         ), listOf())
         val node17 = DesignNode("node17", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1465,8 +1476,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataResolution",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataResolution",
         ), listOf())
         val node20 = DesignNode("node20", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1495,8 +1507,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataAudio",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataAudio",
         ), listOf())
         val node23 = DesignNode("node23", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1525,8 +1538,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataSubtitles",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataSubtitles",
         ), listOf())
         val node26 = DesignNode("node26", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1564,8 +1578,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataDuration",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataDuration",
         ), listOf())
         val node30 = DesignNode("node30", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1594,8 +1609,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataResolution",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataResolution",
         ), listOf())
         val node33 = DesignNode("node33", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1632,8 +1648,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataAudio",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataAudio",
         ), listOf())
         val node37 = DesignNode("node37", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1662,8 +1679,9 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "~unknown",
+            "text" to "\$metadataSubtitles",
             "weight" to "semibold",
+            "automation" to "{namespace}.metadataSubtitles",
         ), listOf())
         val node40 = DesignNode("node40", "column", mapOf(
             "disabledOpacity" to "0.4",
@@ -1847,6 +1865,28 @@ object SyncWatchLayouts {
             "radius" to "@control.buttonRadius",
             "width" to "fill",
         ), listOf(node54, node55))
+        val metadataLoading = DesignNode("metadataLoading", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "foreground" to "theme.textSecondary",
+            "text" to "~metadataLoading",
+            "when" to "\$metadataLoading",
+        ), listOf())
+        val metadataUnavailable = DesignNode("metadataUnavailable", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "foreground" to "theme.textSecondary",
+            "text" to "~metadataUnavailable",
+            "when" to "\$metadataUnavailable",
+        ), listOf())
         val node57 = DesignNode("node57", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1857,7 +1897,7 @@ object SyncWatchLayouts {
             "gap" to "@layout.panelGap",
             "padding" to "@layout.detailPadding",
             "width" to "fill",
-        ), listOf(node51, node52, node43, node53, node50, node56))
+        ), listOf(node51, node52, node43, node53, node50, node56, metadataLoading, metadataUnavailable))
         val node58 = DesignNode("node58", "scroll", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",

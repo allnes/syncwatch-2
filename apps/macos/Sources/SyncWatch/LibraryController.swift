@@ -37,11 +37,15 @@ private actor LibraryRecordIO {
     private var pending: Task<Void, Never>?
     private var generation = UUID()
     private var closed = false
+    private let metadata: (any MediaMetadataReading)?
+    private var metadataTask: Task<Void, Never>?
+    private var metadataGeneration = UUID()
     private let savedSelection: String?
 
-    init(store: any LibraryAccessStore, selectedID: String? = nil) {
+    init(store: any LibraryAccessStore, selectedID: String? = nil, metadata: (any MediaMetadataReading)? = nil) {
         persistence = LibraryRecordIO(store)
         savedSelection = selectedID
+        self.metadata = metadata
     }
     func restore() {
         run { [persistence] in
@@ -60,7 +64,7 @@ private actor LibraryRecordIO {
         guard !closed else { return }
         presentation.dispatch("selectMovie", value: id) { _, _ in
             presentation.selectedID = id
-            stable = presentation
+            startMetadata()
         }
     }
     func selectedMedia() -> LibraryMediaSelection? {
@@ -73,15 +77,69 @@ private actor LibraryRecordIO {
         closed = true
         generation = UUID()
         pending?.cancel()
+        metadataTask?.cancel()
+        metadataGeneration = UUID()
         grant = nil
         catalog = [:]
         presentation.enabledActions = []
     }
     func settled() async { await pending?.value }
+    func metadataSettled() async { await metadataTask?.value }
+    func closeAndWait() async {
+        close()
+        await pending?.value
+        await metadataTask?.value
+        await metadata?.close()
+    }
+
+    private func cancelMetadata() {
+        metadataGeneration = UUID()
+        metadataTask?.cancel()
+        presentation.metadataDurationMs = nil
+        presentation.metadataWidth = 0
+        presentation.metadataHeight = 0
+        presentation.metadataAudioTracks = nil
+        presentation.metadataSubtitleTracks = nil
+        presentation.metadataLoading = false
+        presentation.metadataUnavailable = false
+    }
+    private func startMetadata() {
+        let previous = metadataTask
+        cancelMetadata()
+        stable = presentation
+        guard let metadata, let selection = selectedMedia() else { return }
+        let token = metadataGeneration
+        presentation.metadataLoading = true
+        stable = presentation
+        metadataTask = Task {
+            // Keep the security-scoped folder alive until native input cleanup has completed.
+            defer { withExtendedLifetime(selection.access) {} }
+            await previous?.value
+            do {
+                try Task.checkCancellation()
+                let value = try await metadata.read(selection.media)
+                try Task.checkCancellation()
+                guard !closed, metadataGeneration == token else { return }
+                presentation.metadataDurationMs = value.durationMs
+                presentation.metadataWidth = value.width
+                presentation.metadataHeight = value.height
+                presentation.metadataAudioTracks = value.audioTracks
+                presentation.metadataSubtitleTracks = value.subtitleTracks
+                presentation.metadataLoading = false
+                stable = presentation
+            } catch is CancellationError {} catch {
+                guard !closed, metadataGeneration == token else { return }
+                presentation.metadataLoading = false
+                presentation.metadataUnavailable = true
+                stable = presentation
+            }
+        }
+    }
 
     private func run(_ acquire: @escaping @Sendable () async throws -> LibraryFolderAccess?) {
         guard !closed else { return }
         pending?.cancel()
+        cancelMetadata()
         let token = UUID()
         generation = token
         let previous = stable ?? presentation
@@ -91,7 +149,10 @@ private actor LibraryRecordIO {
         pending = Task {
             do {
                 guard let next = try await acquire() else {
-                    if generation == token { presentation = previous }
+                    if generation == token {
+                        presentation = previous
+                        startMetadata()
+                    }
                     return
                 }
                 try Task.checkCancellation()
@@ -116,7 +177,7 @@ private actor LibraryRecordIO {
                 presentation = LibraryPresentation(
                     state: rows.isEmpty ? .empty : .selected, entries: rows, selectedID: selected,
                     enabledActions: ["chooseFolder", "rescan", "search", "selectMovie", "openSettings"])
-                stable = presentation
+                startMetadata()
                 if let record = next.record {
                     do { try await persistence.write(record) } catch is CancellationError {} catch {
                         if generation == token { errorKey = "librarySaveFailed" }
@@ -127,6 +188,7 @@ private actor LibraryRecordIO {
             } catch is CancellationError {} catch {
                 if generation == token, !closed {
                     presentation = previous
+                    startMetadata()
                     errorKey = "libraryUnavailable"
                 }
             }

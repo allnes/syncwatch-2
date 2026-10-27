@@ -73,3 +73,32 @@ import Testing
         }
     }
 }
+
+private struct MetadataCorpus: Decodable {
+    struct Case: Decodable {
+        let language: String
+        let durationMs: Int64?
+        let width: Int
+        let height: Int
+        let audioTracks: Int?
+        let subtitleTracks: Int?
+        let expected: [String: String]
+    }
+    let cases: [Case]
+}
+
+@Test func libraryMetadataUsesSharedPresentationCorpus() throws {
+    let fixture = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        .appendingPathComponent("fixtures/library-metadata.json")
+    let corpus = try JSONDecoder().decode(MetadataCorpus.self, from: Data(contentsOf: fixture))
+    for row in corpus.cases {
+        var p = LibraryPresentation.gallery(.selected)
+        p.metadataDurationMs = row.durationMs
+        p.metadataWidth = row.width
+        p.metadataHeight = row.height
+        p.metadataAudioTracks = row.audioTracks
+        p.metadataSubtitleTracks = row.subtitleTracks
+        let context = DesignBindings.library(p, query: "", language: row.language)
+        for (key, value) in row.expected { #expect(context.values[key] == value) }
+    }
+}

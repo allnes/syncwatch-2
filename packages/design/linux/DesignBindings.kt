@@ -5,11 +5,24 @@ package syncwatch.design
 internal object DesignBindings {
     private fun capabilities(actions: Set<String>, allows: (String)->Boolean) = actions.associate { "can.$it" to allows(it).toString() }
     private fun sections(ids: List<String>, selected: String) = ids.map { DesignContext(mapOf("id" to it,"selected" to (it==selected).toString())) }
-    fun library(p: LibraryPresentation, query: String, language: String): DesignContext = DesignContext(capabilities(SyncWatchCopy.libraryActions,p::allows)+mapOf(
+    fun library(p: LibraryPresentation, query: String, language: String): DesignContext {
+        val unknown = SyncWatchCopy.text("unknown", language)
+        val duration = p.metadataDurationMs?.takeIf { it > 0 }?.let { ms ->
+            SyncWatchCopy.text("metadataDurationFormat", language).replace("{hours}", (ms / 3_600_000).toString())
+                .replace("{minutes}", (ms / 60_000 % 60).toString().padStart(2, '0'))
+                .replace("{seconds}", (ms / 1_000 % 60).toString().padStart(2, '0'))
+        }
+        return DesignContext(capabilities(SyncWatchCopy.libraryActions,p::allows)+mapOf(
+        "metadataDuration" to (duration ?: unknown),
+        "metadataResolution" to if (p.metadataWidth > 0 && p.metadataHeight > 0)
+            SyncWatchCopy.text("metadataResolutionFormat", language).replace("{width}", p.metadataWidth.toString()).replace("{height}", p.metadataHeight.toString()) else unknown,
+        "metadataAudio" to (p.metadataAudioTracks?.toString() ?: unknown), "metadataSubtitles" to (if (p.metadataSubtitleTracks == 0) SyncWatchCopy.text("metadataNoSubtitles", language) else p.metadataSubtitleTracks?.toString() ?: unknown),
+        "metadataLoading" to p.metadataLoading.toString(), "metadataUnavailable" to p.metadataUnavailable.toString(),
         "namespace" to "library","query" to query,"entryCount" to p.entries.size.toString(),"filesLabel" to SyncWatchCopy.text("files",language),"hasEntries" to p.entries.isNotEmpty().toString(),
         "hasSelection" to (p.selected!=null).toString(),"selectedTitle" to p.selected?.title.orEmpty(),"selectedLocation" to p.selected?.location.orEmpty(),
         "emptyMessage" to if(p.state==LibraryVisualState.scanning)"scanning"else"empty","missingMedia" to (p.state==LibraryVisualState.missingMedia).toString(),"roomMessage" to if(p.roomStatus.isNotEmpty())p.roomStatus else if(p.state==LibraryVisualState.reconnecting)"reconnecting"else"disconnected"),
         mapOf("entries" to p.entries.filter{query.isEmpty()||it.title.contains(query,ignoreCase=true)}.map{DesignContext(mapOf("id" to it.id,"title" to it.title,"selected" to (it.id==p.selectedID).toString()))}))
+    }
     fun player(p: PlayerPresentation) = DesignContext(capabilities(SyncWatchPlayer.actions,p::allows)+mapOf(
         "namespace" to "player","title" to p.title,"state" to p.state.name,"position" to p.displayedPosition.toString(),"duration" to p.displayedDuration.toString(),
         "positionText" to PlayerPresentation.time(p.displayedPosition),"durationText" to PlayerPresentation.time(p.displayedDuration),"volume" to (if(p.isValid)p.volume else 0.0).toString(),

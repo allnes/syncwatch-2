@@ -24,11 +24,14 @@ import syncwatch.library.*
 internal data class LibraryMediaSelection(val media: LocalMediaFile, val access: LibraryFolderAccess)
 
 /** UI coordination only. The library services and shared design own their respective boundaries. */
-internal class LibraryController(private val store: LibraryAccessStore, parent: CoroutineScope, private val savedSelection: String?) {
+internal class LibraryController(private val store: LibraryAccessStore, parent: CoroutineScope, private val savedSelection: String?, private val metadata: syncwatch.library.MediaMetadataReader? = null) {
     private val scope = CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]))
     private val persistence = Mutex()
+    private val metadataSerial = Mutex()
     private val scanner = FileSystemLibrary()
     private var pending: Job? = null
+    private var metadataTask: Job? = null
+    private var metadataGeneration = 0L
     private var grant: LibraryFolderAccess? = null
     private var catalog = emptyMap<String, LocalMediaFile>()
     private var stable: LibraryPresentation? = null
@@ -52,7 +55,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     fun choose(path: Path) = start { withContext(Dispatchers.IO) { LibraryFolderAccess.selected(path) } }
     fun rescan() { grant?.let { current -> start { current } } }
     fun select(id: String) {
-        if (!closed) presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); stable = presentation }
+        if (!closed) presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); startMetadata() }
     }
     fun selectedMedia(): LibraryMediaSelection? {
         check(java.awt.EventQueue.isDispatchThread()) { "library-event-thread" }
@@ -62,14 +65,49 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     }
     fun clearError() { errorKey = null }
     fun close() {
-        closed = true; generation++; pending?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
+        closed = true; generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
         presentation = presentation.copy(enabledActions = emptySet())
     }
     suspend fun settled() { pending?.join() }
+    suspend fun metadataSettled() { metadataTask?.join() }
+    suspend fun closeAndWait() = withContext(kotlinx.coroutines.NonCancellable) {
+        close(); scope.coroutineContext[Job]?.join(); metadata?.close()
+    }
+    private fun cancelMetadata() {
+        metadataGeneration++; metadataTask?.cancel()
+        presentation = presentation.copy(metadataDurationMs = null, metadataWidth = 0, metadataHeight = 0,
+            metadataAudioTracks = null, metadataSubtitleTracks = null, metadataLoading = false, metadataUnavailable = false)
+    }
+    private fun startMetadata() {
+        cancelMetadata(); stable = presentation
+        val reader = metadata ?: return
+        val selection = selectedMedia() ?: return
+        val current = metadataGeneration
+        presentation = presentation.copy(metadataLoading = true); stable = presentation
+        metadataTask = scope.launch {
+            metadataSerial.withLock {
+                try {
+                    coroutineContext.ensureActive()
+                    val value = reader.read(selection.media)
+                    coroutineContext.ensureActive()
+                    if (closed || current != metadataGeneration) return@launch
+                    presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
+                        metadataHeight = value.height, metadataAudioTracks = value.audioTracks,
+                        metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false)
+                    stable = presentation
+                } catch (_: CancellationException) { }
+                catch (_: Exception) {
+                    if (!closed && current == metadataGeneration) {
+                        presentation = presentation.copy(metadataLoading = false, metadataUnavailable = true); stable = presentation
+                    }
+                } finally { java.lang.ref.Reference.reachabilityFence(selection.access) }
+            }
+        }
+    }
     private suspend fun <T> storage(operation: () -> T): T = persistence.withLock { withContext(Dispatchers.IO) { operation() } }
     private fun start(acquire: suspend () -> LibraryFolderAccess?) {
         if (closed) return
-        pending?.cancel(); val current = ++generation
+        pending?.cancel(); cancelMetadata(); val current = ++generation
         val previous = stable ?: presentation
         stable = previous
         presentation = previous.copy(state = LibraryVisualState.scanning); errorKey = null
@@ -77,7 +115,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
             try {
                 val next = acquire()
                 coroutineContext.ensureActive()
-                if (next == null) { if (generation == current) presentation = previous; return@launch }
+                if (next == null) { if (generation == current) { presentation = previous; startMetadata() }; return@launch }
                 val files = scanner.scan(next.root, next.rootId, next.record.scanSubfolders)
                 coroutineContext.ensureActive()
                 if (closed || current != generation) return@launch
@@ -90,12 +128,12 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 roomRevision = java.util.UUID.randomUUID()
                 presentation = LibraryPresentation(if (rows.isEmpty()) LibraryVisualState.empty else LibraryVisualState.selected,
                     rows, selected, setOf("chooseFolder", "rescan", "search", "selectMovie", "openSettings"))
-                stable = presentation
+                startMetadata()
                 try { storage { store.write(next.record) } }
                 catch (_: CancellationException) { }
                 catch (_: Exception) { if (current == generation) errorKey = "librarySaveFailed" }
             } catch (_: CancellationException) { }
-            catch (_: Exception) { if (!closed && current == generation) { presentation = previous; errorKey = "libraryUnavailable" } }
+            catch (_: Exception) { if (!closed && current == generation) { presentation = previous; startMetadata(); errorKey = "libraryUnavailable" } }
         }
     }
 }

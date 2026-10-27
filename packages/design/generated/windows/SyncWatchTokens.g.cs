@@ -589,6 +589,11 @@ public static class SyncWatchCopy
         ("en", "sharedWatchConnected") => "Shared playback connected",
         ("en", "sharedWatchFailed") => "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
         ("en", "sharedWatchIdentityRejected") => "Syncplay changed your name. Leave the room and reconnect with a shorter or different name.",
+        ("en", "metadataLoading") => "Reading movie information…",
+        ("en", "metadataUnavailable") => "Movie information is unavailable. Refresh to try again.",
+        ("en", "metadataResolutionFormat") => "{width}×{height}",
+        ("en", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
+        ("en", "metadataNoSubtitles") => "No subtitles",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -814,6 +819,11 @@ public static class SyncWatchCopy
         ("ru", "sharedWatchConnected") => "Совместный просмотр подключён",
         ("ru", "sharedWatchFailed") => "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
         ("ru", "sharedWatchIdentityRejected") => "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем.",
+        ("ru", "metadataLoading") => "Чтение сведений о фильме…",
+        ("ru", "metadataUnavailable") => "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
+        ("ru", "metadataResolutionFormat") => "{width}×{height}",
+        ("ru", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
+        ("ru", "metadataNoSubtitles") => "Нет субтитров",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -1024,7 +1034,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af";
+    public const string SourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1644,8 +1654,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataDuration",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataDuration",
         }, []);
         var node17 = new DesignNode("node17", "column", new()
         {
@@ -1677,8 +1688,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataResolution",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataResolution",
         }, []);
         var node20 = new DesignNode("node20", "column", new()
         {
@@ -1710,8 +1722,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataAudio",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataAudio",
         }, []);
         var node23 = new DesignNode("node23", "column", new()
         {
@@ -1743,8 +1756,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataSubtitles",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataSubtitles",
         }, []);
         var node26 = new DesignNode("node26", "column", new()
         {
@@ -1786,8 +1800,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataDuration",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataDuration",
         }, []);
         var node30 = new DesignNode("node30", "column", new()
         {
@@ -1819,8 +1834,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataResolution",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataResolution",
         }, []);
         var node33 = new DesignNode("node33", "column", new()
         {
@@ -1861,8 +1877,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataAudio",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataAudio",
         }, []);
         var node37 = new DesignNode("node37", "column", new()
         {
@@ -1894,8 +1911,9 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "~unknown",
+            ["text"] = "$metadataSubtitles",
             ["weight"] = "semibold",
+            ["automation"] = "{namespace}.metadataSubtitles",
         }, []);
         var node40 = new DesignNode("node40", "column", new()
         {
@@ -2094,6 +2112,30 @@ public static class SyncWatchLayouts
             ["radius"] = "@control.buttonRadius",
             ["width"] = "fill",
         }, [node54, node55]);
+        var metadataLoading = new DesignNode("metadataLoading", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~metadataLoading",
+            ["when"] = "$metadataLoading",
+        }, []);
+        var metadataUnavailable = new DesignNode("metadataUnavailable", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "~metadataUnavailable",
+            ["when"] = "$metadataUnavailable",
+        }, []);
         var node57 = new DesignNode("node57", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -2105,7 +2147,7 @@ public static class SyncWatchLayouts
             ["gap"] = "@layout.panelGap",
             ["padding"] = "@layout.detailPadding",
             ["width"] = "fill",
-        }, [node51, node52, node43, node53, node50, node56]);
+        }, [node51, node52, node43, node53, node50, node56, metadataLoading, metadataUnavailable]);
         var node58 = new DesignNode("node58", "scroll", new()
         {
             ["disabledOpacity"] = "0.4",

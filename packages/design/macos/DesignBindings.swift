@@ -17,6 +17,26 @@ enum DesignBindings {
             "roomMessage": !p.roomStatus.isEmpty
                 ? p.roomStatus : p.state == .reconnecting ? "reconnecting" : "disconnected",
         ]) { _, v in v }
+        let unknown = SyncWatchCopy.text("unknown", language: language)
+        let duration = p.metadataDurationMs.flatMap { ms -> String? in
+            guard ms > 0 else { return nil }
+            return SyncWatchCopy.text("metadataDurationFormat", language: language)
+                .replacingOccurrences(of: "{hours}", with: String(ms / 3_600_000))
+                .replacingOccurrences(of: "{minutes}", with: String(format: "%02d", Int(ms / 60_000 % 60)))
+                .replacingOccurrences(of: "{seconds}", with: String(format: "%02d", Int(ms / 1_000 % 60)))
+        }
+        values.merge([
+            "metadataDuration": duration ?? unknown,
+            "metadataResolution": p.metadataWidth > 0 && p.metadataHeight > 0
+                ? SyncWatchCopy.text("metadataResolutionFormat", language: language)
+                    .replacingOccurrences(of: "{width}", with: String(p.metadataWidth))
+                    .replacingOccurrences(of: "{height}", with: String(p.metadataHeight)) : unknown,
+            "metadataAudio": p.metadataAudioTracks.map(String.init) ?? unknown,
+            "metadataSubtitles": p.metadataSubtitleTracks == 0
+                ? SyncWatchCopy.text("metadataNoSubtitles", language: language)
+                : p.metadataSubtitleTracks.map(String.init) ?? unknown,
+            "metadataLoading": String(p.metadataLoading), "metadataUnavailable": String(p.metadataUnavailable),
+        ]) { _, v in v }
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {
             DesignContext(["id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID)])
         }

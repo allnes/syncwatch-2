@@ -23,7 +23,7 @@ internal sealed class ApplicationWorkspace : UserControl
         this.owner = owner; this.application = application;
         preferences = application.Preferences!;
         catalog = new LibraryController(new Library.FileLibraryAccessStore(
-            Path.Combine(Path.GetDirectoryName(application.StatePath)!, "library-access.json")), Dispatcher, preferences.State.SelectedMediaId);
+            Path.Combine(Path.GetDirectoryName(application.StatePath)!, "library-access.json")), Dispatcher, preferences.State.SelectedMediaId, new LibraryMetadataReader(application.Media!));
         var fullscreen = new WindowFullscreen(owner);
         watch = new WatchSessionCoordinator(preferences, application.Media!, fullscreen.Toggle);
         shared = new(room, watch, HelperConfiguration.Read(Environment.GetCommandLineArgs()));
@@ -40,7 +40,7 @@ internal sealed class ApplicationWorkspace : UserControl
         };
         Refresh();
     }
-    public async Task CloseAsync() { await shared.CloseAsync(); await watch.CloseAsync(); await room.CloseAsync(); catalog.Dispose(); }
+    public async Task CloseAsync() { await shared.CloseAsync(); await watch.CloseAsync(); await room.CloseAsync(); await catalog.CloseAsync(); }
     private void Refresh()
     {
         room.UpdateLibrary(catalog.RoomRevision, () => catalog.RoomFiles);

@@ -595,6 +595,11 @@ public enum SyncWatchCopy {
                 "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
             "sharedWatchIdentityRejected":
                 "Syncplay changed your name. Leave the room and reconnect with a shorter or different name.",
+            "metadataLoading": "Reading movie information…",
+            "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
+            "metadataResolutionFormat": "{width}×{height}",
+            "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "metadataNoSubtitles": "No subtitles",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -825,6 +830,11 @@ public enum SyncWatchCopy {
                 "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
             "sharedWatchIdentityRejected":
                 "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем.",
+            "metadataLoading": "Чтение сведений о фильме…",
+            "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
+            "metadataResolutionFormat": "{width}×{height}",
+            "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "metadataNoSubtitles": "Нет субтитров",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -2075,7 +2085,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "eb76720aa3c44633d8669b64cd488e531427e987c5eb5e310778978cf61ba0af"
+    public static let sourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -3577,8 +3587,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataDuration",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataDuration",
             ],
             children: [])
         let node17 = DesignNode(
@@ -3616,8 +3627,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataResolution",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataResolution",
             ],
             children: [])
         let node20 = DesignNode(
@@ -3655,8 +3667,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataAudio",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataAudio",
             ],
             children: [])
         let node23 = DesignNode(
@@ -3694,8 +3707,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataSubtitles",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataSubtitles",
             ],
             children: [])
         let node26 = DesignNode(
@@ -3745,8 +3759,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataDuration",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataDuration",
             ],
             children: [])
         let node30 = DesignNode(
@@ -3784,8 +3799,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataResolution",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataResolution",
             ],
             children: [])
         let node33 = DesignNode(
@@ -3834,8 +3850,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataAudio",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataAudio",
             ],
             children: [])
         let node37 = DesignNode(
@@ -3873,8 +3890,9 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "~unknown",
+                "text": "$metadataSubtitles",
                 "weight": "semibold",
+                "automation": "{namespace}.metadataSubtitles",
             ],
             children: [])
         let node40 = DesignNode(
@@ -4104,6 +4122,34 @@ public enum SyncWatchLayouts {
                 "width": "fill",
             ],
             children: [node54, node55])
+        let metadataLoading = DesignNode(
+            id: "metadataLoading", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "foreground": "theme.textSecondary",
+                "text": "~metadataLoading",
+                "when": "$metadataLoading",
+            ],
+            children: [])
+        let metadataUnavailable = DesignNode(
+            id: "metadataUnavailable", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "foreground": "theme.textSecondary",
+                "text": "~metadataUnavailable",
+                "when": "$metadataUnavailable",
+            ],
+            children: [])
         let node57 = DesignNode(
             id: "node57", kind: "column",
             props: [
@@ -4117,7 +4163,7 @@ public enum SyncWatchLayouts {
                 "padding": "@layout.detailPadding",
                 "width": "fill",
             ],
-            children: [node51, node52, node43, node53, node50, node56])
+            children: [node51, node52, node43, node53, node50, node56, metadataLoading, metadataUnavailable])
         let node58 = DesignNode(
             id: "node58", kind: "scroll",
             props: [
