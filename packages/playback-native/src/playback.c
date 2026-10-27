@@ -87,6 +87,7 @@ int sw_runtime_open(const char *path, const char *revision, int output, sw_runti
     if (strcmp(p->api.libvlc_get_version(), "3.0.24 Vetinari") || strcmp(p->api.libvlc_get_changeset(), revision)) {
         sw_runtime_close(p); return SW_UNAVAILABLE;
     }
+    if (!sw_library_prepare_output(path, output)) { sw_runtime_close(p); return SW_UNAVAILABLE; }
     /* Never silently select hardware paths whose controls are unqualified. */
     char video[32];
     snprintf(video, sizeof(video), "--vout=%s", video_outputs[output]);

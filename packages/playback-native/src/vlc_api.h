@@ -67,5 +67,6 @@ SW_VLC_FUNCTIONS(SW_CHECK)
 #undef SW_CHECK
 typedef struct sw_library sw_library;
 int sw_library_open(const char *, sw_vlc_api *, int, sw_library **);
+int sw_library_prepare_output(const char *, int);
 void sw_library_close(sw_library *);
 #endif

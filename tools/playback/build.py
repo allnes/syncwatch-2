@@ -60,6 +60,9 @@ def runtime_environment(package, output):
 
 def check(package, output):
     context, library, executable = build(output)
+    if sys.platform == "darwin":
+        from appkit_code_lifetime import check as appkit_code_lifetime
+        appkit_code_lifetime(context, output)
     # A separate process releases the test DLL mapping before Windows cleanup.
     with (output / "media-input-check.log").open("wb") as log:
         subprocess.run([sys.executable, str(ROOT / "tools/playback/media_input_checks.py"),
