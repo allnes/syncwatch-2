@@ -435,6 +435,14 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "identify platform"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"][-1]["with"].update({"name": "latest-build"}))
 
+    def test_artifact_download_regressions_cannot_be_removed(self):
+        def remove(data):
+            for step in data["jobs"]["tests"]["steps"]:
+                if step.get("name") == "Artifact transport regression tests":
+                    step["run"] = "node --test tools/ci/tests/artifact_upload.test.mjs"
+        with self.assertRaisesRegex(ValidationError, "artifact transport tests"):
+            self.validate(remove)
+
     def test_dependency_matrix_cannot_be_replaced_by_a_constant_subset(self):
         with self.assertRaisesRegex(ValidationError, "complete selected matrix"):
             self.validate(lambda data: data["jobs"]["dependencies"]["strategy"].update({"matrix": {"component": ["ignored"]}}))

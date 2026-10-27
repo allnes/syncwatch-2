@@ -79,7 +79,7 @@
         },
         {
           "name": "Artifact transport regression tests",
-          "run": "node --test tools/ci/tests/artifact_upload.test.mjs"
+          "run": "node --test tools/ci/tests/artifact_upload.test.mjs tools/ci/tests/artifact_download.test.mjs"
         },
         {
           "name": "Dependency infrastructure tests",

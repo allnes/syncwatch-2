@@ -36,7 +36,8 @@ OFFLINE = {
     **{name: "http://127.0.0.1:9" for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy")},
     "NO_PROXY": "", "no_proxy": "",
 }
-FRAMEWORK_INPUTS = ("tools/dependencies", "tools/ci/artifact_upload.mjs", ".github/actions/dependency-build", ".github/workflows")
+FRAMEWORK_INPUTS = ("tools/dependencies", "tools/ci/artifact_upload.mjs", "tools/ci/artifact_download.mjs",
+                    ".github/actions/dependency-build", ".github/workflows")
 MAXIMUM_ARCHIVE = 256 * 1024**2
 
 

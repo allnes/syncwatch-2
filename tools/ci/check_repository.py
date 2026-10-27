@@ -308,7 +308,8 @@ def check_workflows(root: Path) -> None:
     require("python3 -m unittest discover -s tools/server/tests -v" in test_commands, "server SDK provisioning tests must execute")
     metadata_commands = {step.get("run") for step in jobs["metadata"]["steps"]}
     require({"git submodule update --init --checkout --depth=1 -- 3rdparty/fastjsonschema", "${{ matrix.python }} tools/server/check.py --provision"}.issubset(metadata_commands), "metadata job must build, test, and validate actual wire output")
-    require("node --test tools/ci/tests/artifact_upload.test.mjs" in test_commands, "artifact transport tests must execute")
+    require("node --test tools/ci/tests/artifact_upload.test.mjs tools/ci/tests/artifact_download.test.mjs" in test_commands,
+            "artifact transport tests must execute")
     require("python3 -m unittest discover -s tools/dependencies/tests -v\nnode --test tools/dependencies/tests/cache.test.mjs" in test_commands, "dependency infrastructure tests must execute")
     planner = jobs["dependency-plan"]
     require(any(step.get("id") == "plan" and step.get("run") == "python3 tools/dependencies/build.py plan" for step in planner["steps"]), "dependency planner must validate real source manifests")
