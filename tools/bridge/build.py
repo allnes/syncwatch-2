@@ -52,7 +52,7 @@ def build(runtime, output):
                 target = owned / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
-                originals[relative] = hashlib.sha256(data).hexdigest()
+                originals[relative] = digest(target)
         if "licenses/fastjsonschema/LICENSE" not in originals:
             raise ValueError("Complete validator grant is missing")
         build_dir = work / "build"
