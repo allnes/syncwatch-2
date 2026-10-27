@@ -1,6 +1,6 @@
 # Loaded media identity
 
-Status: native input ownership, VLC binding and client hashing implemented. Normal shared playback admission remains disabled.
+Status: native input ownership, VLC binding, client hashing and normal shared playback admission implemented on macOS, Windows and Linux. Complete desktop workflow qualification remains open.
 
 The native player and descriptor preparation read one pinned local input. Matching duration, size and modification time alone does not establish that independently opened paths read the same file version. A replacement or an in-place write must invalidate the prepared descriptor.
 
