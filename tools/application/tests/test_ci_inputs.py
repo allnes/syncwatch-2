@@ -142,6 +142,96 @@ class CiInputTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "changed during import"): self.import_sdk()
         self.assertFalse(self.output.exists())
 
+    def helper_fixture(self):
+        from helper_archive import write_archive, write_origin
+        for name in ("packages/ipc", "packages/syncplay-helper", "packages/python-startup", "contracts", "tools/bridge"):
+            path = self.root / name; path.mkdir(parents=True, exist_ok=True)
+            (path / "fixture.txt").write_bytes(b"first-party helper source")
+        for name, revision in (("syncplay", "a" * 40), ("fastjsonschema", "b" * 40)):
+            with (self.root / ".gitmodules").open("a") as stream:
+                stream.write(f'[submodule "{name}"]\n path = 3rdparty/{name}\n url = https://example.invalid/{name}.git\n')
+            (self.root / "3rdparty" / name).mkdir(parents=True, exist_ok=True)
+        self.git("add", ".")
+        for name, revision in (("syncplay", "a" * 40), ("fastjsonschema", "b" * 40)):
+            self.git("update-index", "--add", "--cacheinfo", "160000", revision, "3rdparty/" + name)
+        self.git("commit", "-qm", "Native helper inputs")
+        payload = self.root / "artifacts/helper-payload"
+        (payload / "bin").mkdir(parents=True); (payload / "app").mkdir()
+        executable = "bin/syncwatch-helper" + (".exe" if TARGET == "windows-x64" else "")
+        (payload / executable).write_bytes(b"native helper fixture")
+        (payload / "app/syncplay-revision.txt").write_text("a" * 40 + "\n")
+        self.helper_receipt = {"schemaVersion": 1, "target": TARGET, "developmentHelperOnly": True,
+            "authenticatedInstallation": False, "sourceCommit": self.git("rev-parse", "HEAD"),
+            "sourceTree": self.git("rev-parse", "HEAD^{tree}"), "localChanges": False,
+            "firstPartyInputs": ci_inputs.first_party_inputs(self.root), "syncplayRevision": "a" * 40,
+            "validatorRevision": "b" * 40,
+            "files": {path.relative_to(payload).as_posix(): D.digest(path) for path in payload.rglob("*") if path.is_file()}}
+        receipt_path = payload / "helper-report.json"
+        receipt_path.write_text(json.dumps(self.helper_receipt))
+        self.helper_acceptance = {"sourceCommit": self.helper_receipt["sourceCommit"], "target": TARGET,
+            "helperReceiptSha256": D.digest(receipt_path),
+            "session": {name: True for name in ("coalescedFrames", "identicalReplay", "shutdown", "oversizedInputClosed")}}
+        acceptance = self.root / "artifacts/acceptance.json"; acceptance.write_text(json.dumps(self.helper_acceptance))
+        log = self.root / "artifacts/native.log"; log.write_bytes(b"SYNCWATCH_NATIVE_BRIDGE_OK\n")
+        self.origin = self.root / "artifacts/origin.json"
+        write_origin(self.helper_receipt, self.origin, run_id="12", run_attempt="1")
+        self.helper_archive = self.root / "artifacts/helper.zip"
+        write_archive(payload, [("origin.json", self.origin), ("acceptance.json", acceptance), ("native-probe.log", log)], self.helper_archive)
+
+    def import_helper(self):
+        return ci_inputs.import_helper(self.helper_archive, self.output, target=TARGET,
+                                       run_id=12, producer_attempt=1, root=self.root)
+
+    def rewrite_helper(self, changes):
+        with zipfile.ZipFile(self.helper_archive) as package:
+            entries = {item.filename: package.read(item) for item in package.infolist()}
+        entries.update(changes)
+        with zipfile.ZipFile(self.helper_archive, "w") as package:
+            for name, value in entries.items(): package.writestr(name, value)
+
+    def test_native_helper_import_uses_producer_receipt_and_keeps_validation_outside_runtime(self):
+        self.helper_fixture(); payload = self.import_helper()
+        self.assertEqual(ci_inputs.checked_receipt(payload, "helper-report.json"), self.helper_receipt)
+        self.assertTrue((self.output / "origin.json").is_file())
+        self.assertTrue((self.output / "acceptance.json").is_file())
+        self.assertFalse((payload / "native-probe.log").exists())
+        self.assertFalse((payload / "acceptance.json").exists())
+        self.assertFalse(any(path.name.startswith(".helper-import-") for path in self.output.iterdir()))
+
+    def test_helper_wrong_run_source_target_and_failed_native_acceptance_fail_closed(self):
+        self.helper_fixture()
+        original = self.helper_archive.read_bytes()
+        origin = json.loads(self.origin.read_text())
+        for delta in ({"runId": "13"}, {"runAttempt": "2"}, {"sourceCommit": "f" * 40},
+                      {"localChanges": True}, {"target": "wrong-os"}):
+            self.helper_archive.write_bytes(original)
+            self.rewrite_helper({"origin.json": json.dumps(origin | delta).encode()})
+            with self.assertRaises(ValueError): self.import_helper()
+            self.assertFalse(self.output.exists())
+        self.helper_archive.write_bytes(original)
+        self.rewrite_helper({"native-probe.log": b"failed native fixture"})
+        with self.assertRaisesRegex(ValueError, "native acceptance"): self.import_helper()
+        self.assertFalse(self.output.exists())
+
+    def test_helper_source_mutation_corruption_and_unexpected_members_leave_no_output(self):
+        self.helper_fixture(); original = self.helper_archive.read_bytes()
+        source = self.root / "packages/syncplay-helper/fixture.txt"; data = source.read_bytes(); source.write_bytes(b"changed")
+        with self.assertRaisesRegex(ValueError, "first-party inputs"): self.import_helper()
+        source.write_bytes(data)
+        for change in ({"payload/app/syncplay-revision.txt": b"corrupt"}, {"../escaped": b"escape"}):
+            self.helper_archive.write_bytes(original); self.rewrite_helper(change)
+            with self.assertRaises(ValueError): self.import_helper()
+            self.assertFalse(self.output.exists())
+
+    def test_helper_existing_output_is_preserved_and_interrupted_extraction_is_cleaned(self):
+        self.helper_fixture(); self.output.mkdir(); (self.output / "user.txt").write_bytes(b"preserve")
+        with self.assertRaises(FileExistsError): self.import_helper()
+        self.assertEqual((self.output / "user.txt").read_bytes(), b"preserve")
+        shutil.rmtree(self.output)
+        with patch.object(D, "extract_payload", side_effect=OSError("interrupted helper copy")):
+            with self.assertRaises(OSError): self.import_helper()
+        self.assertFalse(self.output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

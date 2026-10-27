@@ -1,7 +1,6 @@
 """Build the native helper around a previously source-built owned engine payload."""
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import platform
@@ -13,27 +12,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/compression"))
 from toolchain import resolve
-
-
-def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def inventory(root):
-    result = {}
-    for path in sorted(root.rglob("*")):
-        if path.is_symlink():
-            raise ValueError("Helper inputs must not contain aliases")
-        if path.is_file():
-            result[path.relative_to(root).as_posix()] = digest(path)
-    return result
-
-
-def first_party_inputs():
-    directories = ["packages/ipc", "packages/syncplay-helper", "packages/python-startup", "contracts", "tools/bridge"]
-    return {directory + "/" + name: value for directory in directories
-            for name, value in inventory(ROOT / directory).items()
-            if "__pycache__" not in name.split("/") and not name.endswith(".pyc")}
+from helper_sources import digest, inventory, first_party_inputs
 
 
 def build(runtime, output):

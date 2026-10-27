@@ -1,8 +1,17 @@
 """Write portable artifact metadata independently of restored-cache timestamps."""
 
 from pathlib import Path
+import json
 import shutil
 import zipfile
+
+
+def write_origin(receipt, destination, *, run_id, run_attempt):
+    origin = {"schemaVersion": 1, "kind": "native-helper",
+              **{key: receipt[key] for key in ("sourceCommit", "sourceTree", "localChanges", "target")},
+              "runId": run_id, "runAttempt": run_attempt}
+    destination.write_text(json.dumps(origin, indent=2) + "\n", encoding="utf-8")
+    return destination
 
 
 def write_archive(directory: Path, attachments, destination: Path):

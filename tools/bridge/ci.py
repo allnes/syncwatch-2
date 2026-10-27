@@ -11,7 +11,7 @@ import sys
 
 from build import ROOT
 from check import check
-from helper_archive import write_archive
+from helper_archive import write_archive, write_origin
 
 
 def target():
@@ -69,7 +69,10 @@ def verify(dotnet=None, kotlin_runtime=None):
         subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, timeout=180, check=True)
     if b"SYNCWATCH_NATIVE_BRIDGE_OK" not in log.read_bytes():
         raise ValueError("Native transport probe did not report success")
-    write_archive(directory, [("native-probe.log", log),
+    receipt = json.loads((directory / "helper-report.json").read_text(encoding="utf-8"))
+    origin = write_origin(receipt, directory.parent / (selected + "-artifact-origin.json"),
+                          run_id=os.environ.get("GITHUB_RUN_ID"), run_attempt=os.environ.get("GITHUB_RUN_ATTEMPT"))
+    write_archive(directory, [("native-probe.log", log), ("origin.json", origin),
         ("acceptance.json", directory.parent / (selected + "-acceptance.json"))],
         directory.parent / (selected + ".zip"))
 
