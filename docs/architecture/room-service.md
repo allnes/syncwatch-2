@@ -23,6 +23,7 @@ Bodies are UTF-8 JSON bounded to 64 KiB, with exact fields and integer `v: 1`. U
 | `GET /v1/rooms/{id}/snapshot` | Member | Bootstrap: room snapshot, TLS-required Syncplay binding, missing members, catalog cursor |
 | `GET /v1/rooms/{id}/catalog?cursor=...` | Member | Up to 100 descriptors, snapshot sequence, next cursor |
 | `POST /v1/rooms/{id}/commands` | Member | Metadata command and result |
+| `GET /v1/rooms/{id}/selection?watchGeneration=N` | Member | Frozen selected descriptor at the expected watch generation |
 | `POST /v1/rooms/{id}/invitation` | Owner | Rotate invitation; return invitation and expiry |
 | `POST /v1/rooms/{id}/revoke` | Owner | `v`, `memberId`; remove that member |
 | `POST /v1/rooms/{id}/leave` | Member | Remove caller; no body |
@@ -33,9 +34,13 @@ Admission fields are `roomId`, `memberId`, `token`, `expiresAt`, `bootstrap`, an
 
 Catalog pages are stable at the bootstrap sequence. Their cursor expires after 60 seconds or a newer bootstrap for the same member. Fetch pages, then replay events after that sequence. A replay gap requires a new bootstrap and discarding obsolete partial state.
 
+Selection acceptance captures the origin member ID and complete descriptor. Later catalog replacement or origin departure cannot redefine that edition. Starting and ending a watch retain this definition; selecting again replaces it. A selection command with an ID published by multiple members is rejected with `conflict`, requiring an unambiguous choice. Starting uses the captured edition even if its originating catalog is no longer available.
+
+The additive [selection response](../../contracts/v1/room-selection.schema.json) contains `v`, `roomEpoch`, `sequence`, `watchGeneration` and a nullable `selection` with `memberId` and `media`. Lookup requires a canonical decimal `watchGeneration`; a changed generation returns HTTP 409 `staleGeneration`. It neither creates nor invalidates catalog cursors. The historical origin need not remain a room member. This endpoint does not change existing snapshot or event schemas and does not authorize playback.
+
 The Swift/macOS, C#/Windows and Kotlin/Linux Room SDKs expose bounded catalog-page requests tied to an explicit bootstrap. They validate the view cursor, epoch, sequence, member bindings, descriptor fields and forward pagination before returning an immutable page. Descriptors reuse the native Domain model, including exact canonical title-key validation. A media ID is unique within a member's catalog; the same ID from another member is a separate entry.
 
-Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. The normal desktop membership session also serializes outgoing [local catalog publication](../room-client.md#local-catalog-publication) against those walks, preserving one command counter and any unresolved request. Page transport alone does not implement media admission or playback activation. Normal shared Start remains gated until those application paths are verified on all three operating systems.
+Applications must serialize bootstrap and catalog assembly, discard incomplete or invalidated views, and publish only a complete catalog. The normal desktop membership session also serializes outgoing [local catalog publication](../room-client.md#local-catalog-publication) against those walks, preserving one command counter and any unresolved request. Page transport alone does not implement media admission or playback activation. The application-owned shared-watch coordinator performs that admission on all three operating systems, withholding native controls until the selected input, membership and initial helper readiness are verified. Complete desktop acceptance remains a separate qualification gate.
 
 The SDKs also assemble a complete catalog view with its bootstrap. They validate duplicates across pages and the service maximum of 2048 items per member, check cancellation before publishing the final page, and expose no partial replacement. The normal desktop membership loop serializes snapshots with page walks and bounds each walk to 20 seconds. It publishes metadata and catalog together, retaining the previous complete view while a refresh is pending; failed or cancelled attempts cannot authorize playback. Cursor expiry requires a new bootstrap. Local catalog publication and media admission remain separate application work.
 

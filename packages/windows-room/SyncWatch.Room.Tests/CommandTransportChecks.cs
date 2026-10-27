@@ -33,6 +33,14 @@ internal static class CommandTransportChecks
         var selection = new RoomCommand(admission, 4, 0, new RoomCommandAction.Select("movie-0"));
         var selected = await owner.ExecuteAsync(admission, selection);
         if (selected.ErrorCode is not null || selected != await owner.ExecuteAsync(admission, selection)) throw new Exception("selection replay");
+        var selectedView = await owner.SnapshotAsync(admission);
+        var definition = await owner.SelectionAsync(admission, selectedView);
+        if (definition.Selection?.MemberId != admission.MemberId || definition.Selection.Media != catalog[0]) throw new Exception("frozen selection descriptor");
+        _ = await owner.CatalogViewAsync(admission, selectedView);
+        bool staleSelection = false;
+        try { _ = await owner.SelectionAsync(admission, view); }
+        catch (RoomProtocolException error) when (error.Message == "staleGeneration") { staleSelection = true; }
+        if (!staleSelection) throw new Exception("Stale selection lookup was accepted");
         bool conflict = false;
         try { _ = await owner.ExecuteAsync(admission, new(admission, 4, 0, new RoomCommandAction.Select("movie-1"))); }
         catch (RoomProtocolException error) when (error.Message == "conflict") { conflict = true; }

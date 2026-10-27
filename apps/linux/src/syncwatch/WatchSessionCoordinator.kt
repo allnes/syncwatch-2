@@ -28,6 +28,7 @@ internal class WatchSessionCoordinator(
         private set
     val scope get() = session.scope
     val positionMs get() = session.positionMs
+    var onEndWatching: (() -> Unit)? = null
     private var pendingLoad: Job? = null
     private var pendingScope: PlaybackScope? = null
     private var releaseJob: Deferred<Unit>? = null
@@ -49,7 +50,7 @@ internal class WatchSessionCoordinator(
         if (preferences.savingWatchState) enabled -= "openSettings"
         return source.copy(enabledActions = enabled)
     }
-    fun start(selection: LibraryMediaSelection) {
+    fun start(selection: LibraryMediaSelection, requiresSharedAdmission: Boolean = false) {
         check(java.awt.EventQueue.isDispatchThread())
         if (!runtimeAvailable || closing) return
         try {
@@ -58,7 +59,7 @@ internal class WatchSessionCoordinator(
             hasWatchActivity = true; errorKey = null
             for (effect in effects) when (effect) {
                 is WatchEffect.Release -> release(effect.scope)
-                is WatchEffect.Load -> load(effect, selection)
+                is WatchEffect.Load -> load(effect, selection, requiresSharedAdmission)
             }
             publish(); requestCheckpoint()
         } catch (_: WatchFailure) { errorKey = "playbackFailed"; publish() }
@@ -97,7 +98,7 @@ internal class WatchSessionCoordinator(
         catch (error: Exception) { errorKey = "playbackFailed"; throw error }
     }
     private fun publish() { phase = session.phase; playerPresented = !closing && session.playerPresented }
-    private fun load(request: WatchEffect.Load, selection: LibraryMediaSelection) {
+    private fun load(request: WatchEffect.Load, selection: LibraryMediaSelection, requiresSharedAdmission: Boolean) {
         pendingLoad?.cancel(); pendingScope = request.scope
         val prior = releaseJob
         val loading = work.launch(start = CoroutineStart.LAZY) {
@@ -107,8 +108,8 @@ internal class WatchSessionCoordinator(
                 if (closing || session.scope != request.scope || session.phase != WatchPhase.preparing) return@launch
                 player = PlaybackController(LocalPlaybackLaunch(selection.media.file, media.packageDirectory, media.bridge, null, false),
                     requireNotNull(display), work, requestedScope = request.scope, initialPositionMs = request.positionMs,
-                    selection = selection, onLoaded = ::loaded, onObservation = ::observed,
-                    onNavigation = { if (it == "showLibrary") showLibrary() else if (it == "endWatching") end() },
+                    selection = selection, requiresSharedAdmission = requiresSharedAdmission, onLoaded = ::loaded, onObservation = ::observed,
+                    onNavigation = { if (it == "showLibrary") showLibrary() else if (it == "endWatching") { onEndWatching?.invoke() ?: end() } },
                     onFailure = { failed(request.scope) })
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { failed(request.scope) }

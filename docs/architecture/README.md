@@ -159,9 +159,9 @@ Shared design assets contain no account, device, or room data. Catalog exchange 
 | Google Meet | Browser hosts, account access, media, native call controls, and capture shutdown are not implemented |
 | VLC | Native surfaces, local lifecycle, scoped input ownership and controlled shared playback work on macOS, Windows and Linux; timeline previews, remaining overlays and complete player preferences are incomplete |
 | Dependencies | Selected engine/runtime and desktop source profiles build and verify on their native targets; browser source closure, authenticated installation and canonical application distribution remain open |
-| Syncplay bridge | Owned transports connect actual native players on all3; normal room/catalog/media admission, reconnect and authenticated installation remain incomplete |
+| Syncplay bridge | Normal room/catalog/media admission connects native players on all3; complete desktop qualification, reconnect and authenticated installation remain open |
 | Shared design | All3 clients consume common component, palette, typography and layout resources; native appearance preferences persist locally. Complete workflow parity, call behavior and remaining player overlays are incomplete |
-| Linux client | Kotlin/Compose application, native X11 video, local lifecycle, loaded-content hashing, Room membership and controlled interoperability are exercised; normal shared admission, canonical packaging, Wayland qualification and calling remain incomplete |
+| Linux client | Kotlin/Compose application, native X11 video, local lifecycle, loaded-content hashing, Room membership and normal shared admission are implemented; complete desktop qualification, canonical packaging, Wayland qualification and calling remain open |
 
 These limitations distinguish the application architecture from the functionality available in the current shells.
 

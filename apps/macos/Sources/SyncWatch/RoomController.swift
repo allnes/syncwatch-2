@@ -1,38 +1,59 @@
 import Foundation
 import SwiftUI
 import SyncWatchDesign
+import SyncWatchDomain
 import SyncWatchLibrary
 import SyncWatchRoom
+
+struct RoomWatchMembership {
+    fileprivate let owner: RoomMembershipSession
+    let memberID: String
+    let identity: RoomIdentity
+    let epoch: String
+}
+struct RoomPreparedPublication {
+    let lease: UUID
+    let media: MediaDescriptor
+}
 
 /// The workspace owns membership independently of the visible connection sheet.
 @MainActor final class RoomController: ObservableObject {
     @Published var editor = RoomEditor()
     @Published private(set) var catalogView: RoomCatalogView?
     var bootstrap: RoomBootstrap? { catalogView?.bootstrap }
+    private(set) var watchBootstrap: RoomBootstrap?
     private var admission: RoomAdmission?
     private var work: Task<Void, Never>?
     private var session: RoomMembershipSession?
+    private var playbackSession: RoomMembershipSession?
+    private var playbackEpoch: String?
     private var catalogMap = RoomLocalCatalog()
     private var localRevision: UUID?
     private var acknowledgedRevision: UUID?
     private var localFiles: [LocalMediaFile] = []
     private var publisher: Task<Void, Never>?
+    private var prepared: (lease: UUID, media: MediaDescriptor)?
+    private var acknowledgedPrepared: RoomPreparedPublication?
     private var stopping = false
     private var closing: Task<Void, Never>?
     var connected: Bool { editor.connected && bootstrap != nil }
     func connect() {
         guard !stopping, !editor.busy, !connected, work == nil, editor.isValid else { return }
+        playbackSession = nil
+        playbackEpoch = nil
         let values = editor.values
         let owner = editor.mode == "createRoom"
         editor.state = "connecting"
         editor.status = ""
         work = Task { await run(values, owner: owner) }
     }
-    func libraryPresentation(_ source: LibraryPresentation) -> LibraryPresentation {
+    func libraryPresentation(_ source: LibraryPresentation, sharedStartAvailable: Bool = false) -> LibraryPresentation {
         var result = source
         if !stopping { result.enabledActions.insert("openRoom") }
         // Membership alone cannot authorize an unsynchronized local Start in a room.
-        if editor.state != "disconnected" { result.enabledActions.remove("startWatching") }
+        if editor.state != "disconnected" && !(connected && sharedStartAvailable) {
+            result.enabledActions.remove("startWatching")
+        }
         result.roomStatus =
             connected
             ? (["roomCatalogPublishing", "roomCatalogPublishFailed"].contains(editor.status)
@@ -79,6 +100,8 @@ import SyncWatchRoom
             return
         }
         stopping = true
+        playbackSession = nil
+        playbackEpoch = nil
         work?.cancel()
         publisher?.cancel()
         if let work { await work.value }
@@ -99,6 +122,79 @@ import SyncWatchRoom
         localFiles = files
         startPublisher()
     }
+    func isCurrent(_ membership: RoomWatchMembership) -> Bool {
+        !stopping && connected && session === membership.owner && admission?.memberID == membership.memberID
+            && admission?.bootstrap.snapshot.epoch == membership.epoch
+    }
+    // An admitted native scope survives metadata transport loss. New starts still require isCurrent.
+    func canContinuePlayback(_ membership: RoomWatchMembership) -> Bool {
+        !stopping && playbackSession === membership.owner && playbackEpoch == membership.epoch
+    }
+    static func isMetadataInterruption(_ error: any Error) -> Bool {
+        if error is URLError { return true }
+        switch error {
+        case RoomProtocolFailure.transport, RoomProtocolFailure.closed,
+            RoomProtocolFailure.rejected("transport"):
+            return true
+        default: return false
+        }
+    }
+    func beginWatch() async throws -> (membership: RoomWatchMembership, context: RoomWatchContext) {
+        guard let session, let admission,
+            let member = admission.bootstrap.snapshot.members.first(where: { $0.memberID == admission.memberID })
+        else { throw RoomProtocolFailure.closed }
+        let membership = RoomWatchMembership(
+            owner: session, memberID: admission.memberID,
+            identity: member.identity, epoch: admission.bootstrap.snapshot.epoch)
+        return (membership, try await watchContext(membership))
+    }
+    func watchContext(_ membership: RoomWatchMembership) async throws -> RoomWatchContext {
+        guard isCurrent(membership) else { throw RoomProtocolFailure.closed }
+        let value = try await membership.owner.watchContext()
+        try Task.checkCancellation()
+        guard isCurrent(membership) else { throw RoomProtocolFailure.closed }
+        recordWatch(value.bootstrap)
+        return value
+    }
+    func performWatch(_ action: RoomCommandAction, membership: RoomWatchMembership, expected: RoomWatchContext)
+        async throws -> RoomWatchContext
+    {
+        guard isCurrent(membership) else { throw RoomProtocolFailure.closed }
+        let value = try await membership.owner.perform(action, expected: expected)
+        try Task.checkCancellation()
+        guard isCurrent(membership) else { throw RoomProtocolFailure.closed }
+        recordWatch(value.bootstrap)
+        return value
+    }
+    func publishPrepared(_ media: MediaDescriptor, membership: RoomWatchMembership) async throws
+        -> RoomPreparedPublication
+    {
+        guard isCurrent(membership), media.fullHashSha256 != nil, (media.durationMs ?? 0) > 0 else {
+            throw RoomProtocolFailure.malformed
+        }
+        let lease = UUID()
+        prepared = (lease, media)
+        localRevision = UUID()
+        startPublisher()
+        do {
+            while true {
+                try Task.checkCancellation()
+                guard isCurrent(membership), prepared?.lease == lease else { throw RoomProtocolFailure.closed }
+                if let acknowledgedPrepared, acknowledgedPrepared.lease == lease { return acknowledgedPrepared }
+                guard let publisher else { throw RoomProtocolFailure.rejected("unavailable") }
+                await publisher.value
+            }
+        } catch {
+            clearPrepared(lease, membership: membership)
+            throw error
+        }
+    }
+    func clearPrepared(_ lease: UUID, membership: RoomWatchMembership) {
+        guard isCurrent(membership), prepared?.lease == lease else { return }
+        prepared = nil
+        localRevision = UUID()
+        startPublisher()
+    }
     private func startPublisher() {
         guard !stopping, connected, publisher == nil, let session, localRevision != nil,
             localRevision != acknowledgedRevision
@@ -111,12 +207,17 @@ import SyncWatchRoom
             revision != acknowledgedRevision
         {
             do {
-                let publication = try catalogMap.prepare(localFiles)
+                let loaded = prepared
+                let publication = try catalogMap.prepare(localFiles, prepared: loaded?.media)
                 editor.status = "roomCatalogPublishing"
                 let view = try await owner.publish(publication.items)
                 try Task.checkCancellation()
                 guard !stopping, session === owner else { return }
                 catalogMap.acknowledge(publication)
+                acknowledgedPrepared = loaded.flatMap { loaded in
+                    publication.items.first { $0.mediaID == publication.localIDs[loaded.media.mediaID] }
+                        .map { RoomPreparedPublication(lease: loaded.lease, media: $0) }
+                }
                 acknowledgedRevision = revision
                 accept(view)
                 if ["roomCatalogPublishing", "roomCatalogPublishFailed"].contains(editor.status) { editor.status = "" }
@@ -129,14 +230,19 @@ import SyncWatchRoom
         }
     }
     private func accept(_ view: RoomCatalogView) {
+        recordWatch(view.bootstrap)
         guard view.bootstrap.snapshot.sequence >= (bootstrap?.snapshot.sequence ?? 0) else { return }
         catalogView = view
         editor.memberCount = view.bootstrap.snapshot.members.count
+    }
+    private func recordWatch(_ bootstrap: RoomBootstrap) {
+        if bootstrap.snapshot.sequence >= (watchBootstrap?.snapshot.sequence ?? 0) { watchBootstrap = bootstrap }
     }
     private func run(_ values: [String: String], owner: Bool) async {
         var current: RoomClient?
         var admitted: RoomAdmission?
         var failed = false
+        var interrupted = false
         do {
             let next = try RoomClient(address: RoomAddress(values["serviceAddress"] ?? ""))
             current = next
@@ -173,9 +279,14 @@ import SyncWatchRoom
             let firstView = try await ownerSession.refresh(initial: initial)
             try Task.checkCancellation()
             catalogMap = RoomLocalCatalog()
+            prepared = nil
+            acknowledgedPrepared = nil
             acknowledgedRevision = nil
             session = ownerSession
+            playbackSession = ownerSession
+            playbackEpoch = value.bootstrap.snapshot.epoch
             catalogView = firstView
+            watchBootstrap = firstView.bootstrap
             editor.state = "connected"
             editor.roomID = value.roomID
             editor.memberCount = initial.snapshot.members.count
@@ -193,17 +304,25 @@ import SyncWatchRoom
             }
         } catch {
             failed = !Task.isCancelled
+            interrupted = failed && Self.isMetadataInterruption(error) && playbackSession != nil
+            if !interrupted {
+                playbackSession = nil
+                playbackEpoch = nil
+            }
             editor.state = "connecting"
         }
         publisher?.cancel()
         await publisher?.value
         publisher = nil
         session = nil
+        watchBootstrap = nil
         acknowledgedRevision = nil
         catalogMap = RoomLocalCatalog()
+        prepared = nil
+        acknowledgedPrepared = nil
         if let current {
             // Cleanup work is owned and bounded even when the attempt's caller was cancelled.
-            if let admitted {
+            if let admitted, !interrupted {
                 let leaving = Task { try? await current.leave(admitted) }
                 let deadline = Task {
                     try? await Task.sleep(for: .seconds(3))

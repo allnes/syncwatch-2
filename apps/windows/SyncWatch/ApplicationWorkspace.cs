@@ -14,6 +14,7 @@ internal sealed class ApplicationWorkspace : UserControl
     private readonly LibraryController catalog;
     private readonly WatchSessionCoordinator watch;
     private readonly RoomController room = new();
+    private readonly RoomWatchCoordinator shared;
     private readonly Design.ApplicationChrome chrome;
     private bool started;
 
@@ -25,8 +26,11 @@ internal sealed class ApplicationWorkspace : UserControl
             Path.Combine(Path.GetDirectoryName(application.StatePath)!, "library-access.json")), Dispatcher, preferences.State.SelectedMediaId);
         var fullscreen = new WindowFullscreen(owner);
         watch = new WatchSessionCoordinator(preferences, application.Media!, fullscreen.Toggle);
+        shared = new(room, watch, HelperConfiguration.Read(Environment.GetCommandLineArgs()));
+        watch.OnEndWatching = async () => await shared.EndAsync();
         chrome = new Design.ApplicationChrome(library); Content = chrome;
         catalog.Changed += Refresh; watch.Changed += Refresh; room.Changed += Refresh;
+        shared.Changed += Refresh;
         library.ActionRequested += Action;
         Loaded += async (_, _) =>
         {
@@ -36,15 +40,16 @@ internal sealed class ApplicationWorkspace : UserControl
         };
         Refresh();
     }
-    public async Task CloseAsync() { await watch.CloseAsync(); await room.CloseAsync(); catalog.Dispose(); }
+    public async Task CloseAsync() { await shared.CloseAsync(); await watch.CloseAsync(); await room.CloseAsync(); catalog.Dispose(); }
     private void Refresh()
     {
         room.UpdateLibrary(catalog.RoomRevision, () => catalog.RoomFiles);
-        library.Render(room.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
+        shared.MembershipChanged();
+        library.Render(shared.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
         chrome.SetPlayer(watch.Player); chrome.PresentPlayer(watch.PlayerPresented);
         if (WatchAcceptance.Requested) return;
-        if ((catalog.ErrorKey ?? watch.ErrorKey) is not string key) return;
-        catalog.ClearError(); watch.ClearError();
+        if ((catalog.ErrorKey ?? watch.ErrorKey ?? shared.ErrorKey) is not string key) return;
+        catalog.ClearError(); watch.ClearError(); shared.ClearError();
         Dispatcher.InvokeAsync(() =>
         {
             if (IsLoaded) MessageBox.Show(owner, Design.SyncWatchCopy.Text(key, preferences.State.Preferences.Language),
@@ -60,9 +65,9 @@ internal sealed class ApplicationWorkspace : UserControl
         }
         else if (action == "rescan") catalog.Rescan();
         else if (action == "selectMovie" && value is not null) catalog.Select(value);
-        else if (action == "startWatching" && catalog.SelectedMedia() is LibraryMediaSelection selection) watch.Start(selection);
+        else if (action == "startWatching" && catalog.SelectedMedia() is LibraryMediaSelection selection) shared.Start(selection);
         else if (action == "continueWatching") watch.ContinueWatching();
-        else if (action == "endWatching") watch.End();
+        else if (action == "endWatching") _ = shared.EndAsync();
         else if (action == "openRoom") OpenRoom();
         else if (action == "openSettings") OpenSettings();
     }
@@ -74,7 +79,7 @@ internal sealed class ApplicationWorkspace : UserControl
         view.ActionRequested += async action =>
         {
             if (action == "connectRoom") room.Connect();
-            else if (action == "leaveRoom") await room.CloseAsync();
+            else if (action == "leaveRoom") await shared.LeaveAsync();
             else if (action == "pasteInvitation")
             {
                 try { room.PasteInvitation(Clipboard.GetText()); }

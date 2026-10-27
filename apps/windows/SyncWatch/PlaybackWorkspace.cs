@@ -42,7 +42,9 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private PlayerPresentation presentation = new();
     private Task? polling, shutdown;
     private HelperSession? sharedSession;
-    private readonly SharedMediaPreparation sharedMediaPreparation = new();
+    private bool requiresSharedAdmission;
+    private SharedMediaPreparation sharedMediaPreparation = new();
+    private Func<bool>? sharedAuthority;
     internal HelperSessionState? SharedState { get; private set; }
     private bool closing;
     private bool attached;
@@ -53,23 +55,43 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     internal PlaybackScope Scope => scope;
     internal NativeVideoHost Surface => surface;
     internal void RequestAction(string action, double? value = null) => Action(action, value);
-    internal async Task<MediaDescriptor> PrepareSharedMediaAsync()
+    internal async Task<MediaDescriptor> PrepareSharedMediaAsync(CancellationToken token = default)
     {
         if (closing || selection is null) throw new InvalidOperationException("media-unavailable");
-        var descriptor = await sharedMediaPreparation.PrepareAsync(selection, player, scope);
+        var descriptor = await sharedMediaPreparation.PrepareAsync(selection, player, scope, token);
         if (closing) throw new OperationCanceledException();
         return descriptor;
     }
+    internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); chrome.Render(presentation, language); }
+    internal void AdmitSharedPlayback()
+    {
+        if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, Ready: true } || sharedAuthority?.Invoke() == false)
+            throw new InvalidOperationException("Shared playback unavailable");
+        // A user's Pause can clear Syncplay readiness without revoking the admitted file.
+        requiresSharedAdmission = false;
+    }
+    internal async Task RevokeSharedAsync(bool releaseAdmission = false)
+    {
+        RequireSharedAdmission(); sharedAuthority = null;
+        var session = sharedSession; sharedSession = null; SharedState = null;
+        var preparation = sharedMediaPreparation;
+        await preparation.CloseAsync();
+        if (session is not null) await session.DisposeAsync();
+        try { await player.SetPausedAsync(true, scope); } catch (Exception) { }
+        if (closing) return;
+        sharedMediaPreparation = new(); requiresSharedAdmission = !releaseAdmission;
+    }
     // Transfer only after the room coordinator admits the selected local media.
-    internal async Task ConnectSharedAsync(IHelperTransport transport, SyncplayEndpoint endpoint, SharedMedia media, string revision)
+    internal async Task ConnectSharedAsync(IHelperTransport transport, SyncplayEndpoint endpoint, SharedMedia media, string revision, bool requireDeclaredIdentity = false, Func<bool>? authority = null)
     {
         try
         {
-            if (closing || !attached || sharedSession is not null) throw new InvalidOperationException("Shared playback unavailable");
+            if (closing || !attached || sharedSession is not null || authority?.Invoke() == false) throw new InvalidOperationException("Shared playback unavailable");
+            sharedAuthority = authority;
             await sharedMediaPreparation.ValidateAsync(player, scope);
-            if (closing || !attached || sharedSession is not null) throw new InvalidOperationException("Shared playback unavailable");
+            if (closing || !attached || sharedSession is not null || authority?.Invoke() == false) throw new InvalidOperationException("Shared playback unavailable");
             var session = new HelperSession(transport, player, scope, endpoint, media, revision, state =>
-            { SharedState = state; GateSharedActions(); chrome.Render(presentation, language); });
+            { SharedState = state; GateSharedActions(); chrome.Render(presentation, language); }, requiresSharedAdmission || requireDeclaredIdentity);
             sharedSession = session; SharedState = session.State; GateSharedActions(); chrome.Render(presentation, language);
             session.Start();
         }
@@ -77,7 +99,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     }
     private void GateSharedActions()
     {
-        if (sharedSession is not null && SharedState is not { Connection: HelperConnection.Connected })
+        if ((requiresSharedAdmission || sharedSession is not null) &&
+            (sharedAuthority?.Invoke() == false || SharedState is not { Connection: HelperConnection.Connected } || (requiresSharedAdmission && SharedState is not { Ready: true })))
             presentation = presentation with { EnabledActions = presentation.EnabledActions.Except(["playPause", "seek", "skip"]).ToHashSet() };
     }
     internal void DetachSurface()
@@ -89,13 +112,14 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     public PlaybackWorkspace(LocalPlaybackLaunch launch, string language, PlaybackScope? scope = null, long positionMs = 0,
         LibraryMediaSelection? selection = null, Action<PlaybackScope>? onLoaded = null,
         Action<PlaybackObservation>? onObservation = null, Action<string>? onNavigation = null, Action? onFailure = null,
-        Action? onFullscreen = null)
+        Action? onFullscreen = null, bool requiresSharedAdmission = false)
     {
         this.launch = launch; this.language = language;
         this.scope = scope ?? PlaybackScope.Create().ReplacingMedia(); initialPositionMs = positionMs;
         this.selection = selection; this.onLoaded = onLoaded; this.onObservation = onObservation;
         this.onNavigation = onNavigation; this.onFailure = onFailure;
         this.onFullscreen = onFullscreen;
+        this.requiresSharedAdmission = requiresSharedAdmission;
         surface = new NativeVideoHost(CloseAsync);
         surface.SurfaceCreated += handle => { if (!attached && !cancellation.IsCancellationRequested) { attached = true; polling = PollAsync(handle); } };
         chrome.VideoSurface = surface;
@@ -167,6 +191,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private async void Action(string action, double? value)
     {
         if (closing || cancellation.IsCancellationRequested) return;
+        GateSharedActions();
+        if (!presentation.EnabledActions.Contains(action)) return;
         if ((action is "endWatching" or "showLibrary") && onNavigation is not null) { onNavigation(action); return; }
         if (action == "endWatching")
         {

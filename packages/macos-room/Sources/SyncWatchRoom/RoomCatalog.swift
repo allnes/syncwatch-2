@@ -58,22 +58,8 @@ public struct RoomCatalogPage: Sendable {
         let items: [RoomCatalogEntry] = try entries.map { entry in
             try RoomWire.keys(entry, ["memberId", "media"])
             let member = try RoomWire.string(entry["memberId"])
-            let media = try RoomWire.dictionary(entry["media"])
-            var keys: Set<String> = ["v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs"]
-            if media["fullHashSha256"] != nil { keys.insert("fullHashSha256") }
-            try RoomWire.keys(media, keys)
-            guard members.contains(member), try RoomWire.integer(media["v"], maximum: 1) == 1 else {
-                throw RoomProtocolFailure.malformed
-            }
-            let descriptor: MediaDescriptor
-            do {
-                descriptor = try MediaDescriptor(
-                    mediaID: RoomWire.string(media["mediaId"]), title: RoomWire.string(media["title"]),
-                    titleKey: RoomWire.string(media["titleKey"]),
-                    fileSizeBytes: Int64(RoomWire.integer(media["fileSizeBytes"])),
-                    durationMs: media["durationMs"] is NSNull ? nil : Int64(RoomWire.integer(media["durationMs"])),
-                    fullHashSha256: media["fullHashSha256"].map { try RoomWire.string($0) })
-            } catch { throw RoomProtocolFailure.malformed }
+            guard members.contains(member) else { throw RoomProtocolFailure.malformed }
+            let descriptor = try RoomMedia.decode(entry["media"])
             // Both identifiers are ASCII and cannot contain the separator.
             guard seen.insert(member + ":" + descriptor.mediaID).inserted else { throw RoomProtocolFailure.malformed }
             return RoomCatalogEntry(memberID: member, media: descriptor)
@@ -106,5 +92,28 @@ struct RoomCatalogPosition {
         let current = try parse(cursor)
         guard initial.1 == 0, initial.0 == current.0 else { throw RoomProtocolFailure.malformed }
         offset = current.1
+    }
+}
+
+/// One descriptor decoder for catalog pages and frozen selected definitions.
+enum RoomMedia {
+    static func decode(_ value: Any?) throws -> MediaDescriptor {
+        let media = try RoomWire.dictionary(value)
+        var keys: Set<String> = ["v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs"]
+        if media["fullHashSha256"] != nil { keys.insert("fullHashSha256") }
+        try RoomWire.keys(media, keys)
+        guard try RoomWire.integer(media["v"], maximum: 1) == 1 else {
+            throw RoomProtocolFailure.malformed
+        }
+        let descriptor: MediaDescriptor
+        do {
+            descriptor = try MediaDescriptor(
+                mediaID: RoomWire.string(media["mediaId"]), title: RoomWire.string(media["title"]),
+                titleKey: RoomWire.string(media["titleKey"]),
+                fileSizeBytes: Int64(RoomWire.integer(media["fileSizeBytes"])),
+                durationMs: media["durationMs"] is NSNull ? nil : Int64(RoomWire.integer(media["durationMs"])),
+                fullHashSha256: media["fullHashSha256"].map { try RoomWire.string($0) })
+        } catch { throw RoomProtocolFailure.malformed }
+        return descriptor
     }
 }

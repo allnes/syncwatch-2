@@ -65,19 +65,9 @@ public sealed class RoomCatalogPage
         foreach (var entry in entries.EnumerateArray())
         {
             RoomWire.Keys(entry, "memberId", "media");
-            string member = RoomWire.String(entry, "memberId"); var media = entry.GetProperty("media");
-            string[] keys = ["v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs"];
-            bool hasHash = media.ValueKind == JsonValueKind.Object && media.TryGetProperty("fullHashSha256", out _);
-            RoomWire.Keys(media, hasHash ? [.. keys, "fullHashSha256"] : keys);
-            if (!members.Contains(member) || RoomWire.Integer(media, "v", 1) != 1) throw RoomWire.Bad();
-            MediaDescriptor descriptor;
-            try
-            {
-                descriptor = new(RoomWire.String(media, "mediaId"), RoomWire.String(media, "title"), RoomWire.String(media, "titleKey"),
-                    RoomWire.Integer(media, "fileSizeBytes"), media.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : RoomWire.Integer(media, "durationMs"),
-                    hasHash ? RoomWire.String(media, "fullHashSha256") : null);
-            }
-            catch (ContractException) { throw RoomWire.Bad(); }
+            string member = RoomWire.String(entry, "memberId");
+            if (!members.Contains(member)) throw RoomWire.Bad();
+            var descriptor = RoomMedia.Decode(entry.GetProperty("media"));
             if (!seen.Add((member, descriptor.MediaId))) throw RoomWire.Bad();
             items.Add(new(member, descriptor));
         }
@@ -103,5 +93,25 @@ internal sealed class RoomCatalogPosition
         var initial = Parse(bootstrap.CatalogCursor); var current = Parse(cursor);
         if (initial.Offset != 0 || initial.View != current.View) throw RoomWire.Bad();
         Offset = current.Offset;
+    }
+}
+
+internal static class RoomMedia
+{
+    internal static MediaDescriptor Decode(JsonElement media)
+    {
+        string[] keys = ["v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs"];
+        bool hasHash = media.ValueKind == JsonValueKind.Object && media.TryGetProperty("fullHashSha256", out _);
+        RoomWire.Keys(media, hasHash ? [.. keys, "fullHashSha256"] : keys);
+        if (RoomWire.Integer(media, "v", 1) != 1) throw RoomWire.Bad();
+        MediaDescriptor descriptor;
+        try
+        {
+            descriptor = new(RoomWire.String(media, "mediaId"), RoomWire.String(media, "title"), RoomWire.String(media, "titleKey"),
+                RoomWire.Integer(media, "fileSizeBytes"), media.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : RoomWire.Integer(media, "durationMs"),
+                hasHash ? RoomWire.String(media, "fullHashSha256") : null);
+        }
+        catch (ContractException) { throw RoomWire.Bad(); }
+        return descriptor;
     }
 }

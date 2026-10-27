@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.syncwatch.invalid/v1/room-selection.schema.json",
+  "type": "object",
+  "properties": {
+    "v": {
+      "const": 1,
+      "type": "integer"
+    },
+    "roomEpoch": {
+      "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/id"
+    },
+    "sequence": {
+      "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
+    },
+    "watchGeneration": {
+      "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/counter"
+    },
+    "selection": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "memberId": {
+              "$ref": "https://schemas.syncwatch.invalid/v1/common.schema.json#/definitions/id"
+            },
+            "media": {
+              "$ref": "https://schemas.syncwatch.invalid/v1/media-descriptor.schema.json"
+            }
+          },
+          "required": [
+            "memberId",
+            "media"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "v",
+    "roomEpoch",
+    "sequence",
+    "watchGeneration",
+    "selection"
+  ],
+  "additionalProperties": false
+}

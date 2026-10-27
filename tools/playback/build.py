@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -60,6 +61,11 @@ def runtime_environment(package, output):
 
 def check(package, output):
     context, library, executable = build(output)
+    if sys.platform == "darwin":
+        spec = importlib.util.spec_from_file_location("syncwatch_appkit_code_lifetime", ROOT / "tools/playback/appkit_code_lifetime.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.check(context, output)
     # A separate process releases the test DLL mapping before Windows cleanup.
     with (output / "media-input-check.log").open("wb") as log:
         subprocess.run([sys.executable, str(ROOT / "tools/playback/media_input_checks.py"),

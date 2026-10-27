@@ -589,6 +589,12 @@ public enum SyncWatchCopy {
             "roomInvitationInvalid": "Copy a complete room invitation and try again.",
             "roomCatalogPublishing": "Sharing library…",
             "roomCatalogPublishFailed": "Could not share the library. Rescan the folder to retry.",
+            "sharedWatchPreparing": "Preparing shared playback…",
+            "sharedWatchConnected": "Shared playback connected",
+            "sharedWatchFailed":
+                "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
+            "sharedWatchIdentityRejected":
+                "Syncplay changed your name. Leave the room and reconnect with a shorter or different name.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -813,6 +819,12 @@ public enum SyncWatchCopy {
             "roomInvitationInvalid": "Скопируйте приглашение комнаты целиком и повторите вставку.",
             "roomCatalogPublishing": "Публикация библиотеки…",
             "roomCatalogPublishFailed": "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить.",
+            "sharedWatchPreparing": "Подготовка совместного просмотра…",
+            "sharedWatchConnected": "Совместный просмотр подключён",
+            "sharedWatchFailed":
+                "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
+            "sharedWatchIdentityRejected":
+                "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {

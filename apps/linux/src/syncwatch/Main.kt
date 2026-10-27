@@ -39,7 +39,7 @@ fun main(arguments: Array<String>) {
                 val path = arguments.getOrNull(index + 1)?.takeIf { index >= 0 }
                     ?.let { Path.of(it).toAbsolutePath().normalize().resolve("local-state.json") }
                     ?: AppearancePreferences.defaultPath()
-                ApplicationSession(media, display, scope, path)
+                ApplicationSession(media, display, scope, path, HelperConfiguration.read(arguments))
             } else null
         }
         val state = rememberWindowState(width = SyncWatchTokens.layoutGalleryWidth.dp, height = SyncWatchTokens.layoutGalleryHeight.dp)
@@ -81,6 +81,7 @@ fun main(arguments: Array<String>) {
     val state = preferences.state
     val watch = workspace.watch
     val room = workspace.room
+    val shared = workspace.shared
     val roomWork = rememberCoroutineScope()
     var roomOpen by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
@@ -92,11 +93,12 @@ fun main(arguments: Array<String>) {
     }
     DisposableEffect(library) { onDispose { library.close() } }
     LaunchedEffect(library.roomRevision) { room.updateLibrary(library.roomRevision, library.roomFiles) }
+    LaunchedEffect(room.connected) { shared.membershipChanged() }
     val language = state.preferences.language
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
     ApplicationChrome(watch.playerPresented, library = {
-    LibraryWorkspace(room.libraryPresentation(watch.libraryPresentation(library.presentation)), language, theme) { action, value ->
+    LibraryWorkspace(shared.libraryPresentation(watch.libraryPresentation(library.presentation)), language, theme) { action, value ->
         if (action == "chooseFolder") {
             val picker = javax.swing.JFileChooser().apply {
                 fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
@@ -107,9 +109,9 @@ fun main(arguments: Array<String>) {
             if (picker.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) library.choose(picker.selectedFile.toPath())
         } else if (action == "rescan") library.rescan()
         else if (action == "selectMovie" && value != null) library.select(value)
-        else if (action == "startWatching") library.selectedMedia()?.let(watch::start)
+        else if (action == "startWatching") library.selectedMedia()?.let(shared::start)
         else if (action == "continueWatching") watch.continueWatching()
-        else if (action == "endWatching") watch.end()
+        else if (action == "endWatching") roomWork.launch { shared.end() }
         else if (action == "openRoom") roomOpen = true
         else if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
     }
@@ -118,11 +120,11 @@ fun main(arguments: Array<String>) {
             PlaybackPane(controller, language, theme, onClose, onFullscreen)
         } }
     })
-    LaunchedEffect(library.errorKey, watch.errorKey) {
+    LaunchedEffect(library.errorKey, watch.errorKey, shared.errorKey) {
         if (WatchAcceptance.requested(arguments)) return@LaunchedEffect
-        (library.errorKey ?: watch.errorKey)?.let { key ->
+        (library.errorKey ?: watch.errorKey ?: shared.errorKey)?.let { key ->
             javax.swing.JOptionPane.showMessageDialog(null, SyncWatchCopy.text(key, language), SyncWatchCopy.text("brand", language), javax.swing.JOptionPane.WARNING_MESSAGE)
-            library.clearError(); watch.clearError()
+            library.clearError(); watch.clearError(); shared.clearError()
         }
     }
     if (roomOpen) {
@@ -131,7 +133,7 @@ fun main(arguments: Array<String>) {
             state = rememberDialogState(width = SyncWatchTokens.layoutSettingsWidth.dp, height = SyncWatchTokens.layoutSettingsHeight.dp)) {
             RoomDialog(room.editor, { room.editor = it }, language, theme) { action -> when (action) {
                 "connectRoom" -> room.connect()
-                "leaveRoom" -> roomWork.launch { room.close() }
+                "leaveRoom" -> roomWork.launch { shared.leave() }
                 "pasteInvitation" -> room.pasteInvitation(runCatching {
                     java.awt.Toolkit.getDefaultToolkit().systemClipboard.getData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String
                 }.getOrNull() ?: "")

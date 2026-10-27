@@ -42,6 +42,7 @@ public struct HelperSessionState: Sendable, Equatable {
     public var connection: Connection = .starting
     public var ready = false
     public var acceptedUsername: String?
+    public var identityRejected = false
     public var participants: [SyncplayParticipant] = []
 }
 public enum HelperSessionFailure: String, Error { case malformed, unavailable, queueFull, timeout }
@@ -58,6 +59,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     private let endpoint: SyncplayEndpoint
     private let media: SharedMedia
     private let revision: String
+    private let requireDeclaredIdentity: Bool
     private let changed: @MainActor (HelperSessionState) -> Void
     private var fence: PlaybackActionFence
     private let commands: HelperCommands
@@ -90,7 +92,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
 
     public init(
         transport: any HelperTransport, player: any PlaybackPort, nativeScope: PlaybackScope,
-        endpoint: SyncplayEndpoint, media: SharedMedia, revision: String,
+        endpoint: SyncplayEndpoint, media: SharedMedia, revision: String, requireDeclaredIdentity: Bool = false,
         changed: @escaping @MainActor (HelperSessionState) -> Void = { _ in }
     ) throws {
         let scope = try PlaybackScope.fresh().replacingMedia()
@@ -108,6 +110,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         self.endpoint = endpoint
         self.media = media
         self.revision = revision
+        self.requireDeclaredIdentity = requireDeclaredIdentity
         self.changed = changed
         wireScope = scope
         commands = encoder
@@ -405,7 +408,12 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         case "sync.identity":
             try HelperJSON.keys(payload, required: ["username"])
             let username = try text(payload["username"], maximum: 64)
+            guard !requireDeclaredIdentity || username == endpoint.username else {
+                state.identityRejected = true
+                throw HelperSessionFailure.unavailable
+            }
             guard state.acceptedUsername == nil || state.acceptedUsername == username else {
+                state.identityRejected = true
                 throw HelperSessionFailure.unavailable
             }
             state.acceptedUsername = username
@@ -447,7 +455,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     }
     private func validate(_ value: PlaybackObservation) throws {
         try nativeScope.check(clientRunID: value.scope.clientRunID, mediaGeneration: value.scope.mediaGeneration)
-        guard value.status == .ready, value.durationMs == media.durationMs, value.seekable else {
+        guard value.status == .ready, value.durationMs == media.durationMs,
+            value.seekable || (value.ended && value.paused)
+        else {
             throw HelperSessionFailure.unavailable
         }
     }

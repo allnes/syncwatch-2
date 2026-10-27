@@ -19,6 +19,10 @@ public sealed class RoomEventStream : IAsyncDisposable
     {
         if (Interlocked.CompareExchange(ref receiving, 1, 0) != 0) throw new RoomProtocolException("malformed");
         try { return await messages.Reader.ReadAsync(cancellation).ConfigureAwait(false); }
+        // Channel completion wraps the pump's reason. Keep transport interruption distinct
+        // from invalid frames so callers can retain an already admitted playback grant.
+        catch (ChannelClosedException error)
+        { throw error.InnerException as RoomProtocolException ?? new RoomProtocolException("transport"); }
         finally { Volatile.Write(ref receiving, 0); }
     }
     public ValueTask DisposeAsync()
@@ -45,6 +49,7 @@ public sealed class RoomEventStream : IAsyncDisposable
                     // Include an extra receive for an empty final fragment at the exact limit.
                     Memory<byte> remaining = size < buffer.Length ? buffer.AsMemory(size) : new byte[1];
                     result = await socket.ReceiveAsync(remaining, stop.Token).ConfigureAwait(false);
+                    if (result.MessageType == WebSocketMessageType.Close) throw new RoomProtocolException("closed");
                     if (result.MessageType != WebSocketMessageType.Text) throw new RoomProtocolException("malformed");
                     if (result.Count > buffer.Length - size) throw new RoomProtocolException("frameTooLarge");
                     size += result.Count;

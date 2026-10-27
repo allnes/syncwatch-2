@@ -30,6 +30,11 @@ suspend fun commandTransportChecks(address: String, key: String) {
             val selection = RoomCommand(admission, 4, 0, RoomCommandAction.Select("movie-0"))
             val selected = owner.execute(admission, selection); val replay = owner.execute(admission, selection)
             check(selected.errorCode == null && selected.sequence == replay.sequence && replay.errorCode == null)
+            val selectedView = owner.snapshot(admission)
+            val definition = owner.selection(admission, selectedView)
+            check(definition.selection?.memberId == admission.memberId && definition.selection.media == catalog[0])
+            owner.catalogView(admission, selectedView)
+            check((runCatching { owner.selection(admission, view) }.exceptionOrNull() as? RoomProtocolException)?.code == "staleGeneration")
             check((runCatching { owner.execute(admission, RoomCommand(admission, 4, 0, RoomCommandAction.Select("movie-1"))) }.exceptionOrNull() as? RoomProtocolException)?.code == "conflict")
             check(owner.execute(admission, RoomCommand(admission, 5, 0, RoomCommandAction.Select("movie-1"))).errorCode == "staleGeneration")
             for (command in listOf(RoomCommand(admission, 6, 1, RoomCommandAction.Start("movie-0")), RoomCommand(admission, 7, 2, RoomCommandAction.Missing("movie-0", true)),

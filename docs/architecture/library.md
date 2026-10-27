@@ -46,7 +46,17 @@ missing hashes, unknown duration and other encodings require explicit edition
 confirmation. Conflicting facts under the same full hash are rejected. A title,
 size or duration alone cannot authorize automatic playback.
 
-The native player exposes preparation for the room coordinator. The explicit
-shared-session check consumes it, but normal room admission, selection and
-confirmation UI, file watching and persistent digest-cache invalidation
-remain integration work.
+The application-owned `RoomWatchCoordinator` connects normal room Start to
+paused native loading, preparation of that exact loaded input, acknowledged
+opaque catalog publication, frozen selection/generation validation and the
+verified helper package. An active watch admits a matching local edition
+without starting another metadata generation. Only exact accepted Syncplay
+identity and readiness release the shared playback controls. End, Leave and
+application close release their own helper before the native playback owner.
+
+This workflow is under qualification. Native controller/transport checks run
+on all three target operating systems. Metadata interruption, end bookkeeping,
+file completion and the complete directed playback matrix must pass actual
+application checks before the feature is qualified. Explicit edition
+confirmation, file watching and persistent digest-cache invalidation remain
+integration work.

@@ -86,7 +86,7 @@ The application owns the helper. On EOF, the helper releases its engine and exit
 
 Syncplay owns shared play/pause/seek and required protocol readiness/timing. Local rate corrections serve the engine; user speed preferences are not shared. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.
 
-The [room service](room-service.md) implements these endpoints and snapshot, pagination, command, and credential-management operations. Native clients are not yet connected:
+The [room service](room-service.md) implements these endpoints and snapshot, pagination, command, and credential-management operations. The native membership controllers consume these operations; playback admission remains separately coordinated:
 
 | Endpoint | Responsibility |
 |---|---|
@@ -101,7 +101,7 @@ Each event includes a protocol version, server-issued room epoch and sequence nu
 
 A room snapshot defines the Syncplay endpoint, room name, and agreed client identity. Bind the metadata member ID to the username actually accepted by Syncplay after its handshake and to the process run ID. An entered display name or Meet identity alone is not a reliable cross-channel key.
 
-Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position.
+Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position. The first confirmed ready state admits that playback scope. Syncplay may subsequently clear the local readiness flag when the user pauses; that flag alone must not disable the next Play intent. Retain the admission until its scope, membership or connected helper is revoked.
 
 If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 

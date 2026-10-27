@@ -10,17 +10,38 @@ import SyncWatchLibrary
     }
     private var acknowledged: [String: String] = [:]
     private var pending: [String: String] = [:]
-    func prepare(_ files: [LocalMediaFile]) throws -> Publication {
-        guard files.count <= 2048 else { throw ContractRejection.malformed }
+    func prepare(_ files: [LocalMediaFile], prepared: MediaDescriptor? = nil) throws -> Publication {
+        let extra = prepared.map { value in files.contains { $0.id == value.mediaID } ? 0 : 1 } ?? 0
+        guard files.count + extra <= 2048,
+            prepared.map({ $0.fullHashSha256 != nil && ($0.durationMs ?? 0) > 0 }) ?? true
+        else { throw ContractRejection.malformed }
         var next: [String: String] = [:]
-        let items = try files.map { file in
-            guard next[file.id] == nil else { throw ContractRejection.malformed }
-            let id = acknowledged[file.id] ?? pending[file.id] ?? "media-" + UUID().uuidString
-            next[file.id] = id
-            let title = MediaDescriptor.logicalTitle(file.title)
-            return try MediaDescriptor(
-                mediaID: id, title: title, titleKey: MediaDescriptor.normalizedTitleKey(title),
-                fileSizeBytes: file.sizeBytes, durationMs: nil, fullHashSha256: nil)
+        var items: [MediaDescriptor] = []
+        func add(_ localID: String, title: String, size: Int64, duration: Int64?, hash: String?) throws {
+            guard next[localID] == nil else { throw ContractRejection.malformed }
+            let id = acknowledged[localID] ?? pending[localID] ?? "media-" + UUID().uuidString
+            next[localID] = id
+            items.append(
+                try MediaDescriptor(
+                    mediaID: id, title: title, titleKey: MediaDescriptor.normalizedTitleKey(title),
+                    fileSizeBytes: size, durationMs: duration, fullHashSha256: hash))
+        }
+        for file in files {
+            if let prepared, file.id == prepared.mediaID {
+                try add(
+                    file.id, title: prepared.title, size: prepared.fileSizeBytes,
+                    duration: prepared.durationMs, hash: prepared.fullHashSha256)
+            } else {
+                try add(
+                    file.id, title: MediaDescriptor.logicalTitle(file.title), size: file.sizeBytes, duration: nil,
+                    hash: nil)
+            }
+        }
+        // A loaded input can outlive removal from the scanned directory; its native owner retains the grant.
+        if let prepared, next[prepared.mediaID] == nil {
+            try add(
+                prepared.mediaID, title: prepared.title, size: prepared.fileSizeBytes,
+                duration: prepared.durationMs, hash: prepared.fullHashSha256)
         }
         pending = next
         return Publication(items: items, localIDs: next)

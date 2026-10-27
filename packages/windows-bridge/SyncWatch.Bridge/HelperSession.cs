@@ -15,7 +15,7 @@ public sealed record SyncplayEndpoint(string Host, int Port, string Room, string
 public sealed record SyncplayParticipant(string Username, bool Ready);
 public enum HelperConnection { Starting, Connecting, Connected, Failed, Stopped }
 public sealed record HelperSessionState(HelperConnection Connection = HelperConnection.Starting, bool Ready = false,
-    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null);
+    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null, bool IdentityRejected = false);
 
 /// <summary>One context owns native intents and one writer. Admit matching media before construction.</summary>
 public sealed class HelperSession : IAsyncDisposable
@@ -26,6 +26,7 @@ public sealed class HelperSession : IAsyncDisposable
     private readonly IPlaybackPort player;
     private readonly PlaybackScope nativeScope;
     private readonly SyncplayEndpoint endpoint;
+    private readonly bool requireDeclaredIdentity;
     private readonly SharedMedia media;
     private readonly string revision;
     private readonly Action<HelperSessionState> changed;
@@ -49,10 +50,11 @@ public sealed class HelperSession : IAsyncDisposable
     private long? deadline;
 
     public HelperSession(IHelperTransport transport, IPlaybackPort player, PlaybackScope nativeScope,
-        SyncplayEndpoint endpoint, SharedMedia media, string revision, Action<HelperSessionState>? changed = null)
+        SyncplayEndpoint endpoint, SharedMedia media, string revision, Action<HelperSessionState>? changed = null, bool requireDeclaredIdentity = false)
     {
         owner = SynchronizationContext.Current ?? throw new InvalidOperationException("An owning synchronization context is required");
         this.transport = transport; this.player = player; this.nativeScope = nativeScope; this.endpoint = endpoint;
+        this.requireDeclaredIdentity = requireDeclaredIdentity;
         this.media = media; this.revision = revision; this.changed = changed ?? (_ => { });
         commands = new(WireScope); fence = new(nativeScope);
         _ = commands.Connect(1, endpoint.Host, endpoint.Port, endpoint.Room, endpoint.Username);
@@ -255,7 +257,8 @@ public sealed class HelperSession : IAsyncDisposable
         {
             case "sync.identity":
                 PlayerCorrection.Keys(payload, ["username"]); string username = Text(payload.GetProperty("username"), 64);
-                if (State.AcceptedUsername is not null && State.AcceptedUsername != username) throw Bad();
+                if (requireDeclaredIdentity && username != endpoint.Username) { State = State with { IdentityRejected = true }; throw Bad(); }
+                if (State.AcceptedUsername is not null && State.AcceptedUsername != username) { State = State with { IdentityRejected = true }; throw Bad(); }
                 State = State with { AcceptedUsername = username }; break;
             case "sync.connection":
                 PlayerCorrection.Keys(payload, ["state"], ["error"]);
@@ -281,7 +284,7 @@ public sealed class HelperSession : IAsyncDisposable
     private void Validate(PlaybackObservation value)
     {
         value.Validate(); nativeScope.Check(value.Scope.ClientRunId, value.Scope.MediaGeneration);
-        if (value.Status != PlaybackStatus.Ready || value.DurationMs != media.DurationMs || !value.Seekable) throw Bad();
+        if (value.Status != PlaybackStatus.Ready || value.DurationMs != media.DurationMs || (!value.Seekable && !(value.Ended && value.Paused))) throw Bad();
     }
     private static bool Boolean(JsonElement value) => value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : throw Bad();
     private static string Text(JsonElement value, int maximum)

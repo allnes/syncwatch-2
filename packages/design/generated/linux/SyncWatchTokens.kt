@@ -414,6 +414,10 @@ object SyncWatchCopy {
         "en" to "roomInvitationInvalid" -> "Copy a complete room invitation and try again."
         "en" to "roomCatalogPublishing" -> "Sharing library…"
         "en" to "roomCatalogPublishFailed" -> "Could not share the library. Rescan the folder to retry."
+        "en" to "sharedWatchPreparing" -> "Preparing shared playback…"
+        "en" to "sharedWatchConnected" -> "Shared playback connected"
+        "en" to "sharedWatchFailed" -> "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again."
+        "en" to "sharedWatchIdentityRejected" -> "Syncplay changed your name. Leave the room and reconnect with a shorter or different name."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -635,6 +639,10 @@ object SyncWatchCopy {
         "ru" to "roomInvitationInvalid" -> "Скопируйте приглашение комнаты целиком и повторите вставку."
         "ru" to "roomCatalogPublishing" -> "Публикация библиотеки…"
         "ru" to "roomCatalogPublishFailed" -> "Не удалось поделиться библиотекой. Обновите папку, чтобы повторить."
+        "ru" to "sharedWatchPreparing" -> "Подготовка совместного просмотра…"
+        "ru" to "sharedWatchConnected" -> "Совместный просмотр подключён"
+        "ru" to "sharedWatchFailed" -> "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск."
+        "ru" to "sharedWatchIdentityRejected" -> "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")

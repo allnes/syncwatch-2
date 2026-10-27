@@ -3,11 +3,13 @@ using SyncWatch;
 using SyncWatch.Domain;
 using SyncWatch.Library;
 
+HelperRuntimeChecks.Run();
 await RoomDispatcherChecks.RunAsync(async () =>
 {
     await RoomPlaybackGateChecks.RunAsync();
     await RoomPublicationChecks.RunAsync();
     await RoomPublicationLiveChecks.RunAsync();
+    await RoomWatchContextChecks.RunAsync();
 });
 
 string root = Path.Combine(Path.GetTempPath(), "syncwatch-media-preparation-" + Guid.NewGuid());

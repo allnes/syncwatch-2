@@ -72,6 +72,10 @@ private class SessionPeer : HelperTransport {
         push(base("player.setPosition", mapOf("positionMs" to position)).also { it["id"] = "cmd-$id"; it["afterUserAction"] = after })
     }
     @Synchronized fun replyCount(id: Long, kind: String) = sent.count { it["replyTo"] == "cmd-$id" && it["type"] == kind }
+    @Synchronized fun sawNativeEnd() = sent.any {
+        val payload = it["payload"] as? Map<*, *>
+        it["type"] == "player.state" && payload?.get("positionMs") == 60000L && payload["seekable"] == false && payload["paused"] == true
+    }
     @Synchronized fun userCount() = sent.count { it["origin"] == "user" }
 }
 
@@ -83,12 +87,14 @@ private class SessionPlayer(private val scope: PlaybackScope) : PlaybackPort {
         private set
     var seeks = 0
         private set
+    private var ended = false
+    fun finishMedia() { ended = true; paused = true; position = 60000 }
     var closes = 0
         private set
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation {
         this.scope.check(scope)
         return PlaybackObservation(scope, ++sequence, PlaybackStatus.ready, position, 60000, paused, 1.0,
-            true, false, false, 0, 0, 0, null, false)
+            !ended, false, ended, 0, 0, 0, null, false)
     }
     override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { this.paused = paused }
     override suspend fun seek(positionMs: Long, scope: PlaybackScope) { position = positionMs; seeks++ }
@@ -106,14 +112,23 @@ private suspend fun eventually(predicate: () -> Boolean) {
     while (!predicate()) { check(System.nanoTime() < end) { "Session check timeout" }; delay(10) }
 }
 
-private suspend fun scenario(owner: CoroutineScope, eof: Boolean) {
+private suspend fun scenario(owner: CoroutineScope, eof: Boolean, strict: Boolean = false, nativeEnd: Boolean = false) {
     val native = PlaybackScope.fresh().replacingMedia(); val player = SessionPlayer(native); val peer = SessionPeer()
     val session = HelperSession(peer, player, native, SyncplayEndpoint("localhost", 8999, "room", "Viewer"),
-        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner)
+        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner, requireDeclaredIdentity = strict)
     try {
+        if (strict) {
+            player.setPaused(false, native)
+            session.start(); eventually { session.state.connection == HelperConnection.failed }
+            check(!session.state.ready && session.state.identityRejected && session.state.acceptedUsername == null && peer.userCount() == 0)
+            return
+        }
         session.start(); eventually { session.state.ready }
         check(session.state.acceptedUsername == "Viewer_2" && player.paused && peer.userCount() == 0)
-        if (eof) {
+        if (nativeEnd) {
+            player.finishMedia(); eventually { peer.sawNativeEnd() }
+            check(session.state.connection == HelperConnection.connected && session.state.ready && peer.userCount() == 0)
+        } else if (eof) {
             session.pause(false); eventually { peer.userCount() == 1 }
             peer.close(); eventually { session.state.connection == HelperConnection.failed }
         } else {
@@ -129,13 +144,13 @@ private suspend fun scenario(owner: CoroutineScope, eof: Boolean) {
             check(player.position == 3000L && peer.userCount() == 2)
             peer.correction(3, 3, 0); eventually { session.state.connection == HelperConnection.failed }
         }
-    } finally { session.close(); session.close() }
+    } finally { session.close(); session.close(); check(player.paused && player.closes == 0) }
     check(player.paused && player.closes == 0)
 }
 
 internal fun helperSessionChecks() {
     Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { dispatcher ->
-        runBlocking(dispatcher) { scenario(this, false); scenario(this, true) }
+        runBlocking(dispatcher) { scenario(this, false); scenario(this, true); scenario(this, false, strict = true); scenario(this, false, nativeEnd = true) }
     }
     println("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup")
 }

@@ -24,6 +24,7 @@ internal sealed class WatchSessionCoordinator
     public long PositionMs => session.PositionMs;
     public string? ErrorKey { get; private set; }
     public event Action? Changed;
+    internal Action? OnEndWatching { get; set; }
 
     public WatchSessionCoordinator(AppearancePreferences preferences, MediaConfiguration media, Action fullscreen)
     {
@@ -53,7 +54,7 @@ internal sealed class WatchSessionCoordinator
         if (preferences.SavingWatchState) enabled.Remove("openSettings");
         return source with { EnabledActions = enabled };
     }
-    public void Start(LibraryMediaSelection selection)
+    public void Start(LibraryMediaSelection selection, bool requiresSharedAdmission = false)
     {
         dispatcher.VerifyAccess(); if (!RuntimeAvailable || closing) return;
         try
@@ -65,7 +66,7 @@ internal sealed class WatchSessionCoordinator
             foreach (var effect in effects)
             {
                 if (effect is WatchEffect.Release release) Release(release.Scope);
-                else if (effect is WatchEffect.Load load) Load(load.Request, selection);
+                else if (effect is WatchEffect.Load load) Load(load.Request, selection, requiresSharedAdmission);
             }
             Changed?.Invoke(); RequestCheckpoint();
         }
@@ -117,12 +118,12 @@ internal sealed class WatchSessionCoordinator
         }
         catch (Exception error) { ErrorKey = "playbackFailed"; Changed?.Invoke(); completion.SetException(error); }
     }
-    private void Load(WatchLoad request, LibraryMediaSelection selection)
+    private void Load(WatchLoad request, LibraryMediaSelection selection, bool requiresSharedAdmission)
     {
         pendingLoadCancellation?.Cancel(); pendingLoadCancellation = new(); pendingScope = request.Scope;
-        pendingLoad = LoadCoreAsync(request, selection, releaseTask, pendingLoadCancellation.Token);
+        pendingLoad = LoadCoreAsync(request, selection, requiresSharedAdmission, releaseTask, pendingLoadCancellation.Token);
     }
-    private async Task LoadCoreAsync(WatchLoad request, LibraryMediaSelection selection, Task? prior, CancellationToken token)
+    private async Task LoadCoreAsync(WatchLoad request, LibraryMediaSelection selection, bool requiresSharedAdmission, Task? prior, CancellationToken token)
     {
         await Task.Yield();
         try
@@ -131,8 +132,8 @@ internal sealed class WatchSessionCoordinator
             if (token.IsCancellationRequested || closing || session.Scope != request.Scope || session.Phase != WatchPhase.Preparing) return;
             Player = new PlaybackWorkspace(new(selection.Media.File, media.Package, media.Bridge, null, false),
                 preferences.State.Preferences.Language, request.Scope, request.PositionMs, selection,
-                Loaded, Observed, action => { if (action == "showLibrary") ShowLibrary(); else if (action == "endWatching") End(); },
-                () => Failed(request.Scope), fullscreen);
+                Loaded, Observed, action => { if (action == "showLibrary") ShowLibrary(); else if (action == "endWatching") { if (OnEndWatching is { } handler) handler(); else End(); } },
+                () => Failed(request.Scope), fullscreen, requiresSharedAdmission);
             Changed?.Invoke();
         }
         catch (Exception) { Failed(request.Scope); }

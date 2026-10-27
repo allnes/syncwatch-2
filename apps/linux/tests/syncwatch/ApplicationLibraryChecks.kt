@@ -22,11 +22,13 @@ fun main(arguments: Array<String>) = runBlocking {
     val store = FileLibraryAccessStore(scratch.resolve("state/library-access.json"))
     val owner = CoroutineScope(MainUIDispatcher + SupervisorJob())
     try {
+        helperRuntimeChecks()
         withContext(MainUIDispatcher) {
             watchPersistenceChecks(scratch)
             roomPlaybackGateChecks(owner)
             roomPublicationChecks(repository.resolve("contracts/fixtures/room-client.json"))
             roomPublicationLiveChecks(owner)
+            roomWatchContextChecks()
             val model = LibraryController(store, owner, null)
             model.restore(); model.settled()
             check(model.presentation.entries.isEmpty())

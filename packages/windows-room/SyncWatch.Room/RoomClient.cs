@@ -64,6 +64,12 @@ public sealed class RoomClient : IAsyncDisposable
         return RoomCatalogView.ReadAsync(bootstrap,
             (cursor, token) => RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/catalog", admission.Token, null, token, cursor), cancellation);
     }
+    public async Task<RoomSelectionDefinition> SelectionAsync(RoomAdmission admission, RoomBootstrap bootstrap, CancellationToken cancellation = default)
+    {
+        if (bootstrap.Snapshot.Epoch != admission.Bootstrap.Snapshot.Epoch) throw RoomWire.Bad();
+        return RoomSelectionDefinition.Decode(await RequestAsync(HttpMethod.Get, $"v1/rooms/{admission.RoomId}/selection",
+            admission.Token, null, cancellation, generation: bootstrap.Snapshot.WatchGeneration), bootstrap);
+    }
     public async Task LeaveAsync(RoomAdmission admission, CancellationToken cancellation = default)
     {
         using var document = RoomWire.Parse(await RequestAsync(HttpMethod.Post, $"v1/rooms/{admission.RoomId}/leave", admission.Token, null, cancellation));
@@ -125,7 +131,7 @@ public sealed class RoomClient : IAsyncDisposable
         }
         catch (Exception) { completion.SetException(new RoomProtocolException("transport")); }
     }
-    private async Task<byte[]> RequestAsync(HttpMethod method, string path, RoomSecret? credential, byte[]? body, CancellationToken cancellation, string? cursor = null)
+    private async Task<byte[]> RequestAsync(HttpMethod method, string path, RoomSecret? credential, byte[]? body, CancellationToken cancellation, string? cursor = null, long? generation = null)
     {
         cancellation.ThrowIfCancellationRequested();
         TaskCompletionSource completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -139,6 +145,7 @@ public sealed class RoomClient : IAsyncDisposable
         {
             var uri = Address.Endpoint(path);
             if (cursor is not null) uri = new UriBuilder(uri) { Query = "cursor=" + Uri.EscapeDataString(cursor) }.Uri;
+            if (generation is not null) uri = new UriBuilder(uri) { Query = "watchGeneration=" + generation.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) }.Uri;
             using var request = new HttpRequestMessage(method, uri);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             if (credential is not null) request.Headers.Authorization = new("Bearer", credential.Value);
@@ -151,7 +158,7 @@ public sealed class RoomClient : IAsyncDisposable
                 using var document = RoomWire.Parse(bytes); var value = document.RootElement;
                 RoomWire.Keys(value, "error"); var error = value.GetProperty("error"); RoomWire.Keys(error, "code");
                 string code = RoomWire.String(error, "code");
-                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" or "snapshotRequired" or "duplicate" ? code : "transport");
+                throw new RoomProtocolException(code is "unauthorized" or "forbidden" or "notFound" or "conflict" or "expired" or "queueFull" or "tlsRequired" or "malformed" or "frameTooLarge" or "internal" or "snapshotRequired" or "duplicate" or "staleGeneration" ? code : "transport");
             }
             stop.Token.ThrowIfCancellationRequested(); return bytes;
         }

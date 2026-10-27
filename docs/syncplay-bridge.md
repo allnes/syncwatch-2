@@ -16,6 +16,20 @@ A correction submission returns an actual `PlaybackObservation`. Only that obser
 
 The current helper accepts public trusted TLS endpoints. `secretHandle` fails as unavailable until the application credential broker is attached. Standard output contains protocol frames only. Upstream console text is suppressed; native adapters discard diagnostics without accumulating them.
 
+## Local package verification
+
+Each native bridge exposes an immutable `HelperRuntime` obtained through verification. It checks the development receipt, native target, pinned Syncplay revision, complete file inventory and streaming SHA-256 digests before returning an executable path. Unexpected, missing or changed files, links and noncanonical inventory paths fail verification. The revision file must agree with the application policy. Verification supports cancellation and closes its file handles; it does not launch a helper.
+
+`tools/runtime-policy/generate.py` derives the native runtime policy from the registered `3rdparty/syncplay` Gitlink. Repository validation checks the generated Swift, C# and Kotlin adapters, so platform-specific runtime pins cannot drift independently. The policy belongs to the provider boundary and contains no Design values.
+
+Application-local configuration defines the package location: `Contents/Frameworks/Syncplay` in a macOS bundle, `Syncplay` beside the Windows executable, and `Syncplay` beside the Linux application classes or JAR. The configuration types also parse an explicit development package override. Room metadata cannot supply paths. The normal shared-watch coordinator verifies this package before transferring the selected native player to its helper session on every client.
+
+These are development integrity receipts, not release signatures or atomic filesystem seals. Instrumented packages with unlisted test artifacts are rejected. Distribution authentication, installed-package ownership and complete normal Room Start acceptance remain release requirements; successful package verification or pipe handshakes alone do not establish readiness.
+
+Room-bound sessions can require the exact declared Syncplay username. In that mode a renamed identity fails before connection or readiness is accepted; failure pauses the borrowed native player without disposing it. Standalone development sessions retain the upstream naming behavior. Native session tests cover both policies.
+
+Shared load requests carry their admission requirement into the native controller at construction. Play, seek and skip remain withheld before an admitted connection and readiness, including the media-preparation interval before a helper exists. This also requires the declared identity when attaching the helper. Normal workspace Start remains gated until the complete room, media and helper coordinator is integrated and qualified on all three platforms.
+
 `HelperSession` on Swift, C# and Kotlin owns one helper transport and borrows one already loaded native player. Its private wire scope is independent of the native media scope. Construction requires admitted media metadata, a validated TLS endpoint and the trusted engine revision. Media agreement and room admission belong to the application coordinator. Starting a session pauses the player, performs the correlated handshake and publishes actual native observations. `sync.identity` reports the authenticated server-accepted username before the connected event; callers must use that identity when binding room metadata. The connection acknowledgement alone never establishes identity or readiness.
 
 Each session has one bounded reader and one serialized writer/operation owner. Explicit UI intents enter synchronously on the owning UI context. An incoming correction may queue while a user observation write is in flight; publication advances only after that write succeeds. Superseded corrections receive cancellation only after the newer actual observation is sent. Completed corrections and replies have bounded replay caches, and contradictory reuse fails closed. The helper likewise accepts identical completed native results without applying them again.

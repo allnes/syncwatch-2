@@ -51,6 +51,9 @@ void sw_library_close(sw_library *lib) {
 }
 #else
 #include <dlfcn.h>
+#ifdef __APPLE__
+#include <pthread.h>
+#endif
 struct sw_library { void *main; };
 static void *symbol(sw_library *lib, const char *name) { return dlsym(lib->main, name); }
 static int open_library(const char *path, sw_library *lib) {
@@ -64,6 +67,43 @@ void sw_library_close(sw_library *lib) {
     free(lib);
 }
 #endif
+
+int sw_library_prepare_output(const char *path, int output) {
+#ifdef __APPLE__
+    if (output != SW_OUTPUT_APPKIT) return 1;
+    /* AppKit can retain Objective-C view/class references after a player and
+     * its plugin bank close. Keep only the selected video module's code mapped
+     * until process exit; players, inputs, threads and engine instances still
+     * follow normal disposal. Never change the process-wide dlclose behavior. */
+    char *canonical = realpath(path, NULL);
+    if (!canonical) return 0;
+    char *end = strrchr(canonical, '/');
+    static const char suffix[] = "/vlc/plugins/selected/libvout_macosx_plugin.dylib";
+    size_t prefix = end ? (size_t)(end - canonical) : 0;
+    char *plugin = end && prefix <= SIZE_MAX - sizeof(suffix) ? malloc(prefix + sizeof(suffix)) : NULL;
+    if (!plugin) { free(canonical); return 0; }
+    memcpy(plugin, canonical, prefix);
+    memcpy(plugin + prefix, suffix, sizeof(suffix));
+    free(canonical);
+    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    static void *module;
+    static char *module_path;
+    pthread_mutex_lock(&lock);
+    int owned = module && !strcmp(module_path, plugin);
+    if (!module) {
+        module = dlopen(plugin, RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
+        if (module) { module_path = plugin; plugin = NULL; owned = 1; }
+    }
+    pthread_mutex_unlock(&lock);
+    free(plugin);
+    /* A live reference is essential for a Mach-O bundle: NODELETE alone can
+     * retain its old mapping while a subsequent open creates a second image. */
+    return owned;
+#else
+    (void)path; (void)output;
+    return 1;
+#endif
+}
 
 int sw_library_open(const char *path, sw_vlc_api *api, int output, sw_library **result) {
     *result = NULL;

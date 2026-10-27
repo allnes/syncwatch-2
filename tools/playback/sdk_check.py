@@ -15,6 +15,7 @@ INPUTS = ["packages/playback-native/include/syncwatch_playback.h",
           "packages/playback-native/src/media_input.c", "packages/playback-native/src/vlc_api.h",
           "tools/playback/build.py", "tools/playback/native_probe.c",
           "tools/playback/media_input_checks.py", "tools/playback/player_input_checks.py",
+          "tools/playback/appkit_code_lifetime.py", "tools/playback/appkit_module_probe.c",
           "tools/playback/sdk_check.py"]
 
 

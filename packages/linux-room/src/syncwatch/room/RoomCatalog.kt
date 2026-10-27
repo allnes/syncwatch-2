@@ -47,16 +47,9 @@ class RoomCatalogPage private constructor(val epoch: String, val sequence: Long,
             val seen = mutableSetOf<Pair<String, String>>()
             val items = entries.map { item ->
                 val entry = RoomWire.obj(item); RoomWire.keys(entry, "memberId", "media")
-                val member = RoomWire.string(entry["memberId"]); val media = RoomWire.obj(entry["media"])
-                val keys = listOf("v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs") +
-                    if (media.containsKey("fullHashSha256")) listOf("fullHashSha256") else emptyList()
-                RoomWire.keys(media, *keys.toTypedArray())
-                if (member !in members || RoomWire.integer(media["v"], 1) != 1L) throw RoomWire.bad()
-                val descriptor = try {
-                    MediaDescriptor(RoomWire.string(media["mediaId"]), RoomWire.string(media["title"]), RoomWire.string(media["titleKey"]),
-                        RoomWire.integer(media["fileSizeBytes"]), media["durationMs"]?.let { RoomWire.integer(it) },
-                        if (media.containsKey("fullHashSha256")) RoomWire.string(media["fullHashSha256"]) else null)
-                } catch (_: Exception) { throw RoomWire.bad() }
+                val member = RoomWire.string(entry["memberId"])
+                if (member !in members) throw RoomWire.bad()
+                val descriptor = RoomMedia.decode(entry["media"])
                 if (!seen.add(member to descriptor.mediaId)) throw RoomWire.bad()
                 RoomCatalogEntry(member, descriptor)
             }
@@ -80,5 +73,21 @@ internal class RoomCatalogPosition(cursor: String, bootstrap: RoomBootstrap) {
         val initial = parse(bootstrap.catalogCursor); val current = parse(cursor)
         if (initial.second != 0L || initial.first != current.first) throw RoomWire.bad()
         offset = current.second
+    }
+}
+
+internal object RoomMedia {
+    fun decode(value: Any?): MediaDescriptor {
+        val media = RoomWire.obj(value)
+        val keys = listOf("v", "mediaId", "title", "titleKey", "fileSizeBytes", "durationMs") +
+            if (media.containsKey("fullHashSha256")) listOf("fullHashSha256") else emptyList()
+        RoomWire.keys(media, *keys.toTypedArray())
+        if (RoomWire.integer(media["v"], 1) != 1L) throw RoomWire.bad()
+        val descriptor = try {
+            MediaDescriptor(RoomWire.string(media["mediaId"]), RoomWire.string(media["title"]), RoomWire.string(media["titleKey"]),
+                RoomWire.integer(media["fileSizeBytes"]), media["durationMs"]?.let { RoomWire.integer(it) },
+                if (media.containsKey("fullHashSha256")) RoomWire.string(media["fullHashSha256"]) else null)
+        } catch (_: Exception) { throw RoomWire.bad() }
+        return descriptor
     }
 }

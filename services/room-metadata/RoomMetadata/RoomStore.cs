@@ -86,6 +86,7 @@ public sealed class RoomStore
         public long Sequence { get; set; }
         public long Generation { get; set; }
         public WatchState Watch { get; set; } = new("idle", null);
+        public CatalogEntry? Selection { get; set; }
         public string? MeetUri { get; set; }
     }
 
@@ -162,6 +163,19 @@ public sealed class RoomStore
         member.View = new(Wire.NewId("catalog-"), clock.GetUtcNow() + limits.CatalogSnapshotLifetime, snapshot,
             room.Members.Values.SelectMany(item => item.Published.Select(media => new CatalogEntry(item.Binding.MemberId, media))).ToArray());
         return new(snapshot, room.Connection, member.View.Id + ":0", room.Members.Values.Where(item => item.Missing).Select(item => item.Binding.MemberId).ToArray());
+    }
+
+    // Selection owns the descriptor accepted at selection.changed, independently of later catalogs.
+    // Reading it neither creates nor invalidates a membership's stable catalog cursor.
+    public SelectionDefinition Selection(string roomId, string token, long generation)
+    {
+        lock (gate)
+        {
+            (Room room, _) = Authorize(roomId, token);
+            Wire.Need(generation is >= 0 and <= Wire.MaximumCounter);
+            Wire.Need(generation == room.Generation, "staleGeneration", 409);
+            return new(1, room.Epoch, room.Sequence, room.Generation, room.Selection);
+        }
     }
 
     public CatalogPage Catalog(string roomId, string token, string cursor)
@@ -317,10 +331,19 @@ public sealed class RoomStore
                 Wire.Fields(payload, "mediaId");
                 string mediaId = Wire.String(payload, "mediaId");
                 Wire.Need(Wire.Id(mediaId));
-                Wire.Need(room.Members.Values.Any(item => item.Published.Any(media => media.MediaId == mediaId)), "unavailable", 409);
-                Wire.Need(command.Type != "watch.started" || (room.Watch.MediaId == mediaId && room.Watch.Status is "selected" or "ended"), "invalidState", 409);
+                CatalogEntry? selected = room.Selection;
+                if (command.Type == "selection.changed")
+                {
+                    CatalogEntry[] matches = room.Members.Values.SelectMany(item => item.Published
+                        .Where(media => media.MediaId == mediaId).Select(media => new CatalogEntry(item.Binding.MemberId, media))).Take(2).ToArray();
+                    Wire.Need(matches.Length > 0, "unavailable", 409);
+                    Wire.Need(matches.Length == 1, "conflict", 409);
+                    selected = matches[0];
+                }
+                else { Wire.Need(selected?.Media.MediaId == mediaId && room.Watch.Status is "selected" or "ended", "invalidState", 409); }
                 Wire.Need(room.Generation < Wire.MaximumCounter, "unavailable", 503);
                 room.Generation++;
+                room.Selection = selected;
                 room.Watch = new(command.Type == "watch.started" ? "active" : "selected", mediaId);
                 foreach (Member item in room.Members.Values) { item.Missing = false; }
                 Publish(room, member, command.Type, new { mediaId });

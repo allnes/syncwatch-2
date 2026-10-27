@@ -51,6 +51,7 @@ internal class PlaybackController(
     requestedScope: PlaybackScope? = null,
     private val initialPositionMs: Long = 0,
     private var selection: LibraryMediaSelection? = null,
+    private var requiresSharedAdmission: Boolean = false,
     private val onLoaded: ((PlaybackScope) -> Unit)? = null,
     private val onObservation: ((PlaybackObservation) -> Unit)? = null,
     private val onNavigation: ((String) -> Unit)? = null,
@@ -66,7 +67,8 @@ internal class PlaybackController(
     private var closing = false
     private var shutdown: CompletableFuture<Void>? = null
     private var sharedSession: HelperSession? = null
-    private val sharedMediaPreparation = SharedMediaPreparation(work)
+    private var sharedMediaPreparation = SharedMediaPreparation(work)
+    private var sharedAuthority: (() -> Boolean)? = null
     var sharedState by mutableStateOf<HelperSessionState?>(null)
         private set
     private val navigationActions get() = if (onNavigation == null) setOf("endWatching", "toggleFullscreen")
@@ -84,21 +86,37 @@ internal class PlaybackController(
         check(!closing)
         return descriptor
     }
+    fun requireSharedAdmission() { requiresSharedAdmission = true; gateSharedActions() }
+    fun admitSharedPlayback() {
+        check(sharedSession != null && sharedState?.connection == HelperConnection.connected && sharedState?.ready == true && sharedAuthority?.invoke() != false)
+        // Syncplay may clear readiness after this user's Pause; the admitted file can resume.
+        requiresSharedAdmission = false
+    }
+    suspend fun revokeShared(releaseAdmission: Boolean = false) = withContext(NonCancellable) {
+        requireSharedAdmission(); sharedAuthority = null
+        val session = sharedSession; sharedSession = null; sharedState = null
+        val preparation = sharedMediaPreparation
+        preparation.close(); session?.close()
+        try { player.setPaused(true, scope) } catch (_: Exception) { }
+        if (!closing) { sharedMediaPreparation = SharedMediaPreparation(work); requiresSharedAdmission = !releaseAdmission }
+    }
     /** The room coordinator admits local media before transferring this transport. */
-    suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String) {
+    suspend fun connectShared(transport: HelperTransport, endpoint: SyncplayEndpoint, media: SharedMedia, revision: String, requireDeclaredIdentity: Boolean = false, authority: (() -> Boolean)? = null) {
         check(EventQueue.isDispatchThread())
         try {
-            check(!closing && started && sharedSession == null)
+            check(!closing && started && sharedSession == null && authority?.invoke() != false)
+            sharedAuthority = authority
             sharedMediaPreparation.validate(player, scope)
-            check(!closing && started && sharedSession == null)
-            val session = HelperSession(transport, player, scope, endpoint, media, revision, work) { state ->
+            check(!closing && started && sharedSession == null && authority?.invoke() != false)
+            val session = HelperSession(transport, player, scope, endpoint, media, revision, work, requiresSharedAdmission || requireDeclaredIdentity) { state ->
                 sharedState = state; gateSharedActions()
             }
             sharedSession = session; sharedState = session.state; gateSharedActions(); session.start()
         } catch (error: Exception) { withContext(NonCancellable + Dispatchers.IO) { transport.close() }; throw error }
     }
     private fun gateSharedActions() {
-        if (sharedSession != null && sharedState?.connection != HelperConnection.connected)
+        if ((requiresSharedAdmission || sharedSession != null) &&
+            (sharedAuthority?.invoke() == false || sharedState?.connection != HelperConnection.connected || (requiresSharedAdmission && sharedState?.ready != true)))
             presentation = presentation.copy(enabledActions = presentation.enabledActions - setOf("playPause", "seek", "skip"))
     }
 
@@ -157,6 +175,7 @@ internal class PlaybackController(
 
     fun action(action: String, value: Double?, close: () -> Unit, fullscreen: () -> Unit) {
         if (closing) return
+        gateSharedActions()
         presentation.dispatch(action, value) { accepted, number ->
             if (accepted in setOf("endWatching", "showLibrary") && onNavigation != null) {
                 onNavigation.invoke(accepted)

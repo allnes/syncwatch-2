@@ -20,6 +20,16 @@ internal static class RoomPublicationChecks
             if (id == files.Single().Id || publication.Items.Single().Title != "Movie" || map.Prepare(files).Items.Single().MediaId != id || map.LocalId(id) is not null) throw new Exception("Pending room identity");
             map.Acknowledge(publication);
             if (map.LocalId(id) != files.Single().Id || new RoomLocalCatalog().Prepare(files).Items.Single().MediaId == id) throw new Exception("Membership-scoped room identity");
+            var local = files.Single();
+            var strong = new MediaDescriptor(local.Id, "Movie", "movie", local.SizeBytes, 1234, new string('a', 64));
+            var loaded = map.Prepare(files, strong);
+            if (loaded.Items.Single().MediaId != id || loaded.Items.Single().FullHashSha256 != strong.FullHashSha256 || loaded.Items.Single().DurationMs != 1234 || loaded.LocalIds[local.Id] != id) throw new Exception("Strong publication preserves opaque identity");
+            map.Acknowledge(loaded);
+            if (!map.Prepare([], strong).Items.SequenceEqual(loaded.Items) || map.Prepare(files).Items.Single().FullHashSha256 is not null) throw new Exception("Loaded lifetime and basic downgrade");
+            bool rejected = false;
+            try { map.Prepare(files, new(local.Id, "Movie", "movie", local.SizeBytes, 1234, null)); }
+            catch (InvalidOperationException) { rejected = true; }
+            if (!rejected) throw new Exception("Weak prepared input accepted");
             map.Acknowledge(map.Prepare([])); if (map.LocalId(id) is not null) throw new Exception("Removed room identity");
 
             using var fixture = JsonDocument.Parse(File.ReadAllBytes("contracts/fixtures/room-client.json"));

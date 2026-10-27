@@ -35,7 +35,7 @@ data class SyncplayEndpoint(val host: String, val port: Int, val room: String, v
 data class SyncplayParticipant(val username: String, val ready: Boolean)
 enum class HelperConnection { starting, connecting, connected, failed, stopped }
 data class HelperSessionState(val connection: HelperConnection = HelperConnection.starting, val ready: Boolean = false,
-    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList())
+    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList(), val identityRejected: Boolean = false)
 
 /** Admit matching media first. The supplied single-thread owner context serializes
  * UI intents, one writer and immutable observations; Syncplay retains timing policy.
@@ -43,7 +43,7 @@ data class HelperSessionState(val connection: HelperConnection = HelperConnectio
 class HelperSession(
     private val transport: HelperTransport, private val player: PlaybackPort, private val nativeScope: PlaybackScope,
     private val endpoint: SyncplayEndpoint, private val media: SharedMedia, private val revision: String,
-    owner: CoroutineScope, private val changed: (HelperSessionState) -> Unit = {},
+    owner: CoroutineScope, private val requireDeclaredIdentity: Boolean = false, private val changed: (HelperSessionState) -> Unit = {},
 ) {
     val wireScope = PlaybackScope.fresh().replacingMedia()
     var state = HelperSessionState()
@@ -245,7 +245,8 @@ class HelperSession(
         when (kind) {
             "sync.identity" -> {
                 PlayerCorrection.keys(payload, setOf("username")); val username = text(payload["username"], 64)
-                if (state.acceptedUsername != null && state.acceptedUsername != username) bad()
+                if (requireDeclaredIdentity && username != endpoint.username) { state = state.copy(identityRejected = true); bad() }
+                if (state.acceptedUsername != null && state.acceptedUsername != username) { state = state.copy(identityRejected = true); bad() }
                 state = state.copy(acceptedUsername = username)
             }
             "sync.connection" -> {
@@ -277,7 +278,7 @@ class HelperSession(
     }
     private fun validate(value: PlaybackObservation) {
         nativeScope.check(value.scope)
-        if (value.status != PlaybackStatus.ready || value.durationMs != media.durationMs || !value.seekable) bad()
+        if (value.status != PlaybackStatus.ready || value.durationMs != media.durationMs || (!value.seekable && !(value.ended && value.paused))) bad()
     }
     private fun text(value: Any?, maximum: Int): String {
         val text = value as? String ?: bad()

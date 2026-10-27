@@ -41,6 +41,11 @@ class RoomClient(val address: RoomAddress) {
             request("GET", "v1/rooms/${admission.roomId}/catalog", admission.token, cursor = cursor)
         }
     }
+    suspend fun selection(admission: RoomAdmission, bootstrap: RoomBootstrap): RoomSelectionDefinition {
+        if (bootstrap.snapshot.epoch != admission.bootstrap.snapshot.epoch) throw RoomWire.bad()
+        return RoomSelectionDefinition.decode(request("GET", "v1/rooms/${admission.roomId}/selection", admission.token,
+            generation = bootstrap.snapshot.watchGeneration), bootstrap)
+    }
     suspend fun leave(admission: RoomAdmission) {
         val value = RoomWire.parse(request("POST", "v1/rooms/${admission.roomId}/leave", admission.token))
         RoomWire.keys(value, "v", "status")
@@ -84,10 +89,11 @@ class RoomClient(val address: RoomAddress) {
         }
         completion.await()
     }
-    private suspend fun request(method: String, path: String, credential: RoomSecret? = null, body: ByteArray? = null, cursor: String? = null): ByteArray {
+    private suspend fun request(method: String, path: String, credential: RoomSecret? = null, body: ByteArray? = null, cursor: String? = null, generation: Long? = null): ByteArray {
         currentCoroutineContext().ensureActive()
         val endpoint = address.endpoint(path)
-        val uri = if (cursor == null) endpoint else java.net.URI(endpoint.scheme, endpoint.rawAuthority, endpoint.path, "cursor=$cursor", null)
+        val query = generation?.let { "watchGeneration=$it" } ?: cursor?.let { "cursor=$it" }
+        val uri = if (query == null) endpoint else java.net.URI(endpoint.scheme, endpoint.rawAuthority, endpoint.path, query, null)
         val builder = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(20)).header("Accept", "application/json")
         credential?.let { builder.header("Authorization", "Bearer ${it.value}") }
         if (body != null) builder.header("Content-Type", "application/json")
@@ -106,7 +112,7 @@ class RoomClient(val address: RoomAddress) {
             if (response.statusCode() !in 200..299) {
                 val value = RoomWire.parse(bytes); RoomWire.keys(value, "error")
                 val error = RoomWire.obj(value["error"]); RoomWire.keys(error, "code"); val code = RoomWire.string(error["code"])
-                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal", "snapshotRequired", "duplicate")
+                val allowed = setOf("unauthorized", "forbidden", "notFound", "conflict", "expired", "queueFull", "tlsRequired", "malformed", "frameTooLarge", "internal", "snapshotRequired", "duplicate", "staleGeneration")
                 throw RoomProtocolException(if (code in allowed) code else "transport")
             }
             return bytes
