@@ -17,6 +17,7 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parents[2]
+NATIVE_ARCHIVE_BOUND = json.loads((ROOT / "tools/ci/artifact-policy.json").read_text())["nativeApplicationMaximumBytes"]
 
 
 def sha256(path: Path) -> str:
@@ -214,7 +215,7 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
                             receipt["files"][name.removeprefix("contents/")]["sha256"])
                 if digest.hexdigest() != recorded:
                     raise ValueError("Standalone candidate changed while archiving")
-    if output.stat().st_size > 256 * 1024 * 1024:
+    if output.stat().st_size > NATIVE_ARCHIVE_BOUND:
         raise ValueError("Native application archive exceeds its transport bound")
     return output
 

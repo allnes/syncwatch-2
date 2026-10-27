@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {createServer} from 'node:http';
 import {mkdtemp, readFile, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import test from 'node:test';
 import {backendIds, main, uploadArtifact} from '../artifact_upload.mjs';
+import {sdkMaximumBytes, nativeApplicationMaximumBytes} from '../artifact_policy.mjs';
 
 const run = 'ce7f54c7-61c7-4aae-887f-30da475f5f1a';
 const job = 'ca395085-040a-526b-2ce8-bdc85f692774';
@@ -21,7 +23,8 @@ async function fixture(t) {
 
 function transport(calls, fail = '') {
     return async (url, options) => {
-        calls.push({url:String(url), ...options});
+        const body = options.method === 'PUT' ? Buffer.concat(await Array.fromAsync(options.body)) : options.body;
+        calls.push({url:String(url), ...options, body});
         if (String(url).endsWith('CreateArtifact')) {
             return Response.json({ok:fail !== 'create', signed_upload_url:signedUrl});
         }
@@ -40,6 +43,8 @@ test('upload creates, transfers, and finalizes exact bytes with bounded retentio
     const calls = [];
     const result = await uploadArtifact(input, transport(calls));
     assert.equal(calls.length, 3);
+    assert.equal(calls[1].duplex, 'half');
+    assert.equal(calls[1].headers['Content-Length'], String(result.size));
     const created = JSON.parse(calls[0].body);
     assert.equal(created.workflow_run_backend_id, run);
     assert.equal(created.workflow_job_run_backend_id, job);
@@ -71,10 +76,10 @@ test('HTTP errors and unexpected artifact IDs fail closed', async t => {
     const input = await fixture(t);
     await assert.rejects(uploadArtifact(input, async () => new Response('', {status:403})), /HTTP 403/);
     let index = 0;
-    await assert.rejects(uploadArtifact(input, async () => {
+    await assert.rejects(uploadArtifact(input, async (url, options) => {
         index += 1;
         if (index === 1) return Response.json({ok:true, signed_upload_url:signedUrl});
-        if (index === 2) return new Response('', {status:201});
+        if (index === 2) { for await (const chunk of options.body) { void chunk; } return new Response('', {status:201}); }
         return Response.json({ok:true});
     }), /ID is missing/);
 });
@@ -126,4 +131,58 @@ test('action failure logs cannot disclose runtime tokens or signed storage URLs'
             else process.env[key] = value;
         }
     }
+});
+
+test('only native application publication can explicitly select the larger bound', async t => {
+    const input = await fixture(t);
+    const result = await uploadArtifact({...input, maximumBytes:nativeApplicationMaximumBytes}, transport([]));
+    assert.ok(result.size < sdkMaximumBytes);
+    await assert.rejects(uploadArtifact({...input, maximumBytes:Infinity}, transport([])), /bound/);
+});
+
+test('mutated archive bytes cannot be finalized and file handles are released', async t => {
+    const input = await fixture(t);
+    const calls = [];
+    const server = transport(calls);
+    await assert.rejects(uploadArtifact(input, async (url, options) => {
+        const result = await server(url, options);
+        if (String(url).endsWith('CreateArtifact')) {
+            const bytes = await readFile(input.archive);
+            bytes[bytes.length - 1] ^= 1;
+            await writeFile(input.archive, bytes);
+        }
+        return result;
+    }), /changed during upload/);
+    assert.equal(calls.length, 2);
+    // Windows cannot remove a file with a leaked open mapping/handle.
+    await rm(input.archive);
+});
+
+test('native fetch streams exact bytes and content length to storage', async t => {
+    const input = await fixture(t);
+    await writeFile(input.archive, Buffer.concat([Buffer.from('PK\x03\x04'), Buffer.alloc(2 * 1024 * 1024, 37)]));
+    let received = 0;
+    let contentLength;
+    const checksum = createHash('sha256');
+    const server = createServer((request, response) => {
+        contentLength = request.headers['content-length'];
+        request.on('data', chunk => { received += chunk.length; checksum.update(chunk); });
+        request.on('end', () => { response.writeHead(201, {'Content-Length':'0'}); response.end(); });
+    });
+    t.after(async () => {
+        server.closeAllConnections();
+        await new Promise(resolve => server.close(resolve));
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const rpc = transport([]);
+    const result = await uploadArtifact(input, async (url, options) => {
+        if (options.method === 'PUT') {
+            assert.equal(options.headers.Authorization, undefined);
+            return fetch(`http://127.0.0.1:${server.address().port}/owned-fixture`, options);
+        }
+        return rpc(url, options);
+    });
+    assert.equal(received, result.size);
+    assert.equal(contentLength, String(result.size));
+    assert.equal(checksum.digest('hex'), result.digest);
 });

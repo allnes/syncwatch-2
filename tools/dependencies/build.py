@@ -38,6 +38,7 @@ OFFLINE = {
     "NO_PROXY": "", "no_proxy": "",
 }
 FRAMEWORK_INPUTS = ("tools/dependencies", "tools/ci/artifact_upload.mjs", "tools/ci/artifact_download.mjs",
+                    "tools/ci/artifact_policy.mjs", "tools/ci/artifact-policy.json",
                     ".github/actions/dependency-build", ".github/workflows")
 MAXIMUM_ARCHIVE = 256 * 1024**2
 

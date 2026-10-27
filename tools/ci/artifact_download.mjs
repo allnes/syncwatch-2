@@ -2,7 +2,7 @@ import {createHash, randomUUID} from 'node:crypto';
 import {link, mkdir, open, unlink} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
-const maximumBytes = 256 * 1024 * 1024;
+import {sdkMaximumBytes as maximumBytes} from './artifact_policy.mjs';
 
 export function archiveMetadata(artifact) {
     if (!/^sha256:[0-9a-f]{64}$/.test(artifact.digest)
