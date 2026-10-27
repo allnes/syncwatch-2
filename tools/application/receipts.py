@@ -63,9 +63,10 @@ def renderer(package):
 
 
 def clients(package):
+    from source_profile import read
     require_host("linux-x64")
     receipt = checked_receipt(package, "clients-report.json")
-    profile = json.loads((ROOT / "tools/application/linux-clients.json").read_text())
+    profile = read(ROOT / "tools/application/linux-clients.json")
     if (receipt.get("target") != "linux-x64" or receipt.get("sourceBuilt") is not True
             or receipt.get("sources") != profile["sources"]
             or any(data["revision"] != pin(data["path"]) for data in profile["sources"].values())
@@ -95,8 +96,9 @@ def helper(package, target):
 
 
 def jvm(package):
+    from source_profile import read
     receipt = checked_receipt(package, "jvm-report.json")
-    profile = json.loads((ROOT / "tools/application/jvm-profile.json").read_text())
+    profile = read(ROOT / "tools/application/jvm-profile.json")
     if (receipt.get("target") != "linux-x64" or receipt.get("sourceRevision") != pin("3rdparty/openjdk")
             or receipt.get("sourceBuilt") is not True or receipt.get("developerSdk") is not False
             or receipt.get("sources") != profile["sources"] or receipt.get("modules") != profile["moduleRoots"]

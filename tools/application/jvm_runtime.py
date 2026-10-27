@@ -12,6 +12,7 @@ import tarfile
 import tempfile
 
 from receipts import ROOT, media, require_host
+from source_profile import read
 
 
 def sha(path):
@@ -48,7 +49,7 @@ def command(arguments, cwd, environment, log, timeout=180):
 
 def build(arguments):
     require_host("linux-x64")
-    profile = json.loads((ROOT / "tools/application/jvm-profile.json").read_text())
+    profile = read(ROOT / "tools/application/jvm-profile.json")
     media(arguments.media_package, "linux-x64")
     # The boot/compiler SDK is verified in full, and never copied into the application JVM.
     import sys

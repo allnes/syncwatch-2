@@ -3,11 +3,11 @@
 import argparse
 import gzip
 import hashlib
-import json
 from pathlib import Path
 import shutil
 import sys
 import tempfile
+from source_profile import read
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/dependencies"))
@@ -20,7 +20,7 @@ def sha(path):
 
 
 def export(destination, profile_path=ROOT / "tools/application/jvm-profile.json"):
-    profile = json.loads(profile_path.read_text())
+    profile = read(profile_path)
     destination.mkdir(exist_ok=False)
     try:
         for name, specification in profile["sources"].items():

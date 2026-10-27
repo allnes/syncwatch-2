@@ -76,6 +76,10 @@ clients and build-only CUPS/Xt headers as registered Git submodules. OpenJDK's
 bundled native sources and per-module grants remain in that original snapshot.
 `jvm_sources.py` exports and verifies original Git blobs, modes and grants;
 `jvm_runtime.py` checks their pinned archive digests before an offline Linux build.
+The shared source-profile reader checks the indexed Gitlinks, portable export
+boundaries, retained grants and original build entry before export, build or
+receipt acceptance. Native CI runs the same source-policy regressions on all
+three operating systems without compiling a client on another platform.
 The verified Temurin SDK is used only to bootstrap compilation. It is not copied
 into the resulting runtime image.
 

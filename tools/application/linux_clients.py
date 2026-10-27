@@ -11,6 +11,7 @@ import tempfile
 
 from receipts import ROOT, media, require_host
 from jvm_runtime import command, sha
+from source_profile import read
 
 sys.path.insert(0, str(ROOT / "tools/native"))
 sys.path.insert(0, str(ROOT / "tools/dependencies"))
@@ -28,7 +29,7 @@ class ClientContext(BuildContext):
 
 def build(arguments):
     require_host("linux-x64")
-    profile = json.loads((ROOT / "tools/application/linux-clients.json").read_text())
+    profile = read(ROOT / "tools/application/linux-clients.json")
     media(arguments.media_package, "linux-x64")
     output = arguments.output.absolute()
     output.mkdir(exist_ok=False)
