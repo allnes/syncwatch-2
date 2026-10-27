@@ -27336,6 +27336,11 @@
           "timeoutSeconds": 7200
         }
       }
+    },
+    "linux-application-jvm": {
+      "status": "unavailable",
+      "reason": "Pinned source build, native runtime import closure and complete application packaging CI are being qualified; no developer JVM is distributable",
+      "plannedIn": "Standalone native application packages"
     }
   }
 }
