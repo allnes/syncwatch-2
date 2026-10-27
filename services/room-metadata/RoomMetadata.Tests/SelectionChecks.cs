@@ -8,13 +8,33 @@ internal static class SelectionChecks
         static JsonElement Json(object value) => Wire.Parse(JsonSerializer.SerializeToUtf8Bytes(value, Wire.Json));
         static void Check(bool value) { if (!value) throw new Exception("Frozen selection invariant"); }
         var store = new RoomStore(new() { CommandsPerSecond = 256 });
-        var owner = store.Create(Json(new { v = 1, clientRunId = "run-owner", syncplayUsername = "owner",
-            syncplayHost = "syncplay.example.invalid", syncplayPort = 8999, syncplayRoom = "selection" }));
-        var guest = store.Join(owner.RoomId, Json(new { v = 1, invitation = owner.Invitation,
-            clientRunId = "run-guest", syncplayUsername = "guest" }));
+        var owner = store.Create(Json(new
+        {
+            v = 1,
+            clientRunId = "run-owner",
+            syncplayUsername = "owner",
+            syncplayHost = "syncplay.example.invalid",
+            syncplayPort = 8999,
+            syncplayRoom = "selection"
+        }));
+        var guest = store.Join(owner.RoomId, Json(new
+        {
+            v = 1,
+            invitation = owner.Invitation,
+            clientRunId = "run-guest",
+            syncplayUsername = "guest"
+        }));
         Command Cmd(Admission member, long id, long generation, string type, object payload) => Wire.ReadCommand(
-            JsonSerializer.SerializeToUtf8Bytes(new { v = 1, id = "cmd-" + id, type, roomEpoch = member.Bootstrap.Snapshot.RoomEpoch,
-                clientRunId = member.MemberId == owner.MemberId ? "run-owner" : "run-guest", watchGeneration = generation, payload }, Wire.Json));
+            JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                v = 1,
+                id = "cmd-" + id,
+                type,
+                roomEpoch = member.Bootstrap.Snapshot.RoomEpoch,
+                clientRunId = member.MemberId == owner.MemberId ? "run-owner" : "run-guest",
+                watchGeneration = generation,
+                payload
+            }, Wire.Json));
         Command Catalog(Admission member, long id, long generation, MediaDescriptor[] items) =>
             Cmd(member, id, generation, "catalog.updated", new { batchId = "batch-" + id, offset = 0, items, final = true });
         CommandResult Execute(Admission member, Command command) => store.Execute(owner.RoomId, member.Token, command);
@@ -49,8 +69,13 @@ internal static class SelectionChecks
         Check(store.Selection(owner.RoomId, owner.Token, 4).Selection == frozen.Selection);
         Check(Execute(owner, Cmd(owner, 5, 4, "selection.changed", new { mediaId = "absent" })).Error == "unavailable");
         Check(store.Selection(owner.RoomId, owner.Token, 4).Selection == frozen.Selection);
-        var peer = store.Join(owner.RoomId, Json(new { v = 1, invitation = owner.Invitation,
-            clientRunId = "run-guest", syncplayUsername = "guest" }));
+        var peer = store.Join(owner.RoomId, Json(new
+        {
+            v = 1,
+            invitation = owner.Invitation,
+            clientRunId = "run-guest",
+            syncplayUsername = "guest"
+        }));
         Check(Execute(owner, Catalog(owner, 6, 4, [original])).Error is null);
         Check(Execute(peer, Catalog(peer, 1, 4, [changed])).Error is null);
         Check(Execute(owner, Cmd(owner, 7, 4, "selection.changed", new { mediaId = "movie-a" })).Error == "conflict");

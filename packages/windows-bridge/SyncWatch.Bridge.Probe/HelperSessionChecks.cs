@@ -114,7 +114,8 @@ internal static class HelperSessionChecks
                 PositionMs = Position,
                 DurationMs = 60000,
                 Paused = Paused,
-                Seekable = !ended, Ended = ended
+                Seekable = !ended,
+                Ended = ended
             });
         }
         public Task SetPausedAsync(bool paused, PlaybackScope scope, CancellationToken cancellation = default)

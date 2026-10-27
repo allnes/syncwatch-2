@@ -24,9 +24,12 @@ internal static class HelperRuntimeChecks
                 if (name == "pathEscape") files["../outside"] = new string('a', 64);
                 File.WriteAllBytes(Path.Combine(root, "helper-report.json"), JsonSerializer.SerializeToUtf8Bytes(new
                 {
-                    schemaVersion = 1, target = name == "wrongTarget" ? "linux-x64" : "windows-x64",
+                    schemaVersion = 1,
+                    target = name == "wrongTarget" ? "linux-x64" : "windows-x64",
                     syncplayRevision = name == "wrongPin" ? new string('0', 40) : HelperRuntime.ExpectedRevision,
-                    developmentHelperOnly = true, authenticatedInstallation = false, files
+                    developmentHelperOnly = true,
+                    authenticatedInstallation = false,
+                    files
                 }));
                 if (name == "changedFile") File.WriteAllText(executable, "changed");
                 if (name == "extraFile") File.WriteAllText(Path.Combine(root, "extra"), "");

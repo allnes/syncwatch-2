@@ -19,7 +19,7 @@ def outputs(root):
         'packages/macos-bridge/Sources/SyncWatchBridge/HelperRuntimePolicy.swift':
             comment + f'enum HelperRuntimePolicy {{\n    static let syncplayRevision = "{revision}"\n}}\n',
         'packages/windows-bridge/SyncWatch.Bridge/HelperRuntimePolicy.cs':
-            comment + 'namespace SyncWatch.Bridge;\n' +
+            comment + 'namespace SyncWatch.Bridge;\n\n' +
             f'internal static class HelperRuntimePolicy {{ internal const string SyncplayRevision = "{revision}"; }}\n',
         'packages/linux-bridge/HelperRuntimePolicy.kt':
             comment + 'package syncwatch.bridge\n' +

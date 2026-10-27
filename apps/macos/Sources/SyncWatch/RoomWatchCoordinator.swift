@@ -213,7 +213,9 @@ import SyncWatchRoom
             do {
                 _ = try await room.performWatch(
                     .end(reason: .user), membership: previous.membership, expected: previous.context)
-            } catch { /* Local End succeeded; metadata bookkeeping is best effort. */  }
+            } catch {
+                // Local End succeeded; metadata bookkeeping is best effort.
+            }
         }
         watch.end()
         status = ""
