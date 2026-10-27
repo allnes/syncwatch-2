@@ -1,6 +1,6 @@
 # Application architecture
 
-SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Swift/macOS, C#/WPF on Windows and Kotlin/Compose on Linux implement local Library/WatchSession ownership, preferences, resume persistence and native VLC playback. The shared declarative design library supplies their Library, settings, player, Room and call surfaces. Native clients support room create/join/leave and passive presence independently of playback. Each native player can attach an owned Syncplay helper for admitted media, with descriptor hashing bound to its loaded input. Normal room/media admission, canonical installation, reconnect and Google Meet host integration remain incomplete.
+SyncWatch is a native desktop product for synchronized local movie viewing and video calls. Swift/macOS, C#/WPF on Windows and Kotlin/Compose on Linux implement local Library/WatchSession ownership, preferences, resume persistence and native VLC playback. The shared declarative design library supplies their Library, settings, player, Room and call surfaces. Native clients support room create/join/leave and passive presence independently of playback. Normal same-file admission attaches an owned Syncplay helper to each native player, with descriptor hashing bound to its loaded input. Missing or ambiguous edition recovery, canonical installation, reconnect and Google Meet host integration remain incomplete.
 
 ## Technology decisions
 
