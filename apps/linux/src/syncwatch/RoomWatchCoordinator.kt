@@ -112,7 +112,8 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
                 if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
-                    admitted = true; busy = false; status = "sharedWatchConnected"
+                    if (!admitted) { player.admitSharedPlayback(); admitted = true }
+                    busy = false; status = "sharedWatchConnected"
                 } else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
                 delay(100)
             }

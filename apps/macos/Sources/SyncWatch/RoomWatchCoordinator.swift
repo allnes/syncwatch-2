@@ -151,7 +151,10 @@ import SyncWatchRoom
                     guard player.sharedState?.acceptedUsername == intent.membership.identity.syncplayUsername else {
                         throw HelperSessionFailure.malformed
                     }
-                    admitted = true
+                    if !admitted {
+                        try player.admitSharedPlayback()
+                        admitted = true
+                    }
                     if busy {
                         busy = false
                         status = "sharedWatchConnected"

@@ -114,7 +114,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 if (owned.SharedState is { Connection: HelperConnection.Connected, Ready: true } state)
                 {
                     if (state.AcceptedUsername != intent.Membership.Identity.SyncplayUsername) throw new InvalidOperationException("identity-changed");
-                    admitted = true;
+                    if (!admitted) { owned.AdmitSharedPlayback(); admitted = true; }
                     if (Busy) { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
                 else if (!admitted && Environment.TickCount64 >= readyDeadline) throw new TimeoutException();

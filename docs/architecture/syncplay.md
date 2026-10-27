@@ -101,7 +101,7 @@ Each event includes a protocol version, server-issued room epoch and sequence nu
 
 A room snapshot defines the Syncplay endpoint, room name, and agreed client identity. Bind the metadata member ID to the username actually accepted by Syncplay after its handshake and to the process run ID. An entered display name or Meet identity alone is not a reliable cross-channel key.
 
-Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position.
+Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position. The first confirmed ready state admits that playback scope. Syncplay may subsequently clear the local readiness flag when the user pauses; that flag alone must not disable the next Play intent. Retain the admission until its scope, membership or connected helper is revoked.
 
 If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 

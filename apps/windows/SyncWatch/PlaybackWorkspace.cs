@@ -63,6 +63,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         return descriptor;
     }
     internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); chrome.Render(presentation, language); }
+    internal void AdmitSharedPlayback()
+    {
+        if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, Ready: true } || sharedAuthority?.Invoke() == false)
+            throw new InvalidOperationException("Shared playback unavailable");
+        // A user's Pause can clear Syncplay readiness without revoking the admitted file.
+        requiresSharedAdmission = false;
+    }
     internal async Task RevokeSharedAsync(bool releaseAdmission = false)
     {
         RequireSharedAdmission(); sharedAuthority = null;

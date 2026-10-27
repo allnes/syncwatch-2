@@ -81,6 +81,14 @@ struct LocalPlaybackLaunch {
         requiresSharedAdmission = true
         gateSharedActions()
     }
+    func admitSharedPlayback() throws {
+        guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.ready == true,
+            sharedAuthority?() != false
+        else { throw HelperSessionFailure.unavailable }
+        // Syncplay can clear its readiness flag when this user pauses. That does
+        // not revoke the initial admission or prevent the next Play intent.
+        requiresSharedAdmission = false
+    }
     func revokeShared(releaseAdmission: Bool = false) async {
         requireSharedAdmission()
         sharedAuthority = nil
