@@ -35,8 +35,8 @@ class NativeJobChecks(unittest.TestCase):
         report.execute("Native checks", lambda: None)
         return report
 
-    def design_matrix(self):
-        source = self.root / "artifacts/design/macos"
+    def design_matrix(self, target="macos"):
+        source = self.root / "artifacts/design" / target
         source.mkdir(parents=True)
         repository = Path(__file__).resolve().parents[3]
         for relative in ("packages/design/components.json", "packages/design/tokens/geometry.json"):
@@ -72,6 +72,7 @@ class NativeJobChecks(unittest.TestCase):
         (contents / "SyncWatch").write_bytes(b"native executable fixture")
         (contents / "SyncWatch").chmod(0o755)
         (contents / "Runtime").mkdir()
+        (contents / "Runtime/empty").mkdir()
         (contents / "Runtime/engine").write_bytes(b"private runtime fixture")
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.root, text=True).strip()
         (destination / "candidate.json").write_text(json.dumps({
@@ -100,6 +101,15 @@ class NativeJobChecks(unittest.TestCase):
             self.assertEqual(manifest["candidateReceiptSha256"], hashlib.sha256(package.read("candidate/candidate.json")).hexdigest())
             self.assertEqual(package.read("candidate/contents/SyncWatch/Runtime/engine"), b"private runtime fixture")
             self.assertIn("linux-boundary.json", package.namelist())
+            self.assertTrue(package.getinfo("candidate/contents/SyncWatch/Runtime/empty/").is_dir())
+            relocated = self.root / "relocated"
+            package.extractall(relocated)
+            for entry in package.infolist():
+                if not entry.is_dir():
+                    (relocated / entry.filename).chmod((entry.external_attr >> 16) & 0o777)
+            from candidate_tree import inventory
+            receipt = json.loads(package.read("candidate/candidate.json"))
+            self.assertEqual(inventory(relocated / "candidate/contents"), receipt["files"])
 
     def test_boundary_checks_without_a_package_cannot_publish_success(self):
         self.initialize_repository()
@@ -221,6 +231,22 @@ class NativeJobChecks(unittest.TestCase):
         path.write_text("changed after receipt")
         with self.assertRaisesRegex(ValueError, "stale, incomplete"):
             native_job.prepare_archive(self.root, self.root / "report", "windows", "x64", {}, self.report(), True)
+
+    def test_archive_mutation_never_publishes_a_partial_success(self):
+        self.initialize_repository()
+        candidate = self.candidate("windows-x64")
+        self.design_matrix("windows")
+        original = native_job.sha256
+        def mutate(path):
+            digest = original(path)
+            if path.name == "candidate.json":
+                (candidate / "contents/SyncWatch/Runtime/engine").write_text("changed during publication")
+            return digest
+        output = self.root / "report"
+        with patch("native_job.sha256", side_effect=mutate), self.assertRaisesRegex(ValueError, "changed while archiving"):
+            native_job.prepare_archive(self.root, output, "windows", "x64", {}, self.report(), True)
+        self.assertFalse((output / "artifact.zip").exists())
+        self.assertFalse(list(output.glob(".native-archive-*")))
 
     def test_package_symlinks_cannot_include_external_files(self):
         self.initialize_repository()

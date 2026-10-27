@@ -9,6 +9,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from urllib.parse import urlsplit
@@ -194,29 +195,40 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
         manifest["candidateReceiptSha256"] = sha256(candidate / "candidate.json")
     (payload / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     output = directory / "artifact.zip"
-    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(payload.rglob("*")):
-            if path.is_file():
-                archive.write(path, path.relative_to(payload))
-        if success:
-            # Keep one archive, without a second full runtime copy or nested ZIP.
-            for name in sorted(expected):
-                path = candidate / name
-                entry = zipfile.ZipInfo("candidate/" + name, (1980, 1, 1, 0, 0, 0))
-                entry.create_system = 3
-                entry.external_attr = (path.stat().st_mode & 0xFFFF) << 16
-                entry.compress_type = zipfile.ZIP_DEFLATED
-                digest = hashlib.sha256()
-                with path.open("rb") as source, archive.open(entry, "w") as destination:
-                    while chunk := source.read(1024 * 1024):
-                        digest.update(chunk)
-                        destination.write(chunk)
-                recorded = (manifest["candidateReceiptSha256"] if name == "candidate.json" else
-                            receipt["files"][name.removeprefix("contents/")]["sha256"])
-                if digest.hexdigest() != recorded:
-                    raise ValueError("Standalone candidate changed while archiving")
-    if output.stat().st_size > NATIVE_ARCHIVE_BOUND:
-        raise ValueError("Native application archive exceeds its transport bound")
+    with tempfile.TemporaryDirectory(prefix=".native-archive-", dir=directory) as temporary:
+        staged = Path(temporary) / "artifact.zip"
+        with zipfile.ZipFile(staged, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(payload.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(payload))
+            if success:
+                # Keep one archive, without a second full runtime copy or nested ZIP.
+                # Directory entries preserve even empty folders recorded by the
+                # immutable candidate policy; files alone cannot round-trip them.
+                for name, value in sorted(receipt["files"].items()):
+                    if value["kind"] == "directory":
+                        entry = zipfile.ZipInfo("candidate/contents/" + name + "/", (1980, 1, 1, 0, 0, 0))
+                        entry.create_system = 3
+                        entry.external_attr = (0o40755 << 16) | 0x10
+                        archive.writestr(entry, b"")
+                for name in sorted(expected):
+                    path = candidate / name
+                    entry = zipfile.ZipInfo("candidate/" + name, (1980, 1, 1, 0, 0, 0))
+                    entry.create_system = 3
+                    entry.external_attr = (path.stat().st_mode & 0xFFFF) << 16
+                    entry.compress_type = zipfile.ZIP_DEFLATED
+                    digest = hashlib.sha256()
+                    with path.open("rb") as source, archive.open(entry, "w") as destination:
+                        while chunk := source.read(1024 * 1024):
+                            digest.update(chunk)
+                            destination.write(chunk)
+                    recorded = (manifest["candidateReceiptSha256"] if name == "candidate.json" else
+                                receipt["files"][name.removeprefix("contents/")]["sha256"])
+                    if digest.hexdigest() != recorded:
+                        raise ValueError("Standalone candidate changed while archiving")
+        if staged.stat().st_size > NATIVE_ARCHIVE_BOUND:
+            raise ValueError("Native application archive exceeds its transport bound")
+        staged.replace(output)
     return output
 
 
