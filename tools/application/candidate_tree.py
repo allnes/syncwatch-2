@@ -57,7 +57,7 @@ def inventory(root):
     return dict(sorted(result.items()))
 
 
-def assemble(destination, components, *, platform, source_commit):
+def assemble(destination, components, *, platform, source_commit, source_inputs=None):
     """Reserve an owned output, validate copies, and publish one complete contents directory."""
     destination = Path(destination).absolute()
     if platform not in {"macos-arm64", "windows-x64", "linux-x64"}:
@@ -115,6 +115,8 @@ def assemble(destination, components, *, platform, source_commit):
                       "developmentCandidate": True, "releaseReady": False,
                       "components": {str(path): data for path, data in zip(paths, before, strict=True)},
                       "files": files}
+            if source_inputs is not None:
+                report["sourceInputs"] = source_inputs
             # The destination was reserved by this invocation; no other builder owns it.
             receipt = Path(temporary) / "candidate.json"
             receipt.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")

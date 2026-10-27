@@ -8,15 +8,18 @@ import subprocess
 import zipfile
 
 from candidate_tree import Component
-from receipts import ROOT, desktop_classpath, jvm, renderer, require_host
+from receipts import ROOT, clients, desktop_classpath, jvm, renderer, require_host
 
 
 def prepare(arguments, work):
     require_host("linux-x64")
     runtime = jvm(arguments.jvm)
+    client_receipt = clients(arguments.linux_clients)
     with (arguments.media_package / "build-report.json").open("rb") as data:
         if runtime["mediaReceiptSha256"] != hashlib.file_digest(data, "sha256").hexdigest():
             raise ValueError("Application JVM was built with a different native media SDK")
+    if client_receipt["mediaReceiptSha256"] != runtime["mediaReceiptSha256"]:
+        raise ValueError("Dynamic X11 clients were built with a different native media SDK")
     desktop = arguments.desktop_sdk.resolve(strict=True)
     classpath = desktop_classpath(desktop)
     renderer_receipt = renderer(arguments.renderer)
@@ -63,5 +66,6 @@ def prepare(arguments, work):
     (rendering / "renderer-report.json").write_text(json.dumps({"schemaVersion": 1, "target": "linux-x64",
         "profile": renderer_receipt["profile"], "files": files}, indent=2) + "\n")
     return [Component(application, "SyncWatch"), Component(arguments.jvm, "SyncWatch/Runtime"),
+            Component(arguments.linux_clients, "SyncWatch/Clients"),
             Component(desktop, "SyncWatch/Desktop"), Component(rendering, "SyncWatch/Renderer"),
             Component(arguments.media_package, "SyncWatch/Media"), Component(arguments.helper_package, "SyncWatch/Syncplay")]

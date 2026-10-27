@@ -17,6 +17,10 @@ The receipt records the source commit, native target, component inventories and
 actual candidate files. It declares a development candidate, with release readiness
 false. Local byte integrity does not authenticate a release or seal a mutable
 filesystem against concurrent modification.
+Native recipes also record the exact first-party source file hashes and modes,
+including local overlays and new untracked inputs. An overlaid checkout's Git base
+commit is never presented as the complete identity of those sources. Preparation
+fails if that source snapshot changes before staging.
 
 The staging policy is checked on all three native CI lanes:
 
@@ -42,7 +46,7 @@ does not require media, helper, bridge or developer runtime flags.
 | --- | --- | --- |
 | macOS | Built Swift executable | `SyncWatch.app/Contents/Frameworks/{Media,Syncplay}`; first-party playback ABI statically linked |
 | Windows | WPF project and declared .NET SDK | All published assemblies, `Media`, `Syncplay`, first-party playback DLL and private `Runtime` beside `SyncWatch.exe` |
-| Linux | Production application JAR | `Media`, `Syncplay`, JNI/ABI libraries, source-built `Runtime`, reviewed `Desktop` JARs and `Renderer` beside the native launcher |
+| Linux | Production application JAR | `Media`, `Syncplay`, JNI/ABI libraries, source-built `Runtime`, reviewed `Desktop` JARs, `Renderer` and dynamic X11 `Clients` beside the native launcher |
 
 For example, on macOS:
 
@@ -82,3 +86,11 @@ not replace them. The source-built X11/font clients come from the declared nativ
 SDK graph. Native import closure, packaging CI, relocated GUI launch and all six
 interoperability directions remain qualification gates. A successful source build
 or a locally assembled candidate alone does not clear those gates.
+
+`linux-clients.json` separately pins Xcursor, Xfixes and Xinerama, which AWT loads
+dynamically. `linux_clients.py` builds them against the same verified Media SDK as
+the JVM and preserves their original source archives and grants. The Linux adapter
+requires this component and rejects a different source or Media receipt. The
+launcher supplies its `Clients/lib` directory alongside the other owned libraries.
+Runtime qualification must inspect loaded libraries after opening the folder
+picker and playing video: direct ELF imports alone do not cover dynamic loading.

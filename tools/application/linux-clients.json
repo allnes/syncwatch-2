@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "target": "linux-x64",
+  "runtimeLibraries": [
+    "libXcursor.so.1",
+    "libXfixes.so.3",
+    "libXinerama.so.1"
+  ],
+  "buildOrder": [
+    "jvm-libxfixes",
+    "jvm-libxcursor",
+    "jvm-libxinerama"
+  ],
+  "sources": {
+    "jvm-libxfixes": {
+      "path": "3rdparty/jvm-libxfixes",
+      "revision": "c1cab28e27dd1c5a81394965248b57e490ccf2ca",
+      "tree": "f99eac9168165ebaff496a3c3567f48b369cc150",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "AUTHORS",
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "include",
+        "man",
+        "src",
+        "xfixes.pc.in"
+      ],
+      "archiveFormat": "tar",
+      "archiveSha256": "8b4f99427b421de43fbc7f746c26908c8497da2fb035ccf636bbbe41a66deed1"
+    },
+    "jvm-libxcursor": {
+      "path": "3rdparty/jvm-libxcursor",
+      "revision": "8ae6cf61b18ecddf26f72a07bbfbd1ea9f022c36",
+      "tree": "2ff5fe4e2fcfa100ebfaad1cf776452ddee9a758",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "AUTHORS",
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "include",
+        "man",
+        "src",
+        "xcursor.pc.in"
+      ],
+      "archiveFormat": "tar",
+      "archiveSha256": "2cf1ec06b4db38c8c26d16819538f247e687d5fbab87dee543b7b33ec807b803"
+    },
+    "jvm-libxinerama": {
+      "path": "3rdparty/jvm-libxinerama",
+      "revision": "71dfee64feb84f907016940263b235a61c9e8960",
+      "tree": "afb7c9b83f50a66c1ab35046a919db0a444906dc",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "include",
+        "man",
+        "src",
+        "xinerama.pc.in"
+      ],
+      "archiveFormat": "tar",
+      "archiveSha256": "ec33869dd669c31f6c83802682d920e3bd2a7521627c58ccb07dc78227a3be45"
+    }
+  },
+  "sourceDateEpoch": 1730711181
+}

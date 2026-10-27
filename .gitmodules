@@ -430,3 +430,9 @@
 [submodule "3rdparty/jvm-libxfixes"]
 	path = 3rdparty/jvm-libxfixes
 	url = https://gitlab.freedesktop.org/xorg/lib/libxfixes.git
+[submodule "3rdparty/jvm-libxcursor"]
+	path = 3rdparty/jvm-libxcursor
+	url = https://gitlab.freedesktop.org/xorg/lib/libxcursor.git
+[submodule "3rdparty/jvm-libxinerama"]
+	path = 3rdparty/jvm-libxinerama
+	url = https://gitlab.freedesktop.org/xorg/lib/libxinerama.git

@@ -19,8 +19,8 @@ def sha(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def export(destination):
-    profile = json.loads((ROOT / "tools/application/jvm-profile.json").read_text())
+def export(destination, profile_path=ROOT / "tools/application/jvm-profile.json"):
+    profile = json.loads(profile_path.read_text())
     destination.mkdir(exist_ok=False)
     try:
         for name, specification in profile["sources"].items():
@@ -36,9 +36,15 @@ def export(destination):
                 archive = Path(temporary) / "original.tar"
                 dependencies.export_original_blobs(source, archive, entries, specification["revision"])
                 dependencies.verify_source_export(archive, entries, specification["revision"], specification["notices"])
-                output = destination / (name + ".tar.gz")
-                with output.open("wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as compressed, archive.open("rb") as data:
-                    shutil.copyfileobj(data, compressed)
+                format_ = specification.get("archiveFormat", "tar.gz")
+                if format_ not in {"tar", "tar.gz"}:
+                    raise ValueError("Unsupported original source archive format")
+                output = destination / (name + "." + format_)
+                if format_ == "tar":
+                    shutil.copy2(archive, output)
+                else:
+                    with output.open("wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as compressed, archive.open("rb") as data:
+                        shutil.copyfileobj(data, compressed)
             if sha(output) != specification["archiveSha256"]:
                 raise ValueError("Original JVM source archive differs from its reviewed digest")
             print(name + ": original sources verified", flush=True)
@@ -50,4 +56,6 @@ def export(destination):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
-    export(parser.parse_args().output)
+    parser.add_argument("--profile", type=Path, default=ROOT / "tools/application/jvm-profile.json")
+    args = parser.parse_args()
+    export(args.output, args.profile)

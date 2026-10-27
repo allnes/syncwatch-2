@@ -15,7 +15,7 @@ static int setting(const char *key, const char *root, const char *suffix, int op
 }
 
 int main(int argc, char **argv) {
-    char root[PATH_MAX], libraries[5 * PATH_MAX + 120];
+    char root[PATH_MAX], libraries[6 * PATH_MAX + 140];
     ssize_t length = readlink("/proc/self/exe", root, sizeof(root) - 1);
     if (length < 0) goto failed;
     if ((size_t)length >= sizeof(root) - 1) { errno = ENAMETOOLONG; goto failed; }
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     char *slash = strrchr(root, '/');
     if (!slash) { errno = EINVAL; goto failed; }
     *slash = '\0';
-    int size = snprintf(libraries, sizeof(libraries), "%s/Renderer/runtime:%s/Media/lib:%s/Runtime/lib:%s/Runtime/lib/server:%s/Syncplay/lib", root, root, root, root, root);
+    int size = snprintf(libraries, sizeof(libraries), "%s/Renderer/runtime:%s/Media/lib:%s/Runtime/lib:%s/Runtime/lib/server:%s/Syncplay/lib:%s/Clients/lib", root, root, root, root, root, root);
     if (size < 0 || (size_t)size >= sizeof(libraries)) { errno = ENAMETOOLONG; goto failed; }
     if (setenv("LD_LIBRARY_PATH", libraries, 1) || setting("XLOCALEDIR", root, "Renderer/share/X11/locale", 0)
         || setting("FONTCONFIG_FILE", root, "Renderer/share/fonts/fonts.conf", 0)

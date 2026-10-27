@@ -12,6 +12,17 @@ from candidate_tree import inventory
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def source_inputs(root=ROOT):
+    """Retain exact first-party overlays as well as their Git base commit."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools/dependencies"))
+    import build as dependencies
+    specification = {"verificationInputs": ["apps", "packages", "contracts", "tools", "global.json", "LICENSE", ".gitmodules"]}
+    return {"commit": dependencies.git(root, "rev-parse", "HEAD").decode().strip(),
+            "localChanges": bool(dependencies.git(root, "status", "--porcelain", "--untracked-files=normal").strip()),
+            "files": dependencies.input_files(root, specification, verification=True)}
+
+
 def require_host(target):
     actual = {("Darwin", "arm64"): "macos-arm64", ("Windows", "AMD64"): "windows-x64",
               ("Linux", "x86_64"): "linux-x64"}.get((platform.system(), platform.machine()))
@@ -48,6 +59,20 @@ def renderer(package):
     profile = json.loads((ROOT / "tools/desktop/profile.json").read_text())
     if receipt.get("profile") != profile["profile"] or receipt.get("nativeRendererLinked") is not True:
         raise ValueError("Linux renderer differs from the declared source-built native SDK")
+    return receipt
+
+
+def clients(package):
+    require_host("linux-x64")
+    receipt = checked_receipt(package, "clients-report.json")
+    profile = json.loads((ROOT / "tools/application/linux-clients.json").read_text())
+    if (receipt.get("target") != "linux-x64" or receipt.get("sourceBuilt") is not True
+            or receipt.get("sources") != profile["sources"]
+            or any(data["revision"] != pin(data["path"]) for data in profile["sources"].values())
+            or any("lib/" + name not in receipt["files"] for name in profile["runtimeLibraries"])
+            or any(receipt["files"].get("sources/" + name + ".tar") != data["archiveSha256"]
+                   for name, data in profile["sources"].items())):
+        raise ValueError("Dynamic X11 clients differ from their registered source graph")
     return receipt
 
 

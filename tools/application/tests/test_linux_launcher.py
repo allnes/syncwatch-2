@@ -39,7 +39,7 @@ class LinuxLauncherTests(unittest.TestCase):
             self.assertEqual(actual["env"]["XERRORDB"], str(relocated / "Renderer/share/X11/XErrorDB"))
             self.assertNotIn("XKEYSYMDB", actual["env"])
             self.assertEqual(actual["env"]["LD_LIBRARY_PATH"].split(":"),
-                             [str(relocated / path) for path in ("Renderer/runtime", "Media/lib", "Runtime/lib", "Runtime/lib/server", "Syncplay/lib")])
+                             [str(relocated / path) for path in ("Renderer/runtime", "Media/lib", "Runtime/lib", "Runtime/lib/server", "Syncplay/lib", "Clients/lib")])
             java = relocated / "Runtime/bin/java"
             java.unlink()
             failed = subprocess.run([str(relocated / "SyncWatch")], cwd=root, capture_output=True, timeout=10)
