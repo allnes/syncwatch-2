@@ -106,12 +106,14 @@ def main():
     from check_contracts import Context, Registry
     registry = Registry(ROOT)
     observations = json.loads(output.read_text())
-    if not observations or {value["schema"] for value in observations} != {"room-event", "room-snapshot"}:
-        raise ValueError("Transport checks must produce actual room events and snapshots")
+    if not observations or {value["schema"] for value in observations} != {"room-event", "room-snapshot", "room-selection"}:
+        raise ValueError("Transport checks must produce actual room events, snapshots and selections")
     contexts = {}
     for observation in observations:
         value, kind = observation["value"], observation["schema"]
-        if kind == "room-snapshot":
+        if kind == "room-selection":
+            registry.validate(kind, value)
+        elif kind == "room-snapshot":
             registry.validate(kind, value)
             contexts[value["roomEpoch"]] = Context(roomEpoch=value["roomEpoch"], sequence=value["sequence"],
                 watchGeneration=value["watchGeneration"], members={member["memberId"]: member["clientRunId"] for member in value["members"]})
@@ -125,7 +127,7 @@ def main():
                 members.pop(value["memberId"])
             contexts[value["roomEpoch"]] = Context(roomEpoch=value["roomEpoch"], sequence=value["sequence"],
                 watchGeneration=value["watchGeneration"], members=members)
-    print(f"Validated {len(observations)} actual metadata events/snapshots against the pinned wire contracts")
+    print(f"Validated {len(observations)} actual metadata events/snapshots/selections against the pinned wire contracts")
 
 
 if __name__ == "__main__":
