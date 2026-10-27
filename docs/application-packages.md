@@ -1,4 +1,4 @@
-# Native application candidates
+# Standalone development application packages
 
 Application packaging uses the common first-party staging policy in
 `tools/application/candidate_tree.py`. Platform adapters supply explicit application,
@@ -22,6 +22,11 @@ including local overlays and new untracked inputs. An overlaid checkout's Git ba
 commit is never presented as the complete identity of those sources. Preparation
 fails if that source snapshot changes before staging.
 
+Swift builds and tests run only on macOS, C# desktop builds and tests only on
+Windows, and Kotlin builds and tests only on Linux. The shared Apache-2.0 Design
+package stays independent of packaging. External product sources remain pinned
+Git submodules under `3rdparty/`.
+
 The staging policy is checked on all three native CI lanes:
 
 ```sh
@@ -30,8 +35,8 @@ python3 -m unittest discover -s tools/application/tests -v
 
 These checks cover relocation, Unicode paths, unchanged inputs, existing user data,
 contained links, partial copy failure and input mutation. They do not qualify an
-installer, an application window or playback. Complete native adapters, runtime
-closure, relocated launch, restart and interoperability acceptance remain required.
+installer, an application window or playback. Runtime closure, relocated launch, restart and interoperability acceptance are
+checked separately from these staging regressions.
 The developer JDK described in `tools/jvm/toolchains.json` is not an application
 runtime input. The Linux adapter requires the separately pinned, source-built JVM
 described below.
@@ -98,3 +103,15 @@ requires this component and rejects a different source or Media receipt. The
 launcher supplies its `Clients/lib` directory alongside the other owned libraries.
 Runtime qualification must inspect loaded libraries after opening the folder
 picker and playing video: direct ELF imports alone do not cover dynamic loading.
+
+## CI
+
+Repository CI first builds and verifies the selected dependency matrix. The macOS, Windows and Linux jobs then consume SDKs and the native helper produced by that exact workflow run and checked-out commit. A consumer may reuse a successful producer from an earlier attempt of the same run. Cross-run reuse remains restricted to the separate trusted-main dependency cache policy.
+
+Artifact transport checks repository/run identity, exact commit-scoped names, producer attempt, size and SHA-256. Import checks the fresh verification source/tree, declared toolchains, source Gitlinks, first-party build inputs and complete payload bytes. Helper import additionally checks its native probe and protocol acceptance receipt. Portable archive validation and streaming extraction are shared with dependency builds; validation logs stay outside the product runtime.
+
+`tools/application/ci.py` coordinates native assembly. Linux prepares configure macros from the verified Media SDK's original Xorg source bytes, builds its JVM/X11 closure offline, and compiles only declared production application sources. The provisioned build SDK's GNU config and pkg-config macro bytes are recorded in the JVM receipt.
+
+Native validation artifacts contain `candidate/contents/`, `candidate/candidate.json`, the validation report, the outer build manifest and applicable Design renders. The outer manifest binds the candidate receipt; archive publication rechecks each runtime file while streaming it. An absent or changed package cannot produce successful native validation. The artifact preserves executable modes and is bounded to the shared transport limit.
+
+`applicationBuilt` describes completed assembly. `guiAccepted` and `physicalOutputAccepted` remain false in hosted CI: real-window interaction, audio/video output, error recovery and all six directed synchronization paths require separate acceptance on the actual native clients. Installation, authentication, Google Meet and full functional/visual parity are not implied by a successful package build.

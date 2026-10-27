@@ -9,7 +9,6 @@ import platform
 import shutil
 import subprocess
 import sys
-import tarfile
 import time
 import urllib.request
 from urllib.parse import urlsplit
@@ -113,25 +112,6 @@ def ensure_dotnet(specification: dict, temporary: Path, root: Path = ROOT) -> Pa
     return executable
 
 
-def macos_candidate(root: Path, output: Path) -> None:
-    bundle = root / "artifacts/macos/SyncWatch.app"
-    if not (bundle / "Contents/MacOS/SyncWatch").is_file():
-        raise ValueError("Native application bundle was not built")
-    with tarfile.open(output, "w") as archive:
-        for source in [bundle, *sorted(bundle.rglob("*"))]:
-            if source.is_symlink():
-                raise ValueError("Development bundle must not contain symbolic links")
-            member = archive.gettarinfo(str(source), str(source.relative_to(bundle.parent)))
-            member.uid = member.gid = 0
-            member.uname = member.gname = ""
-            member.mtime = 0
-            if source.is_file():
-                with source.open("rb") as data:
-                    archive.addfile(member, data)
-            else:
-                archive.addfile(member)
-
-
 def design_image_names(root: Path) -> set[str]:
     contract = json.loads((root / "packages/design/components.json").read_text(encoding="utf-8"))['components']
     layout = json.loads((root / "packages/design/tokens/geometry.json").read_text(encoding="utf-8"))['layout']
@@ -175,15 +155,23 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
     payload = directory / "payload"
     payload.mkdir(parents=True, exist_ok=True)
     report.write(payload / "validation.xml")
+    candidate = root / "artifacts/application-ci" / {"macos": "macos-arm64", "windows": "windows-x64", "linux": "linux-x64"}[target] / "candidate"
     if success:
-        if target == "macos":
-            macos_candidate(root, payload / "SyncWatch.app.tar")
-        elif target == "windows":
-            source = root / "apps/windows/SyncWatch/bin/Debug/net10.0-windows"
-            candidate = payload / "SyncWatch"
-            candidate.mkdir()
-            for name in ("SyncWatch.exe", "SyncWatch.dll", "SyncWatch.Domain.dll", "SyncWatch.deps.json", "SyncWatch.runtimeconfig.json"):
-                shutil.copy2(source / name, candidate / name)
+        sys.path.insert(0, str(ROOT / "tools/application"))
+        from candidate_tree import inventory
+        receipt = json.loads((candidate / "candidate.json").read_text(encoding="utf-8"))
+        if (receipt.get("schemaVersion") != 1
+                or receipt.get("platform") != {"macos": "macos-arm64", "windows": "windows-x64", "linux": "linux-x64"}[target]
+                or receipt.get("developmentCandidate") is not True or receipt.get("releaseReady") is not False
+                or inventory(candidate / "contents") != receipt["files"]
+                or receipt["sourceCommit"] != subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+                or receipt.get("sourceInputs", {}).get("commit") != receipt["sourceCommit"]
+                or receipt.get("sourceInputs", {}).get("localChanges") is not False
+                or any(value["kind"] == "link" for value in receipt["files"].values())):
+            raise ValueError("Standalone application candidate is stale, incomplete or contains links")
+        expected = {"candidate.json", *["contents/" + name for name, value in receipt["files"].items() if value["kind"] == "file"]}
+        if {path.relative_to(candidate).as_posix() for path in candidate.rglob("*") if path.is_file()} != expected:
+            raise ValueError("Standalone candidate includes undeclared files")
     if success and target == "linux":
         shutil.copy2(root / "artifacts/linux-boundary/report.json", payload / "linux-boundary.json")
     if success and target != "linux":
@@ -194,19 +182,40 @@ def prepare_archive(root: Path, directory: Path, target: str, architecture: str,
         "sourceHead": os.environ.get("CI_HEAD_COMMIT", commit),
         "sourceTree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip(),
         "platform": target, "architecture": architecture, "validation": "success" if success else "failure",
-        "validationScope": "kotlin-domain-and-jvm-boundary" if target == "linux" else "native-build-and-design",
-        "applicationBuilt": success and target != "linux", "guiAccepted": False, "physicalOutputAccepted": False,
+        "validationScope": "native-build-and-standalone-package",
+        "applicationBuilt": success, "guiAccepted": False, "physicalOutputAccepted": False,
         "runId": os.environ.get("GITHUB_RUN_ID"), "runAttempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "runner": {key: os.environ.get(key) for key in ("ImageOS", "ImageVersion", "RUNNER_OS", "RUNNER_ARCH")},
         "toolchains": versions,
         "files": {str(path.relative_to(payload)).replace("\\", "/"): sha256(path) for path in sorted(payload.rglob("*")) if path.is_file()},
     }
+    if success:
+        manifest["candidateReceiptSha256"] = sha256(candidate / "candidate.json")
     (payload / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     output = directory / "artifact.zip"
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(payload.rglob("*")):
             if path.is_file():
                 archive.write(path, path.relative_to(payload))
+        if success:
+            # Keep one archive, without a second full runtime copy or nested ZIP.
+            for name in sorted(expected):
+                path = candidate / name
+                entry = zipfile.ZipInfo("candidate/" + name, (1980, 1, 1, 0, 0, 0))
+                entry.create_system = 3
+                entry.external_attr = (path.stat().st_mode & 0xFFFF) << 16
+                entry.compress_type = zipfile.ZIP_DEFLATED
+                digest = hashlib.sha256()
+                with path.open("rb") as source, archive.open(entry, "w") as destination:
+                    while chunk := source.read(1024 * 1024):
+                        digest.update(chunk)
+                        destination.write(chunk)
+                recorded = (manifest["candidateReceiptSha256"] if name == "candidate.json" else
+                            receipt["files"][name.removeprefix("contents/")]["sha256"])
+                if digest.hexdigest() != recorded:
+                    raise ValueError("Standalone candidate changed while archiving")
+    if output.stat().st_size > 256 * 1024 * 1024:
+        raise ValueError("Native application archive exceeds its transport bound")
     return output
 
 
@@ -223,7 +232,9 @@ def main() -> int:
     (directory / "payload").mkdir(parents=True)
     report, versions = Report(), {}
     architecture, success = "unverified", False
-    environment = os.environ.copy()
+    environment = {key: value for key, value in os.environ.items()
+                   if not key.startswith(("ACTIONS_", "INPUT_")) and key != "GITHUB_TOKEN"}
+    dotnet = None
     try:
         architecture = report.execute("Verify runner architecture", lambda: check_host(args.target))
         report.execute("Native application candidate staging policy", lambda: subprocess.run(
@@ -263,8 +274,13 @@ def main() -> int:
                 [sys.executable, "tools/dependencies/build.py", "build", "--component", "kotlin-stdlib", "--platform", "linux-x64"],
                 cwd=ROOT, env=environment, check=True))
             command = [sys.executable, "tools/native/check_linux.py"]
-        stage = "Linux Kotlin domain and JVM checks (desktop application unavailable)" if args.target == "linux" else "Native formatting, domain tests, and application build"
+        stage = "Linux Kotlin domain and JVM boundary checks" if args.target == "linux" else "Native formatting, domain tests, and application build"
         report.execute(stage, lambda: subprocess.run(command, cwd=ROOT, env=environment, check=True))
+        package = [sys.executable, "tools/application/ci.py", "--target",
+                   {"macos": "macos-arm64", "windows": "windows-x64", "linux": "linux-x64"}[args.target]]
+        if dotnet:
+            package += ["--dotnet", str(dotnet)]
+        report.execute("Assemble complete standalone native application", lambda: subprocess.run(package, cwd=ROOT, check=True))
         report.execute("Verify unchanged tracked source", lambda: subprocess.run(["git", "diff", "--exit-code"], cwd=ROOT, check=True))
         success = True
     except Exception:

@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -64,8 +63,28 @@ class NativeJobChecks(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "architecture"):
                 native_job.check_host("macos")
 
-    def test_linux_boundary_archive_cannot_claim_application_or_gui(self):
+    def candidate(self, target):
+        sys.path.insert(0, str(native_job.ROOT / "tools/application"))
+        from candidate_tree import inventory
+        destination = self.root / "artifacts/application-ci" / target / "candidate"
+        contents = destination / "contents/SyncWatch"
+        contents.mkdir(parents=True)
+        (contents / "SyncWatch").write_bytes(b"native executable fixture")
+        (contents / "SyncWatch").chmod(0o755)
+        (contents / "Runtime").mkdir()
+        (contents / "Runtime/engine").write_bytes(b"private runtime fixture")
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.root, text=True).strip()
+        (destination / "candidate.json").write_text(json.dumps({
+            "schemaVersion": 1, "platform": target, "sourceCommit": commit,
+            "developmentCandidate": True, "releaseReady": False,
+            "sourceInputs": {"commit": commit, "localChanges": False},
+            "files": inventory(destination / "contents"),
+        }))
+        return destination
+
+    def test_linux_package_has_a_complete_application_without_a_gui_claim(self):
         self.initialize_repository()
+        self.candidate("linux-x64")
         source = self.root / "artifacts/linux-boundary/report.json"
         source.parent.mkdir(parents=True)
         source.write_text('{"jvmBoundaryAccepted":true,"applicationBuilt":false,"guiAccepted":false}\n')
@@ -74,11 +93,18 @@ class NativeJobChecks(unittest.TestCase):
         with zipfile.ZipFile(archive) as package:
             manifest = json.loads(package.read("build-manifest.json"))
             self.assertEqual(manifest["validation"], "success")
-            self.assertEqual(manifest["validationScope"], "kotlin-domain-and-jvm-boundary")
-            self.assertFalse(manifest["applicationBuilt"])
+            self.assertEqual(manifest["validationScope"], "native-build-and-standalone-package")
+            self.assertTrue(manifest["applicationBuilt"])
             self.assertFalse(manifest["guiAccepted"])
             self.assertFalse(manifest["physicalOutputAccepted"])
-            self.assertEqual(set(package.namelist()), {"build-manifest.json", "validation.xml", "linux-boundary.json"})
+            self.assertEqual(manifest["candidateReceiptSha256"], hashlib.sha256(package.read("candidate/candidate.json")).hexdigest())
+            self.assertEqual(package.read("candidate/contents/SyncWatch/Runtime/engine"), b"private runtime fixture")
+            self.assertIn("linux-boundary.json", package.namelist())
+
+    def test_boundary_checks_without_a_package_cannot_publish_success(self):
+        self.initialize_repository()
+        with self.assertRaises(FileNotFoundError):
+            native_job.prepare_archive(self.root, self.root / "report", "linux", "x64", {}, self.report(), True)
 
     def test_linux_host_is_required_for_linux_lane(self):
         with patch("native_job.platform.system", return_value="Linux"), patch("native_job.platform.machine", return_value="x86_64"):
@@ -133,10 +159,8 @@ class NativeJobChecks(unittest.TestCase):
 
     def test_candidate_archive_identifies_exact_source_and_payload_digests(self):
         self.initialize_repository()
-        bundle = self.root / "artifacts/macos/SyncWatch.app/Contents/MacOS"
-        bundle.mkdir(parents=True)
-        (bundle / "SyncWatch").write_bytes(b"executable fixture")
-        (bundle / "SyncWatch").chmod(0o755)
+        candidate = self.candidate("macos-arm64")
+        executable = candidate / "contents/SyncWatch/SyncWatch"
         self.design_matrix()
         directory = self.root / "artifacts/native/macos"
         output = native_job.prepare_archive(self.root, directory, "macos", "arm64", {"swift": "6.4"}, self.report(), True)
@@ -148,13 +172,11 @@ class NativeJobChecks(unittest.TestCase):
             self.assertEqual(manifest["validation"], "success")
             for name, digest in manifest["files"].items():
                 self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(), digest)
-            with tarfile.open(fileobj=io.BytesIO(archive.read("SyncWatch.app.tar"))) as bundle_archive:
-                executable = bundle_archive.getmember("SyncWatch.app/Contents/MacOS/SyncWatch")
-                self.assertEqual(executable.mode & 0o111, (bundle / "SyncWatch").stat().st_mode & 0o111)
-                if os.name != "nt":
-                    self.assertEqual(executable.mode & 0o111, 0o111)
-                self.assertEqual(executable.uid, 0)
-                self.assertEqual(executable.uname, "")
+            entry = archive.getinfo("candidate/contents/SyncWatch/SyncWatch")
+            self.assertEqual((entry.external_attr >> 16) & 0o111, executable.stat().st_mode & 0o111)
+            self.assertEqual(entry.date_time, (1980, 1, 1, 0, 0, 0))
+            if os.name != "nt":
+                self.assertEqual((entry.external_attr >> 16) & 0o111, 0o111)
 
     def test_design_images_retain_digests_and_reject_external_links(self):
         source = self.design_matrix()
@@ -192,14 +214,21 @@ class NativeJobChecks(unittest.TestCase):
             self.assertEqual(set(archive.namelist()), {"validation.xml", "build-manifest.json"})
             self.assertEqual(json.loads(archive.read("build-manifest.json"))["validation"], "failure")
 
-    def test_bundle_symlinks_cannot_include_external_files(self):
-        bundle = self.root / "artifacts/macos/SyncWatch.app/Contents/MacOS"
-        bundle.mkdir(parents=True)
-        (bundle / "SyncWatch").write_bytes(b"executable")
+    def test_stale_or_changed_package_cannot_publish_success(self):
+        self.initialize_repository()
+        candidate = self.candidate("windows-x64")
+        path = candidate / "contents/SyncWatch/Runtime/engine"
+        path.write_text("changed after receipt")
+        with self.assertRaisesRegex(ValueError, "stale, incomplete"):
+            native_job.prepare_archive(self.root, self.root / "report", "windows", "x64", {}, self.report(), True)
+
+    def test_package_symlinks_cannot_include_external_files(self):
+        self.initialize_repository()
+        candidate = self.candidate("windows-x64")
         (self.root / "external").write_text("private")
-        (bundle / "outside").symlink_to(self.root / "external")
-        with self.assertRaisesRegex(ValueError, "symbolic links"):
-            native_job.macos_candidate(self.root, self.root / "candidate.tar")
+        (candidate / "contents/SyncWatch/outside").symlink_to(self.root / "external")
+        with self.assertRaises(ValueError):
+            native_job.prepare_archive(self.root, self.root / "report", "windows", "x64", {}, self.report(), True)
 
 
 if __name__ == "__main__":

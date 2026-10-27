@@ -398,6 +398,20 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "real native checks"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(1))
 
+    def test_native_packages_cannot_skip_dependency_producers(self):
+        for target in ("macos", "windows", "linux"):
+            with self.subTest(target=target), self.assertRaisesRegex(ValidationError, "wait for all verified"):
+                self.validate(lambda data: data["jobs"][target].pop("needs"))
+
+    def test_native_packages_require_same_run_artifact_access(self):
+        for target in ("macos", "windows", "linux"):
+            def remove(data):
+                for step in data["jobs"][target]["steps"]:
+                    if "native_job.py" in step.get("run", ""):
+                        step["env"].pop("GITHUB_TOKEN")
+            with self.subTest(target=target), self.assertRaisesRegex(ValidationError, "same-run artifact"):
+                self.validate(remove)
+
     def test_windows_dependency_regressions_cannot_be_removed(self):
         with self.assertRaisesRegex(ValidationError, "Windows dependency regression tests"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(2))

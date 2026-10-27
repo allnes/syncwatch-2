@@ -237,7 +237,7 @@ def check_workflows(root: Path) -> None:
             require(not any(key in job for key in ("continue-on-error", "permissions", "secrets", "environment")), "dependency failures must propagate without privileged overrides")
             continue
         require(job.get("runs-on") == runners[name], f"{name}: use the declared runner image")
-        maximum = 30 if name in {"macos", "windows", "linux"} else 15
+        maximum = {"macos": 45, "windows": 45, "linux": 150}.get(name, 15)
         require(type(job.get("timeout-minutes")) is int and 0 < job["timeout-minutes"] <= maximum, f"{name}: require a bounded timeout")
         require(not job.get("continue-on-error"), f"{name}: failures must propagate")
         require("permissions" not in job and "secrets" not in job and "environment" not in job, f"{name}: no privileged job overrides")
@@ -257,6 +257,9 @@ def check_workflows(root: Path) -> None:
     for name, python in (("macos", "python3"), ("windows", "python"), ("linux", "python3")):
         steps = jobs[name].get("steps", [])
         require(any(step.get("run") == f"{python} tools/ci/native_job.py {name}" for step in steps), "native jobs must execute real native checks")
+        require(jobs[name].get("needs") == ["dependencies"], "native packaging must wait for all verified dependency producers")
+        packaging = next(step for step in steps if step.get("run") == f"{python} tools/ci/native_job.py {name}")
+        require(packaging.get("env", {}).get("GITHUB_TOKEN") == "${{ github.token }}", "native packaging must use the read-only same-run artifact transport")
         uploads = [step for step in steps if "uses" in step]
         require(len(uploads) == 1, "native jobs must retain one validation artifact")
         upload = uploads[0]
