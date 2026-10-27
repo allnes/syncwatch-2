@@ -80,6 +80,9 @@ def build(target, dotnet=None):
         if target == "macos-arm64":
             command += ["--application", ROOT / "artifacts/macos/SyncWatch.app/Contents/MacOS/SyncWatch"]
         else:
+            # SDK artifacts contain the runtime closure. The first-party C
+            # bridge separately compiles against the registered public headers.
+            run("git", "submodule", "update", "--init", "--checkout", "--depth=1", "--", "3rdparty/vlc")
             run(sys.executable, "tools/vlc/provision_sdks.py")
             # The native bridge has no external binary inputs. Compile its
             # checked-in ABI on this OS, then bind it to the imported Media SDK.
