@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "31f8e1d86c44757356fa94ff46ce045deff32e522710ab7c6a2b9192fbb060c9",
+  "sourceDigest": "6fd00a76f78ee0aa77eb3ecdfd60fa8ad642f0695505032ccfa702dbc5113dd6",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "2e6617cefb74e533337c8da575521bba65675b7ba71ae697593bb3adf43d8c19",
-    "copy.json": "50cd5d81902a60ee731d06b0b2d420f1e9ad7d4e3858ca772278541188fbbea7",
+    "copy.json": "0ba9f0ef1c45273acc50e9d1cacb25af409a4ee3168ecc95cec96526771dea9c",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
     "player.json": "a9b59d7eeee2dafb534266ad8d4cf6f0a2a89811fe574c23bf17ef716b237ffc",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
+    "selection-menu.json": "f1c2c4a3e227f5da5eb8f294e397fb1b22d9da0cbf00ec402c1a950957f242bb",
     "layouts.json": "d693c29e3b6c9cfb14a8c167e3549421acb4ed40f9e8acdfd41c56dbde6b89fb",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "e13d6c4353e01d7b2fc82d7c6fe9a62099e22b6cb6c60ab3125b2f251a9f3bcb",
+  "generatorRevision": "3535ff047c501e54ddbce309b0a57b074db9200f7036e4b6003118702ae9876d",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -33,7 +33,7 @@
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
       "tools/design/layout-formats.mjs": "28ff7a4da70b4364fc28ba1069f8bc497642150f7d7154c7f03189cee7566c6b",
       "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
-      "tools/design/selection-menu-formats.mjs": "f5c6334203d99b239f1e2397af158efad317fb7aa9c237f01226e183445b2df3"
+      "tools/design/selection-menu-formats.mjs": "babadadc7fb945d2f4198a6c7eb063b572bd4016916cf5c8cca1b4ee35d19db0"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -321,7 +321,10 @@
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
         "libraryRowDurationFormat": "{hours}:{minutes}",
         "metadataNoSubtitles": "No subtitles",
-        "audioDisabled": "Audio disabled"
+        "audioDisabled": "Audio disabled",
+        "openAudioTrack": "Audio track…",
+        "openSubtitles": "Subtitles…",
+        "externalTrackUnavailable": "Could not open that track"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -556,7 +559,10 @@
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
         "libraryRowDurationFormat": "{hours}:{minutes}",
         "metadataNoSubtitles": "Нет субтитров",
-        "audioDisabled": "Звук выключен"
+        "audioDisabled": "Звук выключен",
+        "openAudioTrack": "Аудиодорожку…",
+        "openSubtitles": "Субтитры…",
+        "externalTrackUnavailable": "Не удалось открыть дорожку"
       }
     },
     "gallery": {
@@ -2160,7 +2166,42 @@
     "maximumIDBytes": 128,
     "maximumLabelBytes": 4096,
     "maximumRevision": 9007199254740991,
-    "galleryEntryCount": 24
+    "galleryEntryCount": 24,
+    "externalFile": {
+      "entryID": "external-file",
+      "errorEntryID": "external-file-error",
+      "errorLabel": "externalTrackUnavailable",
+      "filters": [
+        {
+          "kind": "audio",
+          "label": "openAudioTrack",
+          "extensions": [
+            "aac",
+            "ac3",
+            "dts",
+            "eac3",
+            "flac",
+            "m4a",
+            "mka",
+            "mp3",
+            "ogg",
+            "opus",
+            "wav"
+          ]
+        },
+        {
+          "kind": "subtitles",
+          "label": "openSubtitles",
+          "extensions": [
+            "ass",
+            "srt",
+            "ssa",
+            "sub",
+            "vtt"
+          ]
+        }
+      ]
+    }
   },
   "layouts": {
     "schemaVersion": 1,

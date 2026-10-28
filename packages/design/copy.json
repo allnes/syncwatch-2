@@ -234,7 +234,10 @@
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
       "libraryRowDurationFormat": "{hours}:{minutes}",
       "metadataNoSubtitles": "No subtitles",
-      "audioDisabled": "Audio disabled"
+      "audioDisabled": "Audio disabled",
+      "openAudioTrack": "Audio track…",
+      "openSubtitles": "Subtitles…",
+      "externalTrackUnavailable": "Could not open that track"
     },
     "ru": {
       "brand": "SyncWatch",
@@ -469,7 +472,10 @@
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
       "libraryRowDurationFormat": "{hours}:{minutes}",
       "metadataNoSubtitles": "Нет субтитров",
-      "audioDisabled": "Звук выключен"
+      "audioDisabled": "Звук выключен",
+      "openAudioTrack": "Аудиодорожку…",
+      "openSubtitles": "Субтитры…",
+      "externalTrackUnavailable": "Не удалось открыть дорожку"
     }
   },
   "gallery": {

@@ -62,7 +62,8 @@ internal class PlaybackController(
     private val work = CoroutineScope(parentScope.coroutineContext + ownerJob)
     internal val player = VLCPlayback()
     internal val scope = requestedScope ?: PlaybackScope.fresh().replacingMedia()
-    internal val tracks = LocalPlaybackTracks(player, scope, work)
+    internal val tracks by lazy { LocalPlaybackTracks(player, scope, work, ExternalTrackPicker { canvas }) }
+    var language = "en"
     internal val loaded = CompletableDeferred<Unit>()
     internal val acceptanceRequested = launch.report != null
     private var started = false
@@ -189,7 +190,7 @@ internal class PlaybackController(
         gateSharedActions()
         presentation.dispatch(action, value) { accepted, number ->
             if (accepted in setOf("selectAudio", "selectSubtitles")) {
-                tracks.open(if (accepted == "selectAudio") "audio" else "subtitles")
+                tracks.open(if (accepted == "selectAudio") "audio" else "subtitles", language)
                 return@dispatch
             }
             if (accepted in setOf("showLibrary", "endWatching", "toggleFullscreen")) tracks.dismiss()
@@ -237,6 +238,7 @@ internal class PlaybackController(
             finally {
                 sharedSession = null; ownerJob.cancel()
                 player.closeAsync().whenComplete { _, error -> EventQueue.invokeLater {
+                    tracks.releaseExternalAccess()
                     if (error == null) {
                         java.lang.ref.Reference.reachabilityFence(selection); selection = null
                     }
@@ -277,5 +279,5 @@ internal class PlaybackController(
         videoSurface = { NativePlayerSurface(controller.canvas) },
         selectionMenu = controller.tracks.menu, onSelection = controller.tracks::select,
         onDismissSelection = controller.tracks::dismiss,
-        onAction = { action, value -> controller.action(action, value, onClose, onFullscreen) })
+        onAction = { action, value -> controller.language = language; controller.action(action, value, onClose, onFullscreen) })
 }

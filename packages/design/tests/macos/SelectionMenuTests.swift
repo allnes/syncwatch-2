@@ -24,7 +24,7 @@ private struct SelectionCases: Decodable {
     let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("fixtures/selection-menu.json")
     let corpus = try JSONDecoder().decode(SelectionCases.self, from: Data(contentsOf: source))
-    #expect(corpus.cases.count == 30)
+    #expect(corpus.cases.count == 32)
     for item in corpus.cases {
         let p = item.presentation
         #expect(p.isValid == item.valid, "\(item.name)")

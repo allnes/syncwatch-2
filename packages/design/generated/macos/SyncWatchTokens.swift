@@ -604,6 +604,9 @@ public enum SyncWatchCopy {
             "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "No subtitles",
             "audioDisabled": "Audio disabled",
+            "openAudioTrack": "Audio track…",
+            "openSubtitles": "Subtitles…",
+            "externalTrackUnavailable": "Could not open that track",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -843,6 +846,9 @@ public enum SyncWatchCopy {
             "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "Нет субтитров",
             "audioDisabled": "Звук выключен",
+            "openAudioTrack": "Аудиодорожку…",
+            "openSubtitles": "Субтитры…",
+            "externalTrackUnavailable": "Не удалось открыть дорожку",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -2079,7 +2085,23 @@ public struct SelectionMenuKind: Sendable {
     public let action: String
     public let scope: String
 }
+public struct ExternalTrackFileFilter: Sendable {
+    public let kind: String
+    public let label: String
+    public let extensions: [String]
+}
 public enum SyncWatchSelectionMenu {
+    public static let externalFileID = "external-file"
+    public static let externalFileErrorID = "external-file-error"
+    public static let externalFileErrorLabel = "externalTrackUnavailable"
+    public static let externalFileFilters: [ExternalTrackFileFilter] = [
+        ExternalTrackFileFilter(
+            kind: "audio", label: "openAudioTrack",
+            extensions: ["aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav"]),
+        ExternalTrackFileFilter(
+            kind: "subtitles", label: "openSubtitles",
+            extensions: ["ass", "srt", "ssa", "sub", "vtt"]),
+    ]
     public static let maximumEntries = 500
     public static let maximumIDBytes = 128
     public static let maximumLabelBytes = 4096

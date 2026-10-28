@@ -1,11 +1,12 @@
 import Foundation
 import SyncWatchDesign
 import SyncWatchDomain
+import SyncWatchLibrary
 import Testing
 
 @testable import SyncWatch
 
-private actor TrackPlayer: PlaybackTrackControlPort {
+private actor TrackPlayer: PlaybackExternalTrackPort {
     enum Failure: Error { case rejected }
     var selected: Int32 = 1
     var autoAcknowledge = false
@@ -15,6 +16,8 @@ private actor TrackPlayer: PlaybackTrackControlPort {
     private(set) var selections = 0
     private(set) var reads = 0
     private(set) var lastScope: PlaybackScope?
+    private(set) var attachments = 0
+    private var attached = false
     func configure(selected: Int32? = nil, reject: Bool = false, hold: Bool = false) {
         if let selected { self.selected = selected }
         self.reject = reject
@@ -29,7 +32,10 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         reads += 1
         lastScope = scope
         if hold { await withCheckedContinuation { waiting = $0 } }  // Intentionally ignores cancellation.
-        return [.init(id: -1, name: "Disable"), .init(id: 1, name: "First"), .init(id: 2, name: "Second")]
+        let base: [PlaybackTrack] = [
+            .init(id: -1, name: "Disable"), .init(id: 1, name: "First"), .init(id: 2, name: "Second"),
+        ]
+        return attached ? base + [.init(id: 3, name: "External")] : base
     }
     func selectedTrack(subtitles: Bool, scope: PlaybackScope) -> Int32 { selected }
     func selectTrack(_ id: Int32, subtitles: Bool, scope: PlaybackScope) throws {
@@ -45,6 +51,109 @@ private actor TrackPlayer: PlaybackTrackControlPort {
     func setVolume(_ volume: Double, muted: Bool, scope: PlaybackScope) {}
     func stop(_ scope: PlaybackScope) {}
     func close() {}
+    func attachTrack(_ localFile: URL, subtitles: Bool, scope: PlaybackScope) throws {
+        attachments += 1
+        lastScope = scope
+        if reject { throw Failure.rejected }
+        attached = true
+        if autoAcknowledge { selected = 3 }
+    }
+}
+
+@MainActor private final class TrackFilePicker: ExternalTrackChoosing {
+    var file: LocalFileAccess?
+    var hold = false
+    var calls = 0
+    var cancellations = 0
+    var waiting: CheckedContinuation<LocalFileAccess?, Never>?
+    func choose(kind: String, language: String) async -> LocalFileAccess? {
+        calls += 1
+        if hold { return await withCheckedContinuation { waiting = $0 } }
+        return file
+    }
+    func cancel() { cancellations += 1 }
+    func release() {
+        let next = waiting
+        waiting = nil
+        next?.resume(returning: file)
+    }
+}
+
+@MainActor @Test func externalTrackChoicesRemainScopedAwaitObservedIdsAndCloseLatePickers() async throws {
+    let path = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: path) }
+    let file = path.appendingPathComponent("Audio Кино 映画.wav")
+    try Data("owned native-choice fixture".utf8).write(to: file)
+    let player = TrackPlayer()
+    let picker = TrackFilePicker()
+    let scope = try PlaybackScope.fresh().replacingMedia()
+    let model = LocalPlaybackTracks(player: player, scope: { scope }, picker: picker)
+    func until(_ condition: () async -> Bool) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while await !condition() {
+            guard ContinuousClock.now < deadline else { throw TrackPlayer.Failure.rejected }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+    }
+    func choose() throws -> SelectionMenuRequest {
+        let menu = try #require(model.menu)
+        var request: SelectionMenuRequest?
+        menu.dispatch(SyncWatchSelectionMenu.externalFileID, contextToken: menu.contextToken) { request = $0 }
+        return try #require(request)
+    }
+    do {
+        model.open("audio", language: "ru")
+        await model.settled()
+        #expect(model.menu?.entries.last?.label == SyncWatchCopy.text("openAudioTrack", language: "ru"))
+        model.select(try choose())
+        await model.settled()
+        #expect(await player.attachments == 0)
+        #expect(await player.selected == 1)
+        picker.file = try LocalFileAccess.selected(file)
+        let old = try choose()
+        model.select(old)
+        try await until { await player.attachments == 1 }
+        #expect(model.menu?.enabled == false && model.menu?.selectedID == "1")
+        await player.configure(selected: 3)
+        await model.settled()
+        model.open("audio")
+        await model.settled()
+        #expect(
+            model.menu?.selectedID == "3"
+                && model.menu?.entries.first(where: { $0.id == "3" })?.label == file.lastPathComponent)
+        model.select(old)
+        #expect(await player.attachments == 1)
+        await player.configure(reject: true)
+        model.select(try choose())
+        await model.settled()
+        #expect(
+            model.menu?.entries.contains(where: { $0.id == SyncWatchSelectionMenu.externalFileErrorID && !$0.enabled })
+                == true)
+        #expect(model.menu?.isValid == true)
+        await player.configure()
+        picker.hold = true
+        model.select(try choose())
+        try await until { picker.waiting != nil }
+        let before = await player.attachments
+        let cancels = picker.cancellations
+        var closed = false
+        let ending = Task {
+            await model.close()
+            closed = true
+        }
+        try await until { picker.cancellations > cancels }
+        #expect(!closed)
+        picker.release()
+        await ending.value
+        #expect(await player.attachments == before && model.menu == nil)
+        model.releaseExternalAccess()
+    } catch {
+        picker.release()
+        await model.close()
+        model.releaseExternalAccess()
+        throw error
+    }
 }
 
 @MainActor private final class TrackScope { var value: PlaybackScope? = PlaybackScope.fresh() }

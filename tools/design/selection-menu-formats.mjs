@@ -13,7 +13,13 @@ export function validateSelectionMenu(s, components, copy) {
         if (!Number.isSafeInteger(s[key]) || s[key]<1 || s[key]>max) throw Error('Invalid selection menu limit');
     }
     if (s.galleryEntryCount > s.maximumEntries || s.maximumLabelBytes < s.maximumIDBytes) throw Error('Inconsistent selection menu limits');
-    for (const key of [...s.kinds.map(k=>k.label),'selectionEmpty','selectionUnavailable','selectionFixtureLabel']) {
+    const f = s.externalFile;
+    if (!f || !/^[A-Za-z0-9._:-]+$/.test(f.entryID) || !/^[A-Za-z0-9._:-]+$/.test(f.errorEntryID)
+        || f.entryID === f.errorEntryID || !Array.isArray(f.filters)
+        || q(f.filters.map(x=>x.kind)) !== q(['audio','subtitles'])
+        || f.filters.some(x=>!Array.isArray(x.extensions) || !x.extensions.length
+            || new Set(x.extensions).size!==x.extensions.length || x.extensions.some(e=>!(/^[a-z0-9]+$/).test(e)))) throw Error('Invalid external file menu policy');
+    for (const key of [...s.kinds.map(k=>k.label),'selectionEmpty','selectionUnavailable','selectionFixtureLabel',f.errorLabel,...f.filters.map(x=>x.label)]) {
         if (!Object.hasOwn(copy.locales.en,key)) throw Error('Missing selection menu copy');
     }
 }
@@ -32,19 +38,25 @@ export function selectionRequest(s, p, entryID, token) {
 const limits = s => Object.entries(s).filter(([k])=>k.startsWith('maximum') || k==='galleryEntryCount');
 const cap = s => s[0].toUpperCase()+s.slice(1);
 export function swiftSelectionMenu(s) {
-    return '\npublic struct SelectionMenuKind: Sendable {\n    public let id: String\n    public let label: String\n    public let action: String\n    public let scope: String\n}\npublic enum SyncWatchSelectionMenu {\n'
+    return '\npublic struct SelectionMenuKind: Sendable {\n    public let id: String\n    public let label: String\n    public let action: String\n    public let scope: String\n}\npublic struct ExternalTrackFileFilter: Sendable {\n    public let kind: String\n    public let label: String\n    public let extensions: [String]\n}\npublic enum SyncWatchSelectionMenu {\n'
+        + `    public static let externalFileID = ${q(s.externalFile.entryID)}\n    public static let externalFileErrorID = ${q(s.externalFile.errorEntryID)}\n    public static let externalFileErrorLabel = ${q(s.externalFile.errorLabel)}\n`
+        + '    public static let externalFileFilters: [ExternalTrackFileFilter] = [\n'+s.externalFile.filters.map(x=>`        ExternalTrackFileFilter(\n            kind: ${q(x.kind)}, label: ${q(x.label)},\n            extensions: [${x.extensions.map(q).join(', ')}]),\n`).join('')+'    ]\n'
         + limits(s).map(([k,v])=>`    public static let ${k} = ${v >= 10000 ? String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '_') : v}\n`).join('')
         + `    public static let states = [${s.states.map(q).join(', ')}]\n`
         + '    public static let kinds: [SelectionMenuKind] = [\n'+s.kinds.map(k=>`        SelectionMenuKind(\n            id: ${q(k.id)}, label: ${q(k.label)}, action: ${q(k.action)}, scope: ${q(k.scope)}),\n`).join('')+'    ]\n}\n';
 }
 export function csharpSelectionMenu(s) {
-    return '\npublic sealed record SelectionMenuKind(string Id, string Label, string Action, string Scope);\npublic static class SyncWatchSelectionMenu\n{\n'
+    return '\npublic sealed record SelectionMenuKind(string Id, string Label, string Action, string Scope);\npublic sealed record ExternalTrackFileFilter(string Kind, string Label, string[] Extensions);\npublic static class SyncWatchSelectionMenu\n{\n'
+        + `    public const string ExternalFileID = ${q(s.externalFile.entryID)};\n    public const string ExternalFileErrorID = ${q(s.externalFile.errorEntryID)};\n    public const string ExternalFileErrorLabel = ${q(s.externalFile.errorLabel)};\n`
+        + `    public static ExternalTrackFileFilter[] ExternalFileFilters => [${s.externalFile.filters.map(x=>`new(${q(x.kind)}, ${q(x.label)}, [${x.extensions.map(q).join(', ')}])`).join(', ')}];\n`
         + limits(s).map(([k,v])=>`    public const ${k==='maximumRevision'?'long':'int'} ${cap(k)} = ${v};\n`).join('')
         + `    public static string[] States => [${s.states.map(q).join(', ')}];\n`
         + `    public static SelectionMenuKind[] Kinds => [${s.kinds.map(k=>'new('+[k.id,k.label,k.action,k.scope].map(q).join(', ')+')').join(', ')}];\n}\n`;
 }
 export function kotlinSelectionMenu(s) {
-    return '\ndata class SelectionMenuKind(val id: String, val label: String, val action: String, val scope: String)\nobject SyncWatchSelectionMenu {\n'
+    return '\ndata class SelectionMenuKind(val id: String, val label: String, val action: String, val scope: String)\ndata class ExternalTrackFileFilter(val kind: String, val label: String, val extensions: List<String>)\nobject SyncWatchSelectionMenu {\n'
+        + `    const val externalFileID = ${q(s.externalFile.entryID)}\n    const val externalFileErrorID = ${q(s.externalFile.errorEntryID)}\n    const val externalFileErrorLabel = ${q(s.externalFile.errorLabel)}\n`
+        + `    val externalFileFilters = listOf(${s.externalFile.filters.map(x=>`ExternalTrackFileFilter(${q(x.kind)}, ${q(x.label)}, listOf(${x.extensions.map(q).join(', ')}))`).join(', ')})\n`
         + limits(s).map(([k,v])=>`    const val ${k}${k==='maximumRevision'?': Long':''} = ${v}${k==='maximumRevision'?'L':''}\n`).join('')
         + `    val states = listOf(${s.states.map(q).join(', ')})\n`
         + `    val kinds = listOf(${s.kinds.map(k=>'SelectionMenuKind('+[k.id,k.label,k.action,k.scope].map(q).join(', ')+')').join(', ')})\n}\n`;

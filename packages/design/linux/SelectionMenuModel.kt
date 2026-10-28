@@ -2,7 +2,19 @@
 package syncwatch.design
 
 data class SelectionMenuEntry(val id: String, val label: String, val enabled: Boolean = true, val disabledTrack: Boolean = false) {
-    companion object { val offTrack get() = SelectionMenuEntry("-1", "off", disabledTrack = true) }
+    companion object {
+        val offTrack get() = SelectionMenuEntry("-1", "off", disabledTrack = true)
+        fun observedLabel(name: String, language: String) =
+            if (name.isNotEmpty() && name.toByteArray(Charsets.UTF_8).size <= SyncWatchSelectionMenu.maximumLabelBytes &&
+                name.none { it.code < 32 || it.code == 127 }) name else SyncWatchCopy.text("unknown", language)
+        fun externalFile(kind: String, language: String): SelectionMenuEntry? =
+            SyncWatchSelectionMenu.externalFileFilters.firstOrNull { it.kind == kind }?.let {
+                SelectionMenuEntry(SyncWatchSelectionMenu.externalFileID, SyncWatchCopy.text(it.label, language))
+            }
+        fun externalFileFailure(language: String) = SelectionMenuEntry(
+            SyncWatchSelectionMenu.externalFileErrorID,
+            SyncWatchCopy.text(SyncWatchSelectionMenu.externalFileErrorLabel, language), enabled = false)
+    }
 }
 data class SelectionMenuRequest(
     val kind: String,

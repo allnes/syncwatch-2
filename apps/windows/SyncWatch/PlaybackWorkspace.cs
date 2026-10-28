@@ -117,7 +117,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     {
         this.launch = launch; this.language = language;
         this.scope = scope ?? PlaybackScope.Create().ReplacingMedia(); initialPositionMs = positionMs;
-        tracks = new(player, this.scope, RenderTracks);
+        tracks = new(player, this.scope, RenderTracks, new ExternalTrackPicker(() => Window.GetWindow(this)));
         this.selection = selection; this.onLoaded = onLoaded; this.onObservation = onObservation;
         this.onNavigation = onNavigation; this.onFailure = onFailure;
         this.onFullscreen = onFullscreen;
@@ -210,7 +210,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         if (closing || cancellation.IsCancellationRequested) return;
         GateSharedActions();
         if (!presentation.EnabledActions.Contains(action)) return;
-        if (action is "selectAudio" or "selectSubtitles") { tracks.Open(action == "selectAudio" ? "audio" : "subtitles"); return; }
+        if (action is "selectAudio" or "selectSubtitles") { tracks.Open(action == "selectAudio" ? "audio" : "subtitles", language); return; }
         if (action is "showLibrary" or "endWatching" or "toggleFullscreen") tracks.Dismiss();
         if ((action is "endWatching" or "showLibrary") && onNavigation is not null) { onNavigation(action); return; }
         if (action == "endWatching")
@@ -259,7 +259,12 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.Render(presentation, language);
         await sharedMediaPreparation.CloseAsync();
         try { if (sharedSession is not null) await sharedSession.DisposeAsync(); }
-        finally { sharedSession = null; await player.DisposeAsync(); }
+        finally
+        {
+            sharedSession = null;
+            try { await player.DisposeAsync(); }
+            finally { tracks.ReleaseExternalAccess(); }
+        }
         if (polling is not null) await polling;
         GC.KeepAlive(selection);
         selection = null;

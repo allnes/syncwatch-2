@@ -30,7 +30,10 @@ struct LocalPlaybackLaunch {
     private var sharedAuthority: (@MainActor () -> Bool)?
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
-    private(set) lazy var tracks = LocalPlaybackTracks(player: player, scope: { [weak self] in self?.scope })
+    private(set) lazy var tracks = LocalPlaybackTracks(
+        player: player, scope: { [weak self] in self?.scope },
+        picker: ExternalTrackPicker(window: { [weak self] in self?.window }))
+    var language = "en"
     private let launch: LocalPlaybackLaunch
     private let runtime: VLCPlaybackRuntime?
     private var polling: Task<Void, Never>?
@@ -227,7 +230,7 @@ struct LocalPlaybackLaunch {
         gateSharedActions()
         guard presentation.enabledActions.contains(action) else { return }
         if action == "selectAudio" || action == "selectSubtitles" {
-            tracks.open(action == "selectAudio" ? "audio" : "subtitles")
+            tracks.open(action == "selectAudio" ? "audio" : "subtitles", language: language)
             return
         }
         if action == "showLibrary" || action == "endWatching" || action == "toggleFullscreen" { tracks.dismiss() }
@@ -300,6 +303,7 @@ struct LocalPlaybackLaunch {
         await sharedSession?.close()
         sharedSession = nil
         await player.close()
+        tracks.releaseExternalAccess()
         await polling?.value
         polling = nil
         view = nil
@@ -326,7 +330,11 @@ private struct PlaybackTrackPane: View {
         PlayerChrome(
             presentation: controller.presentation, language: language,
             videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
-            selectionMenu: tracks.menu, onAction: controller.action
+            selectionMenu: tracks.menu,
+            onAction: { action, value in
+                controller.language = language
+                controller.action(action, value: value)
+            }
         ).selectionHandlers(onSelection: tracks.select, onDismiss: tracks.dismiss)
     }
 }
