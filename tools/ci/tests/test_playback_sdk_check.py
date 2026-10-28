@@ -17,6 +17,7 @@ class PlaybackSdkCheckTests(unittest.TestCase):
             "native-proof.json": {"abiBytes": 80, "actualClock": True, "repeatedRelease": True, "physicalOutputAccepted": False},
             "media-input-proof.json": {"versionBytes": 64, "noHandleGrowth": True},
             "player-input-proof.json": {"loadedContentHash": True, "positionalReadsPreservePlayback": True, "physicalOutputAccepted": False},
+            "external-input-proof.json": {"actualSelectedID": True, "externalAudioSelectedID": True, "repeatedRelease": True, "physicalOutputAccepted": False},
         }.items():
             (output / name).write_text(json.dumps(data))
 
@@ -82,6 +83,31 @@ class PlaybackSdkCheckTests(unittest.TestCase):
             with patch.object(gate, "ROOT", root), patch.object(gate, "INPUTS", ["input.c"]), \
                     patch.object(gate, "native_check", side_effect=mutate):
                 with self.assertRaisesRegex(ValueError, "changed during"):
+                    gate.verify(package, output)
+            self.assertFalse(json.loads((output / "first-party-proof.json").read_text())["success"])
+
+    def test_external_track_acknowledgement_and_release_are_required(self):
+        for field in ["actualSelectedID", "externalAudioSelectedID", "repeatedRelease", "physicalOutputAccepted"]:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); package = root / "payload"; package.mkdir(); output = root / "consumer"
+                def incomplete(_, directory):
+                    self.proofs(directory)
+                    path = directory / "external-input-proof.json"
+                    proof = json.loads(path.read_text()); proof[field] = not proof[field]
+                    path.write_text(json.dumps(proof))
+                with patch.object(gate, "native_check", side_effect=incomplete):
+                    with self.assertRaisesRegex(ValueError, "incomplete"):
+                        gate.verify(package, output)
+                self.assertFalse(json.loads((output / "first-party-proof.json").read_text())["success"])
+
+    def test_missing_external_track_proof_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); package = root / "payload"; package.mkdir(); output = root / "consumer"
+            def missing(_, directory):
+                self.proofs(directory)
+                (directory / "external-input-proof.json").unlink()
+            with patch.object(gate, "native_check", side_effect=missing):
+                with self.assertRaises(FileNotFoundError):
                     gate.verify(package, output)
             self.assertFalse(json.loads((output / "first-party-proof.json").read_text())["success"])
 
