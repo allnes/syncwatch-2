@@ -23,10 +23,25 @@ internal static class DesignBindings
         v["metadataAudio"] = p.MetadataAudioName is { } audio ? (audio.Length == 0 ? unknown : audio) : p.MetadataAudioTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
         v["metadataSubtitles"] = p.MetadataSubtitlesDisabled || p.MetadataSubtitleTracks == 0 ? SyncWatchCopy.Text("metadataNoSubtitles", language) : p.MetadataSubtitleName is { } subtitles ? (subtitles.Length == 0 ? unknown : subtitles) : p.MetadataSubtitleTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
         v["metadataLoading"] = Flag(p.MetadataLoading); v["metadataUnavailable"] = Flag(p.MetadataUnavailable);
-        return new() { Values = v, Collections = new() { ["entries"] = p.Entries.Where(e => query.Length == 0 || e.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)).Select(e => new DesignContext { Values = new() { ["id"] = e.Id, ["title"] = e.Title, ["selected"] = Flag(e.Id == p.SelectedId),
-            ["rowDuration"] = e.DurationMs is long duration && duration > 0
+        return new()
+        {
+            Values = v,
+            Collections = new()
+            {
+                ["entries"] = p.Entries.Where(e => query.Length == 0 || e.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)).Select(e => new DesignContext
+                {
+                    Values = new()
+                    {
+                        ["id"] = e.Id,
+                        ["title"] = e.Title,
+                        ["selected"] = Flag(e.Id == p.SelectedId),
+                        ["rowDuration"] = e.DurationMs is long duration && duration > 0
                 ? SyncWatchCopy.Text("libraryRowDurationFormat", language).Replace("{hours}", (duration / 3_600_000).ToString(CultureInfo.InvariantCulture))
-                    .Replace("{minutes}", (duration / 60_000 % 60).ToString("D2", CultureInfo.InvariantCulture)) : "" } }).ToArray() } };
+                    .Replace("{minutes}", (duration / 60_000 % 60).ToString("D2", CultureInfo.InvariantCulture)) : ""
+                    }
+                }).ToArray()
+            }
+        };
     }
     public static DesignContext Player(PlayerPresentation p)
     {
