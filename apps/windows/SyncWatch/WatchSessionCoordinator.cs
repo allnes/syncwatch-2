@@ -50,7 +50,7 @@ internal sealed class WatchSessionCoordinator
         bool live = source.SelectedId == session.MediaId && Player?.Scope == session.Scope &&
             session.Phase is WatchPhase.Active or WatchPhase.Preparing && Player is not null;
         if (RuntimeAvailable && !preferences.SavingWatchState && !live) enabled.Add("startWatching");
-        if (live) enabled.UnionWith(["continueWatching", "endWatching"]);
+        if (live) { enabled.UnionWith(["continueWatching", "endWatching"]); enabled.ExceptWith(["openLibraryAudio", "openLibrarySubtitles"]); }
         if (preferences.SavingWatchState) enabled.Remove("openSettings");
         return source with { EnabledActions = enabled };
     }

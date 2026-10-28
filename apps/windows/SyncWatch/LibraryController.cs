@@ -7,7 +7,10 @@ using SyncWatch.Library;
 namespace SyncWatch;
 
 // Local ownership only. A catalog identifier is not proof of identical peer content.
-internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolderAccess Access);
+internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolderAccess Access, LocalTrackPreferences? TrackPreferences = null)
+{
+    public LocalTrackPreferences Tracks => TrackPreferences ?? new();
+}
 
 /// <summary>Application state; filesystem, access, persistence and design retain independent owners.</summary>
 internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null, IMediaMetadataReader? metadata = null) : IDisposable
@@ -24,6 +27,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     private long generation;
     private bool closed;
     public LibraryPresentation Presentation { get; private set; } = new() { EnabledActions = new HashSet<string> { "chooseFolder", "openSettings" } };
+    public LibraryTrackSelection Tracks { get; private set; } = new();
     public string? ErrorKey { get; private set; }
     public Guid RoomRevision { get; private set; } = Guid.NewGuid();
     public IReadOnlyList<LocalMediaFile> RoomFiles => catalog.Values.OrderBy(p => p.Id, StringComparer.Ordinal).ToArray();
@@ -51,12 +55,27 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     {
         dispatcher.VerifyAccess();
         return !closed && Presentation.State == LibraryVisualState.Selected && grant is not null &&
-            Presentation.SelectedId is string id && catalog.TryGetValue(id, out var media) ? new(media, grant) : null;
+            Presentation.SelectedId is string id && catalog.TryGetValue(id, out var media) ? new(media, grant, Tracks.Preferences) : null;
     }
+    public void OpenTracks(string kind, string language)
+    {
+        dispatcher.VerifyAccess();
+        if (closed || !Presentation.Allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles")) return;
+        Tracks = Tracks.Open(kind, language); Changed?.Invoke();
+    }
+    public void SelectTrack(SelectionMenuRequest request)
+    {
+        dispatcher.VerifyAccess(); if (closed) return;
+        Tracks = Tracks.Select(request);
+        Presentation = Presentation with { MetadataAudioName = Tracks.AudioName, MetadataSubtitleName = Tracks.SubtitleName,
+            MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled };
+        stable = Presentation; Changed?.Invoke();
+    }
+    public void DismissTracks() { if (Tracks.Menu is null) return; Tracks = Tracks.Dismiss(); Changed?.Invoke(); }
     public void ClearError() => ErrorKey = null;
     public void Dispose()
     {
-        dispatcher.VerifyAccess(); if (closed) return; closed = true; generation++; pending?.Cancel(); metadataGeneration++; metadataCancellation?.Cancel(); grant = null;
+        dispatcher.VerifyAccess(); if (closed) return; closed = true; Tracks = Tracks.Reset(); generation++; pending?.Cancel(); metadataGeneration++; metadataCancellation?.Cancel(); grant = null;
         catalog = new Dictionary<string, LocalMediaFile>();
         Presentation = Presentation with { EnabledActions = new HashSet<string>() };
     }
@@ -70,7 +89,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     }
     private void CancelMetadata()
     {
-        metadataGeneration++; metadataCancellation?.Cancel();
+        metadataGeneration++; metadataCancellation?.Cancel(); Tracks = Tracks.Reset();
         Presentation = Presentation with
         {
             MetadataDurationMs = null,
@@ -78,6 +97,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             MetadataHeight = 0,
             MetadataAudioTracks = null,
             MetadataSubtitleTracks = null,
+            MetadataAudioName = null, MetadataSubtitleName = null, MetadataSubtitlesDisabled = false,
             MetadataLoading = false,
             MetadataUnavailable = false
         };
@@ -101,6 +121,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             await previous; previousCancellation?.Dispose(); token.ThrowIfCancellationRequested();
             var value = await metadata!.ReadAsync(selection.Media, token);
             token.ThrowIfCancellationRequested(); if (closed || current != metadataGeneration) return;
+            Tracks = Tracks.Reset(value);
             Presentation = Presentation with
             {
                 MetadataDurationMs = value.DurationMs,
@@ -108,7 +129,10 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                 MetadataHeight = value.Height,
                 MetadataAudioTracks = value.AudioTracks,
                 MetadataSubtitleTracks = value.SubtitleTracks,
-                MetadataLoading = false
+                MetadataLoading = false,
+                MetadataAudioName = Tracks.AudioName, MetadataSubtitleName = Tracks.SubtitleName,
+                MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled,
+                EnabledActions = new HashSet<string>(Presentation.EnabledActions.Concat(["openLibraryAudio", "openLibrarySubtitles"]))
             };
             stable = Presentation; Changed?.Invoke();
         }

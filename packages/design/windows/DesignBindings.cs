@@ -20,8 +20,8 @@ internal static class DesignBindings
                 .Replace("{seconds}", (ms / 1_000 % 60).ToString("D2", CultureInfo.InvariantCulture)) : unknown;
         v["metadataResolution"] = p.MetadataWidth > 0 && p.MetadataHeight > 0
             ? SyncWatchCopy.Text("metadataResolutionFormat", language).Replace("{width}", Number(p.MetadataWidth)).Replace("{height}", Number(p.MetadataHeight)) : unknown;
-        v["metadataAudio"] = p.MetadataAudioTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
-        v["metadataSubtitles"] = p.MetadataSubtitleTracks == 0 ? SyncWatchCopy.Text("metadataNoSubtitles", language) : p.MetadataSubtitleTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
+        v["metadataAudio"] = p.MetadataAudioName is { } audio ? (audio.Length == 0 ? unknown : audio) : p.MetadataAudioTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
+        v["metadataSubtitles"] = p.MetadataSubtitlesDisabled || p.MetadataSubtitleTracks == 0 ? SyncWatchCopy.Text("metadataNoSubtitles", language) : p.MetadataSubtitleName is { } subtitles ? (subtitles.Length == 0 ? unknown : subtitles) : p.MetadataSubtitleTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
         v["metadataLoading"] = Flag(p.MetadataLoading); v["metadataUnavailable"] = Flag(p.MetadataUnavailable);
         return new() { Values = v, Collections = new() { ["entries"] = p.Entries.Where(e => query.Length == 0 || e.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)).Select(e => new DesignContext { Values = new() { ["id"] = e.Id, ["title"] = e.Title, ["selected"] = Flag(e.Id == p.SelectedId) } }).ToArray() } };
     }

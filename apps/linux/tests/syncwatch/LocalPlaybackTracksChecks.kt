@@ -4,6 +4,7 @@ import java.nio.file.Path
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import syncwatch.domain.*
 
 private class TrackPlayer : PlaybackTrackControlPort {
     var selected = 1
+    var autoAcknowledge = false
     var reject = false
     var hold = false
     var waiting: Continuation<Unit>? = null
@@ -26,7 +28,7 @@ private class TrackPlayer : PlaybackTrackControlPort {
         return listOf(PlaybackTrack(-1, "Disable"), PlaybackTrack(1, "First"), PlaybackTrack(2, "Second"))
     }
     override suspend fun selectedTrack(subtitles: Boolean, scope: PlaybackScope) = selected
-    override suspend fun selectTrack(id: Int, subtitles: Boolean, scope: PlaybackScope) { selections++; check(!reject) }
+    override suspend fun selectTrack(id: Int, subtitles: Boolean, scope: PlaybackScope) { selections++; check(!reject); if (autoAcknowledge) selected = id }
     override suspend fun load(localFile: Path, scope: PlaybackScope) = error("unused")
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation = error("unused")
     override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) = error("unused")
@@ -42,6 +44,14 @@ internal suspend fun localPlaybackTracksChecks(owner: CoroutineScope) {
     val model = LocalPlaybackTracks(player, scope, owner)
     suspend fun until(condition: () -> Boolean) = withTimeout(2_000) { while (!condition()) delay(5) }
     try {
+        val invalid = LocalTrackPreferences(listOf("First", "Second"), listOf("Changed"), 1)
+        check(runCatching { model.applyInitial(invalid) }.isFailure && player.selections == 0)
+        val initialPreferences = LocalTrackPreferences(listOf("First", "Second"), listOf("First", "Second"), 1)
+        val applying = owner.async { model.applyInitial(initialPreferences) }
+        until { player.selections == 1 }; check(model.menu == null)
+        player.autoAcknowledge = true; player.selected = 2; applying.await()
+        check(player.selections == 2 && player.selected == -1)
+        player.autoAcknowledge = false; player.selected = 1; player.selections = 0
         model.open("audio"); model.settled(); check(player.lastScope == scope)
         val initial = checkNotNull(model.menu); var request: SelectionMenuRequest? = null
         initial.dispatch("2", initial.contextToken) { request = it }

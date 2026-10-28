@@ -82,6 +82,11 @@ private struct MetadataCorpus: Decodable {
         let height: Int
         let audioTracks: Int?
         let subtitleTracks: Int?
+        let audioName: String?
+        let subtitleName: String?
+        let subtitlesDisabled: Bool?
+        let selectable: Bool?
+        let loading: Bool?
         let expected: [String: String]
     }
     let cases: [Case]
@@ -98,6 +103,11 @@ private struct MetadataCorpus: Decodable {
         p.metadataHeight = row.height
         p.metadataAudioTracks = row.audioTracks
         p.metadataSubtitleTracks = row.subtitleTracks
+        p.metadataAudioName = row.audioName
+        p.metadataSubtitleName = row.subtitleName
+        p.metadataSubtitlesDisabled = row.subtitlesDisabled ?? false
+        p.metadataLoading = row.loading ?? false
+        if row.selectable == true { p.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"]) }
         let context = DesignBindings.library(p, query: "", language: row.language)
         for (key, value) in row.expected { #expect(context.values[key] == value) }
     }

@@ -8,6 +8,7 @@ import Testing
 private actor TrackPlayer: PlaybackTrackControlPort {
     enum Failure: Error { case rejected }
     var selected: Int32 = 1
+    var autoAcknowledge = false
     var reject = false
     var hold = false
     var waiting: CheckedContinuation<Void, Never>?
@@ -19,6 +20,7 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         self.reject = reject
         self.hold = hold
     }
+    func acknowledgeAutomatically() { autoAcknowledge = true }
     func release() {
         waiting?.resume()
         waiting = nil
@@ -33,6 +35,7 @@ private actor TrackPlayer: PlaybackTrackControlPort {
     func selectTrack(_ id: Int32, subtitles: Bool, scope: PlaybackScope) throws {
         selections += 1
         if reject { throw Failure.rejected }
+        if autoAcknowledge { selected = id }
     }
     func load(_ localFile: URL, scope: PlaybackScope) {}
     func observe(_ scope: PlaybackScope) throws -> PlaybackObservation { throw Failure.rejected }
@@ -122,4 +125,27 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         await model.close()
         throw error
     }
+}
+
+@MainActor @Test func initialLocalTracksValidateBothListsBeforeCommandsAndAwaitAcknowledgement() async throws {
+    let player = TrackPlayer()
+    let scope = PlaybackScope.fresh()
+    let model = LocalPlaybackTracks(player: player, scope: { scope })
+    do {
+        let invalid = LocalTrackPreferences(audioNames: ["First", "Second"], subtitleNames: ["Changed"], audioIndex: 1)
+        await #expect(throws: (any Error).self) { try await model.applyInitial(invalid) }
+        #expect(await player.selections == 0)
+        let selected = LocalTrackPreferences(audioNames: ["First", "Second"], subtitleNames: ["First", "Second"], audioIndex: 1)
+        let applying = Task { try await model.applyInitial(selected) }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while await player.selections == 0, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(5)) }
+        #expect(await player.selections == 1 && model.menu == nil)
+        await player.acknowledgeAutomatically()
+        await player.configure(selected: 2)
+        try await applying.value
+        #expect(await player.selections == 2)
+        #expect(await player.selected == -1)
+        await model.close()
+        await #expect(throws: (any Error).self) { try await model.applyInitial(selected) }
+    } catch { await model.close(); throw error }
 }

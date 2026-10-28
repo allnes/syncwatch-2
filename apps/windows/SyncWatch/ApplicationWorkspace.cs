@@ -32,6 +32,7 @@ internal sealed class ApplicationWorkspace : UserControl
         catalog.Changed += Refresh; watch.Changed += Refresh; room.Changed += Refresh;
         shared.Changed += Refresh;
         library.ActionRequested += Action;
+        library.SelectionRequested += catalog.SelectTrack; library.SelectionDismissed += catalog.DismissTracks;
         Loaded += async (_, _) =>
         {
             if (started) return; started = true;
@@ -45,6 +46,8 @@ internal sealed class ApplicationWorkspace : UserControl
     {
         room.UpdateLibrary(catalog.RoomRevision, () => catalog.RoomFiles);
         shared.MembershipChanged();
+        if (watch.PlayerPresented) catalog.DismissTracks();
+        library.SelectionPresentation = watch.PlayerPresented ? null : catalog.Tracks.Menu;
         library.Render(shared.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
         chrome.SetPlayer(watch.Player); chrome.PresentPlayer(watch.PlayerPresented);
         if (WatchAcceptance.Requested) return;
@@ -58,7 +61,9 @@ internal sealed class ApplicationWorkspace : UserControl
     }
     private void Action(string action, string? value)
     {
-        if (action == "chooseFolder")
+        if (action is not ("openLibraryAudio" or "openLibrarySubtitles")) catalog.DismissTracks();
+        if (action is "openLibraryAudio" or "openLibrarySubtitles") catalog.OpenTracks(action == "openLibraryAudio" ? "audio" : "subtitles", preferences.State.Preferences.Language);
+        else if (action == "chooseFolder")
         {
             var picker = new Microsoft.Win32.OpenFolderDialog { Title = Design.SyncWatchCopy.Text("folder", preferences.State.Preferences.Language), Multiselect = false };
             if (picker.ShowDialog(owner) == true) catalog.Choose(picker.FolderName);

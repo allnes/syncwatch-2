@@ -96,7 +96,13 @@ internal static class Program
                     MetadataWidth = row.GetProperty("width").GetInt32(),
                     MetadataHeight = row.GetProperty("height").GetInt32(),
                     MetadataAudioTracks = row.GetProperty("audioTracks").ValueKind == JsonValueKind.Null ? null : row.GetProperty("audioTracks").GetInt32(),
-                    MetadataSubtitleTracks = row.GetProperty("subtitleTracks").ValueKind == JsonValueKind.Null ? null : row.GetProperty("subtitleTracks").GetInt32()
+                    MetadataSubtitleTracks = row.GetProperty("subtitleTracks").ValueKind == JsonValueKind.Null ? null : row.GetProperty("subtitleTracks").GetInt32(),
+                    MetadataAudioName = row.TryGetProperty("audioName", out var audioName) ? audioName.GetString() : null,
+                    MetadataSubtitleName = row.TryGetProperty("subtitleName", out var subtitleName) ? subtitleName.GetString() : null,
+                    MetadataSubtitlesDisabled = row.TryGetProperty("subtitlesDisabled", out var off) && off.GetBoolean(),
+                    MetadataLoading = row.TryGetProperty("loading", out var loading) && loading.GetBoolean(),
+                    EnabledActions = row.TryGetProperty("selectable", out var selectable) && selectable.GetBoolean()
+                        ? SyncWatchCopy.LibraryActions.ToHashSet() : LibraryPresentation.Gallery(LibraryVisualState.Selected).EnabledActions
                 };
                 var context = DesignBindings.Library(p, "", row.GetProperty("language").GetString()!);
                 foreach (var expected in row.GetProperty("expected").EnumerateObject()) Check(context.Values[expected.Name] == expected.Value.GetString(), expected.Name);

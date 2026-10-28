@@ -8,6 +8,7 @@ import SyncWatchLibrary
 struct LibraryMediaSelection: Sendable {
     let media: LocalMediaFile
     let access: LibraryFolderAccess
+    var tracks = LocalTrackPreferences()
 }
 
 private actor LibraryRecordIO {
@@ -26,6 +27,7 @@ private actor LibraryRecordIO {
 /// Application state only; the common library owns rendering and action validation.
 @MainActor final class LibraryController: ObservableObject {
     @Published private(set) var presentation = LibraryPresentation(enabledActions: ["chooseFolder", "openSettings"])
+    @Published private(set) var tracks = LibraryTrackSelection()
     @Published var errorKey: String?
     @Published private(set) var roomRevision = UUID()
     var roomFiles: [LocalMediaFile] { catalog.values.sorted { $0.id < $1.id } }
@@ -71,10 +73,27 @@ private actor LibraryRecordIO {
         guard !closed, presentation.state == .selected, let id = presentation.selectedID,
             let media = catalog[id], let grant
         else { return nil }
-        return LibraryMediaSelection(media: media, access: grant)
+        return LibraryMediaSelection(media: media, access: grant, tracks: tracks.preferences)
+    }
+    func openTracks(_ kind: String, language: String) {
+        guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else { return }
+        tracks.open(kind, language: language)
+    }
+    func selectTrack(_ request: SelectionMenuRequest) {
+        guard !closed else { return }
+        tracks.select(request)
+        applyTrackSelection()
+    }
+    func dismissTracks() { tracks.dismiss() }
+    private func applyTrackSelection() {
+        presentation.metadataAudioName = tracks.audioName
+        presentation.metadataSubtitleName = tracks.subtitleName
+        presentation.metadataSubtitlesDisabled = tracks.subtitlesDisabled
+        stable = presentation
     }
     func close() {
         closed = true
+        tracks.reset()
         generation = UUID()
         pending?.cancel()
         metadataTask?.cancel()
@@ -95,6 +114,10 @@ private actor LibraryRecordIO {
     private func cancelMetadata() {
         metadataGeneration = UUID()
         metadataTask?.cancel()
+        tracks.reset()
+        presentation.metadataAudioName = nil
+        presentation.metadataSubtitleName = nil
+        presentation.metadataSubtitlesDisabled = false
         presentation.metadataDurationMs = nil
         presentation.metadataWidth = 0
         presentation.metadataHeight = 0
@@ -126,7 +149,9 @@ private actor LibraryRecordIO {
                 presentation.metadataAudioTracks = value.audioTracks
                 presentation.metadataSubtitleTracks = value.subtitleTracks
                 presentation.metadataLoading = false
-                stable = presentation
+                tracks.reset(value)
+                presentation.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"])
+                applyTrackSelection()
             } catch is CancellationError {} catch {
                 guard !closed, metadataGeneration == token else { return }
                 presentation.metadataLoading = false

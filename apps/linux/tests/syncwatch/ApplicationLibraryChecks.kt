@@ -24,6 +24,7 @@ fun main(arguments: Array<String>) = runBlocking {
     try {
         helperRuntimeChecks()
         withContext(MainUIDispatcher) {
+            libraryTrackSelectionChecks()
             libraryMetadataChecks(owner)
             localPlaybackTracksChecks(owner)
             watchPersistenceChecks(scratch)

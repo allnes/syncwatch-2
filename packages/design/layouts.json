@@ -847,9 +847,66 @@
                                               "props": {
                                                 "text": "$metadataAudio",
                                                 "weight": "semibold",
-                                                "automation": "{namespace}.metadataAudio"
+                                                "automation": "{namespace}.metadataAudio",
+                                                "when": "= $can.openLibraryAudio false true if"
                                               },
                                               "children": []
+                                            },
+                                            {
+                                              "id": "node22Choice",
+                                              "kind": "button",
+                                              "styles": [
+                                                "button",
+                                                "compact"
+                                              ],
+                                              "props": {
+                                                "when": "$can.openLibraryAudio",
+                                                "action": "openLibraryAudio",
+                                                "enabled": "$can.openLibraryAudio",
+                                                "automation": "{namespace}.metadataAudio",
+                                                "label": "$metadataAudio",
+                                                "width": "fill",
+                                                "contentAlign": "leading",
+                                                "popoverSlot": "audioSelection",
+                                                "popoverEdge": "bottom",
+                                                "popoverDismiss": "dismissSelection"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node22ChoiceRow",
+                                                  "kind": "row",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "gap": "@control.compactGap",
+                                                    "width": "fill"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "id": "node22ChoiceLabel",
+                                                      "kind": "text",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "text": "$metadataAudio",
+                                                        "width": "fill",
+                                                        "lines": "1"
+                                                      },
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "id": "node22ChoiceMark",
+                                                      "kind": "icon",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "name": "symbols.chevronDown",
+                                                        "width": "8",
+                                                        "height": "4",
+                                                        "foreground": "theme.textSecondary"
+                                                      },
+                                                      "children": []
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -880,9 +937,66 @@
                                               "props": {
                                                 "text": "$metadataSubtitles",
                                                 "weight": "semibold",
-                                                "automation": "{namespace}.metadataSubtitles"
+                                                "automation": "{namespace}.metadataSubtitles",
+                                                "when": "= $can.openLibrarySubtitles false true if"
                                               },
                                               "children": []
+                                            },
+                                            {
+                                              "id": "node25Choice",
+                                              "kind": "button",
+                                              "styles": [
+                                                "button",
+                                                "compact"
+                                              ],
+                                              "props": {
+                                                "when": "$can.openLibrarySubtitles",
+                                                "action": "openLibrarySubtitles",
+                                                "enabled": "$can.openLibrarySubtitles",
+                                                "automation": "{namespace}.metadataSubtitles",
+                                                "label": "$metadataSubtitles",
+                                                "width": "fill",
+                                                "contentAlign": "leading",
+                                                "popoverSlot": "subtitlesSelection",
+                                                "popoverEdge": "bottom",
+                                                "popoverDismiss": "dismissSelection"
+                                              },
+                                              "children": [
+                                                {
+                                                  "id": "node25ChoiceRow",
+                                                  "kind": "row",
+                                                  "styles": [],
+                                                  "props": {
+                                                    "gap": "@control.compactGap",
+                                                    "width": "fill"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "id": "node25ChoiceLabel",
+                                                      "kind": "text",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "text": "$metadataSubtitles",
+                                                        "width": "fill",
+                                                        "lines": "1"
+                                                      },
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "id": "node25ChoiceMark",
+                                                      "kind": "icon",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "name": "symbols.chevronDown",
+                                                        "width": "8",
+                                                        "height": "4",
+                                                        "foreground": "theme.textSecondary"
+                                                      },
+                                                      "children": []
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -1008,9 +1122,66 @@
                                                   "props": {
                                                     "text": "$metadataAudio",
                                                     "weight": "semibold",
-                                                    "automation": "{namespace}.metadataAudio"
+                                                    "automation": "{namespace}.metadataAudio",
+                                                    "when": "= $can.openLibraryAudio false true if"
                                                   },
                                                   "children": []
+                                                },
+                                                {
+                                                  "id": "node36Choice",
+                                                  "kind": "button",
+                                                  "styles": [
+                                                    "button",
+                                                    "compact"
+                                                  ],
+                                                  "props": {
+                                                    "when": "$can.openLibraryAudio",
+                                                    "action": "openLibraryAudio",
+                                                    "enabled": "$can.openLibraryAudio",
+                                                    "automation": "{namespace}.metadataAudio",
+                                                    "label": "$metadataAudio",
+                                                    "width": "fill",
+                                                    "contentAlign": "leading",
+                                                    "popoverSlot": "audioSelection",
+                                                    "popoverEdge": "bottom",
+                                                    "popoverDismiss": "dismissSelection"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "id": "node36ChoiceRow",
+                                                      "kind": "row",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "gap": "@control.compactGap",
+                                                        "width": "fill"
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "id": "node36ChoiceLabel",
+                                                          "kind": "text",
+                                                          "styles": [],
+                                                          "props": {
+                                                            "text": "$metadataAudio",
+                                                            "width": "fill",
+                                                            "lines": "1"
+                                                          },
+                                                          "children": []
+                                                        },
+                                                        {
+                                                          "id": "node36ChoiceMark",
+                                                          "kind": "icon",
+                                                          "styles": [],
+                                                          "props": {
+                                                            "name": "symbols.chevronDown",
+                                                            "width": "8",
+                                                            "height": "4",
+                                                            "foreground": "theme.textSecondary"
+                                                          },
+                                                          "children": []
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -1041,9 +1212,66 @@
                                                   "props": {
                                                     "text": "$metadataSubtitles",
                                                     "weight": "semibold",
-                                                    "automation": "{namespace}.metadataSubtitles"
+                                                    "automation": "{namespace}.metadataSubtitles",
+                                                    "when": "= $can.openLibrarySubtitles false true if"
                                                   },
                                                   "children": []
+                                                },
+                                                {
+                                                  "id": "node39Choice",
+                                                  "kind": "button",
+                                                  "styles": [
+                                                    "button",
+                                                    "compact"
+                                                  ],
+                                                  "props": {
+                                                    "when": "$can.openLibrarySubtitles",
+                                                    "action": "openLibrarySubtitles",
+                                                    "enabled": "$can.openLibrarySubtitles",
+                                                    "automation": "{namespace}.metadataSubtitles",
+                                                    "label": "$metadataSubtitles",
+                                                    "width": "fill",
+                                                    "contentAlign": "leading",
+                                                    "popoverSlot": "subtitlesSelection",
+                                                    "popoverEdge": "bottom",
+                                                    "popoverDismiss": "dismissSelection"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "id": "node39ChoiceRow",
+                                                      "kind": "row",
+                                                      "styles": [],
+                                                      "props": {
+                                                        "gap": "@control.compactGap",
+                                                        "width": "fill"
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "id": "node39ChoiceLabel",
+                                                          "kind": "text",
+                                                          "styles": [],
+                                                          "props": {
+                                                            "text": "$metadataSubtitles",
+                                                            "width": "fill",
+                                                            "lines": "1"
+                                                          },
+                                                          "children": []
+                                                        },
+                                                        {
+                                                          "id": "node39ChoiceMark",
+                                                          "kind": "icon",
+                                                          "styles": [],
+                                                          "props": {
+                                                            "name": "symbols.chevronDown",
+                                                            "width": "8",
+                                                            "height": "4",
+                                                            "foreground": "theme.textSecondary"
+                                                          },
+                                                          "children": []
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }

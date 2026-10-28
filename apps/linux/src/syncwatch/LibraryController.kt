@@ -21,7 +21,7 @@ import syncwatch.design.LibraryVisualState
 import syncwatch.library.*
 
 /** Local selection ownership only; the path-based catalog ID is not peer content identity. */
-internal data class LibraryMediaSelection(val media: LocalMediaFile, val access: LibraryFolderAccess)
+internal data class LibraryMediaSelection(val media: LocalMediaFile, val access: LibraryFolderAccess, val tracks: LocalTrackPreferences = LocalTrackPreferences())
 
 /** UI coordination only. The library services and shared design own their respective boundaries. */
 internal class LibraryController(private val store: LibraryAccessStore, parent: CoroutineScope, private val savedSelection: String?, private val metadata: syncwatch.library.MediaMetadataReader? = null) {
@@ -37,6 +37,8 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private var stable: LibraryPresentation? = null
     private var generation = 0L
     private var closed = false
+    var tracks by mutableStateOf(LibraryTrackSelection())
+        private set
     var presentation by mutableStateOf(LibraryPresentation(enabledActions = setOf("chooseFolder", "openSettings")))
         private set
     var roomRevision by mutableStateOf(java.util.UUID.randomUUID())
@@ -61,11 +63,23 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         check(java.awt.EventQueue.isDispatchThread()) { "library-event-thread" }
         if (closed || presentation.state != LibraryVisualState.selected) return null
         val media = catalog[presentation.selectedID] ?: return null
-        return LibraryMediaSelection(media, grant ?: return null)
+        return LibraryMediaSelection(media, grant ?: return null, tracks.preferences)
     }
+    fun openTracks(kind: String, language: String) {
+        if (!closed && presentation.allows(if (kind == "audio") "openLibraryAudio" else "openLibrarySubtitles"))
+            tracks = tracks.open(kind, language)
+    }
+    fun selectTrack(request: syncwatch.design.SelectionMenuRequest) {
+        if (closed) return
+        tracks = tracks.select(request)
+        presentation = presentation.copy(metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
+            metadataSubtitlesDisabled = tracks.subtitlesDisabled)
+        stable = presentation
+    }
+    fun dismissTracks() { tracks = tracks.dismiss() }
     fun clearError() { errorKey = null }
     fun close() {
-        closed = true; generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
+        closed = true; tracks = tracks.reset(); generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
         presentation = presentation.copy(enabledActions = emptySet())
     }
     suspend fun settled() { pending?.join() }
@@ -74,9 +88,10 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         close(); scope.coroutineContext[Job]?.join(); metadata?.close()
     }
     private fun cancelMetadata() {
-        metadataGeneration++; metadataTask?.cancel()
+        metadataGeneration++; metadataTask?.cancel(); tracks = tracks.reset()
         presentation = presentation.copy(metadataDurationMs = null, metadataWidth = 0, metadataHeight = 0,
-            metadataAudioTracks = null, metadataSubtitleTracks = null, metadataLoading = false, metadataUnavailable = false)
+            metadataAudioTracks = null, metadataSubtitleTracks = null, metadataAudioName = null, metadataSubtitleName = null,
+            metadataSubtitlesDisabled = false, metadataLoading = false, metadataUnavailable = false)
     }
     private fun startMetadata() {
         cancelMetadata(); stable = presentation
@@ -91,9 +106,13 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                     val value = reader.read(selection.media)
                     coroutineContext.ensureActive()
                     if (closed || current != metadataGeneration) return@launch
+                    tracks = tracks.reset(value)
                     presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
                         metadataHeight = value.height, metadataAudioTracks = value.audioTracks,
-                        metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false)
+                        metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false,
+                        metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
+                        metadataSubtitlesDisabled = tracks.subtitlesDisabled,
+                        enabledActions = presentation.enabledActions + setOf("openLibraryAudio", "openLibrarySubtitles"))
                     stable = presentation
                 } catch (_: CancellationException) { }
                 catch (_: Exception) {

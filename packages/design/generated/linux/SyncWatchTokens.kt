@@ -658,7 +658,7 @@ object SyncWatchCopy {
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
-    val libraryActions = setOf("chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom")
+    val libraryActions = setOf("chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom", "openLibraryAudio", "openLibrarySubtitles")
     val galleryMovies = listOf("Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4")
 }
 
@@ -848,7 +848,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52"
+    const val sourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -1512,7 +1512,66 @@ object SyncWatchLayouts {
             "text" to "\$metadataAudio",
             "weight" to "semibold",
             "automation" to "{namespace}.metadataAudio",
+            "when" to "= \$can.openLibraryAudio false true if",
         ), listOf())
+        val node22ChoiceLabel = DesignNode("node22ChoiceLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "\$metadataAudio",
+            "width" to "fill",
+            "lines" to "1",
+        ), listOf())
+        val node22ChoiceMark = DesignNode("node22ChoiceMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "symbols.chevronDown",
+            "width" to "8",
+            "height" to "4",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val node22ChoiceRow = DesignNode("node22ChoiceRow", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "gap" to "@control.compactGap",
+            "width" to "fill",
+        ), listOf(node22ChoiceLabel, node22ChoiceMark))
+        val node22Choice = DesignNode("node22Choice", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "leading",
+            "height" to "@layout.settingsControlHeight",
+            "when" to "\$can.openLibraryAudio",
+            "action" to "openLibraryAudio",
+            "enabled" to "\$can.openLibraryAudio",
+            "automation" to "{namespace}.metadataAudio",
+            "label" to "\$metadataAudio",
+            "width" to "fill",
+            "popoverSlot" to "audioSelection",
+            "popoverEdge" to "bottom",
+            "popoverDismiss" to "dismissSelection",
+        ), listOf(node22ChoiceRow))
         val node23 = DesignNode("node23", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1522,7 +1581,7 @@ object SyncWatchLayouts {
             "align" to "leading",
             "gap" to "@control.compactGap",
             "width" to "fill",
-        ), listOf(node21, node22))
+        ), listOf(node21, node22, node22Choice))
         val node24 = DesignNode("node24", "text", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1543,7 +1602,66 @@ object SyncWatchLayouts {
             "text" to "\$metadataSubtitles",
             "weight" to "semibold",
             "automation" to "{namespace}.metadataSubtitles",
+            "when" to "= \$can.openLibrarySubtitles false true if",
         ), listOf())
+        val node25ChoiceLabel = DesignNode("node25ChoiceLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "\$metadataSubtitles",
+            "width" to "fill",
+            "lines" to "1",
+        ), listOf())
+        val node25ChoiceMark = DesignNode("node25ChoiceMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "symbols.chevronDown",
+            "width" to "8",
+            "height" to "4",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val node25ChoiceRow = DesignNode("node25ChoiceRow", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "gap" to "@control.compactGap",
+            "width" to "fill",
+        ), listOf(node25ChoiceLabel, node25ChoiceMark))
+        val node25Choice = DesignNode("node25Choice", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "leading",
+            "height" to "@layout.settingsControlHeight",
+            "when" to "\$can.openLibrarySubtitles",
+            "action" to "openLibrarySubtitles",
+            "enabled" to "\$can.openLibrarySubtitles",
+            "automation" to "{namespace}.metadataSubtitles",
+            "label" to "\$metadataSubtitles",
+            "width" to "fill",
+            "popoverSlot" to "subtitlesSelection",
+            "popoverEdge" to "bottom",
+            "popoverDismiss" to "dismissSelection",
+        ), listOf(node25ChoiceRow))
         val node26 = DesignNode("node26", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1553,7 +1671,7 @@ object SyncWatchLayouts {
             "align" to "leading",
             "gap" to "@control.compactGap",
             "width" to "fill",
-        ), listOf(node24, node25))
+        ), listOf(node24, node25, node25Choice))
         val node27 = DesignNode("node27", "row", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1653,7 +1771,66 @@ object SyncWatchLayouts {
             "text" to "\$metadataAudio",
             "weight" to "semibold",
             "automation" to "{namespace}.metadataAudio",
+            "when" to "= \$can.openLibraryAudio false true if",
         ), listOf())
+        val node36ChoiceLabel = DesignNode("node36ChoiceLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "\$metadataAudio",
+            "width" to "fill",
+            "lines" to "1",
+        ), listOf())
+        val node36ChoiceMark = DesignNode("node36ChoiceMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "symbols.chevronDown",
+            "width" to "8",
+            "height" to "4",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val node36ChoiceRow = DesignNode("node36ChoiceRow", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "gap" to "@control.compactGap",
+            "width" to "fill",
+        ), listOf(node36ChoiceLabel, node36ChoiceMark))
+        val node36Choice = DesignNode("node36Choice", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "leading",
+            "height" to "@layout.settingsControlHeight",
+            "when" to "\$can.openLibraryAudio",
+            "action" to "openLibraryAudio",
+            "enabled" to "\$can.openLibraryAudio",
+            "automation" to "{namespace}.metadataAudio",
+            "label" to "\$metadataAudio",
+            "width" to "fill",
+            "popoverSlot" to "audioSelection",
+            "popoverEdge" to "bottom",
+            "popoverDismiss" to "dismissSelection",
+        ), listOf(node36ChoiceRow))
         val node37 = DesignNode("node37", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1663,7 +1840,7 @@ object SyncWatchLayouts {
             "align" to "leading",
             "gap" to "@control.compactGap",
             "width" to "fill",
-        ), listOf(node35, node36))
+        ), listOf(node35, node36, node36Choice))
         val node38 = DesignNode("node38", "text", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1684,7 +1861,66 @@ object SyncWatchLayouts {
             "text" to "\$metadataSubtitles",
             "weight" to "semibold",
             "automation" to "{namespace}.metadataSubtitles",
+            "when" to "= \$can.openLibrarySubtitles false true if",
         ), listOf())
+        val node39ChoiceLabel = DesignNode("node39ChoiceLabel", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "\$metadataSubtitles",
+            "width" to "fill",
+            "lines" to "1",
+        ), listOf())
+        val node39ChoiceMark = DesignNode("node39ChoiceMark", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "symbols.chevronDown",
+            "width" to "8",
+            "height" to "4",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
+        val node39ChoiceRow = DesignNode("node39ChoiceRow", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "gap" to "@control.compactGap",
+            "width" to "fill",
+        ), listOf(node39ChoiceLabel, node39ChoiceMark))
+        val node39Choice = DesignNode("node39Choice", "button", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "paddingX" to "@layout.settingsCardPadding",
+            "minHeight" to "0",
+            "radius" to "@control.buttonRadius",
+            "border" to "theme.border",
+            "borderWidth" to "@control.borderWidth",
+            "background" to "theme.surfaceRaised",
+            "foreground" to "theme.text",
+            "fontSize" to "@type.settingsBodySize",
+            "weight" to "normal",
+            "contentAlign" to "leading",
+            "height" to "@layout.settingsControlHeight",
+            "when" to "\$can.openLibrarySubtitles",
+            "action" to "openLibrarySubtitles",
+            "enabled" to "\$can.openLibrarySubtitles",
+            "automation" to "{namespace}.metadataSubtitles",
+            "label" to "\$metadataSubtitles",
+            "width" to "fill",
+            "popoverSlot" to "subtitlesSelection",
+            "popoverEdge" to "bottom",
+            "popoverDismiss" to "dismissSelection",
+        ), listOf(node39ChoiceRow))
         val node40 = DesignNode("node40", "column", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1694,7 +1930,7 @@ object SyncWatchLayouts {
             "align" to "leading",
             "gap" to "@control.compactGap",
             "width" to "fill",
-        ), listOf(node38, node39))
+        ), listOf(node38, node39, node39Choice))
         val node41 = DesignNode("node41", "row", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",

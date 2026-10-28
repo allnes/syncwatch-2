@@ -23,6 +23,9 @@ public struct LibraryPresentation: Sendable {
     public var metadataHeight = 0
     public var metadataAudioTracks: Int?
     public var metadataSubtitleTracks: Int?
+    public var metadataAudioName: String?
+    public var metadataSubtitleName: String?
+    public var metadataSubtitlesDisabled = false
     public var metadataLoading = false
     public var metadataUnavailable = false
     public var roomStatus = ""
@@ -46,6 +49,10 @@ public struct LibraryPresentation: Sendable {
     public func allows(_ action: String) -> Bool {
         guard enabledActions.contains(action), SyncWatchCopy.libraryActions.contains(action) else { return false }
         if action == "startWatching" { return state == .selected && selected != nil }
+        if action == "openLibraryAudio" || action == "openLibrarySubtitles" {
+            return state == .selected && selected != nil && !metadataLoading && !metadataUnavailable
+                && (action == "openLibraryAudio" ? metadataAudioName != nil : (metadataSubtitleTracks ?? 0) > 0)
+        }
         if action == "selectMovie" || action == "search" { return state != .scanning }
         return true
     }
@@ -73,6 +80,9 @@ public struct LibraryWorkspace: View {
     public var presentation: LibraryPresentation
     public var language: String
     public var onAction: (String, String?) -> Void
+    public var selectionMenu: SelectionMenuPresentation?
+    public var onSelection: (SelectionMenuRequest) -> Void = { _ in }
+    public var onDismissSelection: () -> Void = {}
     @State private var query = ""
     public init(
         presentation: LibraryPresentation = LibraryPresentation(), language: String = "en",
@@ -82,11 +92,22 @@ public struct LibraryWorkspace: View {
         self.language = language
         self.onAction = onAction
     }
+    public func selectionHandlers(menu: SelectionMenuPresentation?,
+        onSelection: @escaping (SelectionMenuRequest) -> Void, onDismiss: @escaping () -> Void) -> Self {
+        var copy = self
+        copy.selectionMenu = menu
+        copy.onSelection = onSelection
+        copy.onDismissSelection = onDismiss
+        return copy
+    }
     public var body: some View {
         DesignSurface(
             "Library", context: DesignBindings.library(presentation, query: query, language: language),
-            language: language
+            language: language, slots: selectionMenu.map { menu in
+                [menu.kind + "Selection": AnyView(SelectionMenu(presentation: menu, language: language, onSelection: onSelection))]
+            } ?? [:]
         ) { event in
+            if event.action == "dismissSelection" { onDismissSelection(); return }
             if event.action == "search" { query = event.value ?? "" }
             presentation.dispatch(event.action, value: event.value, to: onAction)
         }

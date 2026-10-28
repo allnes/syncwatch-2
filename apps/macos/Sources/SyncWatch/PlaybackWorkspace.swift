@@ -157,7 +157,7 @@ struct LocalPlaybackLaunch {
                 }
                 try Task.checkCancellation()
                 try await player.load(launch.file, scope: scope)
-                onLoaded(scope)
+                var admissionPending = true
                 var resumePending = initialPositionMs > 0
                 if let report = launch.report {
                     Task { await PlaybackAcceptance.run(controller: self, report: report) }
@@ -166,6 +166,14 @@ struct LocalPlaybackLaunch {
                     let observation = try await player.observe(scope)
                     guard !closing else { break }
                     if observation.status == .failed { throw PlaybackFailure.engine }
+                    if admissionPending, observation.status == .ready {
+                        try await tracks.applyInitial(selection?.tracks ?? LocalTrackPreferences())
+                        try Task.checkCancellation()
+                        guard !closing else { break }
+                        admissionPending = false
+                        onLoaded(scope)
+                        continue
+                    }
                     if resumePending, observation.status == .ready {
                         resumePending = false
                         if observation.seekable {

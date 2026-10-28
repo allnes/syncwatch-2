@@ -129,7 +129,10 @@ import SyncWatchLibrary
                     presentation: shared.libraryPresentation(watch.libraryPresentation(library.presentation)),
                     language: preferences.state.preferences.language
                 ) { action, value in
-                    if action == "chooseFolder" {
+                    if action != "openLibraryAudio" && action != "openLibrarySubtitles" { library.dismissTracks() }
+                    if action == "openLibraryAudio" || action == "openLibrarySubtitles" {
+                        library.openTracks(action == "openLibraryAudio" ? "audio" : "subtitles", language: preferences.state.preferences.language)
+                    } else if action == "chooseFolder" {
                         chooseFolder()
                     } else if action == "rescan" {
                         library.rescan()
@@ -147,12 +150,14 @@ import SyncWatchLibrary
                         editor = preferences.editor
                         showSettings = true
                     }
-                }), player: playerContent
+                }.selectionHandlers(menu: watch.playerPresented ? nil : library.tracks.menu,
+                    onSelection: library.selectTrack, onDismiss: library.dismissTracks)), player: playerContent
         )
         .background(WindowCloseGate(close: close))
         .onReceive(library.$roomRevision) { revision in
             room.updateLibrary(revision: revision, files: library.roomFiles)
         }
+        .onChange(of: watch.playerPresented) { if $0 { library.dismissTracks() } }
         .onChange(of: room.connected) { _ in shared.membershipChanged() }
         .task {
             lifecycle.prepareForTermination = {

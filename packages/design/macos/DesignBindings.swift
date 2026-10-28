@@ -31,10 +31,10 @@ enum DesignBindings {
                 ? SyncWatchCopy.text("metadataResolutionFormat", language: language)
                     .replacingOccurrences(of: "{width}", with: String(p.metadataWidth))
                     .replacingOccurrences(of: "{height}", with: String(p.metadataHeight)) : unknown,
-            "metadataAudio": p.metadataAudioTracks.map(String.init) ?? unknown,
-            "metadataSubtitles": p.metadataSubtitleTracks == 0
+            "metadataAudio": p.metadataAudioName.map { $0.isEmpty ? unknown : $0 } ?? p.metadataAudioTracks.map(String.init) ?? unknown,
+            "metadataSubtitles": p.metadataSubtitlesDisabled || p.metadataSubtitleTracks == 0
                 ? SyncWatchCopy.text("metadataNoSubtitles", language: language)
-                : p.metadataSubtitleTracks.map(String.init) ?? unknown,
+                : p.metadataSubtitleName.map { $0.isEmpty ? unknown : $0 } ?? p.metadataSubtitleTracks.map(String.init) ?? unknown,
             "metadataLoading": String(p.metadataLoading), "metadataUnavailable": String(p.metadataUnavailable),
         ]) { _, v in v }
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {

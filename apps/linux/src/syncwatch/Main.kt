@@ -94,12 +94,17 @@ fun main(arguments: Array<String>) {
     DisposableEffect(library) { onDispose { library.close() } }
     LaunchedEffect(library.roomRevision) { room.updateLibrary(library.roomRevision, library.roomFiles) }
     LaunchedEffect(room.connected) { shared.membershipChanged() }
+    LaunchedEffect(watch.playerPresented) { if (watch.playerPresented) library.dismissTracks() }
     val language = state.preferences.language
     val dark = when (state.preferences.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val theme = if (dark) SyncWatchTheme.dark else SyncWatchTheme.light
     ApplicationChrome(watch.playerPresented, library = {
-    LibraryWorkspace(shared.libraryPresentation(watch.libraryPresentation(library.presentation)), language, theme) { action, value ->
-        if (action == "chooseFolder") {
+    LibraryWorkspace(shared.libraryPresentation(watch.libraryPresentation(library.presentation)), language, theme,
+        selectionMenu = if (watch.playerPresented) null else library.tracks.menu,
+        onSelection = library::selectTrack, onDismissSelection = library::dismissTracks) { action, value ->
+        if (action !in setOf("openLibraryAudio", "openLibrarySubtitles")) library.dismissTracks()
+        if (action in setOf("openLibraryAudio", "openLibrarySubtitles")) library.openTracks(if (action == "openLibraryAudio") "audio" else "subtitles", language)
+        else if (action == "chooseFolder") {
             val picker = javax.swing.JFileChooser().apply {
                 fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
                 isMultiSelectionEnabled = false

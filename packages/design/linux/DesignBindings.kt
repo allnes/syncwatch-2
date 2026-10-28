@@ -16,7 +16,8 @@ internal object DesignBindings {
         "metadataDuration" to (duration ?: unknown),
         "metadataResolution" to if (p.metadataWidth > 0 && p.metadataHeight > 0)
             SyncWatchCopy.text("metadataResolutionFormat", language).replace("{width}", p.metadataWidth.toString()).replace("{height}", p.metadataHeight.toString()) else unknown,
-        "metadataAudio" to (p.metadataAudioTracks?.toString() ?: unknown), "metadataSubtitles" to (if (p.metadataSubtitleTracks == 0) SyncWatchCopy.text("metadataNoSubtitles", language) else p.metadataSubtitleTracks?.toString() ?: unknown),
+        "metadataAudio" to (p.metadataAudioName?.ifEmpty { unknown } ?: p.metadataAudioTracks?.toString() ?: unknown),
+        "metadataSubtitles" to (if (p.metadataSubtitlesDisabled || p.metadataSubtitleTracks == 0) SyncWatchCopy.text("metadataNoSubtitles", language) else p.metadataSubtitleName?.ifEmpty { unknown } ?: p.metadataSubtitleTracks?.toString() ?: unknown),
         "metadataLoading" to p.metadataLoading.toString(), "metadataUnavailable" to p.metadataUnavailable.toString(),
         "namespace" to "library","query" to query,"entryCount" to p.entries.size.toString(),"filesLabel" to SyncWatchCopy.text("files",language),"hasEntries" to p.entries.isNotEmpty().toString(),
         "hasSelection" to (p.selected!=null).toString(),"selectedTitle" to p.selected?.title.orEmpty(),"selectedLocation" to p.selected?.location.orEmpty(),

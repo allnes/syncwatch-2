@@ -12,6 +12,32 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
     private CancellationTokenSource? cancellation;
     private Task? work;
     public SelectionMenuPresentation? Menu { get; private set; }
+    // Validate fresh input lists before either command; admission and controls follow acknowledgement.
+    public async Task ApplyInitialAsync(LocalTrackPreferences preferences, CancellationToken token)
+    {
+        if (closed) throw new OperationCanceledException(token);
+        int? audio = preferences.AudioNames is null ? null : preferences.Resolve(await player.TracksAsync(false, scope, token), false);
+        int? subtitles = preferences.SubtitleNames is null ? null : preferences.Resolve(await player.TracksAsync(true, scope, token), true);
+        foreach (var (id, isSubtitle) in new[] { (audio, false), (subtitles, true) })
+        {
+            if (id is null) continue;
+            token.ThrowIfCancellationRequested();
+            if (closed) throw new OperationCanceledException(token);
+            await AcknowledgeAsync(id.Value, isSubtitle, token);
+        }
+    }
+    private async Task AcknowledgeAsync(int id, bool subtitles, CancellationToken token)
+    {
+        if (await player.SelectedTrackAsync(subtitles, scope, token) == id) return;
+        await player.SelectTrackAsync(id, subtitles, scope, token);
+        using CancellationTokenSource deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+        deadline.CancelAfter(TimeSpan.FromSeconds(3));
+        while (await player.SelectedTrackAsync(subtitles, scope, deadline.Token) != id)
+        {
+            if (closed) throw new OperationCanceledException(token);
+            await Task.Delay(20, deadline.Token);
+        }
+    }
     public void Open(string kind)
     {
         if (closed || kind is not ("audio" or "subtitles")) return;
@@ -44,11 +70,7 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
         try
         {
             bool subtitles = kind == "subtitles";
-            await player.SelectTrackAsync(id, subtitles, scope, token);
-            using CancellationTokenSource deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
-            deadline.CancelAfter(TimeSpan.FromSeconds(3));
-            while (await player.SelectedTrackAsync(subtitles, scope, deadline.Token) != id)
-                await Task.Delay(20, deadline.Token);
+            await AcknowledgeAsync(id, subtitles, token);
             Publish(await SnapshotAsync(kind, current, token), current, token);
             if (!closed && !token.IsCancellationRequested && current == revision) Dismiss();
         }

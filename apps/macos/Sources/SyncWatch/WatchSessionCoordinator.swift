@@ -58,7 +58,10 @@ import SyncWatchPlayback
         if runtimeAvailable && !preferences.savingWatchState && !liveSelection {
             result.enabledActions.insert("startWatching")
         }
-        if liveSelection { result.enabledActions.formUnion(["continueWatching", "endWatching"]) }
+        if liveSelection {
+            result.enabledActions.formUnion(["continueWatching", "endWatching"])
+            result.enabledActions.subtract(["openLibraryAudio", "openLibrarySubtitles"])
+        }
         if preferences.savingWatchState { result.enabledActions.remove("openSettings") }
         return result
     }
