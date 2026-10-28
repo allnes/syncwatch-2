@@ -36,7 +36,7 @@ def main():
             raise ValueError("Application or packaging sources changed during preparation")
         result = assemble(arguments.output, components, platform=arguments.target,
                           source_commit=source["commit"], source_inputs=source)
-    print("Native development candidate:", arguments.output, "files:", len(result["files"]))
+    print("Native development candidate:", ascii(str(arguments.output)), "files:", len(result["files"]))
 
 
 if __name__ == "__main__":
