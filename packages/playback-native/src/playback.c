@@ -17,11 +17,16 @@ struct sw_runtime {
     int output;
     atomic_uint references;
 };
+typedef struct sw_external_input {
+    sw_media_input *input;
+    struct sw_external_input *next;
+} sw_external_input;
 struct sw_playback {
     sw_vlc_api api;
     sw_runtime *runtime;
     libvlc_media_player_t *player;
     sw_media_input *input;
+    sw_external_input *external;
     libvlc_event_manager_t *events;
     unsigned attached;
     uint64_t generation;
@@ -49,6 +54,12 @@ static void release_input(sw_playback *p) {
     /* Stop joins VLC's input before its borrowed descriptor is released. */
     p->api.libvlc_media_player_stop(p->player);
     p->api.libvlc_media_player_set_media(p->player, NULL);
+    while (p->external) {
+        sw_external_input *entry = p->external;
+        p->external = entry->next;
+        sw_media_input_close(entry->input);
+        free(entry);
+    }
     sw_media_input_close(p->input);
     p->input = NULL;
     p->loaded = 0;
@@ -56,7 +67,10 @@ static void release_input(sw_playback *p) {
 }
 static int valid_input(sw_playback *p) {
     sw_input_version version;
-    if (p->loaded && sw_media_input_version(p->input, &version) == SW_INPUT_OK) return 1;
+    int valid = p->loaded && sw_media_input_version(p->input, &version) == SW_INPUT_OK;
+    for (sw_external_input *entry = p->external; valid && entry; entry = entry->next)
+        valid = sw_media_input_version(entry->input, &version) == SW_INPUT_OK;
+    if (valid) return 1;
     if (p->loaded) {
         release_input(p);
         p->failed = 1;
@@ -322,6 +336,32 @@ int sw_playback_selected_track(sw_playback *p, uint64_t generation, int subtitle
     int code = check(p, generation); if (code) return code;
     if (!id || (subtitles != 0 && subtitles != 1)) return SW_INVALID;
     *id = subtitles ? p->api.libvlc_video_get_spu(p->player) : p->api.libvlc_audio_get_track(p->player);
+    return SW_OK;
+}
+int sw_playback_attach_track(sw_playback *p, uint64_t generation, int subtitles, const char *path) {
+    int code = check(p, generation); if (code) return code;
+    if (!path || !*path || (subtitles != 0 && subtitles != 1)) return SW_INVALID;
+#ifdef _WIN32
+    if (!((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z')) ||
+        path[1] != ':' || (path[2] != '\\' && path[2] != '/')) return SW_INVALID;
+#else
+    if (path[0] != '/') return SW_INVALID;
+#endif
+    sw_external_input *entry = calloc(1, sizeof(*entry));
+    if (!entry) return SW_ENGINE;
+    if (sw_media_input_open(path, &entry->input) != SW_INPUT_OK) { free(entry); return SW_UNAVAILABLE; }
+    int descriptor = sw_media_input_descriptor(entry->input);
+    char uri[32];
+    int size = snprintf(uri, sizeof(uri), "fd://%d", descriptor);
+    if (descriptor < 0 || size < 0 || (size_t)size >= sizeof(uri) ||
+        p->api.libvlc_media_player_add_slave(p->player,
+            subtitles ? libvlc_media_slave_type_subtitle : libvlc_media_slave_type_audio, uri, true)) {
+        sw_media_input_close(entry->input); free(entry); return SW_ENGINE;
+    }
+    entry->next = p->external;
+    p->external = entry;
+    if (!valid_input(p)) return SW_UNAVAILABLE;
+    if (p->api.libvlc_media_player_get_state(p->player) == libvlc_Paused) p->refill_on_resume = 1;
     return SW_OK;
 }
 int sw_playback_select_track(sw_playback *p, uint64_t generation, int subtitles, int32_t id) {

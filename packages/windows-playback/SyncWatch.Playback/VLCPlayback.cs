@@ -5,7 +5,7 @@ using SyncWatch.Domain;
 namespace SyncWatch.Playback;
 
 /// <summary>One bounded worker owns all native calls. No native callback enters managed code.</summary>
-public sealed class VLCPlayback : IPlaybackTrackControlPort, ILoadedMediaContentPort
+public sealed class VLCPlayback : IPlaybackExternalTrackPort, ILoadedMediaContentPort
 {
     private sealed record Work(Action Run, Action Reject);
     private readonly Channel<Work> commands = Channel.CreateBounded<Work>(new BoundedChannelOptions(64)
@@ -87,6 +87,12 @@ public sealed class VLCPlayback : IPlaybackTrackControlPort, ILoadedMediaContent
     public Task SetVolumeAsync(double volume, bool muted, PlaybackScope owner, CancellationToken cancellation = default) => Command(owner, () => Native.Volume(player, owner.MediaGeneration, volume, muted ? 1 : 0), cancellation);
     public Task StopAsync(PlaybackScope owner, CancellationToken cancellation = default) => Command(owner, () => Native.Stop(player, owner.MediaGeneration), cancellation);
     public Task SelectTrackAsync(int id, bool subtitles, PlaybackScope owner, CancellationToken cancellation = default) => Command(owner, () => Native.SelectTrack(player, owner.MediaGeneration, subtitles ? 1 : 0, id), cancellation);
+    public Task AttachTrackAsync(string localFile, bool subtitles, PlaybackScope owner, CancellationToken cancellation = default) => Command(owner, () =>
+    {
+        if (!Path.IsPathFullyQualified(localFile) || localFile.StartsWith("\\\\", StringComparison.Ordinal) || !File.Exists(localFile))
+            throw new PlaybackException("invalid");
+        return Native.AttachTrack(player, owner.MediaGeneration, subtitles ? 1 : 0, localFile);
+    }, cancellation);
     public Task<int> SelectedTrackAsync(bool subtitles, PlaybackScope owner, CancellationToken cancellation = default) => Submit(() =>
     {
         Check(owner); Native.Check(Native.SelectedTrack(player, owner.MediaGeneration, subtitles ? 1 : 0, out int id)); return id;

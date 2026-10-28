@@ -156,6 +156,14 @@ public final class NativePlayback {
     public CompletableFuture<Integer> selectedTrack(boolean subtitles, Scope owner) {
         return submit(() -> { check(owner); return selectedTrack(player, owner.generation(), subtitles); });
     }
+    public CompletableFuture<Void> attachTrack(Path file, boolean subtitles, Scope owner) {
+        return submit(() -> {
+            check(owner);
+            if (!file.isAbsolute() || !Files.isRegularFile(file)) throw new IllegalArgumentException("local-file");
+            attachTrack(player, owner.generation(), subtitles, bytes(file.toString()));
+            return null;
+        });
+    }
     public CompletableFuture<Void> closeAsync() {
         if (closing.compareAndSet(false, true)) {
             // Normal work has at most MAX_REQUESTS permits. The reserved queue
@@ -192,5 +200,6 @@ public final class NativePlayback {
     private static native byte[] trackName(long player, long generation, boolean subtitles, int id);
     private static native void selectTrack(long player, long generation, boolean subtitles, int id);
     private static native int selectedTrack(long player, long generation, boolean subtitles);
+    private static native void attachTrack(long player, long generation, boolean subtitles, byte[] file);
     private static native void close(long player);
 }

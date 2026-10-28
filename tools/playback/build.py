@@ -87,6 +87,11 @@ def check(package, output):
                         str(library), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"],
                         str(media), str(output)], stdout=log, stderr=subprocess.STDOUT,
                        stdin=subprocess.DEVNULL, check=True, env=env, timeout=90)
+    with (output / "external-input-check.log").open("wb") as log:
+        subprocess.run([sys.executable, str(ROOT / "tools/playback/external_input_checks.py"),
+                        str(library), str(libvlc.resolve()), profile_data()["sources"]["vlc"]["revision"],
+                        str(media), str(output)], stdout=log, stderr=subprocess.STDOUT,
+                       stdin=subprocess.DEVNULL, check=True, env=env, timeout=90)
     print(json.dumps(proof, sort_keys=True))
     return library
 

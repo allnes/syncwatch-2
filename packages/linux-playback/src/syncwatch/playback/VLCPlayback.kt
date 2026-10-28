@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import syncwatch.domain.PlaybackObservation
-import syncwatch.domain.PlaybackTrackControlPort
+import syncwatch.domain.PlaybackExternalTrackPort
 import syncwatch.domain.PlaybackScope
 import syncwatch.domain.PlaybackStatus
 import syncwatch.domain.PlaybackTrack
@@ -20,7 +20,7 @@ import syncwatch.domain.LoadedMediaContentPort
 import syncwatch.domain.LoadedMediaVersion
 
 /** Domain adapter only. JNI worker, native surface lifetime and common design have independent owners. */
-class VLCPlayback : PlaybackTrackControlPort, LoadedMediaContentPort {
+class VLCPlayback : PlaybackExternalTrackPort, LoadedMediaContentPort {
     private val native = NativePlayback()
 
     companion object {
@@ -82,6 +82,9 @@ class VLCPlayback : PlaybackTrackControlPort, LoadedMediaContentPort {
     }
     override suspend fun selectedTrack(subtitles: Boolean, scope: PlaybackScope): Int =
         native.selectedTrack(subtitles, scope.nativeScope()).awaitNative()
+    override suspend fun attachTrack(localFile: Path, subtitles: Boolean, scope: PlaybackScope) {
+        native.attachTrack(localFile, subtitles, scope.nativeScope()).awaitNative()
+    }
     override suspend fun stop(scope: PlaybackScope) { native.stop(scope.nativeScope()).awaitNative() }
     fun closeAsync(): CompletableFuture<Void> = native.closeAsync()
     override suspend fun close() { withContext(NonCancellable) { closeAsync().awaitNative() } }

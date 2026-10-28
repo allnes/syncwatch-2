@@ -53,7 +53,7 @@ public actor VLCPlaybackRuntime {
     }
 }
 
-public actor VLCPlayback: PlaybackTrackControlPort, LoadedMediaContentPort {
+public actor VLCPlayback: PlaybackExternalTrackPort, LoadedMediaContentPort {
     private var owner = NativeOwner()
     private var scope: PlaybackScope?
     private var closed = false
@@ -160,6 +160,12 @@ public actor VLCPlayback: PlaybackTrackControlPort, LoadedMediaContentPort {
         var id: Int32 = -1
         try check(sw_playback_selected_track(native(scope), scope.mediaGeneration, subtitles ? 1 : 0, &id))
         return id
+    }
+    public func attachTrack(_ localFile: URL, subtitles: Bool, scope: PlaybackScope) throws {
+        guard localFile.isFileURL, localFile.host == nil || localFile.host == "",
+            try localFile.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true
+        else { throw PlaybackFailure.invalid }
+        try check(sw_playback_attach_track(native(scope), scope.mediaGeneration, subtitles ? 1 : 0, localFile.path))
     }
     public func stop(_ scope: PlaybackScope) throws {
         try check(sw_playback_stop(native(scope), scope.mediaGeneration))
