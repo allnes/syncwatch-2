@@ -7,10 +7,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.LocalAwtWindow
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntRect
 import java.awt.AWTEvent
@@ -100,6 +102,17 @@ private class NativePopoverWindow(
             panel.background = Color(0, 0, 0, 0)
             panel.setContent {
                 val scale = LocalDensity.current.density
+                val focusManager = LocalFocusManager.current
+                LaunchedEffect(Unit) {
+                    // AWT can deliver focus before the first Compose focus targets exist.
+                    // Wait for that content, then establish keyboard ownership once.
+                    withFrameNanos { }
+                    if (!closed && window.isShowing) {
+                        window.requestFocus()
+                        panel.requestFocusInWindow()
+                        focusManager.moveFocus(FocusDirection.Next)
+                    }
+                }
                 Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).onSizeChanged { size ->
                     if (!closed) {
                         val width = (size.width / scale).roundToInt()
@@ -144,6 +157,7 @@ private class NativePopoverWindow(
 
     fun close() {
         if (closed) return
+        val restoreFocus = window.isFocused
         closed = true
         Toolkit.getDefaultToolkit().removeAWTEventListener(input)
         owner.removeComponentListener(movement)
@@ -152,6 +166,11 @@ private class NativePopoverWindow(
         try {
             window.contentPane.remove(panel)
             panel.dispose()
-        } finally { window.dispose() }
+        } finally {
+            window.dispose()
+            // A newly opened dialog/popup owns input; never take focus away from it.
+            if (restoreFocus && owner.isShowing && owner.ownedWindows.none { it.isShowing && it.isFocusableWindow })
+                owner.requestFocus()
+        }
     }
 }

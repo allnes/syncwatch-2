@@ -77,7 +77,7 @@ internal fun rgba(value: Long) = Color(
 private val gap get() = SyncWatchTokens.layoutPanelGap.dp
 
 
-// Mechanical primitive adapter only. This source remains excluded until Linux build/license closure.
+// Mechanical primitive adapter only; the common document owns visual decisions.
 data class DesignNode(val id: String, val kind: String, val props: Map<String, String>, val children: List<DesignNode>)
 data class DesignEvent(val action: String, val value: String? = null, val payload: String? = null)
 data class DesignContext(val values: Map<String, String> = emptyMap(), val collections: Map<String, List<DesignContext>> = emptyMap()) {
