@@ -107,6 +107,9 @@ private final class RefreshAccessStore: LibraryAccessStore, @unchecked Sendable 
         let moved = scratch.appendingPathComponent("moved")
         try files.moveItem(at: second, to: moved)
         try await refreshEventually { next.errorKey == "libraryUnavailable" }
+        next.errorKey = nil
+        try await Task.sleep(for: .milliseconds(800))
+        #expect(next.errorKey == nil)
         try files.moveItem(at: moved, to: second)
         next.rescan()
         await next.settled()

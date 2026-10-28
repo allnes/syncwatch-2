@@ -74,8 +74,19 @@ internal static class LibraryRefreshChecks
             restored.Rescan(); await restored.Settled;
             Require(restored.Presentation.Entries.Count == 4 && store.Count == writes);
             string moved = Path.Combine(scratch, "moved");
+            var errors = new List<string>();
+            void ConsumeError()
+            {
+                if (restored.ErrorKey is not { } error) return;
+                errors.Add(error); restored.ClearError();
+            }
+            restored.Changed += ConsumeError;
             Directory.Move(second, moved);
-            await Eventually(() => restored.ErrorKey == "libraryUnavailable");
+            await Eventually(() => errors.Count > 0);
+            await Task.Delay(800);
+            restored.Changed -= ConsumeError;
+            if (!errors.SequenceEqual(new[] { "libraryUnavailable" }))
+                throw new InvalidOperationException("library-refresh-errors: " + string.Join(",", errors));
             Directory.Move(moved, second);
             restored.Rescan(); await restored.Settled;
             Require(restored.ErrorKey is null && restored.Presentation.Entries.Count == 4);

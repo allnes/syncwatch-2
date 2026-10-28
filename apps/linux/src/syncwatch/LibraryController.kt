@@ -189,8 +189,8 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                     if (closed || monitor !== owner) return@launch
                     start(automatic = true, persistAccess = false) { access }
                     pending?.join()
-                    if (event == LibraryMonitorEvent.unavailable) {
-                        if (monitor === owner) errorKey = errorKey ?: "libraryWatchFailed"
+                    if (event == LibraryMonitorEvent.unavailable || !owner.isActive) {
+                        // Reconciliation owns failures even if the UI already dismissed its error.
                         return@launch
                     }
                 }

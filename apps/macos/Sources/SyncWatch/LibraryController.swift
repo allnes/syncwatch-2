@@ -267,15 +267,15 @@ private actor LibraryRecordIO {
                 withExtendedLifetime(access) {}
             }
             do {
-                for await event in source.changes {
+                for await _ in source.changes {
                     try await Task.sleep(for: .milliseconds(300))
                     await self?.pending?.value
                     try Task.checkCancellation()
                     guard let self, !closed, monitor === source else { return }
                     run({ access }, automatic: true, persistAccess: false)
                     await pending?.value
-                    if case .unavailable = event {
-                        if monitor === source { errorKey = errorKey ?? "libraryWatchFailed" }
+                    if !source.isActive {
+                        // Reconciliation owns scan/watch failures, including errors already dismissed by the UI.
                         return
                     }
                 }

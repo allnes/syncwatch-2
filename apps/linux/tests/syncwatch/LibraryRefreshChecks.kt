@@ -67,6 +67,8 @@ suspend fun libraryRefreshChecks(owner: CoroutineScope) {
         val moved = scratch.resolve("moved")
         Files.move(second, moved)
         eventually { next.errorKey == "libraryUnavailable" }
+        next.clearError(); delay(800)
+        check(next.errorKey == null)
         Files.move(moved, second)
         next.rescan(); next.settled()
         check(next.errorKey == null && next.presentation.entries.size == 4)

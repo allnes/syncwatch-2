@@ -238,9 +238,9 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                 if (closed || !ReferenceEquals(monitor, source)) return;
                 Start(_ => Task.FromResult<LibraryFolderAccess?>(access), automatic: true, persistAccess: false);
                 await Settled;
-                if (change == LibraryMonitorEvent.Unavailable)
+                if (change == LibraryMonitorEvent.Unavailable || !source.IsActive)
                 {
-                    if (ReferenceEquals(monitor, source)) { ErrorKey ??= "libraryWatchFailed"; Changed?.Invoke(); }
+                    // Reconciliation owns failures even if the UI already consumed its error.
                     return;
                 }
             }

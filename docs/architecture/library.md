@@ -127,6 +127,11 @@ options rebuilds the monitor and reconciles the catalog while retaining the fold
 identity. Library option editing is unavailable during a manual folder operation.
 Complete desktop change-recovery acceptance remains integration work.
 
+Reconciliation owns failure reporting. When a source stops, its consumer ends
+after that reconciliation even if a content invalidation preceded the terminal
+event. Dismissing the resulting error cannot publish another warning for the same
+failure.
+
 Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
