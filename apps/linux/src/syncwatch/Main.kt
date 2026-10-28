@@ -19,6 +19,7 @@ import syncwatch.domain.*
  * Runtime distribution and visible desktop/provider acceptance remain required.
  */
 fun main(arguments: Array<String>) {
+    NativeDesignRuntime.initialize()
     val launch = LocalPlaybackLaunch.read(arguments)
     val media = MediaConfiguration.read(arguments)
     val gallery = arguments.any { it in setOf("--selection-menu-gallery", "--call-gallery", "--player-settings-gallery",
