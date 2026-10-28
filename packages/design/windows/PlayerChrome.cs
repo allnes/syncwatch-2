@@ -11,6 +11,7 @@ public sealed record PlayerPresentation
 {
     public PlayerVisualState State { get; init; }
     public string Title { get; init; } = "";
+    public string RoomNotice { get; init; } = "";
     public long PositionMs { get; init; }
     public long DurationMs { get; init; }
     public double Volume { get; init; } = 1;

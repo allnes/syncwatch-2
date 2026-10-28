@@ -430,6 +430,8 @@ object SyncWatchCopy {
         "en" to "openAudioTrack" -> "Audio track…"
         "en" to "openSubtitles" -> "Subtitles…"
         "en" to "externalTrackUnavailable" -> "Could not open that track"
+        "en" to "sharedWatchMediaMissing" -> "Add the room movie to your library or choose its folder, select the matching file and try Start again."
+        "en" to "roomPeersMissingMedia" -> "A participant does not have the selected movie yet."
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -667,6 +669,8 @@ object SyncWatchCopy {
         "ru" to "openAudioTrack" -> "Аудиодорожку…"
         "ru" to "openSubtitles" -> "Субтитры…"
         "ru" to "externalTrackUnavailable" -> "Не удалось открыть дорожку"
+        "ru" to "sharedWatchMediaMissing" -> "Добавьте фильм из комнаты в библиотеку или выберите его папку, выберите подходящий файл и снова нажмите «Начать просмотр»."
+        "ru" to "roomPeersMissingMedia" -> "У одного из участников пока нет выбранного фильма."
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -867,7 +871,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6"
+    const val sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -3381,6 +3385,29 @@ object SyncWatchLayouts {
             "paddingX" to "@layout.panelPadding",
             "background" to "theme.backgroundDeep",
         ), listOf(node104, node105, node106, node108, node110, node112))
+        val playerRoomNoticeText = DesignNode("playerRoomNoticeText", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "text" to "~{roomNotice}",
+            "width" to "fill",
+            "foreground" to "theme.text",
+            "automation" to "player.roomNotice",
+        ), listOf())
+        val playerRoomNotice = DesignNode("playerRoomNotice", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "when" to "\$hasRoomNotice",
+            "paddingX" to "@layout.panelPadding",
+            "paddingY" to "@control.compactGap",
+            "background" to "theme.surfaceRaised",
+        ), listOf(playerRoomNoticeText))
         val node114 = DesignNode("node114", "slot", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -3821,7 +3848,7 @@ object SyncWatchLayouts {
             "fontSize" to "@type.playerLabelSize",
             "foreground" to "theme.text",
             "gap" to "0",
-        ), listOf(node113, node114, node144))
+        ), listOf(node113, playerRoomNotice, node114, node144))
         return node145
     }
     private fun makefield(): DesignNode {

@@ -8,6 +8,8 @@ import syncwatch.design.LibraryPresentation
 import syncwatch.domain.*
 import syncwatch.room.*
 
+internal class SharedMediaUnavailable : Exception()
+
 /** Metadata admission and helper lifetime; native playback remains owned by the watch coordinator. */
 internal class RoomWatchCoordinator(private val room: RoomController, private val watch: WatchSessionCoordinator,
     private val helper: HelperConfiguration, private val scope: CoroutineScope) {
@@ -29,8 +31,9 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val enabled = result.enabledActions.toMutableSet()
         if (room.connected && !busy && active == null && watch.runtimeAvailable && source.selectedID != null) enabled += "startWatching"
         if (busy || closing) enabled -= "startWatching"
-        return result.copy(enabledActions = enabled, roomStatus = status.ifEmpty { result.roomStatus })
+        return result.copy(enabledActions = enabled, roomStatus = if (!busy && room.mediaNotice.isNotEmpty()) room.mediaNotice else status.ifEmpty { result.roomStatus })
     }
+    val playerNotice: String get() = if (busy) "" else room.mediaNotice
     fun membershipChanged() {
         if (!room.connected) { seenMembership = false; return }
         if (seenMembership) return
@@ -96,10 +99,10 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 stage = "start"
                 context = room.performWatch(RoomCommandAction.Start(published.media.mediaId), ticket, context)
             }
-            requireMatch(local, context)
+            requireAvailable(local, ticket, context)
             stage = "agreement"
             val current = room.watchContext(ticket)
-            requireSameGeneration(context, current); requireMatch(local, current)
+            requireSameGeneration(context, current); requireAvailable(local, ticket, current)
             check(watch.player === player && watch.scope == nativeScope) { "media-changed" }
             active = ActiveWatch(ticket, current, player)
             currentCoroutineContext().ensureActive()
@@ -123,7 +126,13 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
                 if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
-                    if (!admitted) { player.admitSharedPlayback(); admitted = true; stage = "playback" }
+                    if (!admitted) {
+                        if (ticket.memberId in current.bootstrap.missingMembers) {
+                            val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection!!.media.mediaId, false), ticket, current)
+                            requireSameGeneration(current, recovered)
+                        }
+                        player.admitSharedPlayback(); admitted = true; stage = "playback"
+                    }
                     busy = false; status = "sharedWatchConnected"
                 } else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
                 delay(100)
@@ -137,9 +146,10 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         }
         finally {
             withContext(NonCancellable) {
-                val previous = active; active = null; admitted = false
+                val previous = active; val completedAdmission = admitted; active = null; admitted = false
                 try {
                     owned?.revokeShared()
+                    if (!completedAdmission && owned != null && watch.player === owned) watch.end()
                     if (finished && previous != null && room.editor.owner && room.isCurrent(previous.membership)) {
                         try { room.performWatch(RoomCommandAction.End(RoomWatchEndReason.finished), previous.membership, previous.context) }
                         catch (_: Exception) { /* Completion metadata is not a peer playback command. */ }
@@ -161,6 +171,15 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         return room.isCurrent(value.membership) &&
             current.snapshot.epoch == value.context.bootstrap.snapshot.epoch && current.snapshot.watchGeneration == value.context.bootstrap.snapshot.watchGeneration && current.snapshot.watchStatus == "active"
     }
+    private suspend fun requireAvailable(local: MediaDescriptor, ticket: RoomWatchMembership, context: RoomWatchContext) {
+        try { requireMatch(local, context) }
+        catch (error: SharedMediaUnavailable) {
+            if (ticket.memberId !in context.bootstrap.missingMembers) {
+                room.performWatch(RoomCommandAction.Missing(checkNotNull(context.definition.selection).media.mediaId, true), ticket, context)
+            }
+            throw error
+        }
+    }
     private suspend fun stop() { work?.cancelAndJoin() }
     suspend fun end() {
         val previous = active; stop()
@@ -180,6 +199,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         fun failureKey(error: Exception, identityRejected: Boolean): String = when {
             identityRejected -> "sharedWatchIdentityRejected"
             error is RoomProtocolException && error.code == "staleGeneration" -> "sharedWatchRoomChanged"
+            error is SharedMediaUnavailable -> "sharedWatchMediaMissing"
             else -> "sharedWatchFailed"
         }
         fun requireSameGeneration(expected: RoomWatchContext, current: RoomWatchContext) {
@@ -187,7 +207,8 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         }
         fun requireMatch(local: MediaDescriptor, context: RoomWatchContext) {
             val selected = context.definition.selection
-            check(context.bootstrap.snapshot.watchStatus == "active" && selected != null && MediaAgreement.resolve(selected.media, listOf(local)).status == MediaAgreementStatus.matched) { "media-mismatch" }
+            check(context.bootstrap.snapshot.watchStatus == "active" && selected != null) { "watch-inactive" }
+            if (MediaAgreement.resolve(selected.media, listOf(local)).status != MediaAgreementStatus.matched) throw SharedMediaUnavailable()
         }
     }
 }

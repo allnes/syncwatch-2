@@ -41,6 +41,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private HashSet<string> NavigationActions => onNavigation is null ? ["endWatching", "toggleFullscreen"] : ["endWatching", "toggleFullscreen", "showLibrary"];
     private readonly CancellationTokenSource cancellation = new();
     private PlayerPresentation presentation = new();
+    private string roomNotice = "";
+    private void RenderChrome() => chrome.Render(presentation with { RoomNotice = roomNotice }, language);
+    internal void SetRoomNotice(string value)
+    {
+        if (roomNotice == value) return;
+        roomNotice = value; RenderChrome();
+    }
     private Task? polling, shutdown;
     private HelperSession? sharedSession;
     private bool requiresSharedAdmission;
@@ -63,7 +70,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         if (closing) throw new OperationCanceledException();
         return descriptor;
     }
-    internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); chrome.Render(presentation, language); }
+    internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); RenderChrome(); }
     internal void AdmitSharedPlayback()
     {
         if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, Ready: true } || sharedAuthority?.Invoke() == false)
@@ -92,8 +99,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
             await sharedMediaPreparation.ValidateAsync(player, scope);
             if (closing || !attached || sharedSession is not null || authority?.Invoke() == false) throw new InvalidOperationException("Shared playback unavailable");
             var session = new HelperSession(transport, player, scope, endpoint, media, revision, state =>
-            { SharedState = state; GateSharedActions(); chrome.Render(presentation, language); }, requiresSharedAdmission || requireDeclaredIdentity);
-            sharedSession = session; SharedState = session.State; GateSharedActions(); chrome.Render(presentation, language);
+            { SharedState = state; GateSharedActions(); RenderChrome(); }, requiresSharedAdmission || requireDeclaredIdentity);
+            sharedSession = session; SharedState = session.State; GateSharedActions(); RenderChrome();
             session.Start();
         }
         catch { await transport.DisposeAsync(); throw; }
@@ -107,7 +114,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     internal void DetachSurface()
     {
         chrome.VideoSurface = null;
-        chrome.Render(presentation, language);
+        RenderChrome();
     }
 
     public PlaybackWorkspace(LocalPlaybackLaunch launch, string language, PlaybackScope? scope = null, long positionMs = 0,
@@ -129,11 +136,11 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.SelectionRequested += tracks.Select;
         chrome.SelectionDismissed += tracks.DismissMenu;
         presentation = presentation with { Title = Path.GetFileName(launch.File), EnabledActions = NavigationActions };
-        chrome.Render(presentation, language); Content = chrome;
+        RenderChrome(); Content = chrome;
     }
-    public void SetLanguage(string value) { language = value; chrome.Render(presentation, language); }
+    public void SetLanguage(string value) { language = value; RenderChrome(); }
     internal LibraryPresentation LibraryPresentation(LibraryPresentation source) => tracks.LibraryPresentation(source);
-    private void RenderTracks() { chrome.SelectionPresentation = tracks.Menu; chrome.Render(presentation, language); }
+    private void RenderTracks() { chrome.SelectionPresentation = tracks.Menu; RenderChrome(); }
     private async Task PollAsync(nint handle)
     {
         try
@@ -181,7 +188,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                     Muted = value.Muted,
                     EnabledActions = enabled,
                 };
-                GateSharedActions(); chrome.Render(presentation, language);
+                GateSharedActions(); RenderChrome();
                 onObservation?.Invoke(value);
                 await Task.Delay(100, cancellation.Token);
             }
@@ -194,7 +201,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
             {
                 tracks.Dismiss();
                 presentation = presentation with { EnabledActions = new HashSet<string> { "endWatching" } };
-                chrome.Render(presentation, language);
+                RenderChrome();
                 if (launch.Report is string report)
                 {
                     await player.DisposeAsync();
@@ -257,7 +264,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         cancellation.Cancel();
         await tracks.CloseAsync();
         presentation = presentation with { EnabledActions = new HashSet<string>() };
-        chrome.Render(presentation, language);
+        RenderChrome();
         await sharedMediaPreparation.CloseAsync();
         try { if (sharedSession is not null) await sharedSession.DisposeAsync(); }
         finally

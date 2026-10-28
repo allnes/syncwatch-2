@@ -124,7 +124,7 @@ fun main(arguments: Array<String>) {
     }
     }, player = {
         watch.player?.let { controller -> key(controller.scope.clientRunId, controller.scope.mediaGeneration) {
-            PlaybackPane(controller, language, theme, onClose, onFullscreen)
+            PlaybackPane(controller, language, theme, onClose, onFullscreen, roomNotice = shared.playerNotice)
         } }
     })
     LaunchedEffect(library.errorKey, watch.errorKey, shared.errorKey) {

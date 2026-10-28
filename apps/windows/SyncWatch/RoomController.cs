@@ -28,6 +28,7 @@ internal sealed class RoomController
     private Guid? localRevision, acknowledgedRevision;
     private IReadOnlyList<LocalMediaFile> localFiles = [];
     private Task? publisher;
+    private Task? missingReport;
     private (Guid Lease, MediaDescriptor Media)? prepared;
     private RoomPreparedPublication? acknowledgedPrepared;
     private bool stopping;
@@ -48,6 +49,43 @@ internal sealed class RoomController
         // Membership alone cannot authorize an unsynchronized local Start in a room.
         if (Editor.State != "disconnected" && !(Connected && sharedStartAvailable)) enabled.Remove("startWatching");
         return source with { EnabledActions = enabled, RoomStatus = Connected ? (Editor.Status is "roomCatalogPublishing" or "roomCatalogPublishFailed" ? Editor.Status : "roomMetadataConnected") : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
+    }
+    internal string MediaNotice
+    {
+        get
+        {
+            if (!Connected || Bootstrap is not { } value || value.Snapshot.WatchStatus != "active" || admission is null) return "";
+            if (value.MissingMembers.Contains(admission.MemberId) || localFiles.Count == 0 && prepared is null) return "sharedWatchMediaMissing";
+            return value.MissingMembers.Count == 0 ? "" : "roomPeersMissingMedia";
+        }
+    }
+    private void StartMissingReport()
+    {
+        if (stopping || !Connected || missingReport is not null || localFiles.Count != 0 || prepared is not null ||
+            Bootstrap is not { } value || value.Snapshot.WatchStatus != "active" || value.Snapshot.MediaId is not string mediaId ||
+            admission is null || value.MissingMembers.Contains(admission.MemberId) || stop is null) return;
+        missingReport = ReportMissingAsync(value, mediaId, localRevision, stop.Token);
+    }
+    private async Task ReportMissingAsync(RoomBootstrap value, string mediaId, Guid? revision, CancellationToken token)
+    {
+        await Task.Yield();
+        try
+        {
+            var intent = await BeginWatchAsync(token);
+            token.ThrowIfCancellationRequested();
+            if (stopping || localFiles.Count != 0 || prepared is not null || localRevision != revision ||
+                intent.Context.Bootstrap.Snapshot.Epoch != value.Snapshot.Epoch ||
+                intent.Context.Bootstrap.Snapshot.WatchGeneration != value.Snapshot.WatchGeneration ||
+                intent.Context.Bootstrap.Snapshot.WatchStatus != "active" || intent.Context.Bootstrap.Snapshot.MediaId != mediaId) return;
+            await PerformWatchAsync(new RoomCommandAction.Missing(mediaId, true), intent.Membership, intent.Context, token);
+        }
+        catch (Exception) { /* A later membership/catalog update retries under its current generation. */ }
+        finally
+        {
+            missingReport = null;
+            if (localRevision != revision || Bootstrap?.Snapshot.Epoch != value.Snapshot.Epoch ||
+                Bootstrap?.Snapshot.WatchGeneration != value.Snapshot.WatchGeneration) StartMissingReport();
+        }
     }
     public void PasteInvitation(string text)
     {
@@ -85,7 +123,7 @@ internal sealed class RoomController
     {
         dispatcher.VerifyAccess();
         if (localRevision == revision) return;
-        localRevision = revision; localFiles = files().ToArray(); StartPublisher();
+        localRevision = revision; localFiles = files().ToArray(); StartPublisher(); StartMissingReport();
     }
     internal bool IsCurrent(RoomWatchMembership membership)
     {
@@ -188,7 +226,7 @@ internal sealed class RoomController
     {
         RecordWatch(view.Bootstrap);
         if (view.Bootstrap.Snapshot.Sequence < (Bootstrap?.Snapshot.Sequence ?? 0)) return;
-        CatalogView = view; Editor.MemberCount = view.Bootstrap.Snapshot.Members.Count;
+        CatalogView = view; Editor.MemberCount = view.Bootstrap.Snapshot.Members.Count; StartMissingReport();
     }
     private void RecordWatch(RoomBootstrap bootstrap)
     {
@@ -211,7 +249,7 @@ internal sealed class RoomController
             var firstView = await ownerSession.RefreshAsync(initial, cancellation: cancellation);
             cancellation.ThrowIfCancellationRequested(); session = ownerSession; playbackSession = ownerSession; playbackEpoch = admitted.Bootstrap.Snapshot.Epoch; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; CatalogView = firstView;
             WatchBootstrap = firstView.Bootstrap;
-            Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke(); StartPublisher();
+            Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke(); StartPublisher(); StartMissingReport();
             while (!cancellation.IsCancellationRequested)
             {
                 var update = RoomInvalidation.Decode(await stream.ReceiveAsync(cancellation)); var previous = Bootstrap;
@@ -230,6 +268,8 @@ internal sealed class RoomController
         }
         finally
         {
+            if (missingReport is not null) await missingReport;
+            missingReport = null;
             if (publisher is not null) await publisher;
             publisher = null; session = null; acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; catalogMap = new();
             WatchBootstrap = null;

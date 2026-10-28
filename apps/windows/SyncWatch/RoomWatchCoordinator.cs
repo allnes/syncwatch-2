@@ -5,6 +5,8 @@ using SyncWatch.Room;
 
 namespace SyncWatch;
 
+internal sealed class SharedMediaUnavailableException : Exception { }
+
 // Owns room admission and the helper; the watch owner retains native playback.
 internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoordinator watch, HelperConfiguration helper)
 {
@@ -24,8 +26,9 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         var enabled = new HashSet<string>(result.EnabledActions);
         if (room.Connected && !Busy && active is null && watch.RuntimeAvailable && source.SelectedId is not null) enabled.Add("startWatching");
         if (Busy || closing) enabled.Remove("startWatching");
-        return result with { EnabledActions = enabled, RoomStatus = Status.Length > 0 ? Status : result.RoomStatus };
+        return result with { EnabledActions = enabled, RoomStatus = !Busy && room.MediaNotice.Length > 0 ? room.MediaNotice : Status.Length > 0 ? Status : result.RoomStatus };
     }
+    internal string PlayerNotice => Busy ? "" : room.MediaNotice;
     internal void MembershipChanged()
     {
         if (!room.Connected) { seenMembership = false; return; }
@@ -95,10 +98,10 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 stage = "start";
                 context = await room.PerformWatchAsync(new RoomCommandAction.Start(publication.Media.MediaId), intent.Membership, context, token);
             }
-            RequireMatch(local, context);
+            await RequireAvailableAsync(local, intent.Membership, context, token);
             stage = "agreement";
             var current = await room.WatchContextAsync(intent.Membership, token);
-            RequireSameGeneration(context, current); RequireMatch(local, current);
+            RequireSameGeneration(context, current); await RequireAvailableAsync(local, intent.Membership, current, token);
             if (!ReferenceEquals(watch.Player, owned) || watch.Scope != scope) throw new InvalidOperationException("media-changed");
             active = new(intent.Membership, current, owned);
             token.ThrowIfCancellationRequested();
@@ -125,7 +128,15 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 if (owned.SharedState is { Connection: HelperConnection.Connected, Ready: true } state)
                 {
                     if (state.AcceptedUsername != intent.Membership.Identity.SyncplayUsername) throw new InvalidOperationException("identity-changed");
-                    if (!admitted) { owned.AdmitSharedPlayback(); admitted = true; stage = "playback"; }
+                    if (!admitted)
+                    {
+                        if (current.Bootstrap.MissingMembers.Contains(intent.Membership.MemberId))
+                        {
+                            var recovered = await room.PerformWatchAsync(new RoomCommandAction.Missing(current.Definition.Selection!.Media.MediaId, false), intent.Membership, current, token);
+                            RequireSameGeneration(current, recovered);
+                        }
+                        owned.AdmitSharedPlayback(); admitted = true; stage = "playback";
+                    }
                     if (Busy) { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
                 else if (!admitted && Environment.TickCount64 >= readyDeadline) throw new TimeoutException();
@@ -142,10 +153,11 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         }
         finally
         {
-            var previous = active; active = null; admitted = false;
+            var previous = active; bool completedAdmission = admitted; active = null; admitted = false;
             try
             {
                 if (owned is not null) await owned.RevokeSharedAsync();
+                if (!completedAdmission && owned is not null && ReferenceEquals(watch.Player, owned)) watch.End();
                 if (finished && previous is not null && room.Editor.Owner && room.IsCurrent(previous.Membership))
                 {
                     try { await room.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.Finished), previous.Membership, previous.Context); }
@@ -169,14 +181,26 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             && current.Snapshot.WatchGeneration == value.Context.Bootstrap.Snapshot.WatchGeneration && current.Snapshot.WatchStatus == "active";
     }
     internal static string FailureKey(Exception error, bool identityRejected) => identityRejected ? "sharedWatchIdentityRejected"
-        : error is RoomProtocolException { Message: "staleGeneration" } ? "sharedWatchRoomChanged" : "sharedWatchFailed";
+        : error is RoomProtocolException { Message: "staleGeneration" } ? "sharedWatchRoomChanged"
+        : error is SharedMediaUnavailableException ? "sharedWatchMediaMissing" : "sharedWatchFailed";
     internal static void RequireSameGeneration(RoomWatchContext expected, RoomWatchContext current)
     {
         if (expected.Bootstrap.Snapshot.Epoch != current.Bootstrap.Snapshot.Epoch || expected.Bootstrap.Snapshot.WatchGeneration != current.Bootstrap.Snapshot.WatchGeneration) throw new RoomProtocolException("staleGeneration");
     }
     internal static void RequireMatch(MediaDescriptor local, RoomWatchContext context)
     {
-        if (context.Bootstrap.Snapshot.WatchStatus != "active" || context.Definition.Selection is not { } selected || MediaAgreement.Resolve(selected.Media, [local]).Status != MediaAgreementStatus.Matched) throw new InvalidOperationException("media-mismatch");
+        if (context.Bootstrap.Snapshot.WatchStatus != "active" || context.Definition.Selection is not { } selected) throw new InvalidOperationException("watch-inactive");
+        if (MediaAgreement.Resolve(selected.Media, [local]).Status != MediaAgreementStatus.Matched) throw new SharedMediaUnavailableException();
+    }
+    private async Task RequireAvailableAsync(MediaDescriptor local, RoomWatchMembership membership, RoomWatchContext context, CancellationToken token)
+    {
+        try { RequireMatch(local, context); }
+        catch (SharedMediaUnavailableException)
+        {
+            if (!context.Bootstrap.MissingMembers.Contains(membership.MemberId))
+                await room.PerformWatchAsync(new RoomCommandAction.Missing(context.Definition.Selection!.Media.MediaId, true), membership, context, token);
+            throw;
+        }
     }
     private async Task StopAsync()
     {

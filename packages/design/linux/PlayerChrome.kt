@@ -12,6 +12,7 @@ enum class PlayerVisualState { loading, paused, playing, buffering, fullscreen, 
 data class PlayerPresentation(
     val state: PlayerVisualState = PlayerVisualState.loading,
     val title: String = "",
+    val roomNotice: String = "",
     val positionMs: Long = 0,
     val durationMs: Long = 0,
     val volume: Double = 1.0,

@@ -238,7 +238,9 @@
       "audioDisabled": "Audio disabled",
       "openAudioTrack": "Audio track…",
       "openSubtitles": "Subtitles…",
-      "externalTrackUnavailable": "Could not open that track"
+      "externalTrackUnavailable": "Could not open that track",
+      "sharedWatchMediaMissing": "Add the room movie to your library or choose its folder, select the matching file and try Start again.",
+      "roomPeersMissingMedia": "A participant does not have the selected movie yet."
     },
     "ru": {
       "brand": "SyncWatch",
@@ -477,7 +479,9 @@
       "audioDisabled": "Звук выключен",
       "openAudioTrack": "Аудиодорожку…",
       "openSubtitles": "Субтитры…",
-      "externalTrackUnavailable": "Не удалось открыть дорожку"
+      "externalTrackUnavailable": "Не удалось открыть дорожку",
+      "sharedWatchMediaMissing": "Добавьте фильм из комнаты в библиотеку или выберите его папку, выберите подходящий файл и снова нажмите «Начать просмотр».",
+      "roomPeersMissingMedia": "У одного из участников пока нет выбранного фильма."
     }
   },
   "gallery": {
