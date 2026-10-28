@@ -12,6 +12,25 @@ public struct SelectionMenuEntry: Sendable, Codable, Equatable {
         self.disabledTrack = disabledTrack
     }
     public static var offTrack: Self { Self(id: "-1", label: "off", disabledTrack: true) }
+    public static func observedLabel(_ name: String, language: String) -> String {
+        guard !name.isEmpty, name.utf8.count <= SyncWatchSelectionMenu.maximumLabelBytes,
+            !name.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 })
+        else { return SyncWatchCopy.text("unknown", language: language) }
+        return name
+    }
+    public static func externalFile(kind: String, language: String) -> Self? {
+        guard let filter = SyncWatchSelectionMenu.externalFileFilters.first(where: { $0.kind == kind }) else {
+            return nil
+        }
+        return Self(
+            id: SyncWatchSelectionMenu.externalFileID, label: SyncWatchCopy.text(filter.label, language: language))
+    }
+    public static func externalFileFailure(language: String) -> Self {
+        Self(
+            id: SyncWatchSelectionMenu.externalFileErrorID,
+            label: SyncWatchCopy.text(SyncWatchSelectionMenu.externalFileErrorLabel, language: language), enabled: false
+        )
+    }
 }
 
 public struct SelectionMenuRequest: Sendable, Codable, Equatable {

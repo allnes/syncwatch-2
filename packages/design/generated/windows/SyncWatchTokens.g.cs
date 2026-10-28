@@ -597,6 +597,9 @@ public static class SyncWatchCopy
         ("en", "libraryRowDurationFormat") => "{hours}:{minutes}",
         ("en", "metadataNoSubtitles") => "No subtitles",
         ("en", "audioDisabled") => "Audio disabled",
+        ("en", "openAudioTrack") => "Audio track…",
+        ("en", "openSubtitles") => "Subtitles…",
+        ("en", "externalTrackUnavailable") => "Could not open that track",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -830,6 +833,9 @@ public static class SyncWatchCopy
         ("ru", "libraryRowDurationFormat") => "{hours}:{minutes}",
         ("ru", "metadataNoSubtitles") => "Нет субтитров",
         ("ru", "audioDisabled") => "Звук выключен",
+        ("ru", "openAudioTrack") => "Аудиодорожку…",
+        ("ru", "openSubtitles") => "Субтитры…",
+        ("ru", "externalTrackUnavailable") => "Не удалось открыть дорожку",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -1027,8 +1033,13 @@ public static class SyncWatchCall
 }
 
 public sealed record SelectionMenuKind(string Id, string Label, string Action, string Scope);
+public sealed record ExternalTrackFileFilter(string Kind, string Label, string[] Extensions);
 public static class SyncWatchSelectionMenu
 {
+    public const string ExternalFileID = "external-file";
+    public const string ExternalFileErrorID = "external-file-error";
+    public const string ExternalFileErrorLabel = "externalTrackUnavailable";
+    public static ExternalTrackFileFilter[] ExternalFileFilters => [new("audio", "openAudioTrack", ["aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav"]), new("subtitles", "openSubtitles", ["ass", "srt", "ssa", "sub", "vtt"])];
     public const int MaximumEntries = 500;
     public const int MaximumIDBytes = 128;
     public const int MaximumLabelBytes = 4096;

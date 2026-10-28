@@ -426,6 +426,9 @@ object SyncWatchCopy {
         "en" to "libraryRowDurationFormat" -> "{hours}:{minutes}"
         "en" to "metadataNoSubtitles" -> "No subtitles"
         "en" to "audioDisabled" -> "Audio disabled"
+        "en" to "openAudioTrack" -> "Audio track…"
+        "en" to "openSubtitles" -> "Subtitles…"
+        "en" to "externalTrackUnavailable" -> "Could not open that track"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -659,6 +662,9 @@ object SyncWatchCopy {
         "ru" to "libraryRowDurationFormat" -> "{hours}:{minutes}"
         "ru" to "metadataNoSubtitles" -> "Нет субтитров"
         "ru" to "audioDisabled" -> "Звук выключен"
+        "ru" to "openAudioTrack" -> "Аудиодорожку…"
+        "ru" to "openSubtitles" -> "Субтитры…"
+        "ru" to "externalTrackUnavailable" -> "Не удалось открыть дорожку"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -841,7 +847,12 @@ object SyncWatchCall {
 }
 
 data class SelectionMenuKind(val id: String, val label: String, val action: String, val scope: String)
+data class ExternalTrackFileFilter(val kind: String, val label: String, val extensions: List<String>)
 object SyncWatchSelectionMenu {
+    const val externalFileID = "external-file"
+    const val externalFileErrorID = "external-file-error"
+    const val externalFileErrorLabel = "externalTrackUnavailable"
+    val externalFileFilters = listOf(ExternalTrackFileFilter("audio", "openAudioTrack", listOf("aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav")), ExternalTrackFileFilter("subtitles", "openSubtitles", listOf("ass", "srt", "ssa", "sub", "vtt")))
     const val maximumEntries = 500
     const val maximumIDBytes = 128
     const val maximumLabelBytes = 4096

@@ -81,3 +81,8 @@ public protocol PlaybackPort: Sendable {
 public protocol PlaybackTrackControlPort: PlaybackPort {
     func selectedTrack(subtitles: Bool, scope: PlaybackScope) async throws -> Int32
 }
+
+/// Local file attachment only. Return means submitted; selected-ID acknowledgement is separate.
+public protocol PlaybackExternalTrackPort: PlaybackTrackControlPort {
+    func attachTrack(_ localFile: URL, subtitles: Bool, scope: PlaybackScope) async throws
+}

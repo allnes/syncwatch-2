@@ -353,7 +353,7 @@ test('call metadata rejects protocol drift, unsupported arities and malformed ic
 test('selection menu scope, identity, stale-input and UTF-8 bounds agree with shared cases', () => {
     const spec = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
     const corpus = JSON.parse(readFileSync(join(root, 'packages/design/tests/fixtures/selection-menu.json')));
-    assert.equal(corpus.cases.length, 30);
+    assert.equal(corpus.cases.length, 32);
     for (const item of corpus.cases) {
         assert.equal(validSelection(spec, item.presentation), item.valid, item.name);
         const before = JSON.stringify(item.presentation);

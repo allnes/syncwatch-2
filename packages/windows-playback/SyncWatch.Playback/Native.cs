@@ -66,6 +66,8 @@ internal static class Native
     internal static extern int SelectTrack(nint player, ulong generation, int subtitles, int id);
     [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_selected_track")]
     internal static extern int SelectedTrack(nint player, ulong generation, int subtitles, out int id);
+    [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_attach_track")]
+    internal static extern int AttachTrack(nint player, ulong generation, int subtitles, [MarshalAs(UnmanagedType.LPUTF8Str)] string file);
     [DllImport(Module, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sw_playback_close")]
     internal static extern void Close(nint player);
     internal static void Check(int code)

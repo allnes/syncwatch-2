@@ -107,3 +107,9 @@ JNIEXPORT jint JNICALL JNI_METHOD(selectedTrack)(JNIEnv *env, jclass type, jlong
     checked(env, sw_playback_selected_track((sw_playback *)(intptr_t)p, (uint64_t)g, subtitles == JNI_TRUE, &id));
     return id;
 }
+JNIEXPORT void JNICALL JNI_METHOD(attachTrack)(JNIEnv *env, jclass type, jlong p, jlong g, jboolean subtitles, jbyteArray file) {
+    (void)type;
+    char *path = text(env, file); if (!path) return;
+    int code = sw_playback_attach_track((sw_playback *)(intptr_t)p, (uint64_t)g, subtitles == JNI_TRUE, path);
+    free(path); checked(env, code);
+}

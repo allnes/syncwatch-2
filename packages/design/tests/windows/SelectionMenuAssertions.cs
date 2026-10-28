@@ -51,7 +51,7 @@ internal static class SelectionMenuAssertions
                     Check(p.Entries.Select(e => AutomationProperties.GetName(Entry(localized, e.Id))).SequenceEqual(expected), "localized off choice");
                 }
         }
-        Check(cases == 30, "shared request corpus");
+        Check(cases == 32, "shared request corpus");
         var ready = SelectionMenuFixtures.Presentation("playlist", "available");
         var mutableEntries = ready.Entries.ToList();
         var snapshotView = new SelectionMenu(); snapshotView.Render(ready with { Entries = mutableEntries });

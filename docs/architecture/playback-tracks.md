@@ -42,3 +42,13 @@ normally and its helper and temporary resources must be absent.
 A changed room epoch or watch generation invalidates the frozen Start intent. All three application coordinators retain that rejection and present the common Design `sharedWatchRoomChanged` message, asking the user to end the attempt, review the selected movie and start again. They never adopt a newer selection or retry a metadata command automatically. Identity rejection keeps its own recovery message.
 
 Failure diagnostics contain only a fixed coordinator stage and a common Design failure key. They never serialize exception text, local paths, media descriptors, member identities or room credentials. Diagnostics classify an observed failure; they do not authorize playback or replace generation and media-agreement checks.
+
+## Explicit external file selection
+
+The common Design description owns file-action identifiers, localized copy and extension filters. Native picker adapters only present the platform dialog and return a transient `LocalFileAccess` from the filesystem package. Cancelling a picker leaves the current selection unchanged. Queued cancellation is tied to the dialog instance so it cannot dismiss a later chooser.
+
+The selection popup closes before input passes to a native file dialog. That presentation dismissal does not cancel the in-flight file choice. Explicit navigation, End and owner close still cancel and join the pending operation. This distinction prevents nested popup/modal input ownership and is shared by all desktop controllers.
+
+The movie-local track coordinator freezes the current source/revision/scope, retains each chosen access owner before native submission, and waits for a newly enumerated selected ID. The first-party native boundary uses an owned file descriptor, retains all borrowers until VLC stop and media release, and revalidates file versions. A changed external input fails its owner; a fresh watch can recover. Submission alone never changes the observed menu selection.
+
+A chooser or acknowledgement that finishes after cancellation, dismissal or watch replacement cannot act on the new scope. The playback owner cancels and joins pending work, closes native playback, and only then releases transient file access. File paths, names, access grants and choices are not room metadata or Syncplay payloads. Library companion discovery and file association are separate from this explicit picker path.

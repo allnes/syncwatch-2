@@ -1,14 +1,69 @@
 {
   "schemaVersion": 1,
   "kinds": [
-    {"id": "playlist", "label": "playlist", "action": "selectMovie", "scope": "shared"},
-    {"id": "audio", "label": "audioTracks", "action": "selectAudioTrack", "scope": "local"},
-    {"id": "subtitles", "label": "subtitles", "action": "selectSubtitleTrack", "scope": "local"}
+    {
+      "id": "playlist",
+      "label": "playlist",
+      "action": "selectMovie",
+      "scope": "shared"
+    },
+    {
+      "id": "audio",
+      "label": "audioTracks",
+      "action": "selectAudioTrack",
+      "scope": "local"
+    },
+    {
+      "id": "subtitles",
+      "label": "subtitles",
+      "action": "selectSubtitleTrack",
+      "scope": "local"
+    }
   ],
-  "states": ["empty", "available", "readOnly", "longList"],
+  "states": [
+    "empty",
+    "available",
+    "readOnly",
+    "longList"
+  ],
   "maximumEntries": 500,
   "maximumIDBytes": 128,
   "maximumLabelBytes": 4096,
   "maximumRevision": 9007199254740991,
-  "galleryEntryCount": 24
+  "galleryEntryCount": 24,
+  "externalFile": {
+    "entryID": "external-file",
+    "errorEntryID": "external-file-error",
+    "errorLabel": "externalTrackUnavailable",
+    "filters": [
+      {
+        "kind": "audio",
+        "label": "openAudioTrack",
+        "extensions": [
+          "aac",
+          "ac3",
+          "dts",
+          "eac3",
+          "flac",
+          "m4a",
+          "mka",
+          "mp3",
+          "ogg",
+          "opus",
+          "wav"
+        ]
+      },
+      {
+        "kind": "subtitles",
+        "label": "openSubtitles",
+        "extensions": [
+          "ass",
+          "srt",
+          "ssa",
+          "sub",
+          "vtt"
+        ]
+      }
+    ]
+  }
 }

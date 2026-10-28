@@ -7,6 +7,16 @@ namespace SyncWatch.Design;
 public sealed record SelectionMenuEntry(string Id, string Label, bool Enabled = true, bool DisabledTrack = false)
 {
     public static SelectionMenuEntry OffTrack => new("-1", "off", DisabledTrack: true);
+    public static string ObservedLabel(string name, string language) =>
+        name.Length > 0 && Encoding.UTF8.GetByteCount(name) <= SyncWatchSelectionMenu.MaximumLabelBytes && !name.Any(c => c < 32 || c == 127)
+            ? name : SyncWatchCopy.Text("unknown", language);
+    public static SelectionMenuEntry? ExternalFile(string kind, string language)
+    {
+        var filter = SyncWatchSelectionMenu.ExternalFileFilters.FirstOrDefault(item => item.Kind == kind);
+        return filter is null ? null : new(SyncWatchSelectionMenu.ExternalFileID, SyncWatchCopy.Text(filter.Label, language));
+    }
+    public static SelectionMenuEntry ExternalFileFailure(string language) =>
+        new(SyncWatchSelectionMenu.ExternalFileErrorID, SyncWatchCopy.Text(SyncWatchSelectionMenu.ExternalFileErrorLabel, language), Enabled: false);
 }
 public sealed record SelectionMenuRequest(string Kind, string SourceID, long Revision, string EntryID, string Action, string Scope);
 

@@ -78,6 +78,12 @@ SW_PLAYBACK_API int sw_playback_select_track(sw_playback *, uint64_t generation,
 /* Actual engine selection; -1 means disabled/no active track. A selection
  * submission is not an acknowledgement. The loaded-input scope still applies. */
 SW_PLAYBACK_API int sw_playback_selected_track(sw_playback *, uint64_t generation, int subtitles, int32_t *id);
+/* Attach a local external stream to the current input. The native owner pins
+ * its descriptor until stop/replacement/close. Submitted is not selected:
+ * callers must await actual track enumeration and selected-ID acknowledgement.
+ * Paths, descriptors and choices remain local to this playback owner. */
+SW_PLAYBACK_API int sw_playback_attach_track(sw_playback *, uint64_t generation, int subtitles,
+    const char *absolute_utf8_path);
 SW_PLAYBACK_API void sw_playback_close(sw_playback *);
 #ifdef __cplusplus
 }

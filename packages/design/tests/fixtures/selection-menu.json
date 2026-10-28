@@ -1462,6 +1462,110 @@
           "Нет субтитров"
         ]
       }
+    },
+    {
+      "name": "external-audio-local-file-action",
+      "presentation": {
+        "kind": "audio",
+        "sourceID": "files:audio",
+        "revision": 5,
+        "entries": [
+          {
+            "id": "1",
+            "label": "Embedded",
+            "enabled": true
+          },
+          {
+            "id": "external-file-error",
+            "label": "Could not open that track",
+            "enabled": false
+          },
+          {
+            "id": "external-file",
+            "label": "Audio track…",
+            "enabled": true
+          }
+        ],
+        "selectedID": "1",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "external-file-error",
+          "contextToken": "audio|files:audio|5"
+        },
+        {
+          "entryID": "external-file",
+          "contextToken": "audio|files:audio|5"
+        },
+        {
+          "entryID": "external-file",
+          "contextToken": "audio|files:audio|4"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "audio",
+          "sourceID": "files:audio",
+          "revision": 5,
+          "entryID": "external-file",
+          "action": "selectAudioTrack",
+          "scope": "local"
+        }
+      ]
+    },
+    {
+      "name": "external-subtitles-local-file-action",
+      "presentation": {
+        "kind": "subtitles",
+        "sourceID": "files:subtitles",
+        "revision": 5,
+        "entries": [
+          {
+            "id": "1",
+            "label": "Embedded",
+            "enabled": true
+          },
+          {
+            "id": "external-file-error",
+            "label": "Could not open that track",
+            "enabled": false
+          },
+          {
+            "id": "external-file",
+            "label": "Subtitles…",
+            "enabled": true
+          }
+        ],
+        "selectedID": "1",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "external-file-error",
+          "contextToken": "subtitles|files:subtitles|5"
+        },
+        {
+          "entryID": "external-file",
+          "contextToken": "subtitles|files:subtitles|5"
+        },
+        {
+          "entryID": "external-file",
+          "contextToken": "subtitles|files:subtitles|4"
+        }
+      ],
+      "expected": [
+        {
+          "kind": "subtitles",
+          "sourceID": "files:subtitles",
+          "revision": 5,
+          "entryID": "external-file",
+          "action": "selectSubtitleTrack",
+          "scope": "local"
+        }
+      ]
     }
   ]
 }

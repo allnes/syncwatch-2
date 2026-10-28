@@ -53,3 +53,9 @@ public interface IPlaybackTrackControlPort : IPlaybackPort
 {
     Task<int> SelectedTrackAsync(bool subtitles, PlaybackScope scope, CancellationToken cancellation = default);
 }
+
+/// <summary>Local file attachment submission; selected-ID acknowledgement is separate.</summary>
+public interface IPlaybackExternalTrackPort : IPlaybackTrackControlPort
+{
+    Task AttachTrackAsync(string localFile, bool subtitles, PlaybackScope scope, CancellationToken cancellation = default);
+}

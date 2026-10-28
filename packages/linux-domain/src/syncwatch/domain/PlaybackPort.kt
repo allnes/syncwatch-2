@@ -51,3 +51,8 @@ interface PlaybackPort {
 interface PlaybackTrackControlPort : PlaybackPort {
     suspend fun selectedTrack(subtitles: Boolean, scope: PlaybackScope): Int
 }
+
+/** Local file attachment submission; selected-ID acknowledgement is separate. */
+interface PlaybackExternalTrackPort : PlaybackTrackControlPort {
+    suspend fun attachTrack(localFile: Path, subtitles: Boolean, scope: PlaybackScope)
+}
