@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
     int64_t before = value.position_ms; wait_ms(300); value = observation(player, 1);
     require(value.paused && llabs(value.position_ms - before) <= 60, "actual paused clock");
     require(sw_playback_seek(player, 1, 2500) == SW_OK, "forward seek submission");
+    require(sw_playback_select_track(player, 1, 0, audio_id) == SW_OK, "track refill after an immediate seek");
     await_state(player, 1, 1, 2300, 2700);
     require(sw_playback_pause(player, 1, 0) == SW_OK, "forward resume");
     /* Resume is a Playing observation in the already verified seek range.

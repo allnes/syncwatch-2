@@ -14,7 +14,8 @@ def build(context, sources, profile):
     source = sources["vlc"]
     build = context.work / "vlc-build"
     build.mkdir()
-    original = {name: (source / name).read_bytes() for name in ["configure.ac", "lib/media_player.c", "modules/common.am"]}
+    original = {name: (source / name).read_bytes() for name in ["configure.ac", "lib/media_player.c", "modules/common.am",
+                "modules/codec/avcodec/fourcc.c"]}
     derivatives = vlc_files(original, profile)
     for name, data in derivatives.items():
         (source / name).write_bytes(data)

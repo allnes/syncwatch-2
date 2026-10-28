@@ -319,7 +319,14 @@ int sw_playback_select_track(sw_playback *p, uint64_t generation, int subtitles,
     for (libvlc_track_description_t *t = head; t; t = t->p_next) if (t->i_id == id) found = 1;
     p->api.libvlc_track_description_list_release(head);
     if (!found) return SW_INVALID;
-    return (subtitles ? p->api.libvlc_video_set_spu(p->player, id) : p->api.libvlc_audio_set_track(p->player, id)) ? SW_ENGINE : SW_OK;
+    int64_t position = p->api.libvlc_media_player_get_time(p->player);
+    int seekable = p->api.libvlc_media_player_is_seekable(p->player);
+    if (subtitles ? p->api.libvlc_video_set_spu(p->player, id) : p->api.libvlc_audio_set_track(p->player, id)) return SW_ENGINE;
+    /* The demuxer may have discarded packets for an unselected stream while
+     * prebuffering. Refill from the actual local clock without changing pause
+     * state or emitting a shared seek intent. Selection alone is not output. */
+    if (seekable && position >= 0) p->api.libvlc_media_player_set_time(p->player, position);
+    return SW_OK;
 }
 void sw_playback_close(sw_playback *p) {
     if (!p) return;

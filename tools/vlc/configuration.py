@@ -35,5 +35,14 @@ def vlc_files(original, profile):
     plugins = plugins.replace(old,
         b'# SyncWatch modified 2026-10-23: shared owned codecs, static compiler support.\n'
         b'AM_LDFLAGS += $(top_builddir)/modules/module.rc.lo -Wc,-static-libgcc -Wc,-static-libstdc++')
+    codecs = original["modules/codec/avcodec/fourcc.c"]
+    for name, fourcc in [(b"SUBRIP", b"SUBT"), (b"ASS", b"SSA")]:
+        old = b"    /* ffmpeg only: AV_CODEC_ID_" + name + b" */"
+        if codecs.count(old) != 1:
+            raise ValueError("Review the pinned VLC embedded subtitle codec mapping before configuring it")
+        codecs = codecs.replace(old,
+            b"    /* SyncWatch modified 2026-10-28: map embedded text subtitles from avformat. */\n"
+            b"    { VLC_CODEC_" + fourcc + b", AV_CODEC_ID_" + name + b" },")
     return {"configure.ac": configure.encode(), "lib/media_player.c": player, "modules/common.am": plugins,
+            "modules/codec/avcodec/fourcc.c": codecs,
             "src/revision.txt": (profile["sources"]["vlc"]["revision"] + "\n").encode()}

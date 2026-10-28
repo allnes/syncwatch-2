@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from fixtures import create, encoded, external_tracks
+from fixtures import create, encoded, external_tracks, embedded_tracks
 from source_profile import ROOT, profile_data
 
 
@@ -74,12 +74,13 @@ def verify(context, package):
 def verify_effects(context, package, directory, media):
     executable, actual = compile_consumer(context, package, directory, "effects_probe.c", "effects-probe")
     external = external_tracks(directory)
+    embedded = embedded_tracks(directory)
     env = environment(package, context.target)
     if context.target == "linux-x64":
         env["XDG_CACHE_HOME"] = str(directory / "font-cache")
     results = {}
-    for name in ["adjust", "normalize", "tempo", "external-audio", "srt", "ass"]:
-        args = [str(executable), name, str(media), str(actual)]
+    for name in ["adjust", "normalize", "tempo", "external-audio", "srt", "ass", "embedded-audio", "embedded-srt", "embedded-ass"]:
+        args = [str(executable), name, str(embedded if name.startswith("embedded-") else media), str(actual)]
         if name in external:
             args.append(external[name].resolve().as_uri())
         output, errors = directory / (name + "-proof.json"), directory / (name + "-stderr.log")
