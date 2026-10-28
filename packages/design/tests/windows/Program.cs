@@ -86,6 +86,22 @@ internal static class Program
         {
             RetainedNativeAssertions.Run(); application.Shutdown(); return;
         }
+        using (var metadata = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "library-metadata.json"))))
+        {
+            foreach (var row in metadata.RootElement.GetProperty("cases").EnumerateArray())
+            {
+                var p = LibraryPresentation.Gallery(LibraryVisualState.Selected) with
+                {
+                    MetadataDurationMs = row.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : row.GetProperty("durationMs").GetInt64(),
+                    MetadataWidth = row.GetProperty("width").GetInt32(),
+                    MetadataHeight = row.GetProperty("height").GetInt32(),
+                    MetadataAudioTracks = row.GetProperty("audioTracks").ValueKind == JsonValueKind.Null ? null : row.GetProperty("audioTracks").GetInt32(),
+                    MetadataSubtitleTracks = row.GetProperty("subtitleTracks").ValueKind == JsonValueKind.Null ? null : row.GetProperty("subtitleTracks").GetInt32()
+                };
+                var context = DesignBindings.Library(p, "", row.GetProperty("language").GetString()!);
+                foreach (var expected in row.GetProperty("expected").EnumerateObject()) Check(context.Values[expected.Name] == expected.Value.GetString(), expected.Name);
+            }
+        }
         VerifyLibrary(application, dictionary);
         LibraryControllerAssertions.Run();
         WatchPersistenceAssertions.Run();

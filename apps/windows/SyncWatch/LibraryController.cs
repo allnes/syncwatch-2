@@ -10,11 +10,14 @@ namespace SyncWatch;
 internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolderAccess Access);
 
 /// <summary>Application state; filesystem, access, persistence and design retain independent owners.</summary>
-internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null) : IDisposable
+internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null, IMediaMetadataReader? metadata = null) : IDisposable
 {
     private readonly FileSystemLibrary scanner = new();
     private readonly SemaphoreSlim persistence = new(1, 1);
     private CancellationTokenSource? pending;
+    private CancellationTokenSource? metadataCancellation;
+    private long metadataGeneration;
+    public Task MetadataSettled { get; private set; } = Task.CompletedTask;
     private LibraryFolderAccess? grant;
     private IReadOnlyDictionary<string, LocalMediaFile> catalog = new Dictionary<string, LocalMediaFile>();
     private LibraryPresentation? stable;
@@ -42,7 +45,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     public void Select(string id)
     {
         dispatcher.VerifyAccess(); if (closed) return;
-        Presentation.Dispatch("selectMovie", id, (_, _) => { Presentation = Presentation with { SelectedId = id }; stable = Presentation; Changed?.Invoke(); });
+        Presentation.Dispatch("selectMovie", id, (_, _) => { Presentation = Presentation with { SelectedId = id }; StartMetadata(); Changed?.Invoke(); });
     }
     public LibraryMediaSelection? SelectedMedia()
     {
@@ -53,9 +56,70 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     public void ClearError() => ErrorKey = null;
     public void Dispose()
     {
-        dispatcher.VerifyAccess(); closed = true; generation++; pending?.Cancel(); grant = null;
+        dispatcher.VerifyAccess(); if (closed) return; closed = true; generation++; pending?.Cancel(); metadataGeneration++; metadataCancellation?.Cancel(); grant = null;
         catalog = new Dictionary<string, LocalMediaFile>();
         Presentation = Presentation with { EnabledActions = new HashSet<string>() };
+    }
+
+    public async Task CloseAsync()
+    {
+        Dispose();
+        await Settled; await MetadataSettled;
+        if (metadata is not null) await metadata.CloseAsync();
+        metadataCancellation?.Dispose(); pending?.Dispose();
+    }
+    private void CancelMetadata()
+    {
+        metadataGeneration++; metadataCancellation?.Cancel();
+        Presentation = Presentation with
+        {
+            MetadataDurationMs = null,
+            MetadataWidth = 0,
+            MetadataHeight = 0,
+            MetadataAudioTracks = null,
+            MetadataSubtitleTracks = null,
+            MetadataLoading = false,
+            MetadataUnavailable = false
+        };
+    }
+    private void StartMetadata()
+    {
+        var previous = MetadataSettled;
+        var previousCancellation = metadataCancellation;
+        CancelMetadata(); stable = Presentation;
+        if (metadata is null || SelectedMedia() is not { } selection) return;
+        long current = metadataGeneration;
+        metadataCancellation = new();
+        Presentation = Presentation with { MetadataLoading = true }; stable = Presentation;
+        MetadataSettled = ReadMetadata(previous, previousCancellation, selection, current, metadataCancellation.Token);
+    }
+    private async Task ReadMetadata(Task previous, CancellationTokenSource? previousCancellation,
+        LibraryMediaSelection selection, long current, CancellationToken token)
+    {
+        try
+        {
+            await previous; previousCancellation?.Dispose(); token.ThrowIfCancellationRequested();
+            var value = await metadata!.ReadAsync(selection.Media, token);
+            token.ThrowIfCancellationRequested(); if (closed || current != metadataGeneration) return;
+            Presentation = Presentation with
+            {
+                MetadataDurationMs = value.DurationMs,
+                MetadataWidth = value.Width,
+                MetadataHeight = value.Height,
+                MetadataAudioTracks = value.AudioTracks,
+                MetadataSubtitleTracks = value.SubtitleTracks,
+                MetadataLoading = false
+            };
+            stable = Presentation; Changed?.Invoke();
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception)
+        {
+            if (closed || current != metadataGeneration) return;
+            Presentation = Presentation with { MetadataLoading = false, MetadataUnavailable = true };
+            stable = Presentation; Changed?.Invoke();
+        }
+        finally { GC.KeepAlive(selection.Access); }
     }
 
     private async Task<T> Storage<T>(Func<T> operation, CancellationToken token)
@@ -67,7 +131,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     private void Start(Func<CancellationToken, Task<LibraryFolderAccess?>> acquire)
     {
         dispatcher.VerifyAccess(); if (closed) return;
-        pending?.Cancel(); pending = new(); long current = ++generation;
+        pending?.Cancel(); CancelMetadata(); pending = new(); long current = ++generation;
         Settled = Scan(acquire, pending.Token, current);
     }
     private async Task Scan(Func<CancellationToken, Task<LibraryFolderAccess?>> acquire, CancellationToken token, long current)
@@ -78,7 +142,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         {
             var next = await acquire(token);
             token.ThrowIfCancellationRequested();
-            if (next is null) { if (generation == current) { Presentation = previous; Changed?.Invoke(); } return; }
+            if (next is null) { if (generation == current) { Presentation = previous; StartMetadata(); Changed?.Invoke(); } return; }
             var files = await scanner.ScanAsync(next.RootPath, next.RootId, next.Record.ScanSubfolders, token);
             token.ThrowIfCancellationRequested(); if (closed || generation != current) return;
             var utf8 = Comparer<string>.Create((a, b) => Encoding.UTF8.GetBytes(a).AsSpan().SequenceCompareTo(Encoding.UTF8.GetBytes(b)));
@@ -93,7 +157,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                 SelectedId = selected,
                 EnabledActions = new HashSet<string> { "chooseFolder", "rescan", "search", "selectMovie", "openSettings" }
             };
-            stable = Presentation; Changed?.Invoke();
+            StartMetadata(); Changed?.Invoke();
             try { await Storage(() => { store.Write(next.Record); return true; }, token); }
             catch (OperationCanceledException) { }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
@@ -101,6 +165,6 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         }
         catch (OperationCanceledException) { }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
-        { if (!closed && generation == current) { Presentation = previous; ErrorKey = "libraryUnavailable"; Changed?.Invoke(); } }
+        { if (!closed && generation == current) { Presentation = previous; StartMetadata(); ErrorKey = "libraryUnavailable"; Changed?.Invoke(); } }
     }
 }

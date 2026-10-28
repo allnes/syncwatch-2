@@ -13,6 +13,16 @@ internal static class DesignBindings
     {
         var v = Capabilities(SyncWatchCopy.LibraryActions, p.Allows);
         foreach (var (key, value) in new Dictionary<string, string> { ["namespace"] = "library", ["query"] = query, ["entryCount"] = p.Entries.Count.ToString(CultureInfo.InvariantCulture), ["filesLabel"] = SyncWatchCopy.Text("files", language), ["hasEntries"] = Flag(p.Entries.Count > 0), ["hasSelection"] = Flag(p.Selected is not null), ["selectedTitle"] = p.Selected?.Title ?? "", ["selectedLocation"] = p.Selected?.Location ?? "", ["emptyMessage"] = p.State == LibraryVisualState.Scanning ? "scanning" : "empty", ["missingMedia"] = Flag(p.State == LibraryVisualState.MissingMedia), ["roomMessage"] = p.RoomStatus.Length > 0 ? p.RoomStatus : p.State == LibraryVisualState.Reconnecting ? "reconnecting" : "disconnected" }) v[key] = value;
+        string unknown = SyncWatchCopy.Text("unknown", language);
+        v["metadataDuration"] = p.MetadataDurationMs is long ms && ms > 0
+            ? SyncWatchCopy.Text("metadataDurationFormat", language).Replace("{hours}", (ms / 3_600_000).ToString(CultureInfo.InvariantCulture))
+                .Replace("{minutes}", (ms / 60_000 % 60).ToString("D2", CultureInfo.InvariantCulture))
+                .Replace("{seconds}", (ms / 1_000 % 60).ToString("D2", CultureInfo.InvariantCulture)) : unknown;
+        v["metadataResolution"] = p.MetadataWidth > 0 && p.MetadataHeight > 0
+            ? SyncWatchCopy.Text("metadataResolutionFormat", language).Replace("{width}", Number(p.MetadataWidth)).Replace("{height}", Number(p.MetadataHeight)) : unknown;
+        v["metadataAudio"] = p.MetadataAudioTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
+        v["metadataSubtitles"] = p.MetadataSubtitleTracks == 0 ? SyncWatchCopy.Text("metadataNoSubtitles", language) : p.MetadataSubtitleTracks?.ToString(CultureInfo.InvariantCulture) ?? unknown;
+        v["metadataLoading"] = Flag(p.MetadataLoading); v["metadataUnavailable"] = Flag(p.MetadataUnavailable);
         return new() { Values = v, Collections = new() { ["entries"] = p.Entries.Where(e => query.Length == 0 || e.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)).Select(e => new DesignContext { Values = new() { ["id"] = e.Id, ["title"] = e.Title, ["selected"] = Flag(e.Id == p.SelectedId) } }).ToArray() } };
     }
     public static DesignContext Player(PlayerPresentation p)

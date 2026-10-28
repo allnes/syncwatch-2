@@ -9,6 +9,13 @@ public sealed record LibraryEntry(string Id, string Title, string Location);
 // Presentation/capabilities only: no filesystem, media engine, call or network dependency.
 public sealed record LibraryPresentation
 {
+    public long? MetadataDurationMs { get; init; }
+    public int MetadataWidth { get; init; }
+    public int MetadataHeight { get; init; }
+    public int? MetadataAudioTracks { get; init; }
+    public int? MetadataSubtitleTracks { get; init; }
+    public bool MetadataLoading { get; init; }
+    public bool MetadataUnavailable { get; init; }
     public string RoomStatus { get; init; } = "";
     public LibraryVisualState State { get; init; }
     public IReadOnlyList<LibraryEntry> Entries { get; init; } = [];

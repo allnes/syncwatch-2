@@ -114,7 +114,8 @@ import SyncWatchLibrary
                 store: FileLibraryAccessStore(
                     url: stateURL.deletingLastPathComponent().appendingPathComponent(
                         "library-access.json")),
-                selectedID: preferences.state.selectedMediaID))
+                selectedID: preferences.state.selectedMediaID,
+                metadata: LibraryMetadataReader(media: MediaConfiguration.read(CommandLine.arguments))))
     }
     @State private var showRoom = false
     @State private var showSettings = false
@@ -162,7 +163,7 @@ import SyncWatchLibrary
                 await sharedOwner?.close()
                 await sessionOwner?.close()
                 await roomOwner?.close()
-                catalogOwner?.close()
+                await catalogOwner?.closeAndWait()
             }
             library.restore()
             await watch.prepareRuntime()
@@ -177,7 +178,7 @@ import SyncWatchLibrary
                 await sharedOwner.close()
                 await sessionOwner.close()
                 await roomOwner.close()
-                catalogOwner.close()
+                await catalogOwner.closeAndWait()
             }
         }
         .alert(
@@ -237,7 +238,7 @@ import SyncWatchLibrary
         await shared.close()
         await sessionOwner.close()
         await room.close()
-        catalogOwner.close()
+        await catalogOwner.closeAndWait()
     }
     private func chooseFolder() {
         let picker = NSOpenPanel()

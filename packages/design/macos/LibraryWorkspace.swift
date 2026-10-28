@@ -18,6 +18,13 @@ public struct LibraryEntry: Identifiable, Equatable, Sendable {
 
 /// Presentation data only. Services supply entries and capabilities; rendering starts no provider or filesystem work.
 public struct LibraryPresentation: Sendable {
+    public var metadataDurationMs: Int64?
+    public var metadataWidth = 0
+    public var metadataHeight = 0
+    public var metadataAudioTracks: Int?
+    public var metadataSubtitleTracks: Int?
+    public var metadataLoading = false
+    public var metadataUnavailable = false
     public var roomStatus = ""
     public var state: LibraryVisualState
     public var entries: [LibraryEntry]

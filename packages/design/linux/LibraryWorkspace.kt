@@ -15,6 +15,13 @@ data class LibraryPresentation(
     val selectedID: String? = null,
     val enabledActions: Set<String> = emptySet(),
     val roomStatus: String = "",
+    val metadataDurationMs: Long? = null,
+    val metadataWidth: Int = 0,
+    val metadataHeight: Int = 0,
+    val metadataAudioTracks: Int? = null,
+    val metadataSubtitleTracks: Int? = null,
+    val metadataLoading: Boolean = false,
+    val metadataUnavailable: Boolean = false,
 ) {
     val selected: LibraryEntry? get() = entries.firstOrNull { it.id == selectedID }
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchCopy.libraryActions && when (action) {

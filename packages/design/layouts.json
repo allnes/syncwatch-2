@@ -779,8 +779,9 @@
                                               "kind": "text",
                                               "styles": [],
                                               "props": {
-                                                "text": "~unknown",
-                                                "weight": "semibold"
+                                                "text": "$metadataDuration",
+                                                "weight": "semibold",
+                                                "automation": "{namespace}.metadataDuration"
                                               },
                                               "children": []
                                             }
@@ -811,8 +812,9 @@
                                               "kind": "text",
                                               "styles": [],
                                               "props": {
-                                                "text": "~unknown",
-                                                "weight": "semibold"
+                                                "text": "$metadataResolution",
+                                                "weight": "semibold",
+                                                "automation": "{namespace}.metadataResolution"
                                               },
                                               "children": []
                                             }
@@ -843,8 +845,9 @@
                                               "kind": "text",
                                               "styles": [],
                                               "props": {
-                                                "text": "~unknown",
-                                                "weight": "semibold"
+                                                "text": "$metadataAudio",
+                                                "weight": "semibold",
+                                                "automation": "{namespace}.metadataAudio"
                                               },
                                               "children": []
                                             }
@@ -875,8 +878,9 @@
                                               "kind": "text",
                                               "styles": [],
                                               "props": {
-                                                "text": "~unknown",
-                                                "weight": "semibold"
+                                                "text": "$metadataSubtitles",
+                                                "weight": "semibold",
+                                                "automation": "{namespace}.metadataSubtitles"
                                               },
                                               "children": []
                                             }
@@ -926,8 +930,9 @@
                                                   "kind": "text",
                                                   "styles": [],
                                                   "props": {
-                                                    "text": "~unknown",
-                                                    "weight": "semibold"
+                                                    "text": "$metadataDuration",
+                                                    "weight": "semibold",
+                                                    "automation": "{namespace}.metadataDuration"
                                                   },
                                                   "children": []
                                                 }
@@ -958,8 +963,9 @@
                                                   "kind": "text",
                                                   "styles": [],
                                                   "props": {
-                                                    "text": "~unknown",
-                                                    "weight": "semibold"
+                                                    "text": "$metadataResolution",
+                                                    "weight": "semibold",
+                                                    "automation": "{namespace}.metadataResolution"
                                                   },
                                                   "children": []
                                                 }
@@ -1000,8 +1006,9 @@
                                                   "kind": "text",
                                                   "styles": [],
                                                   "props": {
-                                                    "text": "~unknown",
-                                                    "weight": "semibold"
+                                                    "text": "$metadataAudio",
+                                                    "weight": "semibold",
+                                                    "automation": "{namespace}.metadataAudio"
                                                   },
                                                   "children": []
                                                 }
@@ -1032,8 +1039,9 @@
                                                   "kind": "text",
                                                   "styles": [],
                                                   "props": {
-                                                    "text": "~unknown",
-                                                    "weight": "semibold"
+                                                    "text": "$metadataSubtitles",
+                                                    "weight": "semibold",
+                                                    "automation": "{namespace}.metadataSubtitles"
                                                   },
                                                   "children": []
                                                 }
@@ -1178,6 +1186,30 @@
                                       "children": []
                                     }
                                   ]
+                                },
+                                {
+                                  "id": "metadataLoading",
+                                  "kind": "text",
+                                  "styles": [
+                                    "muted"
+                                  ],
+                                  "props": {
+                                    "text": "~metadataLoading",
+                                    "when": "$metadataLoading"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "metadataUnavailable",
+                                  "kind": "text",
+                                  "styles": [
+                                    "muted"
+                                  ],
+                                  "props": {
+                                    "text": "~metadataUnavailable",
+                                    "when": "$metadataUnavailable"
+                                  },
+                                  "children": []
                                 }
                               ]
                             }

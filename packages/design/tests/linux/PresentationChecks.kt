@@ -196,6 +196,14 @@ fun main(arguments: Array<String>) {
     val player = playerChecks(root)
     val call = callChecks(root)
     val selection = selectionChecks(root)
+    for (row in corpus(root, "library-metadata.json")) {
+        val p = LibraryPresentation.gallery(LibraryVisualState.selected).copy(
+            metadataDurationMs = (row["durationMs"] as Number?)?.toLong(), metadataWidth = row.number("width").toInt(),
+            metadataHeight = row.number("height").toInt(), metadataAudioTracks = (row["audioTracks"] as Number?)?.toInt(),
+            metadataSubtitleTracks = (row["subtitleTracks"] as Number?)?.toInt())
+        val context = DesignBindings.library(p, "", row.text("language"))
+        for ((key, value) in row["expected"].record()) check(context.values[key] == value) { "metadata-presentation-$key" }
+    }
     libraryChecks()
     roomChecks()
     val fields = settingsChecks(root)
