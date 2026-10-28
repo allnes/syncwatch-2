@@ -37,13 +37,20 @@ import SyncWatchLibrary
             canSave: canWrite && !savingWatchState)
     }
 
-    func save(_ values: [String: String]) -> Bool {
+    func save(_ values: [String: String], libraryOptions: Bool = false) -> Bool {
         guard canWrite, !savingWatchState, let theme = values["theme"], let language = values["language"] else {
             return false
         }
         var next = state
         next.preferences.theme = theme
         next.preferences.language = language
+        if libraryOptions {
+            guard let scan = values["scanSubfolders"], let refresh = values["automaticRefresh"],
+                ["true", "false"].contains(scan), ["true", "false"].contains(refresh)
+            else { return false }
+            next.preferences.scanSubfolders = scan == "true"
+            next.preferences.automaticRefresh = refresh == "true"
+        }
         do {
             try next.validate()
             try store.write(next)
@@ -109,13 +116,16 @@ import SyncWatchLibrary
         _watch = StateObject(wrappedValue: watch)
         _shared = StateObject(wrappedValue: shared)
         watch.onEndWatching = { [weak shared] in Task { await shared?.end() } }
-        _library = StateObject(
-            wrappedValue: LibraryController(
-                store: FileLibraryAccessStore(
-                    url: stateURL.deletingLastPathComponent().appendingPathComponent(
-                        "library-access.json")),
-                selectedID: preferences.state.selectedMediaID,
-                metadata: LibraryMetadataReader(media: MediaConfiguration.read(CommandLine.arguments))))
+        let library = LibraryController(
+            store: FileLibraryAccessStore(
+                url: stateURL.deletingLastPathComponent().appendingPathComponent(
+                    "library-access.json")),
+            selectedID: preferences.state.selectedMediaID,
+            metadata: LibraryMetadataReader(media: MediaConfiguration.read(CommandLine.arguments)))
+        library.configureOptions(
+            scanSubfolders: preferences.state.preferences.scanSubfolders,
+            automaticRefresh: preferences.state.preferences.automaticRefresh)
+        _library = StateObject(wrappedValue: library)
     }
     @State private var showRoom = false
     @State private var showSettings = false
@@ -149,7 +159,7 @@ import SyncWatchLibrary
                     } else if action == "openRoom" {
                         showRoom = true
                     } else if action == "openSettings" {
-                        editor = preferences.editor
+                        editor = library.settingsEditor(preferences.editor)
                         showSettings = true
                     }
                 }.selectionHandlers(
@@ -219,8 +229,15 @@ import SyncWatchLibrary
             SettingsDialog(
                 editor: $editor, language: preferences.state.preferences.language,
                 onSave: { values in
-                    let saved = preferences.save(values)
-                    if saved { watch.preferencesChanged() }
+                    let options = editor.editableFields.contains("scanSubfolders")
+                    guard !options || library.canConfigure else { return false }
+                    let saved = preferences.save(values, libraryOptions: options)
+                    if saved {
+                        library.configureOptions(
+                            scanSubfolders: preferences.state.preferences.scanSubfolders,
+                            automaticRefresh: preferences.state.preferences.automaticRefresh)
+                        watch.preferencesChanged()
+                    }
                     return saved
                 }, onClose: { showSettings = false })
         }

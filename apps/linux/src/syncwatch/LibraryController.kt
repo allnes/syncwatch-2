@@ -1,6 +1,8 @@
 package syncwatch
 
 import syncwatch.design.SyncWatchSelectionMenu
+import syncwatch.design.SettingsEditor
+import syncwatch.design.SyncWatchSettings
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private var pending: Job? = null
     private var monitor: LibraryChangeMonitor? = null
     private var monitorAccess: LibraryFolderAccess? = null
+    private var monitorRecursive: Boolean? = null
+    private var configuredSubfolders: Boolean? = null
+    private var configuredRefresh: Boolean? = null
     private var monitorJob: Job? = null
     private var metadataTask: Job? = null
     private var metadataGeneration = 0L
@@ -64,8 +69,27 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 LibraryAccessStatus.unsupportedVersion -> error("unsupported-library-version")
         }
     }
-    fun choose(path: Path) = start { withContext(Dispatchers.IO) { LibraryFolderAccess.selected(path) } }
+    fun choose(path: Path) {
+        val recursive = scanRecursively(grant); val refresh = refreshAutomatically(grant)
+        start { withContext(Dispatchers.IO) { LibraryFolderAccess.selected(path, recursive, refresh) } }
+    }
     fun rescan() { grant?.let { current -> start(persistAccess = false) { current } } }
+    val canConfigure: Boolean get() = !closed && presentation.state != LibraryVisualState.scanning
+    fun settingsEditor(base: SettingsEditor) = SettingsEditor(
+        values = base.values + mapOf("scanSubfolders" to scanRecursively(grant).toString(), "automaticRefresh" to refreshAutomatically(grant).toString()),
+        editableFields = base.editableFields + if (canConfigure && base.canSave) setOf("scanSubfolders", "automaticRefresh") else emptySet(), canSave = base.canSave)
+    fun configureOptions(scanSubfolders: Boolean?, automaticRefresh: Boolean?): Boolean {
+        if (configuredSubfolders == scanSubfolders && configuredRefresh == automaticRefresh) return !closed
+        if (!canConfigure) return false
+        configuredSubfolders = scanSubfolders; configuredRefresh = automaticRefresh; rescan(); return true
+    }
+    private fun scanRecursively(access: LibraryFolderAccess?) = configuredSubfolders ?: access?.record?.scanSubfolders ?: (SyncWatchSettings.defaults["scanSubfolders"] == "true")
+    private fun refreshAutomatically(access: LibraryFolderAccess?) = configuredRefresh ?: access?.record?.autoRefresh ?: (SyncWatchSettings.defaults["automaticRefresh"] == "true")
+    private fun sameRoomCatalog(files: List<LocalMediaFile>) = files.size == catalog.size && files.all { file ->
+        val old = catalog[file.id]
+        old != null && file.title == old.title && file.relativePath == old.relativePath &&
+            file.sizeBytes == old.sizeBytes && file.modificationTime == old.modificationTime
+    }
     fun select(id: String) {
         if (!closed) presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); startMetadata() }
     }
@@ -154,9 +178,10 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         }
     }
     private suspend fun <T> storage(operation: () -> T): T = persistence.withLock { withContext(Dispatchers.IO) { operation() } }
-    private fun replaceMonitor(source: LibraryChangeMonitor?, access: LibraryFolderAccess) {
+    private fun replaceMonitor(source: LibraryChangeMonitor?, access: LibraryFolderAccess, recursive: Boolean) {
         monitorJob?.cancel(); monitor?.close()
         monitor = source; monitorAccess = if (source == null) null else access
+        monitorRecursive = if (source == null) null else recursive
         monitorJob = source?.let { owner -> scope.launch {
             try {
                 for (event in owner.changes) {
@@ -189,24 +214,27 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 val next = acquire()
                 coroutineContext.ensureActive()
                 if (next == null) { if (generation == current) { presentation = previous; startMetadata() }; return@launch }
-                val reuse = next.record.autoRefresh && monitor?.isActive == true && monitorAccess?.rootId == next.rootId &&
-                    monitorAccess?.root == next.root && monitorAccess?.record?.scanSubfolders == next.record.scanSubfolders
+                val recursive = scanRecursively(next); val refresh = refreshAutomatically(next)
+                val reuse = refresh && monitor?.isActive == true && monitorAccess?.rootId == next.rootId &&
+                    monitorAccess?.root == next.root && monitorRecursive == recursive
                 var watchFailed = false
-                if (next.record.autoRefresh && !reuse) {
+                if (refresh && !reuse) {
                     try {
-                        candidate = withContext(Dispatchers.IO + NonCancellable) { LibraryChangeMonitor.open(next.root, next.record.scanSubfolders) }
+                        candidate = withContext(Dispatchers.IO + NonCancellable) { LibraryChangeMonitor.open(next.root, recursive) }
                     } catch (_: Exception) { watchFailed = true }
                 }
                 coroutineContext.ensureActive()
-                val files = scanner.scan(next.root, next.rootId, next.record.scanSubfolders)
+                val files = scanner.scan(next.root, next.rootId, recursive)
                 coroutineContext.ensureActive()
                 if (closed || current != generation) return@launch
                 if (automatic && files.associateBy { it.id } == catalog) {
-                    if (!reuse) { replaceMonitor(candidate, next); candidate = null }
+                    if (!reuse) { replaceMonitor(candidate, next, recursive); candidate = null }
                     if (watchFailed) errorKey = "libraryWatchFailed"
                     return@launch
                 }
                 if (automatic) cancelMetadata()
+                // Companion and folder-presentation changes stay outside room activity.
+                val publishRoom = !automatic || !sameRoomCatalog(files)
                 fun compare(a: String, b: String) = java.util.Arrays.compareUnsigned(a.toByteArray(Charsets.UTF_8), b.toByteArray(Charsets.UTF_8))
                 durations.reconcile(files)
                 val rows = files.sortedWith { a, b -> compare(a.title.lowercase(), b.title.lowercase()).takeIf { it != 0 } ?: compare(a.relativePath, b.relativePath) }
@@ -214,11 +242,11 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 val selected = listOfNotNull(if (automatic) presentation.selectedID else previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
                 catalog = files.associateBy { it.id }
-                roomRevision = java.util.UUID.randomUUID()
+                if (publishRoom) roomRevision = java.util.UUID.randomUUID()
                 presentation = LibraryPresentation(if (rows.isEmpty()) LibraryVisualState.empty else LibraryVisualState.selected,
                     rows, selected, setOf("chooseFolder", "rescan", "search", "selectMovie", "openSettings"))
                 startMetadata()
-                if (!reuse) { replaceMonitor(candidate, next); candidate = null }
+                if (!reuse) { replaceMonitor(candidate, next, recursive); candidate = null }
                 if (watchFailed) errorKey = "libraryWatchFailed"
                 if (!persistAccess) return@launch
                 try { storage { store.write(next.record) } }

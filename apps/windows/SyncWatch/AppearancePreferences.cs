@@ -29,10 +29,16 @@ public sealed class AppearancePreferences
 
     public SettingsEditor CreateEditor() => new(new Dictionary<string, string> { ["theme"] = State.Preferences.Theme, ["language"] = State.Preferences.Language }, CanWrite && !SavingWatchState ? ["theme", "language"] : [], CanWrite && !SavingWatchState);
 
-    public bool Save(IReadOnlyDictionary<string, string> values)
+    public bool Save(IReadOnlyDictionary<string, string> values, bool libraryOptions = false)
     {
         if (!CanWrite || SavingWatchState || !values.TryGetValue("theme", out var theme) || !values.TryGetValue("language", out var language)) return false;
         var next = State with { Preferences = State.Preferences with { Theme = theme, Language = language } };
+        if (libraryOptions)
+        {
+            if (!values.TryGetValue("scanSubfolders", out var scan) || scan is not ("true" or "false") ||
+                !values.TryGetValue("automaticRefresh", out var refresh) || refresh is not ("true" or "false")) return false;
+            next = next with { Preferences = next.Preferences with { ScanSubfolders = scan == "true", AutomaticRefresh = refresh == "true" } };
+        }
         try { next.Validate(); store.Write(next); State = next; return true; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or WatchException or ContractException) { return false; }
     }

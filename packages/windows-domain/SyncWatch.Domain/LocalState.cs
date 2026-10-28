@@ -19,6 +19,9 @@ public sealed record LocalPreferences
     public required bool DuckMovieDuringSpeech { get; init; }
     public required bool CameraEnabled { get; init; }
     public required bool MicrophoneEnabled { get; init; }
+    // Older state files retain the selected folder's legacy values until Settings saves these options.
+    public bool? ScanSubfolders { get; init; }
+    public bool? AutomaticRefresh { get; init; }
 
     public static LocalPreferences CreateDefault() => new()
     {

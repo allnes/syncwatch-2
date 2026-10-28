@@ -684,7 +684,7 @@ object SyncWatchSettings {
         "theme" to "system",
         "folder" to "",
         "scanSubfolders" to "true",
-        "automaticRefresh" to "true",
+        "automaticRefresh" to "false",
         "inputDevice" to "system",
         "outputDevice" to "system",
         "cameraQuality" to "480p",

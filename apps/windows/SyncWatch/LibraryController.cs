@@ -23,6 +23,9 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     private CancellationTokenSource? pending;
     private LibraryChangeMonitor? monitor;
     private LibraryFolderAccess? monitorAccess;
+    private bool? monitorRecursive;
+    private bool? configuredSubfolders;
+    private bool? configuredRefresh;
     private CancellationTokenSource? monitorCancellation;
     private Task monitorTask = Task.CompletedTask;
     private readonly List<Task> retiredMonitors = [];
@@ -52,8 +55,31 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             _ => throw new InvalidOperationException("unsupported-library-version"),
         };
     });
-    public void Choose(string path) => Start(token => Task.Run<LibraryFolderAccess?>(() => LibraryFolderAccess.Selected(path), token));
+    public void Choose(string path)
+    {
+        bool recursive = ScanRecursively(grant), refresh = RefreshAutomatically(grant);
+        Start(token => Task.Run<LibraryFolderAccess?>(() => LibraryFolderAccess.Selected(path, recursive, refresh), token));
+    }
     public void Rescan() { if (grant is not null) { var owner = grant; Start(_ => Task.FromResult<LibraryFolderAccess?>(owner), persistAccess: false); } }
+    public bool CanConfigure => !closed && Presentation.State != LibraryVisualState.Scanning;
+    public SettingsEditor SettingsEditor(SettingsEditor basis)
+    {
+        var values = new Dictionary<string, string>(basis.Values)
+        { ["scanSubfolders"] = ScanRecursively(grant) ? "true" : "false", ["automaticRefresh"] = RefreshAutomatically(grant) ? "true" : "false" };
+        return new(values, basis.EditableFields.Concat(CanConfigure && basis.CanSave ? new[] { "scanSubfolders", "automaticRefresh" } : []), basis.CanSave);
+    }
+    public bool ConfigureOptions(bool? scanSubfolders, bool? automaticRefresh)
+    {
+        dispatcher.VerifyAccess();
+        if (configuredSubfolders == scanSubfolders && configuredRefresh == automaticRefresh) return !closed;
+        if (!CanConfigure) return false;
+        configuredSubfolders = scanSubfolders; configuredRefresh = automaticRefresh; Rescan(); return true;
+    }
+    private bool ScanRecursively(LibraryFolderAccess? access) => configuredSubfolders ?? access?.Record.ScanSubfolders ?? (SyncWatchSettings.Defaults["scanSubfolders"] == "true");
+    private bool RefreshAutomatically(LibraryFolderAccess? access) => configuredRefresh ?? access?.Record.AutoRefresh ?? (SyncWatchSettings.Defaults["automaticRefresh"] == "true");
+    private bool SameRoomCatalog(IReadOnlyList<LocalMediaFile> files) => files.Count == catalog.Count && files.All(file =>
+        catalog.TryGetValue(file.Id, out var old) && file.Title == old.Title && file.RelativePath == old.RelativePath &&
+        file.SizeBytes == old.SizeBytes && file.ModificationDate == old.ModificationDate);
     public void Select(string id)
     {
         dispatcher.VerifyAccess(); if (closed) return;
@@ -190,12 +216,13 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         try { return await Task.Run(operation, token); }
         finally { persistence.Release(); }
     }
-    private void ReplaceMonitor(LibraryChangeMonitor? source, LibraryFolderAccess access)
+    private void ReplaceMonitor(LibraryChangeMonitor? source, LibraryFolderAccess access, bool recursive)
     {
         monitorCancellation?.Cancel(); monitor?.Dispose();
         retiredMonitors.RemoveAll(task => task.IsCompleted);
         if (!monitorTask.IsCompleted) retiredMonitors.Add(monitorTask);
         monitor = source; monitorAccess = source is null ? null : access;
+        monitorRecursive = source is null ? null : recursive;
         monitorCancellation = source is null ? null : new();
         monitorTask = source is null ? Task.CompletedTask : MonitorChanges(source, access, monitorCancellation!);
     }
@@ -247,31 +274,34 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             var next = await acquire(token);
             token.ThrowIfCancellationRequested();
             if (next is null) { if (generation == current) { Presentation = previous; StartMetadata(); Changed?.Invoke(); } return; }
-            bool reuse = next.Record.AutoRefresh && monitor?.IsActive == true && monitorAccess?.RootId == next.RootId &&
-                monitorAccess?.RootPath == next.RootPath && monitorAccess?.Record.ScanSubfolders == next.Record.ScanSubfolders;
+            bool recursive = ScanRecursively(next), refresh = RefreshAutomatically(next);
+            bool reuse = refresh && monitor?.IsActive == true && monitorAccess?.RootId == next.RootId &&
+                monitorAccess?.RootPath == next.RootPath && monitorRecursive == recursive;
             bool watchFailed = false;
-            if (next.Record.AutoRefresh && !reuse)
+            if (refresh && !reuse)
             {
-                try { candidate = await Task.Run(() => new LibraryChangeMonitor(next.RootPath, next.Record.ScanSubfolders), token); }
+                try { candidate = await Task.Run(() => new LibraryChangeMonitor(next.RootPath, recursive), token); }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException) { watchFailed = true; }
             }
             token.ThrowIfCancellationRequested();
-            var files = await scanner.ScanAsync(next.RootPath, next.RootId, next.Record.ScanSubfolders, token);
+            var files = await scanner.ScanAsync(next.RootPath, next.RootId, recursive, token);
             token.ThrowIfCancellationRequested(); if (closed || generation != current) return;
             if (automatic && SameCatalog(files))
             {
-                if (!reuse) { ReplaceMonitor(candidate, next); candidate = null; }
+                if (!reuse) { ReplaceMonitor(candidate, next, recursive); candidate = null; }
                 if (watchFailed) { ErrorKey = "libraryWatchFailed"; Changed?.Invoke(); }
                 return;
             }
             if (automatic) CancelMetadata();
+            // Local companion and folder-presentation changes do not publish room activity.
+            bool publishRoom = !automatic || !SameRoomCatalog(files);
             var utf8 = Comparer<string>.Create((a, b) => Encoding.UTF8.GetBytes(a).AsSpan().SequenceCompareTo(Encoding.UTF8.GetBytes(b)));
             durations.Reconcile(files);
             var rows = files.OrderBy(x => x.Title.ToLowerInvariant(), utf8).ThenBy(x => x.RelativePath, utf8)
                 .Select(x => new LibraryEntry(x.Id, x.Title, x.File, durations.Duration(x), x.FolderMovie)).ToArray();
             string? selected = new[] { automatic ? Presentation.SelectedId : previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
             var nextCatalog = files.ToDictionary(x => x.Id);
-            grant = next; catalog = nextCatalog; RoomRevision = Guid.NewGuid(); Presentation = new()
+            grant = next; catalog = nextCatalog; if (publishRoom) RoomRevision = Guid.NewGuid(); Presentation = new()
             {
                 State = rows.Length == 0 ? LibraryVisualState.Empty : LibraryVisualState.Selected,
                 Entries = rows,
@@ -279,7 +309,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                 EnabledActions = new HashSet<string> { "chooseFolder", "rescan", "search", "selectMovie", "openSettings" }
             };
             StartMetadata(); Changed?.Invoke();
-            if (!reuse) { ReplaceMonitor(candidate, next); candidate = null; }
+            if (!reuse) { ReplaceMonitor(candidate, next, recursive); candidate = null; }
             if (watchFailed) { ErrorKey = "libraryWatchFailed"; Changed?.Invoke(); }
             if (!persistAccess) return;
             try { await Storage(() => { store.Write(next.Record); return true; }, token); }

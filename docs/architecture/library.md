@@ -100,16 +100,27 @@ The application starts a candidate monitor before listing a new folder and adopt
 it only with the completed snapshot. It coalesces events, waits for an ongoing
 operation, and rescans under the current folder owner. An unchanged snapshot does
 not reset track drafts or restart metadata inspection. A changed snapshot keeps
-the latest valid selection and publishes a new catalog revision. Automatic and
+the latest valid selection and updates the Library presentation. Automatic and
 manual rescans do not rewrite the access record, preventing notification loops
 when application state is stored inside the selected folder.
+
+Automatic changes limited to companions or folder presentation update the local
+Library without publishing a room revision. Only movie-version changes affect
+automatic room publication; paths and local track choices stay private.
 
 Each monitor retains its folder owner through shutdown. Choosing another folder
 invalidates the previous consumer; close cancels consumers, stops native sources
 and awaits their completion. Monitoring failures leave manual Refresh available
 with an explicit localized warning. The saved folder flag controls whether a
-monitor is created. User-facing Library option editing and complete desktop
-change-recovery acceptance remain integration work.
+monitor is created. Common Settings exposes subfolder scanning and automatic
+refresh through the existing declarative fields. Their values persist atomically
+with appearance in local preferences and survive watch checkpoints. Missing
+values in older state files inherit the saved folder options until Settings saves
+explicit global values; bookmarks and paths remain in the access store. Fresh
+folders default to automatic refresh off through common Design policy. Applying
+options rebuilds the monitor and reconciles the catalog while retaining the folder
+identity. Library option editing is unavailable during a manual folder operation.
+Complete desktop change-recovery acceptance remains integration work.
 
 Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
@@ -174,5 +185,5 @@ This workflow is under qualification. Native controller/transport checks run
 on all three target operating systems. Metadata interruption, end bookkeeping,
 file completion and the complete directed playback matrix must pass actual
 application checks before the feature is qualified. Explicit edition
-confirmation, user-facing Library options and persistent digest-cache invalidation remain
+confirmation, complete change-recovery qualification and persistent digest-cache invalidation remain
 integration work.

@@ -8,6 +8,8 @@ data class LocalPreferences(
     val movieVolume: Double = 1.0, val callVolume: Double = 1.0,
     val rememberMovieVolume: Boolean = true, val duckMovieDuringSpeech: Boolean = false,
     val cameraEnabled: Boolean = true, val microphoneEnabled: Boolean = true,
+    // Missing in older state files; the selected folder supplies legacy values until Settings saves them.
+    val scanSubfolders: Boolean? = null, val automaticRefresh: Boolean? = null,
 ) {
     fun validate() {
         if (theme !in setOf("system", "dark", "light") || language !in setOf("en", "ru") || skipSeconds !in 1..600

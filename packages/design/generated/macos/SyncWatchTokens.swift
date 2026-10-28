@@ -895,7 +895,7 @@ public enum SyncWatchSettings {
         "theme": "system",
         "folder": "",
         "scanSubfolders": "true",
-        "automaticRefresh": "true",
+        "automaticRefresh": "false",
         "inputDevice": "system",
         "outputDevice": "system",
         "cameraQuality": "480p",
