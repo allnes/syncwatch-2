@@ -68,7 +68,8 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             while (owned == null) {
                 currentCoroutineContext().ensureActive()
                 check(room.isCurrent(ticket) && watch.scope == nativeScope && watch.errorKey == null && System.nanoTime() < deadline) { "media-unavailable" }
-                watch.player?.takeIf { it.scope == nativeScope && !it.failed }?.let { player ->
+                // The native input can be ready while the application is still acknowledging its tracks.
+                watch.player?.takeIf { watch.phase == WatchPhase.active && it.scope == nativeScope && !it.failed }?.let { player ->
                     try {
                         val actual = player.player.observe(nativeScope)
                         if (actual.status == PlaybackStatus.ready && actual.seekable && (actual.durationMs ?: 0) > 0) owned = player

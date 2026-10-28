@@ -65,7 +65,8 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             {
                 token.ThrowIfCancellationRequested();
                 if (!room.IsCurrent(intent.Membership) || watch.Scope != scope || watch.ErrorKey is not null || Environment.TickCount64 >= deadline) throw new InvalidOperationException("media-unavailable");
-                if (watch.Player is { } player && player.Scope == scope)
+                // Native readiness does not acknowledge restored position and initial track preferences.
+                if (watch.Phase == WatchPhase.Active && watch.Player is { } player && player.Scope == scope)
                 {
                     try
                     {

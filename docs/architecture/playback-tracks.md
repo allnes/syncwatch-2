@@ -24,6 +24,11 @@ ready while VLC still reports another track. See [Library ownership](library.md#
 
 When opening a movie, the local playback owner restores its saved position before applying the captured library preferences. Both native track lists must match the metadata generation before either selection is submitted. Watch admission and transport controls follow actual selected-ID acknowledgement.
 
+The room coordinator waits for the local watch owner's active phase as well as
+native readiness before hashing, publication or helper startup. A native input
+may report ready while saved-position restoration or track acknowledgement is
+still pending; that observation alone cannot authorize shared admission.
+
 A stream selected while paused can be acknowledged before its decoder consumes the demux refill. The common native adapter refills once at the actual local clock when playback resumes and clears this pending work when the input is released. This behavior belongs below the platform ports and emits no Syncplay seek intent. It requires output acceptance at a restored mid-movie position on every desktop; selected IDs alone are insufficient.
 
 Linux returns from its application composition through normal JVM teardown.
