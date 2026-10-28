@@ -13,6 +13,7 @@ import syncwatch.design.*
 import syncwatch.domain.PlaybackScope
 import syncwatch.domain.PlaybackTrackControlPort
 import syncwatch.domain.PlaybackExternalTrackPort
+import syncwatch.domain.PlaybackTrack
 import syncwatch.library.LocalFileAccess
 
 /** Movie-local selection; room metadata and Syncplay retain their own authority. */
@@ -27,8 +28,14 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
     private var language = "en"
     private val externalFiles = mutableListOf<LocalFileAccess>()
     private val aliases = mutableMapOf<Pair<String, Int>, String>()
+    private var observations by mutableStateOf(emptyMap<String, PlaybackTrack>())
     var menu by mutableStateOf<SelectionMenuPresentation?>(null)
         private set
+
+    fun libraryPresentation(source: LibraryPresentation): LibraryPresentation = if (closed) source else source.copy(
+        metadataAudioName = observations["audio"]?.takeIf { it.id >= 0 }?.name,
+        metadataSubtitleName = observations["subtitles"]?.takeIf { it.id >= 0 }?.name,
+        metadataSubtitlesDisabled = observations["subtitles"]?.let { it.id < 0 } == true)
 
     /** Before watch admission/controls; validate both lists before mutating either. */
     suspend fun applyInitial(preferences: LocalTrackPreferences) {
@@ -55,6 +62,8 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
             val id = attachment(isSubtitle, previous)
             aliases[(if (isSubtitle) "subtitles" else "audio") to id] = file.file.fileName.toString()
         }
+        snapshot("audio", revision)
+        snapshot("subtitles", revision)
     }
     private suspend fun acknowledge(id: Int, subtitles: Boolean) {
         if (player.selectedTrack(subtitles, scope) == id) return
@@ -117,6 +126,12 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
         val subtitles = kind == "subtitles"
         val tracks = player.tracks(subtitles, scope)
         val selected = player.selectedTrack(subtitles, scope)
+        currentCoroutineContext().ensureActive()
+        if (!closed && current == revision) {
+            val observed = if (selected < 0) PlaybackTrack(selected, "") else tracks.firstOrNull { it.id == selected }
+            observations = if (observed == null) observations - kind else observations +
+                (kind to observed.copy(name = aliases[kind to selected] ?: observed.name))
+        }
         val entries = tracks.map { SelectionMenuEntry(it.id.toString(), SelectionMenuEntry.observedLabel(aliases[kind to it.id] ?: it.name, language), disabledTrack = it.id < 0) }.toMutableList()
         if (subtitles && tracks.none { it.id < 0 }) entries.add(0, SelectionMenuEntry.offTrack)
         if (picker != null && player is PlaybackExternalTrackPort && entries.size < SyncWatchSelectionMenu.maximumEntries)
@@ -153,5 +168,5 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
     }
     suspend fun settled() { request?.join() }
     /** Only after native close has joined its input borrowers. */
-    fun releaseExternalAccess() { externalFiles.clear(); aliases.clear() }
+    fun releaseExternalAccess() { externalFiles.clear(); aliases.clear(); observations = emptyMap() }
 }

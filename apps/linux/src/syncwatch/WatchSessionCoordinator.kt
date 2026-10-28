@@ -48,7 +48,8 @@ internal class WatchSessionCoordinator(
         if (runtimeAvailable && !preferences.savingWatchState && !live) enabled += "startWatching"
         if (live) { enabled += setOf("continueWatching", "endWatching"); enabled -= setOf("openLibraryAudio", "openLibrarySubtitles") }
         if (preferences.savingWatchState) enabled -= "openSettings"
-        return source.copy(enabledActions = enabled)
+        val result = source.copy(enabledActions = enabled)
+        return if (live) player!!.libraryPresentation(result) else result
     }
     fun start(selection: LibraryMediaSelection, requiresSharedAdmission: Boolean = false) {
         check(java.awt.EventQueue.isDispatchThread())

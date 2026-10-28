@@ -18,6 +18,16 @@ import SyncWatchLibrary
     private var language = "en"
     private var externalFiles: [LocalFileAccess] = []
     private var aliases: [String: [Int32: String]] = [:]
+    private var observations: [String: PlaybackTrack] = [:]
+
+    func libraryPresentation(_ source: LibraryPresentation) -> LibraryPresentation {
+        guard !closed else { return source }
+        var result = source
+        result.metadataAudioName = observations["audio"].flatMap { $0.id >= 0 ? $0.name : nil }
+        result.metadataSubtitleName = observations["subtitles"].flatMap { $0.id >= 0 ? $0.name : nil }
+        result.metadataSubtitlesDisabled = observations["subtitles"].map { $0.id < 0 } ?? false
+        return result
+    }
 
     init(
         player: any PlaybackTrackControlPort, scope: @escaping @MainActor () -> PlaybackScope?,
@@ -63,6 +73,8 @@ import SyncWatchLibrary
             let id = try await attachment(subtitles: isSubtitle, excluding: previous, scope: scope)
             aliases[isSubtitle ? "subtitles" : "audio", default: [:]][id] = file.file.lastPathComponent
         }
+        _ = try await snapshot("audio", revision: revision)
+        _ = try await snapshot("subtitles", revision: revision)
     }
     private func acknowledge(_ id: Int32, subtitles: Bool, scope: PlaybackScope) async throws {
         if try await player.selectedTrack(subtitles: subtitles, scope: scope) == id { return }
@@ -159,6 +171,16 @@ import SyncWatchLibrary
         let subtitles = kind == "subtitles"
         let tracks = try await player.tracks(subtitles: subtitles, scope: scope)
         let selected = try await player.selectedTrack(subtitles: subtitles, scope: scope)
+        try Task.checkCancellation()
+        if !closed, revision == self.revision, activeScope() == scope {
+            if let observed = selected < 0
+                ? PlaybackTrack(id: selected, name: "") : tracks.first(where: { $0.id == selected })
+            {
+                observations[kind] = PlaybackTrack(id: selected, name: aliases[kind]?[selected] ?? observed.name)
+            } else {
+                observations[kind] = nil
+            }
+        }
         var result = SelectionMenuPresentation()
         result.kind = kind
         result.sourceID = sourceID
@@ -223,5 +245,6 @@ import SyncWatchLibrary
     func releaseExternalAccess() {
         externalFiles.removeAll()
         aliases.removeAll()
+        observations.removeAll()
     }
 }

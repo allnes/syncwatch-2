@@ -113,6 +113,7 @@ internal suspend fun localPlaybackTracksChecks(owner: CoroutineScope) {
         until { player.selections == 1 }; check(model.menu == null)
         player.autoAcknowledge = true; player.selected = 2; applying.await()
         check(player.selections == 2 && player.selected == -1)
+        check(model.libraryPresentation(LibraryPresentation()).metadataSubtitlesDisabled)
         player.autoAcknowledge = false; player.selected = 1; player.selections = 0
         model.open("audio"); model.settled(); check(player.lastScope == scope)
         val initial = checkNotNull(model.menu); var request: SelectionMenuRequest? = null
@@ -121,6 +122,7 @@ internal suspend fun localPlaybackTracksChecks(owner: CoroutineScope) {
         check(model.menu?.enabled == false && model.menu?.selectedID == "1")
         player.selected = 2; model.settled(); check(model.menu == null)
         model.open("audio"); model.settled(); check(model.menu?.enabled == true && model.menu?.selectedID == "2")
+        check(model.libraryPresentation(LibraryPresentation(metadataAudioName = "obsolete draft")).metadataAudioName == "Second")
         model.select(checkNotNull(request)); check(player.selections == 1)
         player.reject = true
         val current = checkNotNull(model.menu); current.dispatch("1", current.contextToken, model::select)
@@ -163,6 +165,8 @@ private suspend fun companionPreselectionChecks(owner: CoroutineScope) {
         try {
             playback.applyInitial(preferences)
             check(player.attachments == 1 && player.selected == 3)
+            val live = playback.libraryPresentation(LibraryPresentation(metadataSubtitlesDisabled = true, metadataSubtitleName = "obsolete draft"))
+            check(live.metadataSubtitleName == "Movie.en.srt" && !live.metadataSubtitlesDisabled)
             playback.open("subtitles"); playback.settled()
             check(playback.menu?.selectedID == "3" && playback.menu?.entries?.last()?.label == "Movie.en.srt")
         } finally { playback.close(); playback.releaseExternalAccess() }

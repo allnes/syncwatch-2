@@ -132,6 +132,13 @@ after that reconciliation even if a content invalidation preceded the terminal
 event. Dismissing the resulting error cannot publish another warning for the same
 failure.
 
+The active watch's read-only track labels come from its playback track owner,
+using acknowledged native selections and local attachment aliases. Catalog rescans
+can reset an editable Library draft without changing these observations. The
+watch coordinator applies them only to its matching live movie and scope; other
+Library selections continue to use their own drafts. Common Design still owns
+label formatting and presentation.
+
 Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
