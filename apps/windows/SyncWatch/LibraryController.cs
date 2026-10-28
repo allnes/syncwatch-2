@@ -289,10 +289,13 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         }
         catch (OperationCanceledException) { }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
-        { if (!closed && generation == current) {
-            if (!automatic) { Presentation = previous; StartMetadata(); }
-            ErrorKey = "libraryUnavailable"; Changed?.Invoke();
-        } }
+        {
+            if (!closed && generation == current)
+            {
+                if (!automatic) { Presentation = previous; StartMetadata(); }
+                ErrorKey = "libraryUnavailable"; Changed?.Invoke();
+            }
+        }
         finally { candidate?.Dispose(); }
     }
 }
