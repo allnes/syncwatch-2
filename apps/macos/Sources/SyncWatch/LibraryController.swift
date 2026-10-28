@@ -173,12 +173,10 @@ private actor LibraryRecordIO {
                         presentation.metadataDurationMs = value.durationMs
                         presentation.metadataWidth = value.width
                         presentation.metadataHeight = value.height
-                        presentation.metadataAudioTracks = value.audioTracks.map {
-                            $0 + file.companions.filter { $0.kind == .audio }.count
-                        }
-                        presentation.metadataSubtitleTracks = value.subtitleTracks.map {
-                            $0 + file.companions.filter { $0.kind == .subtitles }.count
-                        }
+                        presentation.metadataAudioTracks =
+                            value.audioTracks + file.companions.filter { $0.kind == .audio }.count
+                        presentation.metadataSubtitleTracks =
+                            value.subtitleTracks + file.companions.filter { $0.kind == .subtitles }.count
                         presentation.metadataLoading = false
                         tracks.reset(value, companions: file.companions)
                         presentation.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"])
