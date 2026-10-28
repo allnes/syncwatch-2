@@ -18,7 +18,8 @@ internal sealed class ExternalTrackPicker(Func<Window?> owner) : IExternalTrackC
 {
     private const int Cancelled = unchecked((int)0x800704C7);
     private const uint FileSystemPathName = 0x80058000; // SIGDN_FILESYSPATH
-    [Flags] private enum FileOptions : uint
+    [Flags]
+    private enum FileOptions : uint
     {
         NoChangeDirectory = 0x8,
         ForceFileSystem = 0x40,
