@@ -7544,78 +7544,6 @@
             "linux-x64"
           ],
           "timeoutSeconds": 300
-        },
-        "macos-arm64": {
-          "toolchains": {
-            "python": {
-              "command": [
-                "{python}",
-                "--version"
-              ],
-              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
-            },
-            "jdk": {
-              "command": [
-                "{python}",
-                "tools/jvm/jdk.py"
-              ],
-              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / macos-arm64$"
-            }
-          },
-          "environment": {},
-          "flags": {
-            "profile": "java8-module9-v1",
-            "version": "1.9.0"
-          },
-          "command": [
-            "{python}",
-            "tools/jvm/jbr_api.py",
-            "build"
-          ],
-          "verifyCommand": [
-            "{python}",
-            "tools/jvm/jbr_api.py",
-            "verify",
-            "--platform",
-            "macos-arm64"
-          ],
-          "timeoutSeconds": 300
-        },
-        "windows-x64": {
-          "toolchains": {
-            "python": {
-              "command": [
-                "{python}",
-                "--version"
-              ],
-              "pattern": "^Python 3\\.(?:1[2-9]|[2-9][0-9])\\.[0-9]+$"
-            },
-            "jdk": {
-              "command": [
-                "{python}",
-                "tools/jvm/jdk.py"
-              ],
-              "pattern": "^Temurin JDK 21\\.0\\.12\\.1\\+1 / windows-x64$"
-            }
-          },
-          "environment": {},
-          "flags": {
-            "profile": "java8-module9-v1",
-            "version": "1.9.0"
-          },
-          "command": [
-            "{python}",
-            "tools/jvm/jbr_api.py",
-            "build"
-          ],
-          "verifyCommand": [
-            "{python}",
-            "tools/jvm/jbr_api.py",
-            "verify",
-            "--platform",
-            "windows-x64"
-          ],
-          "timeoutSeconds": 300
         }
       }
     },
@@ -27336,6 +27264,11 @@
           "timeoutSeconds": 7200
         }
       }
+    },
+    "linux-application-jvm": {
+      "status": "unavailable",
+      "reason": "Pinned source build, native runtime import closure and complete application packaging CI are being qualified; no developer JVM is distributable",
+      "plannedIn": "Standalone native application packages"
     }
   }
 }

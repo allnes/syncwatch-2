@@ -7,7 +7,7 @@ from pathlib import Path
 PLATFORMS = {"macos", "windows", "linux"}
 MODULES = {"application", "domain", "design", "generatedDesign", "playback", "bridge", "library", "room"}
 VALIDATION = {"native-tested", "native-boundary-tested", "research-tested", "source-only", "missing"}
-LINUX_COMPONENTS = {"jvm-annotations", "kotlin-stdlib-sources", "kotlin-stdlib", "kotlinx-concurrency",
+LINUX_COMPONENTS = {"jvm-annotations", "jbr-api", "kotlin-stdlib-sources", "kotlin-stdlib", "kotlinx-concurrency",
                     "compose-runtime", "compose-state", "compose-ui-jvm", "skiko-native-objects"}
 
 
@@ -38,6 +38,10 @@ def check(root: Path) -> None:
     for name in LINUX_COMPONENTS:
         if set(components.get(name, {}).get("targets", {})) != {"linux-x64"}:
             raise ValueError(f"{name}: Kotlin client dependencies must build and verify only on Linux")
+    for name, component in components.items():
+        for target, specification in component.get("targets", {}).items():
+            if target != "linux-x64" and {"jdk", "kotlin"} & specification.get("toolchains", {}).keys():
+                raise ValueError(f"{name}: JVM client dependencies must build and verify only on Linux")
     required = application.get("requiredSourceComponents", [])
     if not required or not set(required) <= set(components):
         raise ValueError("Linux application prerequisites must name registered source components")

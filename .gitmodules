@@ -409,3 +409,30 @@
 [submodule "3rdparty/libsndfile"]
 	path = 3rdparty/libsndfile
 	url = https://github.com/libsndfile/libsndfile.git
+[submodule "3rdparty/openjdk"]
+	path = 3rdparty/openjdk
+	url = https://github.com/openjdk/jdk21u.git
+[submodule "3rdparty/jvm-alsa"]
+	path = 3rdparty/jvm-alsa
+	url = https://github.com/alsa-project/alsa-lib.git
+[submodule "3rdparty/jvm-cups"]
+	path = 3rdparty/jvm-cups
+	url = https://github.com/OpenPrinting/cups.git
+[submodule "3rdparty/jvm-libxi"]
+	path = 3rdparty/jvm-libxi
+	url = https://gitlab.freedesktop.org/xorg/lib/libxi.git
+[submodule "3rdparty/jvm-libxtst"]
+	path = 3rdparty/jvm-libxtst
+	url = https://gitlab.freedesktop.org/xorg/lib/libxtst.git
+[submodule "3rdparty/jvm-libxt"]
+	path = 3rdparty/jvm-libxt
+	url = https://gitlab.freedesktop.org/xorg/lib/libxt.git
+[submodule "3rdparty/jvm-libxfixes"]
+	path = 3rdparty/jvm-libxfixes
+	url = https://gitlab.freedesktop.org/xorg/lib/libxfixes.git
+[submodule "3rdparty/jvm-libxcursor"]
+	path = 3rdparty/jvm-libxcursor
+	url = https://gitlab.freedesktop.org/xorg/lib/libxcursor.git
+[submodule "3rdparty/jvm-libxinerama"]
+	path = 3rdparty/jvm-libxinerama
+	url = https://gitlab.freedesktop.org/xorg/lib/libxinerama.git

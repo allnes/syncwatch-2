@@ -2,6 +2,7 @@
 
 import argparse
 import configparser
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -36,7 +37,9 @@ OFFLINE = {
     **{name: "http://127.0.0.1:9" for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy")},
     "NO_PROXY": "", "no_proxy": "",
 }
-FRAMEWORK_INPUTS = ("tools/dependencies", "tools/ci/artifact_upload.mjs", ".github/actions/dependency-build", ".github/workflows")
+FRAMEWORK_INPUTS = ("tools/dependencies", "tools/ci/artifact_upload.mjs", "tools/ci/artifact_download.mjs",
+                    "tools/ci/artifact_policy.mjs", "tools/ci/artifact-policy.json",
+                    ".github/actions/dependency-build", ".github/workflows")
 MAXIMUM_ARCHIVE = 256 * 1024**2
 
 
@@ -487,7 +490,9 @@ def prepare(root, name, target):
     return request
 
 
-def unpack(archive, destination, expected):
+@contextmanager
+def checked_archive(archive):
+    """Apply the same portable ZIP boundary to SDKs and native runtime inputs."""
     require(archive.stat().st_size <= MAXIMUM_ARCHIVE, "Cached archive exceeds its bound")
     with zipfile.ZipFile(archive) as package:
         entries = package.infolist()
@@ -498,23 +503,33 @@ def unpack(archive, destination, expected):
         for item in entries:
             member(item.filename)
             require(not item.is_dir() and item.external_attr >> 16 & 0o170000 in {0, 0o100000}, "Cached payload must contain regular files")
+        yield package
+
+
+def extract_payload(package, destination, files, *, metadata_files=()):
+    """Verify every declared payload before writing, using bounded stream buffers."""
+    require(isinstance(files, dict) and bool(files), "Invalid cached payload inventory")
+    require(set(package.namelist()) == {*files, *metadata_files}, "Cached payload inventory does not match")
+    for name, metadata in files.items():
+        require(name.startswith("payload/") and metadata["mode"] in {0o644, 0o755}, "Invalid cached payload metadata")
+        with package.open(name) as source:
+            require(hashlib.file_digest(source, "sha256").hexdigest() == metadata["sha256"], "Cached payload checksum does not match")
+    # Consumers reserve an empty stage; dependency producers own their SDK workspace.
+    for name, metadata in files.items():
+        path = inside(destination, name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with package.open(name) as source, path.open("wb") as target:
+            shutil.copyfileobj(source, target, length=1024 * 1024)
+        path.chmod(metadata["mode"])
+
+
+def unpack(archive, destination, expected):
+    with checked_archive(archive) as package:
         manifest = json.loads(package.read("build-manifest.json"))
         require(isinstance(manifest, dict), "Invalid cached build manifest")
         require(manifest.get("key") == expected["key"] and canonical(manifest.get("inputs")) == canonical(expected["inputs"]), "Cached build inputs do not match")
         require(manifest.get("result") == "success" and manifest.get("schemaVersion") == 1, "Cached build did not succeed")
-        files = manifest["files"]
-        require(isinstance(files, dict), "Invalid cached payload inventory")
-        require(set(names) == {*files, "build-manifest.json"} and bool(files), "Cached payload inventory does not match")
-        for name, metadata in files.items():
-            require(name.startswith("payload/") and metadata["mode"] in {0o644, 0o755}, "Invalid cached payload metadata")
-            data = package.read(name)
-            require(hashlib.sha256(data).hexdigest() == metadata["sha256"], "Cached payload checksum does not match")
-        # Validate every input and byte before creating any output file.
-        for name, metadata in files.items():
-            path = inside(destination, name)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(package.read(name))
-            path.chmod(metadata["mode"])
+        extract_payload(package, destination, manifest["files"], metadata_files=("build-manifest.json",))
     return manifest
 
 

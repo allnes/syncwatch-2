@@ -79,7 +79,7 @@
         },
         {
           "name": "Artifact transport regression tests",
-          "run": "node --test tools/ci/tests/artifact_upload.test.mjs"
+          "run": "node --test tools/ci/tests/artifact_upload.test.mjs tools/ci/tests/artifact_download.test.mjs"
         },
         {
           "name": "Dependency infrastructure tests",
@@ -181,7 +181,7 @@
     "macos": {
       "name": "Native macOS arm64",
       "runs-on": "macos-15",
-      "timeout-minutes": 30,
+      "timeout-minutes": 45,
       "steps": [
         {
           "name": "Check out the exact workflow revision",
@@ -194,7 +194,8 @@
         {
           "name": "Validate and build the native application",
           "env": {
-            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
+            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}",
+            "GITHUB_TOKEN": "${{ github.token }}"
           },
           "run": "python3 tools/ci/native_job.py macos"
         },
@@ -220,12 +221,15 @@
             "name": "syncwatch-macos-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
           }
         }
+      ],
+      "needs": [
+        "dependencies"
       ]
     },
     "windows": {
       "name": "Native Windows x64",
       "runs-on": "windows-2025",
-      "timeout-minutes": 30,
+      "timeout-minutes": 45,
       "steps": [
         {
           "name": "Check out the exact workflow revision",
@@ -238,7 +242,8 @@
         {
           "name": "Validate and build the native application",
           "env": {
-            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
+            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}",
+            "GITHUB_TOKEN": "${{ github.token }}"
           },
           "run": "python tools/ci/native_job.py windows"
         },
@@ -296,6 +301,9 @@
             "name": "syncwatch-windows-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
           }
         }
+      ],
+      "needs": [
+        "dependencies"
       ]
     },
     "required": {
@@ -418,9 +426,9 @@
       }
     },
     "linux": {
-      "name": "Linux Kotlin domain and JVM boundaries",
+      "name": "Native Linux x64",
       "runs-on": "ubuntu-24.04",
-      "timeout-minutes": 30,
+      "timeout-minutes": 150,
       "steps": [
         {
           "name": "Check out the exact workflow revision",
@@ -431,9 +439,10 @@
           "run": "git init .\ngit remote add origin \"$CI_SOURCE_URL\"\ngit -c protocol.version=2 fetch --no-tags --depth=2 origin \"$CI_COMMIT\"\ngit -c advice.detachedHead=false checkout --detach FETCH_HEAD\ntest \"$(git rev-parse HEAD)\" = \"$CI_COMMIT\"\npython3 -c 'import sys; print(sys.version); assert sys.version_info >= (3, 12)'"
         },
         {
-          "name": "Compile Linux Kotlin domain and validate JVM boundaries",
+          "name": "Validate and build the native application",
           "env": {
-            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}"
+            "CI_HEAD_COMMIT": "${{ github.event.pull_request.head.sha || github.sha }}",
+            "GITHUB_TOKEN": "${{ github.token }}"
           },
           "run": "python3 tools/ci/native_job.py linux"
         },
@@ -447,6 +456,9 @@
             "name": "syncwatch-linux-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}"
           }
         }
+      ],
+      "needs": [
+        "dependencies"
       ]
     }
   }

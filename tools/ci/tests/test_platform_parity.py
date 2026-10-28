@@ -83,6 +83,16 @@ class PlatformParityTests(unittest.TestCase):
                 with self.subTest(component=name, target=target), self.assertRaisesRegex(ValueError, "only on Linux"):
                     check(self.root)
 
+    def test_new_jvm_components_cannot_reintroduce_foreign_builds(self):
+        path = self.root / "tools/dependencies/components.json"
+        data = json.loads(path.read_text())
+        data["components"]["future-jvm-api"] = {"targets": {
+            "macos-arm64": {"toolchains": {"jdk": {}}},
+        }}
+        path.write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError, "only on Linux"):
+            check(self.root)
+
     def test_unavailable_graph_cannot_claim_build_readiness(self):
         path = self.root / "apps/linux/application.json"
         application = json.loads(path.read_text())

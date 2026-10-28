@@ -1,8 +1,4 @@
-import {createHash} from 'node:crypto';
-import {mkdir, writeFile} from 'node:fs/promises';
-import {dirname} from 'node:path';
-
-const maximumBytes = 256 * 1024 * 1024;
+import {archiveMetadata, downloadArchive} from '../ci/artifact_download.mjs';
 
 export function trustedRun(run, repositoryId) {
     return run.status === 'completed' && run.conclusion === 'success'
@@ -34,27 +30,8 @@ export async function restoreCache({repository, repositoryId, token, name, desti
         if (!Number.isSafeInteger(artifact.id) || !Number.isSafeInteger(artifact.workflow_run?.id)) throw new Error('Invalid cache identity');
         const run = await (await api(`/actions/runs/${artifact.workflow_run.id}`)).json();
         if (!trustedRun(run, repositoryId)) continue;
-        if (!/^sha256:[0-9a-f]{64}$/.test(artifact.digest)
-            || !Number.isSafeInteger(artifact.size_in_bytes) || artifact.size_in_bytes > maximumBytes) throw new Error('Invalid cache digest or size');
-        const redirect = await api(`/actions/artifacts/${artifact.id}/zip`);
-        if (redirect.status !== 302) throw new Error('Cache download redirect is missing');
-        const location = new URL(redirect.headers.get('location'));
-        if (location.protocol !== 'https:' || location.username || location.password) throw new Error('Cache storage requires HTTPS');
-        // A storage request must never receive the repository token.
-        const response = await request(location, {redirect: 'error', signal: AbortSignal.timeout(180000)});
-        if (!response.ok || Number(response.headers.get('content-length')) > maximumBytes) throw new Error('Cache storage download failed');
-        const chunks = [];
-        let size = 0;
-        for await (const chunk of response.body) {
-            size += chunk.length;
-            if (size > maximumBytes) throw new Error('Cache download exceeds its bound');
-            chunks.push(chunk);
-        }
-        const bytes = Buffer.concat(chunks);
-        if (bytes.length !== artifact.size_in_bytes
-            || `sha256:${createHash('sha256').update(bytes).digest('hex')}` !== artifact.digest) throw new Error('Cache archive checksum does not match');
-        await mkdir(dirname(destination), {recursive: true});
-        await writeFile(destination, bytes, {flag: 'wx'});
+        archiveMetadata(artifact);
+        await downloadArchive({redirect: await api(`/actions/artifacts/${artifact.id}/zip`), artifact, destination}, request);
         return {hit: true, artifactId: artifact.id, sourceCommit: run.head_sha};
     }
     return {hit: false};

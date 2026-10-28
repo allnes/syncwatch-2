@@ -69,6 +69,21 @@ class JbrApiTests(unittest.TestCase):
         path.write_bytes(jbr_api.jar_bytes(entries))
         self.profile["expectedJars"][name] = jbr_api.digest(path.read_bytes())
 
+    def test_foreign_hosts_reject_compilation_and_probes_before_sdk_access(self):
+        for target in ("macos-arm64", "windows-x64"):
+            with self.subTest(target=target), patch.object(jbr_api.jdk, "current_target", return_value=target):
+                for operation in (lambda: jbr_api.compile_sources(None, None, None),
+                                  lambda: jbr_api.probe(None, None), jbr_api.main):
+                    with self.assertRaisesRegex(ValueError, "only on Linux"):
+                        operation()
+        with patch.object(jbr_api.jdk, "current_target", return_value="linux-x64"):
+            self.assertIsNone(jbr_api.require_linux())
+            for target in ("macos-arm64", "windows-x64"):
+                with patch.object(sys, "argv", ["jbr_api.py", "verify", "--platform", target]), patch.object(sys, "stderr", io.StringIO()):
+                    with self.assertRaises(SystemExit) as failure:
+                        jbr_api.main()
+                    self.assertEqual(failure.exception.code, 2)
+
     def test_complete_original_modified_generated_and_license_inventories_pass(self):
         self.assertEqual(jbr_api.source_files(self.source, self.profile), self.files)
         effective, patches = jbr_api.modified_sources(self.files, self.profile)

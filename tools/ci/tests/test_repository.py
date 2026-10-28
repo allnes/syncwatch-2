@@ -398,6 +398,20 @@ class WorkflowChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValidationError, "real native checks"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(1))
 
+    def test_native_packages_cannot_skip_dependency_producers(self):
+        for target in ("macos", "windows", "linux"):
+            with self.subTest(target=target), self.assertRaisesRegex(ValidationError, "wait for all verified"):
+                self.validate(lambda data: data["jobs"][target].pop("needs"))
+
+    def test_native_packages_require_same_run_artifact_access(self):
+        for target in ("macos", "windows", "linux"):
+            def remove(data):
+                for step in data["jobs"][target]["steps"]:
+                    if "native_job.py" in step.get("run", ""):
+                        step["env"].pop("GITHUB_TOKEN")
+            with self.subTest(target=target), self.assertRaisesRegex(ValidationError, "same-run artifact"):
+                self.validate(remove)
+
     def test_windows_dependency_regressions_cannot_be_removed(self):
         with self.assertRaisesRegex(ValidationError, "Windows dependency regression tests"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"].pop(2))
@@ -434,6 +448,14 @@ class WorkflowChecks(unittest.TestCase):
     def test_artifact_identity_cannot_omit_commit(self):
         with self.assertRaisesRegex(ValidationError, "identify platform"):
             self.validate(lambda data: data["jobs"]["windows"]["steps"][-1]["with"].update({"name": "latest-build"}))
+
+    def test_artifact_download_regressions_cannot_be_removed(self):
+        def remove(data):
+            for step in data["jobs"]["tests"]["steps"]:
+                if step.get("name") == "Artifact transport regression tests":
+                    step["run"] = "node --test tools/ci/tests/artifact_upload.test.mjs"
+        with self.assertRaisesRegex(ValidationError, "artifact transport tests"):
+            self.validate(remove)
 
     def test_dependency_matrix_cannot_be_replaced_by_a_constant_subset(self):
         with self.assertRaisesRegex(ValidationError, "complete selected matrix"):

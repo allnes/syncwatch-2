@@ -19,6 +19,11 @@ SOURCES = "jbr-api-1.9.0-syncwatch-sources.jar"
 GENERATED = "generated/com/jetbrains/JBR.java"
 
 
+def require_linux():
+    if jdk.current_target() != "linux-x64":
+        raise ValueError("JBR API is a Linux client dependency; compile and probe it only on Linux")
+
+
 def source_files(source, profile):
     wanted = profile["sources"] | profile["buildSources"] | profile["provenance"]
     if source.is_dir():
@@ -81,6 +86,7 @@ def metadata(profile, version):
 
 
 def compile_sources(files, profile, home):
+    require_linux()
     effective, _ = modified_sources(files, profile)
     commands = tools(home)
     with tempfile.TemporaryDirectory(prefix="jbr-api-compile-") as temporary:
@@ -180,6 +186,7 @@ def verify(payload, files, profile, version):
 
 
 def probe(payload, home):
+    require_linux()
     commands = tools(home)
     with tempfile.TemporaryDirectory(prefix="jbr-api-probe-") as temporary:
         work = Path(temporary)
@@ -220,9 +227,10 @@ def profile_data():
 
 
 def main():
+    require_linux()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=("build", "verify"))
-    parser.add_argument("--platform", choices=("linux-x64", "macos-arm64", "windows-x64"))
+    parser.add_argument("--platform", choices=("linux-x64",))
     args = parser.parse_args()
     profile, sdk = profile_data()
     if args.operation == "build":

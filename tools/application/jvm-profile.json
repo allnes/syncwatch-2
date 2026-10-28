@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "target": "linux-x64",
+  "runtimeQualified": false,
+  "moduleRoots": [
+    "java.desktop",
+    "java.instrument",
+    "java.logging",
+    "java.management",
+    "java.naming",
+    "java.net.http",
+    "java.sql",
+    "jdk.crypto.ec",
+    "jdk.unsupported"
+  ],
+  "sources": {
+    "openjdk": {
+      "path": "3rdparty/openjdk",
+      "revision": "eac07229cf6cacc8a22eb79f4929e7fed61338b7",
+      "license": "GPL-2.0-only WITH Classpath-exception-2.0; per-file additional notices",
+      "notices": [
+        "LICENSE",
+        "ADDITIONAL_LICENSE_INFO",
+        "ASSEMBLY_EXCEPTION"
+      ],
+      "exports": [
+        "ADDITIONAL_LICENSE_INFO",
+        "ASSEMBLY_EXCEPTION",
+        "LICENSE",
+        "Makefile",
+        "README.md",
+        "configure",
+        "doc",
+        "make",
+        "src"
+      ],
+      "tree": "45cd55577f99ae622667ef8fc72e6efb58e10ea7",
+      "archiveSha256": "2ecca1bca6bd6f804b026cce723621457b1679a0d13764c3d93f76a9477424f4"
+    },
+    "jvm-alsa": {
+      "path": "3rdparty/jvm-alsa",
+      "revision": "81d70a27136840fa8fb1bec6eb8e04fc1475a380",
+      "license": "LGPL-2.1-or-later and original per-file notices",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "COPYING",
+        "ChangeLog",
+        "INSTALL",
+        "MEMORY-LEAK",
+        "Makefile.am",
+        "NOTES",
+        "README.md",
+        "TODO",
+        "acinclude.m4",
+        "aserver",
+        "configure.ac",
+        "doc",
+        "gitcompile",
+        "include",
+        "m4",
+        "modules",
+        "src",
+        "test",
+        "utils"
+      ],
+      "tree": "ad584d537dc93a4ebb93cd06af6e07ac0711f3f7",
+      "archiveSha256": "a747f086f7eea51657f49c7dad5988f2e719a7e69652ab2b10bffd61ed327e63"
+    },
+    "jvm-cups": {
+      "path": "3rdparty/jvm-cups",
+      "revision": "7523763f00d2063f88026d93bc5b29806240de2b",
+      "license": "Apache-2.0 with retained exceptions and original notices",
+      "notices": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "exports": [
+        "LICENSE",
+        "NOTICE",
+        "cups"
+      ],
+      "tree": "5267049443dd1acaa1f3346a803190d8d168480c",
+      "archiveSha256": "e93f48deac6512bd672fe45a2162a6f4386316992e78da365b8bc85a06e2ee36"
+    },
+    "jvm-libxi": {
+      "path": "3rdparty/jvm-libxi",
+      "revision": "3c2d5aedd7708c75710b39268631762de904c304",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "docbook.am",
+        "include",
+        "man",
+        "specs",
+        "src",
+        "xi.pc.in"
+      ],
+      "tree": "8c85199f1bebff03e31de29138e8677171f3b371",
+      "archiveSha256": "e6b3d2ad93f8d5a022833b2fe091e886c794b7fce43cfdaa7dfcf29977334650"
+    },
+    "jvm-libxtst": {
+      "path": "3rdparty/jvm-libxtst",
+      "revision": "abf3ff74b97c4231d2324d66318bfa1d22e44913",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "docbook.am",
+        "include",
+        "man",
+        "specs",
+        "src",
+        "xtst.pc.in"
+      ],
+      "tree": "03b2632dfbaf64184b88b5ec6936825dab47df5a",
+      "archiveSha256": "0919cc58e55063922b66669fb00e5177e174b329f7f08d725ff5fdbb69e94425"
+    },
+    "jvm-libxt": {
+      "path": "3rdparty/jvm-libxt",
+      "revision": "1dfcfa8dcc3958749849438a802d66728ccf3115",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "COPYING",
+        "include"
+      ],
+      "tree": "87bec1409f2c753ed797ccf06f9072ee9853ddc8",
+      "archiveSha256": "2175699a7b5eb6d4bfbd37266652c472c799154e9669af8892660828e7a73994"
+    },
+    "jvm-libxfixes": {
+      "path": "3rdparty/jvm-libxfixes",
+      "revision": "c1cab28e27dd1c5a81394965248b57e490ccf2ca",
+      "license": "MIT and original X11 grants",
+      "notices": [
+        "COPYING"
+      ],
+      "exports": [
+        "AUTHORS",
+        "COPYING",
+        "Makefile.am",
+        "README.md",
+        "autogen.sh",
+        "configure.ac",
+        "include",
+        "man",
+        "src",
+        "xfixes.pc.in"
+      ],
+      "tree": "f99eac9168165ebaff496a3c3567f48b369cc150",
+      "archiveSha256": "b9fdbeb733384450b2ad44e6dd166605ec71087a73c4df69af9313261be7b526"
+    }
+  }
+}

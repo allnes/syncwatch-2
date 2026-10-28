@@ -26,6 +26,10 @@ async function main() {
         return result.status === 0;
     }
     const run = operation => runCommand([python, 'tools/dependencies/build.py', operation, '--component', component, '--platform', platform, ...(cold ? ['--cold'] : [])]);
+    if (component === 'syncplay-runtime' && !runCommand([python, '-m', 'unittest', 'discover',
+        '-s', 'tools/bridge/tests', '-p', 'test_build.py', '-v'])) {
+        throw new Error('Native helper producer regressions failed before SDK provisioning');
+    }
     const registry = JSON.parse(await readFile(resolve(root, 'tools/dependencies/components.json'), 'utf8'));
     const target = registry.components[component]?.targets[platform];
     if (!target) throw new Error('Unregistered dependency target');
