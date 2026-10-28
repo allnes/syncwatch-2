@@ -39,7 +39,7 @@
     },
     "library-and-settings-application": {
       "complete": false,
-      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "source-only" }
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-tested" }
     },
     "shared-component-galleries": {
       "complete": false,
@@ -47,15 +47,15 @@
     },
     "native-video-and-local-controls": {
       "complete": false,
-      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-boundary-tested" }
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-tested" }
     },
     "local-library-discovery": {
       "complete": false,
-      "validation": { "macos": "native-boundary-tested", "windows": "native-boundary-tested", "linux": "native-boundary-tested" }
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-tested" }
     },
     "application-syncplay-transport": {
       "complete": false,
-      "validation": { "macos": "native-boundary-tested", "windows": "native-boundary-tested", "linux": "source-only" }
+      "validation": { "macos": "native-tested", "windows": "native-tested", "linux": "native-tested" }
     }
   }
 }
