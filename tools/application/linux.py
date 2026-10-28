@@ -9,17 +9,14 @@ import zipfile
 
 from candidate_tree import Component
 from receipts import ROOT, clients, desktop_classpath, jvm, renderer, require_host
+from runtime_media import qualify
 
 
 def prepare(arguments, work):
     require_host("linux-x64")
     runtime = jvm(arguments.jvm)
     client_receipt = clients(arguments.linux_clients)
-    with (arguments.media_package / "build-report.json").open("rb") as data:
-        if runtime["mediaReceiptSha256"] != hashlib.file_digest(data, "sha256").hexdigest():
-            raise ValueError("Application JVM was built with a different native media SDK")
-    if client_receipt["mediaReceiptSha256"] != runtime["mediaReceiptSha256"]:
-        raise ValueError("Dynamic X11 clients were built with a different native media SDK")
+    compatibility = qualify(arguments.media_package, arguments.runtime_build_media, runtime, client_receipt)
     desktop = arguments.desktop_sdk.resolve(strict=True)
     classpath = desktop_classpath(desktop)
     renderer_receipt = renderer(arguments.renderer)
@@ -38,6 +35,9 @@ def prepare(arguments, work):
             raise ValueError("Application JAR does not contain the native Linux entry")
     application = work / "application"
     application.mkdir()
+    if compatibility is not None:
+        (application / "runtime-media-compatibility.json").write_text(json.dumps(compatibility.report, indent=2) + "\n")
+        (application / "runtime-build-media-report.json").write_bytes(compatibility.build_receipt)
     shutil.copy2(jar, application / "application.jar")
     shutil.copy2(jar.with_name("application-report.json"), application / "application-report.json")
     for name in ("syncwatch_playback.so", "syncwatch_playback_jni.so"):

@@ -61,6 +61,7 @@ internal class PlaybackController(
     private val work = CoroutineScope(parentScope.coroutineContext + ownerJob)
     internal val player = VLCPlayback()
     internal val scope = requestedScope ?: PlaybackScope.fresh().replacingMedia()
+    internal val tracks = LocalPlaybackTracks(player, scope, work)
     internal val loaded = CompletableDeferred<Unit>()
     internal val acceptanceRequested = launch.report != null
     private var started = false
@@ -151,7 +152,7 @@ internal class PlaybackController(
                 loaded.completeExceptionally(CancellationException("closed"))
             } catch (error: Exception) {
                 loaded.completeExceptionally(error)
-                if (!closing) { failed = true; presentation = presentation.copy(enabledActions = setOf("endWatching")); onFailure?.invoke() }
+                if (!closing) { tracks.dismiss(); failed = true; presentation = presentation.copy(enabledActions = setOf("endWatching")); onFailure?.invoke() }
             }
         }
     }
@@ -167,6 +168,8 @@ internal class PlaybackController(
         val enabled = navigationActions.toMutableSet().apply { add("playPause") }
         if (value.seekable) enabled.addAll(setOf("seek", "skip"))
         if (value.volume != null) enabled.addAll(setOf("setMovieVolume", "muteMovie"))
+        if (value.status == PlaybackStatus.ready && !value.ended) enabled.addAll(setOf("selectAudio", "selectSubtitles"))
+        else tracks.dismiss()
         presentation = presentation.copy(state = state, positionMs = value.positionMs,
             durationMs = value.durationMs ?: 0, volume = value.volume ?: presentation.volume,
             muted = value.muted, enabledActions = enabled)
@@ -177,6 +180,11 @@ internal class PlaybackController(
         if (closing) return
         gateSharedActions()
         presentation.dispatch(action, value) { accepted, number ->
+            if (accepted in setOf("selectAudio", "selectSubtitles")) {
+                tracks.open(if (accepted == "selectAudio") "audio" else "subtitles")
+                return@dispatch
+            }
+            if (accepted in setOf("showLibrary", "endWatching", "toggleFullscreen")) tracks.dismiss()
             if (accepted in setOf("endWatching", "showLibrary") && onNavigation != null) {
                 onNavigation.invoke(accepted)
                 return@dispatch
@@ -217,7 +225,7 @@ internal class PlaybackController(
         val cleanup = CoroutineScope(work.coroutineContext.minusKey(Job) + cleanupJob)
         cleanup.launch(start = CoroutineStart.UNDISPATCHED) {
             var helperFailure: Exception? = null
-            try { sharedMediaPreparation.close(); sharedSession?.close() } catch (error: Exception) { helperFailure = error }
+            try { tracks.close(); sharedMediaPreparation.close(); sharedSession?.close() } catch (error: Exception) { helperFailure = error }
             finally {
                 sharedSession = null; ownerJob.cancel()
                 player.closeAsync().whenComplete { _, error -> EventQueue.invokeLater {
@@ -259,5 +267,7 @@ internal class PlaybackController(
     LaunchedEffect(controller) { controller.start() }
     PlayerChrome(controller.presentation, language, theme,
         videoSurface = { NativePlayerSurface(controller.canvas) },
+        selectionMenu = controller.tracks.menu, onSelection = controller.tracks::select,
+        onDismissSelection = controller.tracks::dismiss,
         onAction = { action, value -> controller.action(action, value, onClose, onFullscreen) })
 }

@@ -4,11 +4,14 @@ public struct SelectionMenuEntry: Sendable, Codable, Equatable {
     public let id: String
     public let label: String
     public let enabled: Bool
-    public init(id: String, label: String, enabled: Bool = true) {
+    public let disabledTrack: Bool?
+    public init(id: String, label: String, enabled: Bool = true, disabledTrack: Bool? = nil) {
         self.id = id
         self.label = label
         self.enabled = enabled
+        self.disabledTrack = disabledTrack
     }
+    public static var offTrack: Self { Self(id: "-1", label: "off", disabledTrack: true) }
 }
 
 public struct SelectionMenuRequest: Sendable, Codable, Equatable {

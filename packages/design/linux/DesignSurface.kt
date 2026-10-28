@@ -29,6 +29,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.*
@@ -221,8 +224,18 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
             }
         }
         "icon"->Canvas(frame){for(p in SyncWatchLayouts.assets[n.text("name")].orEmpty()){val path=Path();for(i in p.indices step 2){val x=p[i]/SyncWatchLayouts.coordinateSize*size.width;val y=p[i+1]/SyncWatchLayouts.coordinateSize*size.height;if(i==0)path.moveTo(x,y)else path.lineTo(x,y)};path.close();drawPath(path,designColor(n.text("foreground"),theme))}}
-        "button"->Box(modifier.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){
+        "button"->{
+          var anchor by remember { mutableStateOf(androidx.compose.ui.unit.IntRect.Zero) }
+          Box(modifier.onGloballyPositioned { anchor=it.boundsInWindow().roundToIntRect() }.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){
             if(n.children.isEmpty())BasicText(n.props["text"]?:n.text("label"),style=textStyle(n,theme))else n.children.forEach{RenderDesignNode(it,theme,slots,onEvent)}
+            val presented=LocalDesignPresented.current
+            LaunchedEffect(presented) { if(!presented && slots.containsKey(n.text("popoverSlot")))currentEvent(DesignEvent(n.text("popoverDismiss"))) }
+            if(presented)slots[n.text("popoverSlot")]?.let { content ->
+                NativeDesignPopover(anchor,n.text("popoverEdge"),onDismiss={currentEvent(DesignEvent(n.text("popoverDismiss")))}) {
+                    Box { content() }
+                }
+            }
+          }
         }
         "input"->BasicTextField(n.text("value"),{emit(it)},visualTransformation=if(n.flag("secret"))androidx.compose.ui.text.input.PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,modifier=frame.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()),enabled=enabled,textStyle=textStyle(n,theme),singleLine=true,decorationBox={inner->Box(Modifier.fillMaxSize(),contentAlignment=Alignment.CenterStart){if(n.text("value").isEmpty())BasicText(n.text("label"),style=textStyle(n,theme).copy(color=designColor(n.text("placeholderFill"),theme)));inner()}})
         "choice"->{

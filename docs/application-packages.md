@@ -99,12 +99,23 @@ or a locally assembled candidate alone does not clear those gates.
 `linux-clients.json` separately pins Xcursor, Xfixes and Xinerama, which AWT loads
 dynamically. `linux_clients.py` builds them against the same verified Media SDK as
 the JVM and preserves their original source archives and grants. The Linux adapter
-requires this component and rejects a different source or Media receipt. The
+requires this component and rejects a different source or unverified Media build relationship. The
 launcher supplies its `Clients/lib` directory alongside the other owned libraries.
 Runtime qualification must inspect loaded libraries after opening the folder
 picker and playing video: direct ELF imports alone do not cover dynamic loading.
 
 ## CI
+
+A development package may explicitly provide `--runtime-build-media` when its
+verified Media SDK differs from the SDK used to build the existing JVM and X11
+clients. The original SDK must match both retained build-receipt hashes exactly.
+Packaging verifies both complete inventories, the original source identities and
+every header, native library and shared-data file; only VLC's plugin directory is
+outside this linkage comparison. Any added, removed or changed linkage input
+requires rebuilding the runtimes. An accepted comparison retains the original
+Media receipt and an exact compatibility inventory in the application package.
+The original JVM/X11 receipts remain unchanged. This permits a codec-plugin
+update without recompiling unrelated runtimes or weakening their provenance.
 
 Repository CI first builds and verifies the selected dependency matrix. The macOS, Windows and Linux jobs then consume SDKs and the native helper produced by that exact workflow run and checked-out commit. A consumer may reuse a successful producer from an earlier attempt of the same run. Cross-run reuse remains restricted to the separate trusted-main dependency cache policy.
 

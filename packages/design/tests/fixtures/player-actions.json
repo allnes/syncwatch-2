@@ -418,7 +418,7 @@
       "expected": []
     },
     {
-      "name": "unknown actions",
+      "name": "local track menus reject unknown actions and numeric payloads",
       "state": "paused",
       "positionMs": 1000,
       "durationMs": 20000,
@@ -428,7 +428,8 @@
       "hasNext": true,
       "enabledActions": [
         "unknown",
-        "selectAudio"
+        "selectAudio",
+        "selectSubtitles"
       ],
       "requests": [
         {
@@ -436,9 +437,27 @@
         },
         {
           "action": "selectAudio"
+        },
+        {
+          "action": "selectSubtitles"
+        },
+        {
+          "action": "selectAudio",
+          "value": 1
+        },
+        {
+          "action": "selectSubtitles",
+          "value": 0
         }
       ],
-      "expected": []
+      "expected": [
+        {
+          "action": "selectAudio"
+        },
+        {
+          "action": "selectSubtitles"
+        }
+      ]
     },
     {
       "name": "neighbors absent",

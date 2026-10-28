@@ -207,7 +207,7 @@
       "selected": "$selected",
       "contentAlign": "leading",
       "enabled": "$enabled",
-      "label": "$label",
+      "label": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
       "automation": "selection.{id}",
       "action": "selectEntry",
       "value": "$id",
@@ -2639,7 +2639,10 @@
                         "action": "selectSubtitles",
                         "enabled": "$can.selectSubtitles",
                         "automation": "player.subtitles",
-                        "label": "~subtitles"
+                        "label": "~subtitles",
+                        "popoverSlot": "subtitlesSelection",
+                        "popoverEdge": "top",
+                        "popoverDismiss": "dismissSelection"
                       },
                       "children": [
                         {
@@ -2665,7 +2668,10 @@
                         "action": "selectAudio",
                         "enabled": "$can.selectAudio",
                         "automation": "player.audioTracks",
-                        "label": "~audioTracks"
+                        "label": "~audioTracks",
+                        "popoverSlot": "audioSelection",
+                        "popoverEdge": "top",
+                        "popoverDismiss": "dismissSelection"
                       },
                       "children": [
                         {
@@ -3860,8 +3866,8 @@
       "kind": "overlay",
       "styles": [],
       "props": {
-        "width": "fill",
-        "height": "fill",
+        "width": "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if @layout.selectionEdgeInset 2 * +",
+        "height": "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min @layout.selectionEdgeInset 2 * +",
         "cycleFocus": "true"
       },
       "children": [
@@ -3963,7 +3969,7 @@
                                       "kind": "text",
                                       "styles": [],
                                       "props": {
-                                        "text": "$label",
+                                        "text": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
                                         "width": "fill",
                                         "lines": "1",
                                         "truncate": "end"

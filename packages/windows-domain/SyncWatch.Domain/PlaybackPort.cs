@@ -47,3 +47,9 @@ public interface IPlaybackPort : IAsyncDisposable
     Task SelectTrackAsync(int id, bool subtitles, PlaybackScope scope, CancellationToken cancellation = default);
     Task StopAsync(PlaybackScope scope, CancellationToken cancellation = default);
 }
+
+/// <summary>Observed local track selection; -1 means disabled/no active track.</summary>
+public interface IPlaybackTrackControlPort : IPlaybackPort
+{
+    Task<int> SelectedTrackAsync(bool subtitles, PlaybackScope scope, CancellationToken cancellation = default);
+}

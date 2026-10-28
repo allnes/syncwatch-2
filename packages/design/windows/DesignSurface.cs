@@ -154,6 +154,39 @@ public class DesignSurface : UserControl
                 Bind(id, n => { path.Data = Geometry(n.Text("name")); Paint(path, System.Windows.Shapes.Shape.FillProperty, n.Text("foreground")); }); core = viewbox; break;
             case "button":
                 var button = Existing(() => new Button()); button.SetResourceReference(StyleProperty, "Design.Button");
+                if (!string.IsNullOrEmpty(node.Text("popoverSlot")))
+                {
+                    var popup = button.Tag as Popup ?? new Popup { PlacementTarget = button, StaysOpen = false, AllowsTransparency = true };
+                    if (button.Tag is not Popup)
+                    {
+                        button.Tag = popup;
+                        popup.Closed += (_, _) =>
+                        {
+                            if (!updating && elements.TryGetValue(id, out var current) && Slots.ContainsKey(current.Text("popoverSlot")))
+                                EventRequested?.Invoke(new(current.Text("popoverDismiss")));
+                        };
+                        popup.PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { popup.IsOpen = false; e.Handled = true; } };
+                        button.Unloaded += (_, _) => popup.IsOpen = false;
+                        button.IsVisibleChanged += (_, _) =>
+                        {
+                            if (button.IsVisible) return;
+                            popup.IsOpen = false;
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                if (!button.IsVisible && elements.TryGetValue(id, out var current) && Slots.ContainsKey(current.Text("popoverSlot")))
+                                    EventRequested?.Invoke(new(current.Text("popoverDismiss")));
+                            }));
+                        };
+                    }
+                    Bind(id, n =>
+                    {
+                        popup.Placement = n.Text("popoverEdge") == "top" ? PlacementMode.Top : PlacementMode.Bottom;
+                        var content = Slots.GetValueOrDefault(n.Text("popoverSlot"));
+                        if (!ReferenceEquals(popup.Child, content)) { if (content is FrameworkElement element) Detach(element); popup.Child = content; }
+                        popup.IsOpen = content is not null && button.IsVisible;
+                    });
+                    if (fresh) button.Loaded += (_, _) => UpdateTree();
+                }
                 var buttonChild = node.Children.Length == 0 ? button.Content as FrameworkElement ?? new TextBlock() : node.Children.Length == 1 ? Build(node.Children[0].Id) : new Grid();
                 if (!ReferenceEquals(button.Content, buttonChild)) { Detach(buttonChild); button.Content = buttonChild; }
                 Bind(id, n => { if (n.Children.Length == 0 && button.Content is TextBlock caption) caption.Text = n.Props.GetValueOrDefault("text", n.Text("label")); button.IsEnabled = !n.Props.ContainsKey("enabled") || n.Flag("enabled"); button.IsDefault = n.Text("shortcut") == "default"; button.IsCancel = n.Text("shortcut") == "cancel"; button.TabIndex = n.Props.ContainsKey("tabIndex") ? (int)n.Number("tabIndex") : 0; button.HorizontalContentAlignment = n.Text("contentAlign") == "leading" ? HorizontalAlignment.Stretch : HorizontalAlignment.Center; }); if (fresh) button.Click += (_, _) => Emit(id); core = button; break;

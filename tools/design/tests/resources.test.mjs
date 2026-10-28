@@ -316,7 +316,9 @@ test('declarative document rejects malformed structure, references and visual ru
         s => s.components.Library.styles.push('missing'), s => s.assets['symbols.playMark'][0][0] = -1,
         s => s.components.Library = {id:'recursive',kind:'include',styles:[],props:{component:'Library'},children:[]},
         s => s.components.Application.children[0].children = [],
-        s => delete s.components.Application.children[0].props.presented];
+        s => delete s.components.Application.children[0].props.presented,
+        s => Object.assign(s.components.Library.props,{popoverSlot:'menu',popoverEdge:'top',popoverDismiss:'dismiss'}),
+        s => Object.assign(s.components.Library.children[0].props,{popoverSlot:'invalid slot',popoverEdge:'top',popoverDismiss:'dismiss'})];
     for (const change of mutations) {
         const design = fixture(), path = join(design, 'layouts.json'), spec = JSON.parse(readFileSync(path));
         change(spec); writeFileSync(path, JSON.stringify(spec));
@@ -351,7 +353,7 @@ test('call metadata rejects protocol drift, unsupported arities and malformed ic
 test('selection menu scope, identity, stale-input and UTF-8 bounds agree with shared cases', () => {
     const spec = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
     const corpus = JSON.parse(readFileSync(join(root, 'packages/design/tests/fixtures/selection-menu.json')));
-    assert.equal(corpus.cases.length, 28);
+    assert.equal(corpus.cases.length, 30);
     for (const item of corpus.cases) {
         assert.equal(validSelection(spec, item.presentation), item.valid, item.name);
         const before = JSON.stringify(item.presentation);

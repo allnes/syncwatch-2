@@ -231,7 +231,8 @@
       "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
       "metadataResolutionFormat": "{width}×{height}",
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
-      "metadataNoSubtitles": "No subtitles"
+      "metadataNoSubtitles": "No subtitles",
+      "audioDisabled": "Audio disabled"
     },
     "ru": {
       "brand": "SyncWatch",
@@ -463,7 +464,8 @@
       "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
       "metadataResolutionFormat": "{width}×{height}",
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
-      "metadataNoSubtitles": "Нет субтитров"
+      "metadataNoSubtitles": "Нет субтитров",
+      "audioDisabled": "Звук выключен"
     }
   },
   "gallery": {

@@ -39,10 +39,15 @@ int main(int argc, char **argv) {
     int adjust = strcmp(argv[1], "adjust") == 0;
     int normalize = strcmp(argv[1], "normalize") == 0;
     int tempo = strcmp(argv[1], "tempo") == 0;
-    int subtitle = strcmp(argv[1], "srt") == 0 || strcmp(argv[1], "ass") == 0;
-    int external = strcmp(argv[1], "external-audio") == 0;
+    int embedded_srt = strcmp(argv[1], "embedded-srt") == 0;
+    int embedded_ass = strcmp(argv[1], "embedded-ass") == 0;
+    int embedded_audio = strcmp(argv[1], "embedded-audio") == 0;
+    int external_subtitle = strcmp(argv[1], "srt") == 0 || strcmp(argv[1], "ass") == 0;
+    int external_audio = strcmp(argv[1], "external-audio") == 0;
+    int subtitle = external_subtitle || embedded_srt || embedded_ass;
+    int external = external_audio || embedded_audio;
     REQUIRE(adjust || normalize || tempo || subtitle || external, "unknown effect case");
-    REQUIRE(argc == ((subtitle || external) ? 5 : 4), "external media URI is required");
+    REQUIRE(argc == ((external_subtitle || external_audio) ? 5 : 4), "external media URI is required");
     REQUIRE(owned_library(argv[3]), "unowned native library");
     REQUIRE(load_owned_dependencies(), "cannot load the owned native dependency closure");
     if (adjust) {
@@ -67,20 +72,38 @@ int main(int argc, char **argv) {
     libvlc_video_set_format(player, "RV32", WIDTH, HEIGHT, PITCH);
     libvlc_audio_set_callbacks(player, play_audio, NULL, NULL, NULL, NULL, &observed);
     libvlc_audio_set_format(player, "S16N", 44100, 2);
-    if (subtitle)
+    if (external_subtitle)
         REQUIRE(libvlc_media_player_add_slave(player, subtitle ? libvlc_media_slave_type_subtitle : libvlc_media_slave_type_audio,
                                              argv[4], true) == 0, "external track rejected");
     REQUIRE(libvlc_media_player_play(player) == 0 && wait_state(player, libvlc_Playing), "play failed");
     REQUIRE(wait_frames(&observed, 3, 1), "decoded frames missing");
-    if (external)
+    if (external_audio)
         REQUIRE(libvlc_media_player_add_slave(player, libvlc_media_slave_type_audio, argv[4], true) == 0,
                 "external audio track rejected while playing");
+    if (embedded_srt || embedded_ass || embedded_audio) {
+        libvlc_track_description_t *head = embedded_audio ? libvlc_audio_get_track_description(player)
+                                                         : libvlc_video_get_spu_description(player);
+        int index = 0, selected = -1;
+        int expected = embedded_audio ? 1 : embedded_ass ? 2 : 0;
+        for (libvlc_track_description_t *track = head; track; track = track->p_next)
+            if (track->i_id >= 0 && index++ == expected) selected = track->i_id;
+        libvlc_track_description_list_release(head);
+        REQUIRE(selected >= 0, "embedded track is missing");
+        REQUIRE((embedded_audio ? libvlc_audio_set_track(player, selected) : libvlc_video_set_spu(player, selected)) == 0,
+                "embedded track selection rejected");
+        /* Match the adapter's local-clock refill of previously discarded packets. */
+        if (libvlc_media_player_is_seekable(player)) {
+            libvlc_time_t position = libvlc_media_player_get_time(player);
+            if (position >= 0) libvlc_media_player_set_time(player, position);
+        }
+    }
     if (adjust) REQUIRE(atomic_load(&observed.luminance) >= 160, "brightness did not change decoded pixels");
     if (subtitle) {
         deadline = milliseconds() + 1800;
-        while ((white = atomic_load(&white_pixels)) < 20 && milliseconds() < deadline) delay();
-        REQUIRE(white >= 20 && libvlc_video_get_spu(player) >= 0,
-                "external subtitle track did not render actual text pixels");
+        /* A uniformly bright authored video frame cannot count as subtitle text. */
+        while (((white = atomic_load(&white_pixels)) < 20 || white > WIDTH * HEIGHT / 4) && milliseconds() < deadline) delay();
+        REQUIRE(white >= 20 && white <= WIDTH * HEIGHT / 4 && libvlc_video_get_spu(player) >= 0,
+                "subtitle track did not render actual text pixels");
     }
     if (tempo) REQUIRE(libvlc_media_player_set_rate(player, 1.5f) == 0, "tempo rejected");
     if (normalize || external || tempo) {

@@ -4,6 +4,7 @@ import argparse
 import base64
 import hashlib
 import json
+import lzma
 import math
 from pathlib import Path
 import struct
@@ -98,6 +99,24 @@ def encoded(directory):
         path.write_bytes(data)
         result[name] = (path, item)
     return result
+
+
+def embedded_tracks(directory):
+    root = Path(__file__).resolve().parent / "media"
+    metadata = json.loads((root / "embedded-tracks.json").read_text())
+    encoded = (root / metadata["encoded"]).read_bytes()
+    if (metadata["schemaVersion"] != 1 or metadata["encoding"] != "base64+xz"
+            or len(encoded) > 131072 or not 0 < metadata["bytes"] <= 32 * 1024 * 1024):
+        raise ValueError("Invalid authored embedded-track fixture")
+    compressed = base64.b64decode(b"".join(encoded.split()), validate=True)
+    decoder = lzma.LZMADecompressor(memlimit=64 * 1024 * 1024)
+    data = decoder.decompress(compressed, max_length=metadata["bytes"] + 1)
+    if (not decoder.eof or decoder.unused_data or len(data) != metadata["bytes"]
+            or hashlib.sha256(data).hexdigest() != metadata["sha256"]):
+        raise ValueError("Authored embedded-track fixture changed")
+    path = directory / "owned-embedded-tracks.mkv"
+    path.write_bytes(data)
+    return path
 
 
 if __name__ == "__main__":

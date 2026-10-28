@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "encoded": "embedded-tracks.b64",
+  "encoding": "base64+xz",
+  "bytes": 20367121,
+  "sha256": "242c423e7dc3955ec1001e02f747a9a73c16ecd10482225e84f6c8dd5ba4c5ae",
+  "durationMs": 8000,
+  "audioToneHz": [
+    440,
+    880
+  ],
+  "subtitles": [
+    "subrip",
+    "subrip",
+    "ass"
+  ],
+  "provenance": "First-party luminance/PCM AVI and authored WAV/SRT/ASS, losslessly muxed into Matroska; no third-party media."
+}

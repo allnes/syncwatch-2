@@ -4,7 +4,7 @@ export const layoutKinds = new Set(['row','column','overlay','text','button','ic
 export function validateLayouts(spec, tokens, copy, inputs) {
     if (spec.schemaVersion !== 1 || (!Number.isFinite(spec.coordinateSize) || spec.coordinateSize <= 0 || spec.coordinateSize > 65536) || !spec.components || !spec.styles || !spec.controls) throw Error('Invalid design document');
     const numeric = new Set('width height minWidth minHeight maxWidth maxHeight gap length padding paddingX paddingY radius focusRadius focusWidth lines minScale fontSize borderWidth disabledOpacity pressedOpacity backgroundOpacity trackWidth trackHeight thumbSize thumbInset markWidth markHeight markInset rowPaddingX rowPaddingY thickness outlineWidth outlineSamples textPaddingX centerY minimum maximum step wrapAt offsetX offsetY tabIndex barWidth thumbMinimum thumbRadius gestureStep minimumX minimumY maximumX maximumY originWidth originHeight'.split(' '));
-    const known = new Set([...numeric, ...'foreground background border focusBorder hoverBorder gradient gradientStart gradientEnd gradientOffsets weight fontFamily align contentAlign axis truncate outline clip cycleFocus selected text label name action payload value automation shortcut options items component condition when case round enabled moveAction trackFill progressFill thumbFill onFill offFill markName markFill rowFill rowHighlight rowForeground placeholderFill labelAutomation blockInput gestureMode presented secret'.split(' ')]);
+    const known = new Set([...numeric, ...'foreground background border focusBorder hoverBorder gradient gradientStart gradientEnd gradientOffsets weight fontFamily align contentAlign axis truncate outline clip cycleFocus selected text label name action payload value automation shortcut options items component condition when case round enabled moveAction trackFill progressFill thumbFill onFill offFill markName markFill rowFill rowHighlight rowForeground placeholderFill labelAutomation blockInput gestureMode presented secret popoverSlot popoverEdge popoverDismiss'.split(' ')]);
     const roles = new Set(Object.keys(inputs.themes.themes.dark));
     const colorKeys = new Set('foreground background border outline focusBorder hoverBorder trackFill progressFill thumbFill onFill offFill markFill rowFill rowHighlight rowForeground placeholderFill'.split(' '));
     const operators = new Set(['+','-','*','/','min','max','==','>=','>','<','if']);
@@ -36,6 +36,9 @@ export function validateLayouts(spec, tokens, copy, inputs) {
         if (Object.keys(node).some(k=>!['id','kind','styles','props','children'].includes(k)) || !Array.isArray(node.children) || !Array.isArray(node.styles)) throw Error('Unexpected design node fields');
         for (const style of node.styles) if (!Object.hasOwn(spec.styles,style)) throw Error('Unknown design style');
         properties(node.props);
+        if (node.props.popoverSlot !== undefined && (node.kind !== 'button' || !/^[A-Za-z][A-Za-z0-9]*$/.test(node.props.popoverSlot)
+            || !['top','bottom'].includes(node.props.popoverEdge) || typeof node.props.popoverDismiss !== 'string'
+            || !/^[A-Za-z][A-Za-z0-9]*$/.test(node.props.popoverDismiss))) throw Error('Invalid native popover binding');
         if (node.kind === 'gesture' && !['delta','extent'].includes(node.props.gestureMode)) throw Error('Invalid gesture coordinate mode');
         if (node.kind === 'include' && !Object.hasOwn(spec.components,node.props.component)) throw Error('Unknown design component');
         if (['repeat','scroll','gesture','retained'].includes(node.kind) && node.children.length !== 1) throw Error('Expected one content template');

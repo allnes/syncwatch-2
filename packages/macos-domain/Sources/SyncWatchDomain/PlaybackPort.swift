@@ -75,3 +75,9 @@ public protocol PlaybackPort: Sendable {
     func stop(_ scope: PlaybackScope) async throws
     func close() async
 }
+
+/// Local track controls that can acknowledge the engine's actual selection.
+/// A returned ID of -1 means disabled/no active track.
+public protocol PlaybackTrackControlPort: PlaybackPort {
+    func selectedTrack(subtitles: Bool, scope: PlaybackScope) async throws -> Int32
+}

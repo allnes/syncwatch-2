@@ -30,6 +30,7 @@ struct LocalPlaybackLaunch {
     private var sharedAuthority: (@MainActor () -> Bool)?
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
+    private(set) lazy var tracks = LocalPlaybackTracks(player: player, scope: { [weak self] in self?.scope })
     private let launch: LocalPlaybackLaunch
     private let runtime: VLCPlaybackRuntime?
     private var polling: Task<Void, Never>?
@@ -186,6 +187,7 @@ struct LocalPlaybackLaunch {
                         return
                     }
                     failed = true
+                    tracks.dismiss()
                     presentation.enabledActions = ["endWatching"]
                     onFailure?()
                 }
@@ -204,12 +206,22 @@ struct LocalPlaybackLaunch {
         presentation.enabledActions = navigationActions.union(["playPause"])
         if value.volume != nil { presentation.enabledActions.formUnion(["setMovieVolume", "muteMovie"]) }
         if value.seekable { presentation.enabledActions.formUnion(["seek", "skip"]) }
+        if value.status == .ready, !value.ended {
+            presentation.enabledActions.formUnion(["selectAudio", "selectSubtitles"])
+        } else {
+            tracks.dismiss()
+        }
         gateSharedActions()
     }
     func action(_ action: String, value: Double?) {
         guard !closing else { return }
         gateSharedActions()
         guard presentation.enabledActions.contains(action) else { return }
+        if action == "selectAudio" || action == "selectSubtitles" {
+            tracks.open(action == "selectAudio" ? "audio" : "subtitles")
+            return
+        }
+        if action == "showLibrary" || action == "endWatching" || action == "toggleFullscreen" { tracks.dismiss() }
         if action == "endWatching" || action == "showLibrary", let onNavigation {
             onNavigation(action)
             return
@@ -274,6 +286,7 @@ struct LocalPlaybackLaunch {
         closing = true
         presentation.enabledActions = []
         polling?.cancel()
+        await tracks.close()
         await sharedMediaPreparation.close()
         await sharedSession?.close()
         sharedSession = nil
@@ -292,10 +305,20 @@ struct PlaybackPane: View {
     @ObservedObject var controller: PlaybackController
     var language: String
     var body: some View {
+        PlaybackTrackPane(controller: controller, tracks: controller.tracks, language: language)
+    }
+}
+
+private struct PlaybackTrackPane: View {
+    @ObservedObject var controller: PlaybackController
+    @ObservedObject var tracks: LocalPlaybackTracks
+    var language: String
+    var body: some View {
         PlayerChrome(
             presentation: controller.presentation, language: language,
             videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
-            onAction: controller.action)
+            selectionMenu: tracks.menu, onAction: controller.action
+        ).selectionHandlers(onSelection: tracks.select, onDismiss: tracks.dismiss)
     }
 }
 

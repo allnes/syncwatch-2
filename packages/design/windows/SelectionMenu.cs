@@ -54,6 +54,7 @@ internal static class SelectionMenuBindings
                         ["label"] = entry.Label,
                         ["selected"] = p.SelectedID == entry.Id ? "true" : "false",
                         ["enabled"] = p.Enabled && entry.Enabled ? "true" : "false",
+                        ["disabledTrack"] = entry.DisabledTrack ? "true" : "false",
                     },
                 }).ToArray(),
             },

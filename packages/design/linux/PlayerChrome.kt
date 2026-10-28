@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import kotlin.math.round
 
 
-// First-party source only. Compose/compiler/native/font/license build prerequisites remain open.
+// Observed player state and capability-checked local requests.
 enum class PlayerVisualState { loading, paused, playing, buffering, fullscreen, connectionInterrupted, ended }
 data class PlayerPresentation(
     val state: PlayerVisualState = PlayerVisualState.loading,
@@ -26,7 +26,7 @@ data class PlayerPresentation(
     val displayedDuration: Double get() = durationMs.coerceIn(0, SyncWatchPlayer.maximumPositionMs).toDouble()
     val displayedPosition: Double get() = positionMs.coerceAtLeast(0).toDouble().coerceAtMost(displayedDuration)
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchPlayer.actions && when (action) {
-        "playPause", "seek", "skip", "previousFile", "nextFile" -> isValid && state in setOf(PlayerVisualState.paused, PlayerVisualState.playing, PlayerVisualState.fullscreen) && when (action) {
+        "playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles" -> isValid && state in setOf(PlayerVisualState.paused, PlayerVisualState.playing, PlayerVisualState.fullscreen) && when (action) {
             "seek", "skip" -> durationMs > 0
             "previousFile" -> hasPrevious
             "nextFile" -> hasNext
@@ -64,6 +64,11 @@ data class PlayerPresentation(
 }
 
 @Composable fun PlayerChrome(presentation:PlayerPresentation=PlayerPresentation(),language:String="en",theme:SyncWatchTheme=SyncWatchTheme.dark,modifier:Modifier=Modifier,
-    videoSurface:@Composable BoxScope.()->Unit={},onAction:(String,Double?)->Unit={_,_->}) {
-    DesignSurface("Player",DesignBindings.player(presentation),language,theme,modifier,mapOf("video" to videoSurface)){event->presentation.dispatch(event.action,event.value?.toDoubleOrNull(),onAction)}
+    videoSurface:@Composable BoxScope.()->Unit={},selectionMenu:SelectionMenuPresentation?=null,
+    onSelection:(SelectionMenuRequest)->Unit={},onDismissSelection:()->Unit={},onAction:(String,Double?)->Unit={_,_->}) {
+    val slots=mutableMapOf<String,@Composable BoxScope.()->Unit>("video" to videoSurface)
+    selectionMenu?.let { menu -> slots[menu.kind+"Selection"]={SelectionMenu(menu,language,theme,onSelection=onSelection)} }
+    DesignSurface("Player",DesignBindings.player(presentation),language,theme,modifier,slots){event->
+        if(event.action=="dismissSelection")onDismissSelection() else presentation.dispatch(event.action,event.value?.toDoubleOrNull(),onAction)
+    }
 }

@@ -24,6 +24,12 @@ static async Task<PlaybackObservation> Wait(VLCPlayback player, PlaybackScope sc
         await Task.Delay(40, deadline.Token);
     }
 }
+static async Task WaitTrack(IPlaybackTrackControlPort player, PlaybackScope scope, int id, bool subtitles = false)
+{
+    using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(3));
+    while (await player.SelectedTrackAsync(subtitles, scope, deadline.Token) != id)
+        await Task.Delay(20, deadline.Token);
+}
 
 PlaybackScope scope = new("dotnet-owned-run", 1);
 byte[] expectedHash = SHA256.HashData(File.ReadAllBytes(args[2]));
@@ -69,24 +75,35 @@ for (int iteration = 0; iteration < 3; iteration++)
         await player.SetRateAsync(1, scope);
         IReadOnlyList<PlaybackTrack> audio = await player.TracksAsync(false, scope);
         Require(audio.Any(track => track.Id >= 0 && track.Name.Length > 0));
-        await player.SelectTrackAsync(audio.First(track => track.Id >= 0).Id, false, scope);
+        int audioId = audio.First(track => track.Id >= 0).Id;
+        await WaitTrack(player, scope, audioId);
+        await player.SelectTrackAsync(-1, false, scope);
+        await WaitTrack(player, scope, -1);
+        await player.SelectTrackAsync(audioId, false, scope);
+        await WaitTrack(player, scope, audioId);
+        await WaitTrack(player, scope, -1, true);
+        await Rejected(player.SelectTrackAsync(int.MaxValue, false, scope));
+        await Rejected(player.SelectedTrackAsync(false, new("foreign", 1)));
         await Rejected(player.SetRateAsync(double.NaN, scope));
         await Rejected(player.SeekAsync(5000, scope));
         await Rejected(player.SetPausedAsync(false, new("foreign", 1)));
         using CancellationTokenSource cancelled = new();
         cancelled.Cancel();
         await Rejected(content.ReadContentAsync(0, 8, scope, cancelled.Token));
+        await Rejected(player.SelectedTrackAsync(false, scope, cancelled.Token));
         await Rejected(player.StopAsync(scope, cancelled.Token));
         Require((await player.ObserveAsync(scope)).Status == PlaybackStatus.Ready);
         await player.StopAsync(scope);
         await player.StopAsync(scope);
         Require((await player.ObserveAsync(scope)).Status == PlaybackStatus.Unloaded);
         await Rejected(player.SetPausedAsync(false, scope));
+        await Rejected(player.SelectedTrackAsync(false, scope));
         await Rejected(content.ReadContentAsync(0, 8, scope));
         PlaybackScope next = scope.ReplacingMedia();
         await player.LoadAsync(args[2], next);
         await Wait(player, next, v => v.Status == PlaybackStatus.Ready && v.Paused);
         await Rejected(player.ObserveAsync(scope));
+        await Rejected(player.SelectedTrackAsync(false, scope));
         await Rejected(content.ContentVersionAsync(scope));
         await Rejected(content.ReadContentAsync(0, 8, scope));
         Require(!version.Equals(await content.ContentVersionAsync(next)));
@@ -94,6 +111,7 @@ for (int iteration = 0; iteration < 3; iteration++)
     }
     finally { await player.DisposeAsync(); await player.DisposeAsync(); }
     await Rejected(player.ObserveAsync(scope));
+    await Rejected(player.SelectedTrackAsync(false, scope));
 }
 Console.WriteLine(JsonSerializer.Serialize(new
 {

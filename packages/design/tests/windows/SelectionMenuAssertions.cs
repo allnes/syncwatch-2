@@ -43,8 +43,15 @@ internal static class SelectionMenuAssertions
             foreach (var input in item.GetProperty("requests").EnumerateArray()) p.Dispatch(input.GetProperty("entryID").GetString()!, input.GetProperty("contextToken").GetString()!, received.Add);
             Check(received.SequenceEqual(item.GetProperty("expected").Deserialize<SelectionMenuRequest[]>(options)!), item.GetProperty("name").GetString()!);
             Check(before == JsonSerializer.Serialize(p), "requests do not change observations"); cases++;
+            if (item.TryGetProperty("labels", out var labels))
+                foreach (var locale in labels.EnumerateObject())
+                {
+                    var localized = new SelectionMenu(); localized.Render(p, locale.Name); Layout(localized, 420, 360);
+                    var expected = locale.Value.EnumerateArray().Select(v => v.GetString()).ToArray();
+                    Check(p.Entries.Select(e => AutomationProperties.GetName(Entry(localized, e.Id))).SequenceEqual(expected), "localized off choice");
+                }
         }
-        Check(cases == 28, "shared request corpus");
+        Check(cases == 30, "shared request corpus");
         var ready = SelectionMenuFixtures.Presentation("playlist", "available");
         var mutableEntries = ready.Entries.ToList();
         var snapshotView = new SelectionMenu(); snapshotView.Render(ready with { Entries = mutableEntries });

@@ -27,6 +27,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private readonly VLCPlayback player = new();
     private readonly PlaybackScope scope;
     private readonly PlayerChrome chrome = new();
+    private readonly LocalPlaybackTracks tracks;
     private readonly NativeVideoHost surface;
     private readonly LocalPlaybackLaunch launch;
     private string language;
@@ -116,6 +117,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     {
         this.launch = launch; this.language = language;
         this.scope = scope ?? PlaybackScope.Create().ReplacingMedia(); initialPositionMs = positionMs;
+        tracks = new(player, this.scope, RenderTracks);
         this.selection = selection; this.onLoaded = onLoaded; this.onObservation = onObservation;
         this.onNavigation = onNavigation; this.onFailure = onFailure;
         this.onFullscreen = onFullscreen;
@@ -124,10 +126,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         surface.SurfaceCreated += handle => { if (!attached && !cancellation.IsCancellationRequested) { attached = true; polling = PollAsync(handle); } };
         chrome.VideoSurface = surface;
         chrome.ActionRequested += Action;
+        chrome.SelectionRequested += tracks.Select;
+        chrome.SelectionDismissed += tracks.Dismiss;
         presentation = presentation with { Title = Path.GetFileName(launch.File), EnabledActions = NavigationActions };
         chrome.Render(presentation, language); Content = chrome;
     }
     public void SetLanguage(string value) { language = value; chrome.Render(presentation, language); }
+    private void RenderTracks() { chrome.SelectionPresentation = tracks.Menu; chrome.Render(presentation, language); }
     private async Task PollAsync(nint handle)
     {
         try
@@ -155,6 +160,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                 HashSet<string> enabled = NavigationActions; enabled.Add("playPause");
                 if (value.Seekable) enabled.UnionWith(["seek", "skip"]);
                 if (value.Volume is not null) enabled.UnionWith(["setMovieVolume", "muteMovie"]);
+                if (value.Status == PlaybackStatus.Ready && !value.Ended) enabled.UnionWith(["selectAudio", "selectSubtitles"]);
+                else tracks.Dismiss();
                 presentation = presentation with
                 {
                     State = value.Ended ? PlayerVisualState.Ended : value.Buffering ? PlayerVisualState.Buffering : value.Status != PlaybackStatus.Ready ? PlayerVisualState.Loading : value.Paused ? PlayerVisualState.Paused : PlayerVisualState.Playing,
@@ -175,6 +182,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         {
             if (!cancellation.IsCancellationRequested)
             {
+                tracks.Dismiss();
                 presentation = presentation with { EnabledActions = new HashSet<string> { "endWatching" } };
                 chrome.Render(presentation, language);
                 if (launch.Report is string report)
@@ -193,6 +201,8 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         if (closing || cancellation.IsCancellationRequested) return;
         GateSharedActions();
         if (!presentation.EnabledActions.Contains(action)) return;
+        if (action is "selectAudio" or "selectSubtitles") { tracks.Open(action == "selectAudio" ? "audio" : "subtitles"); return; }
+        if (action is "showLibrary" or "endWatching" or "toggleFullscreen") tracks.Dismiss();
         if ((action is "endWatching" or "showLibrary") && onNavigation is not null) { onNavigation(action); return; }
         if (action == "endWatching")
         {
@@ -235,6 +245,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     {
         closing = true;
         cancellation.Cancel();
+        await tracks.CloseAsync();
         presentation = presentation with { EnabledActions = new HashSet<string>() };
         chrome.Render(presentation, language);
         await sharedMediaPreparation.CloseAsync();

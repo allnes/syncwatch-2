@@ -316,6 +316,7 @@ private struct DesignPressStyle: ButtonStyle {
 
 /// Mechanical SwiftUI adapter for the neutral tree. It has no Library/Settings/Player layout branches.
 public struct DesignSurface: View {
+    @Environment(\.designPresented) private var presented
     public var component: String
     var testingNode: DesignNode?
     public var context: DesignContext
@@ -425,6 +426,19 @@ public struct DesignSurface: View {
                 }.buttonStyle(DesignPressStyle(node: node)).disabled(!enabled))
             if node.string("shortcut") == "default" { button = AnyView(button.keyboardShortcut(.defaultAction)) }
             if node.string("shortcut") == "cancel" { button = AnyView(button.keyboardShortcut(.cancelAction)) }
+            if !node.string("popoverSlot").isEmpty {
+                button = AnyView(
+                    button.popover(
+                        isPresented: Binding(
+                            get: { presented && slots[node.string("popoverSlot")] != nil },
+                            set: { if !$0 { onEvent(DesignEvent(node.string("popoverDismiss"))) } }
+                        ), arrowEdge: node.string("popoverEdge") == "top" ? .bottom : .top
+                    ) { slots[node.string("popoverSlot")] }.onChange(of: presented) { active in
+                        if !active, slots[node.string("popoverSlot")] != nil {
+                            onEvent(DesignEvent(node.string("popoverDismiss")))
+                        }
+                    })
+            }
             result = button
         case "input":
             result = decorated(

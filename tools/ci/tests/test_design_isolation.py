@@ -59,6 +59,16 @@ class DesignIsolationTests(unittest.TestCase):
         (root / "packages/design/windows/ScreenHelper.cs").write_text("var control = new Button();")
         self.assertEqual(len(isolation.check(root)), 1)
 
+    def test_native_popup_host_is_registered_without_exempting_other_bindings(self):
+        root = self.fixture("linux", "NativeDesignPopover.kt", "Box { suppliedContent() }")
+        self.assertEqual(isolation.check(root), [])
+        (root / "packages/design/linux/AnotherPopover.kt").write_text("Box { suppliedContent() }")
+        self.assertEqual(len(isolation.check(root)), 1)
+        nested = root / "packages/design/linux/selection/NativeDesignPopover.kt"
+        nested.parent.mkdir()
+        nested.write_text("Box { suppliedContent() }")
+        self.assertEqual(len(isolation.check(root)), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

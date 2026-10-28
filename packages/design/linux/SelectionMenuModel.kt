@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package syncwatch.design
 
-data class SelectionMenuEntry(val id: String, val label: String, val enabled: Boolean = true)
+data class SelectionMenuEntry(val id: String, val label: String, val enabled: Boolean = true, val disabledTrack: Boolean = false) {
+    companion object { val offTrack get() = SelectionMenuEntry("-1", "off", disabledTrack = true) }
+}
 data class SelectionMenuRequest(
     val kind: String,
     val sourceID: String,

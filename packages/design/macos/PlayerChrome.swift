@@ -29,7 +29,7 @@ public struct PlayerPresentation: Sendable {
     public func allows(_ action: String) -> Bool {
         guard enabledActions.contains(action), SyncWatchPlayer.actions.contains(action) else { return false }
         switch action {
-        case "playPause", "seek", "skip", "previousFile", "nextFile":
+        case "playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles":
             guard isValid, [.paused, .playing, .fullscreen].contains(state) else { return false }
             if action == "seek" || action == "skip" { return durationMs > 0 }
             if action == "previousFile" { return hasPrevious }
@@ -82,22 +82,48 @@ public struct PlayerChrome: View {
     public var presentation: PlayerPresentation
     public var language: String
     public var videoSurface: AnyView?
+    public var selectionMenu: SelectionMenuPresentation?
+    public var onSelection: (SelectionMenuRequest) -> Void = { _ in }
+    public var onDismissSelection: () -> Void = {}
     public var onAction: (String, Double?) -> Void
     public init(
         presentation: PlayerPresentation = PlayerPresentation(), language: String = "en", videoSurface: AnyView? = nil,
+        selectionMenu: SelectionMenuPresentation? = nil,
         onAction: @escaping (String, Double?) -> Void = { _, _ in }
     ) {
         self.presentation = presentation
         self.language = language
         self.videoSurface = videoSurface
+        self.selectionMenu = selectionMenu
         self.onAction = onAction
+    }
+    public func selectionHandlers(
+        onSelection: @escaping (SelectionMenuRequest) -> Void, onDismiss: @escaping () -> Void
+    ) -> Self {
+        var copy = self
+        copy.onSelection = onSelection
+        copy.onDismissSelection = onDismiss
+        return copy
     }
     public var body: some View {
         DesignSurface(
             "Player", context: DesignBindings.player(presentation), language: language,
-            slots: videoSurface.map { ["video": $0] } ?? [:]
+            slots: ownedSlots
         ) { event in
-            presentation.dispatch(event.action, value: event.value.flatMap(Double.init), to: onAction)
+            if event.action == "dismissSelection" {
+                onDismissSelection()
+            } else {
+                presentation.dispatch(event.action, value: event.value.flatMap(Double.init), to: onAction)
+            }
         }
+    }
+
+    private var ownedSlots: [String: AnyView] {
+        var slots = videoSurface.map { ["video": $0] } ?? [:]
+        if let menu = selectionMenu {
+            slots[menu.kind + "Selection"] = AnyView(
+                SelectionMenu(presentation: menu, language: language, onSelection: onSelection))
+        }
+        return slots
     }
 }

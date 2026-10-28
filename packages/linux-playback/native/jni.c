@@ -102,3 +102,8 @@ JNIEXPORT jbyteArray JNICALL JNI_METHOD(trackName)(JNIEnv *env, jclass type, jlo
 JNIEXPORT void JNICALL JNI_METHOD(selectTrack)(JNIEnv *env, jclass type, jlong p, jlong g, jboolean subtitles, jint id) {
     (void)type; checked(env, sw_playback_select_track((sw_playback *)(intptr_t)p, (uint64_t)g, subtitles == JNI_TRUE, id));
 }
+JNIEXPORT jint JNICALL JNI_METHOD(selectedTrack)(JNIEnv *env, jclass type, jlong p, jlong g, jboolean subtitles) {
+    (void)type; int32_t id = -1;
+    checked(env, sw_playback_selected_track((sw_playback *)(intptr_t)p, (uint64_t)g, subtitles == JNI_TRUE, &id));
+    return id;
+}

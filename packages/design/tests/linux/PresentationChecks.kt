@@ -98,7 +98,7 @@ private fun selectionChecks(root: Path): Int {
     for (fixture in cases) {
         val p = fixture["presentation"].record()
         val model = SelectionMenuPresentation(p.text("kind"), p.text("sourceID"), p.number("revision").toLong(),
-            p["entries"].rows().map { SelectionMenuEntry(it.text("id"), it.text("label"), it.flag("enabled")) },
+            p["entries"].rows().map { SelectionMenuEntry(it.text("id"), it.text("label"), it.flag("enabled"), it["disabledTrack"] as? Boolean ?: false) },
             p["selectedID"] as String?, p.flag("enabled"))
         val before = model.copy()
         check(model.isValid == fixture.flag("valid")) { fixture.text("name") }
@@ -108,6 +108,13 @@ private fun selectionChecks(root: Path): Int {
         }
         check(events == fixture["expected"].rows().map { it.request() }) { fixture.text("name") }
         check(model == before) { "Requests changed the observed selection" }
+        if (fixture["labels"] != null) {
+            fun labels(n: DesignElement): List<String> = (if (n.id.endsWith(".selectionLabel")) listOf(n.text("text")) else emptyList()) + n.children.flatMap { labels(it) }
+            for ((language, expected) in fixture["labels"].record()) {
+                val tree = checkNotNull(DesignTree.resolve("SelectionMenu", SelectionMenuBindings.context(model), language, 420.0, 360.0))
+                check(labels(tree) == expected)
+            }
+        }
     }
     return cases.size
 }
