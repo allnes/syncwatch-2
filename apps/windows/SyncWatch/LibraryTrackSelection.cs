@@ -45,12 +45,19 @@ internal sealed record LibraryTrackSelection
         var entries = names.Select((name, index) => new SelectionMenuEntry(
             index.ToString(System.Globalization.CultureInfo.InvariantCulture), name.Length == 0 ? SyncWatchCopy.Text("unknown", language) : name)).ToList();
         if (kind == "subtitles") entries.Insert(0, SelectionMenuEntry.OffTrack);
-        return next with { Menu = new()
+        return next with
         {
-            Kind = kind, SourceID = SourceId, Revision = next.Revision, Entries = entries, Enabled = true,
-            SelectedID = (kind == "audio" ? Preferences.AudioIndex : Preferences.SubtitleIndex)?.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            Menu = new()
+            {
+                Kind = kind,
+                SourceID = SourceId,
+                Revision = next.Revision,
+                Entries = entries,
+                Enabled = true,
+                SelectedID = (kind == "audio" ? Preferences.AudioIndex : Preferences.SubtitleIndex)?.ToString(System.Globalization.CultureInfo.InvariantCulture)
                 ?? (kind == "subtitles" ? "-1" : null),
-        } };
+            }
+        };
     }
     public LibraryTrackSelection Select(SelectionMenuRequest request)
     {
@@ -58,8 +65,11 @@ internal sealed record LibraryTrackSelection
             request.Revision != Revision || request.Kind != menu.Kind || request.Scope != "local" ||
             request.Action != menu.Definition?.Action || !int.TryParse(request.EntryID, System.Globalization.NumberStyles.Integer,
                 System.Globalization.CultureInfo.InvariantCulture, out int index)) return this;
-        return Dismiss() with { Preferences = request.Kind == "audio" ? Preferences with { AudioIndex = index }
-            : Preferences with { SubtitleIndex = index < 0 ? null : index } };
+        return Dismiss() with
+        {
+            Preferences = request.Kind == "audio" ? Preferences with { AudioIndex = index }
+            : Preferences with { SubtitleIndex = index < 0 ? null : index }
+        };
     }
     public LibraryTrackSelection Dismiss() => this with { Revision = Revision + 1, Menu = null };
 }

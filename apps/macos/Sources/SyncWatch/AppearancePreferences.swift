@@ -131,7 +131,9 @@ import SyncWatchLibrary
                 ) { action, value in
                     if action != "openLibraryAudio" && action != "openLibrarySubtitles" { library.dismissTracks() }
                     if action == "openLibraryAudio" || action == "openLibrarySubtitles" {
-                        library.openTracks(action == "openLibraryAudio" ? "audio" : "subtitles", language: preferences.state.preferences.language)
+                        library.openTracks(
+                            action == "openLibraryAudio" ? "audio" : "subtitles",
+                            language: preferences.state.preferences.language)
                     } else if action == "chooseFolder" {
                         chooseFolder()
                     } else if action == "rescan" {
@@ -150,7 +152,8 @@ import SyncWatchLibrary
                         editor = preferences.editor
                         showSettings = true
                     }
-                }.selectionHandlers(menu: watch.playerPresented ? nil : library.tracks.menu,
+                }.selectionHandlers(
+                    menu: watch.playerPresented ? nil : library.tracks.menu,
                     onSelection: library.selectTrack, onDismiss: library.dismissTracks)), player: playerContent
         )
         .background(WindowCloseGate(close: close))

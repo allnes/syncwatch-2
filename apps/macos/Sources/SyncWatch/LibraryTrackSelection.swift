@@ -29,7 +29,8 @@ struct LibraryTrackSelection {
 
     mutating func reset(_ metadata: MediaMetadata? = nil) {
         dismiss()
-        preferences = LocalTrackPreferences(audioNames: metadata?.audioTrackNames,
+        preferences = LocalTrackPreferences(
+            audioNames: metadata?.audioTrackNames,
             subtitleNames: metadata?.subtitleTrackNames,
             audioIndex: metadata?.audioTrackNames?.isEmpty == false ? 0 : nil)
     }
@@ -40,13 +41,20 @@ struct LibraryTrackSelection {
         dismiss()
         guard kind == "audio" || kind == "subtitles",
             let names = kind == "audio" ? preferences.audioNames : preferences.subtitleNames,
-            !names.isEmpty else { return }
+            !names.isEmpty
+        else { return }
         var value = SelectionMenuPresentation()
-        value.kind = kind; value.sourceID = sourceID; value.revision = revision
-        value.entries = names.enumerated().map { SelectionMenuEntry(id: String($0.offset),
-            label: $0.element.isEmpty ? SyncWatchCopy.text("unknown", language: language) : $0.element) }
+        value.kind = kind
+        value.sourceID = sourceID
+        value.revision = revision
+        value.entries = names.enumerated().map {
+            SelectionMenuEntry(
+                id: String($0.offset),
+                label: $0.element.isEmpty ? SyncWatchCopy.text("unknown", language: language) : $0.element)
+        }
         if kind == "subtitles" { value.entries.insert(.offTrack, at: 0) }
-        value.selectedID = (kind == "audio" ? preferences.audioIndex : preferences.subtitleIndex).map(String.init)
+        value.selectedID =
+            (kind == "audio" ? preferences.audioIndex : preferences.subtitleIndex).map(String.init)
             ?? (kind == "subtitles" ? "-1" : nil)
         value.enabled = true
         menu = value
@@ -54,10 +62,17 @@ struct LibraryTrackSelection {
     mutating func select(_ request: SelectionMenuRequest) {
         guard let menu, menu.allows(request.entryID), request.sourceID == sourceID,
             request.revision == revision, request.kind == menu.kind, request.scope == "local",
-            request.action == menu.definition?.action, let index = Int(request.entryID) else { return }
-        if request.kind == "audio" { preferences.audioIndex = index }
-        else { preferences.subtitleIndex = index < 0 ? nil : index }
+            request.action == menu.definition?.action, let index = Int(request.entryID)
+        else { return }
+        if request.kind == "audio" {
+            preferences.audioIndex = index
+        } else {
+            preferences.subtitleIndex = index < 0 ? nil : index
+        }
         dismiss()
     }
-    mutating func dismiss() { revision += 1; menu = nil }
+    mutating func dismiss() {
+        revision += 1
+        menu = nil
+    }
 }

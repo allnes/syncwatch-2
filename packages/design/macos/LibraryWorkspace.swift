@@ -92,8 +92,10 @@ public struct LibraryWorkspace: View {
         self.language = language
         self.onAction = onAction
     }
-    public func selectionHandlers(menu: SelectionMenuPresentation?,
-        onSelection: @escaping (SelectionMenuRequest) -> Void, onDismiss: @escaping () -> Void) -> Self {
+    public func selectionHandlers(
+        menu: SelectionMenuPresentation?,
+        onSelection: @escaping (SelectionMenuRequest) -> Void, onDismiss: @escaping () -> Void
+    ) -> Self {
         var copy = self
         copy.selectionMenu = menu
         copy.onSelection = onSelection
@@ -103,11 +105,18 @@ public struct LibraryWorkspace: View {
     public var body: some View {
         DesignSurface(
             "Library", context: DesignBindings.library(presentation, query: query, language: language),
-            language: language, slots: selectionMenu.map { menu in
-                [menu.kind + "Selection": AnyView(SelectionMenu(presentation: menu, language: language, onSelection: onSelection))]
+            language: language,
+            slots: selectionMenu.map { menu in
+                [
+                    menu.kind + "Selection": AnyView(
+                        SelectionMenu(presentation: menu, language: language, onSelection: onSelection))
+                ]
             } ?? [:]
         ) { event in
-            if event.action == "dismissSelection" { onDismissSelection(); return }
+            if event.action == "dismissSelection" {
+                onDismissSelection()
+                return
+            }
             if event.action == "search" { query = event.value ?? "" }
             presentation.dispatch(event.action, value: event.value, to: onAction)
         }

@@ -76,7 +76,9 @@ private actor LibraryRecordIO {
         return LibraryMediaSelection(media: media, access: grant, tracks: tracks.preferences)
     }
     func openTracks(_ kind: String, language: String) {
-        guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else { return }
+        guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else {
+            return
+        }
         tracks.open(kind, language: language)
     }
     func selectTrack(_ request: SelectionMenuRequest) {

@@ -20,9 +20,13 @@ import SyncWatchDomain
     /// Called before the watch is admitted or any controls are enabled.
     func applyInitial(_ preferences: LocalTrackPreferences) async throws {
         guard !closed, let scope = activeScope() else { throw Failure.unavailable }
-        let audio = try preferences.audioNames == nil ? nil
+        let audio =
+            try preferences.audioNames == nil
+            ? nil
             : preferences.resolve(try await player.tracks(subtitles: false, scope: scope), subtitles: false)
-        let subtitles = try preferences.subtitleNames == nil ? nil
+        let subtitles =
+            try preferences.subtitleNames == nil
+            ? nil
             : preferences.resolve(try await player.tracks(subtitles: true, scope: scope), subtitles: true)
         for (id, isSubtitle) in [(audio, false), (subtitles, true)] {
             guard let id else { continue }

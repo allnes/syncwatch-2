@@ -135,10 +135,13 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         let invalid = LocalTrackPreferences(audioNames: ["First", "Second"], subtitleNames: ["Changed"], audioIndex: 1)
         await #expect(throws: (any Error).self) { try await model.applyInitial(invalid) }
         #expect(await player.selections == 0)
-        let selected = LocalTrackPreferences(audioNames: ["First", "Second"], subtitleNames: ["First", "Second"], audioIndex: 1)
+        let selected = LocalTrackPreferences(
+            audioNames: ["First", "Second"], subtitleNames: ["First", "Second"], audioIndex: 1)
         let applying = Task { try await model.applyInitial(selected) }
         let deadline = ContinuousClock.now.advanced(by: .seconds(2))
-        while await player.selections == 0, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(5)) }
+        while await player.selections == 0, ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(5))
+        }
         #expect(await player.selections == 1 && model.menu == nil)
         await player.acknowledgeAutomatically()
         await player.configure(selected: 2)
@@ -147,5 +150,8 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         #expect(await player.selected == -1)
         await model.close()
         await #expect(throws: (any Error).self) { try await model.applyInitial(selected) }
-    } catch { await model.close(); throw error }
+    } catch {
+        await model.close()
+        throw error
+    }
 }
