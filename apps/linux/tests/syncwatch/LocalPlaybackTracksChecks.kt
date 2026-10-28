@@ -79,7 +79,7 @@ private suspend fun externalTrackFileChecks(owner: CoroutineScope) {
         model.select(choose()); model.settled(); check(player.attachments == 0 && player.selected == 1)
         picker.file = LocalFileAccess.selected(file)
         val old = choose(); model.select(old); until { player.attachments == 1 }
-        check(model.menu?.enabled == false && model.menu?.selectedID == "1")
+        check(model.menu == null); model.dismissMenu(); check(player.selected == 1)
         player.selected = 3; model.settled()
         model.open("audio"); model.settled()
         check(model.menu?.selectedID == "3" && model.menu?.entries?.first { it.id == "3" }?.label == file.fileName.toString())
@@ -87,6 +87,7 @@ private suspend fun externalTrackFileChecks(owner: CoroutineScope) {
         player.reject = true; model.select(choose()); model.settled()
         check(model.menu?.isValid == true && model.menu?.entries?.any { it.id == SyncWatchSelectionMenu.externalFileErrorID && !it.enabled } == true)
         player.reject = false; picker.hold = true; model.select(choose()); until { picker.waiting != null }
+        model.dismissMenu(); check(model.menu == null && picker.waiting != null)
         val before = player.attachments
         val closing = owner.async { model.close() }
         until { model.menu == null }; check(!closing.isCompleted)

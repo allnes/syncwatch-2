@@ -335,7 +335,7 @@ private struct PlaybackTrackPane: View {
                 controller.language = language
                 controller.action(action, value: value)
             }
-        ).selectionHandlers(onSelection: tracks.select, onDismiss: tracks.dismiss)
+        ).selectionHandlers(onSelection: tracks.select, onDismiss: tracks.dismissMenu)
     }
 }
 

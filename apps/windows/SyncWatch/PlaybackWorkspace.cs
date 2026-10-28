@@ -127,7 +127,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.VideoSurface = surface;
         chrome.ActionRequested += Action;
         chrome.SelectionRequested += tracks.Select;
-        chrome.SelectionDismissed += tracks.Dismiss;
+        chrome.SelectionDismissed += tracks.DismissMenu;
         presentation = presentation with { Title = Path.GetFileName(launch.File), EnabledActions = NavigationActions };
         chrome.Render(presentation, language); Content = chrome;
     }

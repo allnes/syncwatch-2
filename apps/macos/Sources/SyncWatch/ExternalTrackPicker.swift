@@ -16,6 +16,8 @@ import UniformTypeIdentifiers
     private var activeID: UUID?
     init(window: @escaping @MainActor () -> NSWindow?) { self.window = window }
     func choose(kind: String, language: String) async throws -> LocalFileAccess? {
+        // Let SwiftUI retire the selection popover before starting a modal sheet.
+        await Task.yield()
         try Task.checkCancellation()
         guard active == nil,
             let filter = SyncWatchSelectionMenu.externalFileFilters.first(where: { $0.kind == kind })

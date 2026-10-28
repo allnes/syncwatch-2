@@ -21,6 +21,7 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
     private val sourceId = "tracks-${UUID.randomUUID()}"
     private var revision = 0L
     private var closed = false
+    private var choosingRevision: Long? = null
     private var request: Job? = null
     private val pending = mutableSetOf<Job>()
     private var language = "en"
@@ -62,7 +63,8 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
         val id = value.entryID.toIntOrNull()
         if (id == null && value.entryID != SyncWatchSelectionMenu.externalFileID) return
         request?.cancel(); revision++; val current = revision
-        menu = before.copy(revision = current, enabled = false)
+        if (value.entryID == SyncWatchSelectionMenu.externalFileID) { choosingRevision = current; menu = null }
+        else menu = before.copy(revision = current, enabled = false)
         pending.removeAll { it.isCompleted }
         request = work.launch {
             try {
@@ -83,6 +85,7 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
                 publish(snapshot(value.kind, current), current)
                 if (!closed && current == revision) dismiss()
             } catch (_: Exception) { unavailable(value.kind, current) }
+            finally { if (choosingRevision == current) choosingRevision = null }
         }
         request?.let { pending.add(it) }
     }
@@ -126,7 +129,9 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
     private fun publish(value: SelectionMenuPresentation, current: Long) {
         if (!closed && current == revision) menu = value
     }
-    fun dismiss() { revision++; request?.cancel(); picker?.cancel(); menu = null }
+    fun dismiss() { revision++; choosingRevision = null; request?.cancel(); picker?.cancel(); menu = null }
+    /** The popup closes before a native chooser; owner close still cancels and joins it. */
+    fun dismissMenu() { if (choosingRevision == null) dismiss() }
     suspend fun close() {
         closed = true; dismiss(); pending.forEach { it.cancel() }
         pending.forEach { it.join() }; pending.clear(); request = null

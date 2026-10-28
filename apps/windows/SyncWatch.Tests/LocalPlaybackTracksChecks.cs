@@ -31,7 +31,7 @@ internal static class LocalPlaybackTracksChecks
             var initial = model.Menu!; SelectionMenuRequest? request = null;
             initial.Dispatch("2", initial.ContextToken, value => request = value);
             model.Select(request!); await Until(() => player.Selections == 1);
-            Require(model.Menu is { Enabled: false, SelectedID: "1" });
+            Require(model.Menu is null); model.DismissMenu(); Require(player.Selected == 1);
             player.Selected = 2; await model.SettledAsync(); Require(model.Menu is null);
             model.Open("audio"); await model.SettledAsync(); Require(model.Menu is { Enabled: true, SelectedID: "2" });
             model.Select(request!); Require(player.Selections == 1);
@@ -84,6 +84,7 @@ internal static class LocalPlaybackTracksChecks
             Require(model.Menu!.IsValid && model.Menu.Entries.Any(t => t.Id == SyncWatchSelectionMenu.ExternalFileErrorID && !t.Enabled));
             player.Reject = false; picker.Hold = new(TaskCreationOptions.RunContinuationsAsynchronously);
             int calls = picker.Calls; model.Select(Choose()); await Until(() => picker.Calls > calls);
+            model.DismissMenu(); Require(model.Menu is null && picker.Calls == calls + 1);
             int before = player.Attachments;
             var close = model.CloseAsync(); Require(!close.IsCompleted);
             picker.Hold.SetResult(picker.File); await close;

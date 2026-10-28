@@ -278,6 +278,6 @@ internal class PlaybackController(
     PlayerChrome(controller.presentation, language, theme,
         videoSurface = { NativePlayerSurface(controller.canvas) },
         selectionMenu = controller.tracks.menu, onSelection = controller.tracks::select,
-        onDismissSelection = controller.tracks::dismiss,
+        onDismissSelection = controller.tracks::dismissMenu,
         onAction = { action, value -> controller.language = language; controller.action(action, value, onClose, onFullscreen) })
 }

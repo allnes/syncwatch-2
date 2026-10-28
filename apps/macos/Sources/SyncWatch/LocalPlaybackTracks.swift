@@ -13,6 +13,7 @@ import SyncWatchLibrary
     private var revision: Int64 = 0
     private var work: Task<Void, Never>?
     private var closed = false
+    private var choosingRevision: Int64?
     private let picker: (any ExternalTrackChoosing)?
     private var language = "en"
     private var externalFiles: [LocalFileAccess] = []
@@ -80,11 +81,17 @@ import SyncWatchLibrary
         var pending = current
         pending.revision = revision
         pending.enabled = false
-        menu = pending
+        if request.entryID == SyncWatchSelectionMenu.externalFileID {
+            choosingRevision = revision
+            menu = nil
+        } else {
+            menu = pending
+        }
         let previous = work
         work = Task {
             await previous?.value
             guard !Task.isCancelled else { return }
+            defer { if choosingRevision == revision { choosingRevision = nil } }
             do {
                 let subtitles = request.kind == "subtitles"
                 guard let scope = activeScope() else { throw Failure.unavailable }
@@ -179,10 +186,13 @@ import SyncWatchLibrary
     }
     func dismiss() {
         revision += 1
+        choosingRevision = nil
         work?.cancel()
         picker?.cancel()
         menu = nil
     }
+    /// Closing the menu to hand input to the native chooser does not cancel that choice.
+    func dismissMenu() { if choosingRevision == nil { dismiss() } }
     func close() async {
         closed = true
         dismiss()

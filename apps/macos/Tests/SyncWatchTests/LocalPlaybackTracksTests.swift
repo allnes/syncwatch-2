@@ -114,7 +114,9 @@ private actor TrackPlayer: PlaybackExternalTrackPort {
         let old = try choose()
         model.select(old)
         try await until { await player.attachments == 1 }
-        #expect(model.menu?.enabled == false && model.menu?.selectedID == "1")
+        #expect(model.menu == nil)
+        model.dismissMenu()
+        #expect(await player.selected == 1)
         await player.configure(selected: 3)
         await model.settled()
         model.open("audio")
@@ -135,6 +137,9 @@ private actor TrackPlayer: PlaybackExternalTrackPort {
         picker.hold = true
         model.select(try choose())
         try await until { picker.waiting != nil }
+        let menuCancels = picker.cancellations
+        model.dismissMenu()
+        #expect(picker.cancellations == menuCancels && model.menu == nil)
         let before = await player.attachments
         let cancels = picker.cancellations
         var closed = false

@@ -11,6 +11,7 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
     private readonly string sourceId = "tracks-" + Guid.NewGuid();
     private long revision;
     private bool closed;
+    private long? choosingRevision;
     private CancellationTokenSource? cancellation;
     private Task? work;
     private string language = "en";
@@ -64,7 +65,9 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
                 !int.TryParse(request.EntryID, System.Globalization.NumberStyles.Integer,
                     System.Globalization.CultureInfo.InvariantCulture, out _))) return;
         revision++; var token = Renew(); long current = revision;
-        Menu = menu with { Revision = current, Enabled = false }; changed();
+        if (request.EntryID == SyncWatchSelectionMenu.ExternalFileID) { choosingRevision = current; Menu = null; }
+        else Menu = menu with { Revision = current, Enabled = false };
+        changed();
         work = ChainAsync(work, () => SelectAsync(request.Kind, request.EntryID, current, token), token);
     }
     private static async Task ChainAsync(Task? previous, Func<Task> operation, CancellationToken token)
@@ -95,6 +98,7 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
             if (!closed && !token.IsCancellationRequested && current == revision) Dismiss();
         }
         catch (Exception) { await UnavailableAsync(kind, current, token); }
+        finally { if (choosingRevision == current) choosingRevision = null; }
     }
     private async Task<int> AttachmentAsync(bool subtitles, HashSet<int> previous, CancellationToken token)
     {
@@ -155,7 +159,9 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
     {
         cancellation?.Cancel(); cancellation?.Dispose(); cancellation = new(); return cancellation.Token;
     }
-    public void Dismiss() { revision++; cancellation?.Cancel(); picker?.Cancel(); Menu = null; changed(); }
+    public void Dismiss() { revision++; choosingRevision = null; cancellation?.Cancel(); picker?.Cancel(); Menu = null; changed(); }
+    // Programmatic popup closure hands input to the chooser; End/close still call Dismiss.
+    public void DismissMenu() { if (choosingRevision is null) Dismiss(); }
     public async Task CloseAsync()
     {
         closed = true; Dismiss();
