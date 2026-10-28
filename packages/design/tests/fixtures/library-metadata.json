@@ -13,7 +13,8 @@
         "metadataResolution": "Unknown",
         "metadataAudio": "Unknown",
         "metadataSubtitles": "Unknown"
-      }
+      },
+      "rowDuration": ""
     },
     {
       "language": "ru",
@@ -27,7 +28,8 @@
         "metadataResolution": "320×180",
         "metadataAudio": "1",
         "metadataSubtitles": "Нет субтитров"
-      }
+      },
+      "rowDuration": "0:01"
     },
     {
       "language": "en",
@@ -41,7 +43,8 @@
         "metadataResolution": "1920×1080",
         "metadataAudio": "2",
         "metadataSubtitles": "3"
-      }
+      },
+      "rowDuration": "1:30"
     },
     {
       "language": "ru",
@@ -55,7 +58,8 @@
         "metadataResolution": "Неизвестно",
         "metadataAudio": "0",
         "metadataSubtitles": "Нет субтитров"
-      }
+      },
+      "rowDuration": ""
     },
     {
       "language": "en",
@@ -74,7 +78,8 @@
       },
       "audioName": "Track 2 - [Russian]",
       "subtitleName": "Track 1 - [English]",
-      "selectable": true
+      "selectable": true,
+      "rowDuration": "1:30"
     },
     {
       "language": "en",
@@ -93,7 +98,8 @@
       },
       "audioName": "Track 1 - [English]",
       "subtitlesDisabled": true,
-      "selectable": true
+      "selectable": true,
+      "rowDuration": "1:30"
     },
     {
       "language": "en",
@@ -113,7 +119,8 @@
       "audioName": "",
       "subtitleName": "",
       "selectable": true,
-      "loading": true
+      "loading": true,
+      "rowDuration": "1:30"
     }
   ]
 }

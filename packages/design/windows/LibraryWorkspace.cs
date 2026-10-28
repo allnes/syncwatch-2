@@ -4,7 +4,7 @@ namespace SyncWatch.Design;
 
 public enum LibraryVisualState { Empty, Scanning, Selected, MissingMedia, Reconnecting }
 
-public sealed record LibraryEntry(string Id, string Title, string Location);
+public sealed record LibraryEntry(string Id, string Title, string Location, long? DurationMs = null);
 
 // Presentation/capabilities only: no filesystem, media engine, call or network dependency.
 public sealed record LibraryPresentation

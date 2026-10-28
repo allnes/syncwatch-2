@@ -32,6 +32,7 @@ private actor LibraryRecordIO {
     @Published private(set) var roomRevision = UUID()
     var roomFiles: [LocalMediaFile] { catalog.values.sorted { $0.id < $1.id } }
     private let scanner = FileSystemLibrary()
+    private var durations = LibraryDurationCache()
     private let persistence: LibraryRecordIO
     private var stable: LibraryPresentation?
     private var grant: LibraryFolderAccess?
@@ -76,7 +77,9 @@ private actor LibraryRecordIO {
         return LibraryMediaSelection(media: media, access: grant, tracks: tracks.preferences)
     }
     func openTracks(_ kind: String, language: String) {
-        guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else { return }
+        guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else {
+            return
+        }
         tracks.open(kind, language: language)
     }
     func selectTrack(_ request: SelectionMenuRequest) {
@@ -100,6 +103,7 @@ private actor LibraryRecordIO {
         metadataGeneration = UUID()
         grant = nil
         catalog = [:]
+        durations.clear()
         presentation.enabledActions = []
     }
     func settled() async { await pending?.value }
@@ -126,37 +130,59 @@ private actor LibraryRecordIO {
         presentation.metadataLoading = false
         presentation.metadataUnavailable = false
     }
+    private func publishDuration(_ value: Int64?, file: LocalMediaFile) {
+        durations.record(value, for: file)
+        presentation.entries = presentation.entries.map { row in
+            row.id == file.id
+                ? LibraryEntry(id: row.id, title: row.title, location: row.location, durationMs: value) : row
+        }
+    }
     private func startMetadata() {
         let previous = metadataTask
         cancelMetadata()
         stable = presentation
         guard let metadata, let selection = selectedMedia() else { return }
         let token = metadataGeneration
+        // Selection has priority. One owner processes the remaining scan in display order.
+        let files =
+            [selection.media]
+            + presentation.entries.compactMap { catalog[$0.id] }
+            .filter { $0.id != selection.media.id }
         presentation.metadataLoading = true
         stable = presentation
         metadataTask = Task {
-            // Keep the security-scoped folder alive until native input cleanup has completed.
             defer { withExtendedLifetime(selection.access) {} }
             await previous?.value
-            do {
-                try Task.checkCancellation()
-                let value = try await metadata.read(selection.media)
-                try Task.checkCancellation()
-                guard !closed, metadataGeneration == token else { return }
-                presentation.metadataDurationMs = value.durationMs
-                presentation.metadataWidth = value.width
-                presentation.metadataHeight = value.height
-                presentation.metadataAudioTracks = value.audioTracks
-                presentation.metadataSubtitleTracks = value.subtitleTracks
-                presentation.metadataLoading = false
-                tracks.reset(value)
-                presentation.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"])
-                applyTrackSelection()
-            } catch is CancellationError {} catch {
-                guard !closed, metadataGeneration == token else { return }
-                presentation.metadataLoading = false
-                presentation.metadataUnavailable = true
-                stable = presentation
+            for file in files {
+                guard !closed, metadataGeneration == token, !Task.isCancelled else { return }
+                let selected = file.id == selection.media.id
+                if !selected, durations.duration(for: file) != nil { continue }
+                do {
+                    let value = try await metadata.read(file)
+                    try Task.checkCancellation()
+                    guard !closed, metadataGeneration == token else { return }
+                    publishDuration(value.durationMs, file: file)
+                    if selected {
+                        presentation.metadataDurationMs = value.durationMs
+                        presentation.metadataWidth = value.width
+                        presentation.metadataHeight = value.height
+                        presentation.metadataAudioTracks = value.audioTracks
+                        presentation.metadataSubtitleTracks = value.subtitleTracks
+                        presentation.metadataLoading = false
+                        tracks.reset(value)
+                        presentation.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"])
+                        applyTrackSelection()
+                    }
+                    stable = presentation
+                } catch is CancellationError { return } catch {
+                    guard !closed, metadataGeneration == token else { return }
+                    publishDuration(nil, file: file)
+                    if selected {
+                        presentation.metadataLoading = false
+                        presentation.metadataUnavailable = true
+                    }
+                    stable = presentation
+                }
             }
         }
     }
@@ -192,7 +218,11 @@ private actor LibraryRecordIO {
                         ? a.relativePath.utf8.lexicographicallyPrecedes(b.relativePath.utf8)
                         : left.utf8.lexicographicallyPrecedes(right.utf8)
                 }
-                let rows = ordered.map { LibraryEntry(id: $0.id, title: $0.title, location: $0.file.path) }
+                durations.reconcile(files)
+                let rows = ordered.map {
+                    LibraryEntry(
+                        id: $0.id, title: $0.title, location: $0.file.path, durationMs: durations.duration(for: $0))
+                }
                 let selected =
                     [previous.selectedID, savedSelection].compactMap { $0 }.first { id in rows.contains { $0.id == id }
                     } ?? rows.first?.id

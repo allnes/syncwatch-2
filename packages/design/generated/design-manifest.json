@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "bb84cd509da61aae2a2506b665d64741ae14681fc7dc2273bdc381efc4f9a42c",
+  "sourceDigest": "31f8e1d86c44757356fa94ff46ce045deff32e522710ab7c6a2b9192fbb060c9",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
     "components.json": "2e6617cefb74e533337c8da575521bba65675b7ba71ae697593bb3adf43d8c19",
-    "copy.json": "913fcd7575dc364284c816be5ce8ae1a8b63c99c905ba22ac1c8d500a3de5a5b",
+    "copy.json": "50cd5d81902a60ee731d06b0b2d420f1e9ad7d4e3858ca772278541188fbbea7",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
     "player.json": "a9b59d7eeee2dafb534266ad8d4cf6f0a2a89811fe574c23bf17ef716b237ffc",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "9c25cc34a2d28f67371719508dda711d20399d7707aef7517f8b2d3aa8f4885f",
+    "layouts.json": "d693c29e3b6c9cfb14a8c167e3549421acb4ed40f9e8acdfd41c56dbde6b89fb",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "e13d6c4353e01d7b2fc82d7c6fe9a62099e22b6cb6c60ab3125b2f251a9f3bcb",
@@ -319,6 +319,7 @@
         "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
         "metadataResolutionFormat": "{width}×{height}",
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+        "libraryRowDurationFormat": "{hours}:{minutes}",
         "metadataNoSubtitles": "No subtitles",
         "audioDisabled": "Audio disabled"
       },
@@ -553,6 +554,7 @@
         "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
         "metadataResolutionFormat": "{width}×{height}",
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+        "libraryRowDurationFormat": "{hours}:{minutes}",
         "metadataNoSubtitles": "Нет субтитров",
         "audioDisabled": "Звук выключен"
       }
@@ -2792,16 +2794,40 @@
                                     },
                                     "children": [
                                       {
-                                        "id": "node81",
-                                        "kind": "text",
+                                        "id": "libraryMovieRowContent",
+                                        "kind": "row",
                                         "styles": [],
                                         "props": {
-                                          "text": "{title}",
-                                          "lines": "2",
-                                          "align": "leading",
-                                          "width": "fill"
+                                          "width": "fill",
+                                          "gap": "@layout.panelGap"
                                         },
-                                        "children": []
+                                        "children": [
+                                          {
+                                            "id": "node81",
+                                            "kind": "text",
+                                            "styles": [],
+                                            "props": {
+                                              "text": "{title}",
+                                              "lines": "1",
+                                              "align": "leading",
+                                              "width": "fill"
+                                            },
+                                            "children": []
+                                          },
+                                          {
+                                            "id": "libraryMovieRowDuration",
+                                            "kind": "text",
+                                            "styles": [
+                                              "muted"
+                                            ],
+                                            "props": {
+                                              "text": "{rowDuration}",
+                                              "automation": "library.movieDuration.{id}",
+                                              "lines": "1"
+                                            },
+                                            "children": []
+                                          }
+                                        ]
                                       }
                                     ]
                                   }

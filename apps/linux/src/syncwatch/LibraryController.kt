@@ -29,6 +29,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private val persistence = Mutex()
     private val metadataSerial = Mutex()
     private val scanner = FileSystemLibrary()
+    private val durations = LibraryDurationCache()
     private var pending: Job? = null
     private var metadataTask: Job? = null
     private var metadataGeneration = 0L
@@ -79,7 +80,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     fun dismissTracks() { tracks = tracks.dismiss() }
     fun clearError() { errorKey = null }
     fun close() {
-        closed = true; tracks = tracks.reset(); generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap()
+        closed = true; tracks = tracks.reset(); generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap(); durations.clear()
         presentation = presentation.copy(enabledActions = emptySet())
     }
     suspend fun settled() { pending?.join() }
@@ -93,31 +94,49 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
             metadataAudioTracks = null, metadataSubtitleTracks = null, metadataAudioName = null, metadataSubtitleName = null,
             metadataSubtitlesDisabled = false, metadataLoading = false, metadataUnavailable = false)
     }
+    private fun publishDuration(value: Long?, file: LocalMediaFile) {
+        durations.record(value, file)
+        presentation = presentation.copy(entries = presentation.entries.map { row ->
+            if (row.id == file.id) row.copy(durationMs = value) else row
+        })
+    }
     private fun startMetadata() {
         cancelMetadata(); stable = presentation
         val reader = metadata ?: return
         val selection = selectedMedia() ?: return
         val current = metadataGeneration
+        val files = listOf(selection.media) + presentation.entries.mapNotNull { catalog[it.id] }.filter { it.id != selection.media.id }
         presentation = presentation.copy(metadataLoading = true); stable = presentation
         metadataTask = scope.launch {
             metadataSerial.withLock {
                 try {
-                    coroutineContext.ensureActive()
-                    val value = reader.read(selection.media)
-                    coroutineContext.ensureActive()
-                    if (closed || current != metadataGeneration) return@launch
-                    tracks = tracks.reset(value)
-                    presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
-                        metadataHeight = value.height, metadataAudioTracks = value.audioTracks,
-                        metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false,
-                        metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
-                        metadataSubtitlesDisabled = tracks.subtitlesDisabled,
-                        enabledActions = presentation.enabledActions + setOf("openLibraryAudio", "openLibrarySubtitles"))
-                    stable = presentation
-                } catch (_: CancellationException) { }
-                catch (_: Exception) {
-                    if (!closed && current == metadataGeneration) {
-                        presentation = presentation.copy(metadataLoading = false, metadataUnavailable = true); stable = presentation
+                    for (file in files) {
+                        coroutineContext.ensureActive()
+                        if (closed || current != metadataGeneration) return@launch
+                        val selected = file.id == selection.media.id
+                        if (!selected && durations.duration(file) != null) continue
+                        try {
+                            val value = reader.read(file)
+                            coroutineContext.ensureActive()
+                            if (closed || current != metadataGeneration) return@launch
+                            publishDuration(value.durationMs, file)
+                            if (selected) {
+                                tracks = tracks.reset(value)
+                                presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
+                                    metadataHeight = value.height, metadataAudioTracks = value.audioTracks,
+                                    metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false,
+                                    metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
+                                    metadataSubtitlesDisabled = tracks.subtitlesDisabled,
+                                    enabledActions = presentation.enabledActions + setOf("openLibraryAudio", "openLibrarySubtitles"))
+                            }
+                            stable = presentation
+                        } catch (_: CancellationException) { return@launch }
+                        catch (_: Exception) {
+                            if (closed || current != metadataGeneration) return@launch
+                            publishDuration(null, file)
+                            if (selected) presentation = presentation.copy(metadataLoading = false, metadataUnavailable = true)
+                            stable = presentation
+                        }
                     }
                 } finally { java.lang.ref.Reference.reachabilityFence(selection.access) }
             }
@@ -139,8 +158,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 coroutineContext.ensureActive()
                 if (closed || current != generation) return@launch
                 fun compare(a: String, b: String) = java.util.Arrays.compareUnsigned(a.toByteArray(Charsets.UTF_8), b.toByteArray(Charsets.UTF_8))
+                durations.reconcile(files)
                 val rows = files.sortedWith { a, b -> compare(a.title.lowercase(), b.title.lowercase()).takeIf { it != 0 } ?: compare(a.relativePath, b.relativePath) }
-                    .map { LibraryEntry(it.id, it.title, it.file.toString()) }
+                    .map { LibraryEntry(it.id, it.title, it.file.toString(), durations.duration(it)) }
                 val selected = listOfNotNull(previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
                 catalog = files.associateBy { it.id }

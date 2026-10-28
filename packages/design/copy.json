@@ -232,6 +232,7 @@
       "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
       "metadataResolutionFormat": "{width}×{height}",
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+      "libraryRowDurationFormat": "{hours}:{minutes}",
       "metadataNoSubtitles": "No subtitles",
       "audioDisabled": "Audio disabled"
     },
@@ -466,6 +467,7 @@
       "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
       "metadataResolutionFormat": "{width}×{height}",
       "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+      "libraryRowDurationFormat": "{hours}:{minutes}",
       "metadataNoSubtitles": "Нет субтитров",
       "audioDisabled": "Звук выключен"
     }

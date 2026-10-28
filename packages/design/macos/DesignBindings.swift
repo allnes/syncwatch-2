@@ -25,20 +25,37 @@ enum DesignBindings {
                 .replacingOccurrences(of: "{minutes}", with: String(format: "%02d", Int(ms / 60_000 % 60)))
                 .replacingOccurrences(of: "{seconds}", with: String(format: "%02d", Int(ms / 1_000 % 60)))
         }
-        values.merge([
-            "metadataDuration": duration ?? unknown,
-            "metadataResolution": p.metadataWidth > 0 && p.metadataHeight > 0
-                ? SyncWatchCopy.text("metadataResolutionFormat", language: language)
-                    .replacingOccurrences(of: "{width}", with: String(p.metadataWidth))
-                    .replacingOccurrences(of: "{height}", with: String(p.metadataHeight)) : unknown,
-            "metadataAudio": p.metadataAudioName.map { $0.isEmpty ? unknown : $0 } ?? p.metadataAudioTracks.map(String.init) ?? unknown,
-            "metadataSubtitles": p.metadataSubtitlesDisabled || p.metadataSubtitleTracks == 0
-                ? SyncWatchCopy.text("metadataNoSubtitles", language: language)
-                : p.metadataSubtitleName.map { $0.isEmpty ? unknown : $0 } ?? p.metadataSubtitleTracks.map(String.init) ?? unknown,
-            "metadataLoading": String(p.metadataLoading), "metadataUnavailable": String(p.metadataUnavailable),
-        ]) { _, v in v }
+        values["metadataDuration"] = duration ?? unknown
+        if p.metadataWidth > 0 && p.metadataHeight > 0 {
+            values["metadataResolution"] = SyncWatchCopy.text("metadataResolutionFormat", language: language)
+                .replacingOccurrences(of: "{width}", with: String(p.metadataWidth))
+                .replacingOccurrences(of: "{height}", with: String(p.metadataHeight))
+        } else {
+            values["metadataResolution"] = unknown
+        }
+        values["metadataAudio"] =
+            p.metadataAudioName.map { $0.isEmpty ? unknown : $0 }
+            ?? p.metadataAudioTracks.map(String.init) ?? unknown
+        if p.metadataSubtitlesDisabled || p.metadataSubtitleTracks == 0 {
+            values["metadataSubtitles"] = SyncWatchCopy.text("metadataNoSubtitles", language: language)
+        } else {
+            values["metadataSubtitles"] =
+                p.metadataSubtitleName.map { $0.isEmpty ? unknown : $0 }
+                ?? p.metadataSubtitleTracks.map(String.init) ?? unknown
+        }
+        values["metadataLoading"] = String(p.metadataLoading)
+        values["metadataUnavailable"] = String(p.metadataUnavailable)
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {
-            DesignContext(["id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID)])
+            DesignContext([
+                "id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID),
+                "rowDuration": $0.durationMs.flatMap { ms in
+                    ms > 0
+                        ? SyncWatchCopy.text("libraryRowDurationFormat", language: language)
+                            .replacingOccurrences(of: "{hours}", with: String(ms / 3_600_000))
+                            .replacingOccurrences(of: "{minutes}", with: String(format: "%02d", Int(ms / 60_000 % 60)))
+                        : nil
+                } ?? "",
+            ])
         }
         return DesignContext(values, collections: ["entries": entries])
     }

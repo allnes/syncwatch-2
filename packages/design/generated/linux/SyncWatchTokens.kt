@@ -423,6 +423,7 @@ object SyncWatchCopy {
         "en" to "metadataUnavailable" -> "Movie information is unavailable. Refresh to try again."
         "en" to "metadataResolutionFormat" -> "{width}×{height}"
         "en" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
+        "en" to "libraryRowDurationFormat" -> "{hours}:{minutes}"
         "en" to "metadataNoSubtitles" -> "No subtitles"
         "en" to "audioDisabled" -> "Audio disabled"
         "ru" to "brand" -> "SyncWatch"
@@ -655,6 +656,7 @@ object SyncWatchCopy {
         "ru" to "metadataUnavailable" -> "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить."
         "ru" to "metadataResolutionFormat" -> "{width}×{height}"
         "ru" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
+        "ru" to "libraryRowDurationFormat" -> "{hours}:{minutes}"
         "ru" to "metadataNoSubtitles" -> "Нет субтитров"
         "ru" to "audioDisabled" -> "Звук выключен"
         else -> if (language != "en") text(key, "en") else key
@@ -850,7 +852,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de"
+    const val sourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -1319,9 +1321,30 @@ object SyncWatchLayouts {
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
             "text" to "{title}",
-            "lines" to "2",
+            "lines" to "1",
             "width" to "fill",
         ), listOf())
+        val libraryMovieRowDuration = DesignNode("libraryMovieRowDuration", "text", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "align" to "leading",
+            "foreground" to "theme.textSecondary",
+            "text" to "{rowDuration}",
+            "automation" to "library.movieDuration.{id}",
+            "lines" to "1",
+        ), listOf())
+        val libraryMovieRowContent = DesignNode("libraryMovieRowContent", "row", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "width" to "fill",
+            "gap" to "@layout.panelGap",
+        ), listOf(node81, libraryMovieRowDuration))
         val node82 = DesignNode("node82", "button", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1340,7 +1363,7 @@ object SyncWatchLayouts {
             "enabled" to "\$can.selectMovie",
             "automation" to "library.movie.{id}",
             "label" to "{title}",
-        ), listOf(node81))
+        ), listOf(libraryMovieRowContent))
         val node83 = DesignNode("node83", "repeat", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",

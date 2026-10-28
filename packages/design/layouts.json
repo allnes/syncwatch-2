@@ -630,16 +630,40 @@
                                   },
                                   "children": [
                                     {
-                                      "id": "node81",
-                                      "kind": "text",
+                                      "id": "libraryMovieRowContent",
+                                      "kind": "row",
                                       "styles": [],
                                       "props": {
-                                        "text": "{title}",
-                                        "lines": "2",
-                                        "align": "leading",
-                                        "width": "fill"
+                                        "width": "fill",
+                                        "gap": "@layout.panelGap"
                                       },
-                                      "children": []
+                                      "children": [
+                                        {
+                                          "id": "node81",
+                                          "kind": "text",
+                                          "styles": [],
+                                          "props": {
+                                            "text": "{title}",
+                                            "lines": "1",
+                                            "align": "leading",
+                                            "width": "fill"
+                                          },
+                                          "children": []
+                                        },
+                                        {
+                                          "id": "libraryMovieRowDuration",
+                                          "kind": "text",
+                                          "styles": [
+                                            "muted"
+                                          ],
+                                          "props": {
+                                            "text": "{rowDuration}",
+                                            "automation": "library.movieDuration.{id}",
+                                            "lines": "1"
+                                          },
+                                          "children": []
+                                        }
+                                      ]
                                     }
                                   ]
                                 }

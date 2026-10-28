@@ -594,6 +594,7 @@ public static class SyncWatchCopy
         ("en", "metadataUnavailable") => "Movie information is unavailable. Refresh to try again.",
         ("en", "metadataResolutionFormat") => "{width}×{height}",
         ("en", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
+        ("en", "libraryRowDurationFormat") => "{hours}:{minutes}",
         ("en", "metadataNoSubtitles") => "No subtitles",
         ("en", "audioDisabled") => "Audio disabled",
         ("ru", "brand") => "SyncWatch",
@@ -826,6 +827,7 @@ public static class SyncWatchCopy
         ("ru", "metadataUnavailable") => "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
         ("ru", "metadataResolutionFormat") => "{width}×{height}",
         ("ru", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
+        ("ru", "libraryRowDurationFormat") => "{hours}:{minutes}",
         ("ru", "metadataNoSubtitles") => "Нет субтитров",
         ("ru", "audioDisabled") => "Звук выключен",
         _ when language != "en" => Text(key, "en"),
@@ -1038,7 +1040,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de";
+    public const string SourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1517,9 +1519,32 @@ public static class SyncWatchLayouts
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
             ["text"] = "{title}",
-            ["lines"] = "2",
+            ["lines"] = "1",
             ["width"] = "fill",
         }, []);
+        var libraryMovieRowDuration = new DesignNode("libraryMovieRowDuration", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["foreground"] = "theme.textSecondary",
+            ["text"] = "{rowDuration}",
+            ["automation"] = "library.movieDuration.{id}",
+            ["lines"] = "1",
+        }, []);
+        var libraryMovieRowContent = new DesignNode("libraryMovieRowContent", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["width"] = "fill",
+            ["gap"] = "@layout.panelGap",
+        }, [node81, libraryMovieRowDuration]);
         var node82 = new DesignNode("node82", "button", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1539,7 +1564,7 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.selectMovie",
             ["automation"] = "library.movie.{id}",
             ["label"] = "{title}",
-        }, [node81]);
+        }, [libraryMovieRowContent]);
         var node83 = new DesignNode("node83", "repeat", new()
         {
             ["disabledOpacity"] = "0.4",

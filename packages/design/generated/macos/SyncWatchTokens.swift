@@ -601,6 +601,7 @@ public enum SyncWatchCopy {
             "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "No subtitles",
             "audioDisabled": "Audio disabled",
         ],
@@ -839,6 +840,7 @@ public enum SyncWatchCopy {
             "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "Нет субтитров",
             "audioDisabled": "Звук выключен",
         ],
@@ -2095,7 +2097,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de"
+    public static let sourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -3434,10 +3436,37 @@ public enum SyncWatchLayouts {
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
                 "text": "{title}",
-                "lines": "2",
+                "lines": "1",
                 "width": "fill",
             ],
             children: [])
+        let libraryMovieRowDuration = DesignNode(
+            id: "libraryMovieRowDuration", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "foreground": "theme.textSecondary",
+                "text": "{rowDuration}",
+                "automation": "library.movieDuration.{id}",
+                "lines": "1",
+            ],
+            children: [])
+        let libraryMovieRowContent = DesignNode(
+            id: "libraryMovieRowContent", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "gap": "@layout.panelGap",
+            ],
+            children: [node81, libraryMovieRowDuration])
         let node82 = DesignNode(
             id: "node82", kind: "button",
             props: [
@@ -3459,7 +3488,7 @@ public enum SyncWatchLayouts {
                 "automation": "library.movie.{id}",
                 "label": "{title}",
             ],
-            children: [node81])
+            children: [libraryMovieRowContent])
         let node83 = DesignNode(
             id: "node83", kind: "repeat",
             props: [

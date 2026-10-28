@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 // Source-only renderer until the pinned Compose/compiler/native graph is buildable.
 // Foundation primitives deliberately avoid an additional Material theme dependency.
 enum class LibraryVisualState { empty, scanning, selected, missingMedia, reconnecting }
-data class LibraryEntry(val id: String, val title: String, val location: String)
+data class LibraryEntry(val id: String, val title: String, val location: String, val durationMs: Long? = null)
 data class LibraryPresentation(
     val state: LibraryVisualState = LibraryVisualState.empty,
     val entries: List<LibraryEntry> = emptyList(),
