@@ -31,7 +31,7 @@ internal static class LocalPlaybackTracksChecks
             var initial = model.Menu!; SelectionMenuRequest? request = null;
             initial.Dispatch("2", initial.ContextToken, value => request = value);
             model.Select(request!); await Until(() => player.Selections == 1);
-            Require(model.Menu is null); model.DismissMenu(); Require(player.Selected == 1);
+            Require(model.Menu is { Enabled: false, SelectedID: "1" });
             player.Selected = 2; await model.SettledAsync(); Require(model.Menu is null);
             model.Open("audio"); await model.SettledAsync(); Require(model.Menu is { Enabled: true, SelectedID: "2" });
             model.Select(request!); Require(player.Selections == 1);
@@ -75,7 +75,7 @@ internal static class LocalPlaybackTracksChecks
             model.Select(Choose()); await model.SettledAsync(); Require(player.Attachments == 0 && player.Selected == 1);
             picker.File = LocalFileAccess.Selected(file);
             var old = Choose(); model.Select(old); await Until(() => player.Attachments == 1);
-            Require(model.Menu is { Enabled: false, SelectedID: "1" });
+            Require(model.Menu is null); model.DismissMenu(); Require(player.Selected == 1);
             player.Selected = 3; await model.SettledAsync();
             model.Open("audio"); await model.SettledAsync();
             Require(model.Menu is { SelectedID: "3" } && model.Menu.Entries.Single(t => t.Id == "3").Label == Path.GetFileName(file));
