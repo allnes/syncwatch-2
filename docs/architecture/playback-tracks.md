@@ -6,7 +6,7 @@ Opening a menu reads the engine's track descriptions and selected ID. Selecting 
 
 The Apache-2.0 Design library owns menu geometry, localized disabled-track labels, selection markers and button placement. Applications provide observations and correlated events. The common document attaches a popover slot, edge and dismissal action to each track button. Native primitive adapters host that content above the video surface and dismiss it when its retained pane becomes hidden. They do not create another media owner.
 
-Linux initializes the Design runtime before creating any Compose scene. It selects the pinned toolkit's window-backed popup layers so heavyweight video cannot cover the menus. Position, contents and dismissal continue to come from the same shared document; the application entry only initializes the native adapter.
+Linux Design owns a transient native popup with a Compose panel rendered through Swing graphics above heavyweight video. The shared document supplies its intrinsic content size and placement edge. The host observes anchor geometry, owner movement, outside clicks, Escape and focus loss, and disposes its window, composition and listeners together. It requires no global toolkit-layer setting or application presentation logic.
 
 The native adapter reads selected IDs from VLC. After changing a seekable input's track, it refills the demuxer at the actual local clock: packets for the previously unselected stream may already have been discarded during prebuffering. This preserves pause state and does not submit a shared seek intent.
 
