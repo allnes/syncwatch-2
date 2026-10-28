@@ -30,7 +30,9 @@ fun main(arguments: Array<String>) {
         !gallery -> media.availableDisplay()
         else -> null
     }
-    application {
+    // Return through normal JVM teardown after composition and owned resources
+    // finish. Compose's default System.exit bypasses that shutdown boundary.
+    application(exitProcessOnExit = false) {
         val scope = rememberCoroutineScope()
         val playback = remember(launch) { launch?.let { PlaybackController(it, requireNotNull(display), scope) } }
         val workspace = remember {
