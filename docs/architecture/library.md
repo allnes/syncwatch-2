@@ -87,6 +87,12 @@ rescan or a different selection. Drafts reset on refresh, selection and restart;
 companions are not silently enabled. Paths, names and choices are excluded from
 peer metadata and Syncplay messages.
 
+Both lists are validated before either local command is submitted. Actual VLC
+selected-ID acknowledgement precedes the loaded callback, watch controls and
+shared admission. Cancellation/close interrupts this preparation. Home/Continue
+retains the live input; its Library presentation disables draft selectors for
+that same movie.
+
 ## Directory change invalidation
 
 Native monitoring produces a bounded invalidation stream, never catalog entries.
@@ -125,7 +131,6 @@ explicit global values; bookmarks and paths remain in the access store. Fresh
 folders default to automatic refresh off through common Design policy. Applying
 options rebuilds the monitor and reconciles the catalog while retaining the folder
 identity. Library option editing is unavailable during a manual folder operation.
-Complete desktop change-recovery acceptance remains integration work.
 
 Reconciliation owns failure reporting. When a source stops, its consumer ends
 after that reconciliation even if a content invalidation preceded the terminal
@@ -138,12 +143,6 @@ can reset an editable Library draft without changing these observations. The
 watch coordinator applies them only to its matching live movie and scope; other
 Library selections continue to use their own drafts. Common Design still owns
 label formatting and presentation.
-
-Both lists are validated before either local command is submitted. Actual VLC
-selected-ID acknowledgement precedes the loaded callback, watch controls and
-shared admission. Cancellation/close interrupts this preparation. Home/Continue
-retains the live input; its Library presentation disables draft selectors for
-that same movie.
 
 ## Whole-library duration observations
 
@@ -198,9 +197,8 @@ without starting another metadata generation. Only exact accepted Syncplay
 identity and readiness release the shared playback controls. End, Leave and
 application close release their own helper before the native playback owner.
 
-This workflow is under qualification. Native controller/transport checks run
-on all three target operating systems. Metadata interruption, end bookkeeping,
-file completion and the complete directed playback matrix must pass actual
-application checks before the feature is qualified. Explicit edition
-confirmation, complete change-recovery qualification and persistent digest-cache invalidation remain
-integration work.
+Metadata interruption leaves End and offline Leave available. Leaving releases
+shared resources and restores local playback admission. Folder monitoring and
+catalog reconciliation continue independently of the room connection. Explicit
+edition confirmation and persistent digest-cache invalidation remain integration
+work.
