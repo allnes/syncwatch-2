@@ -14,6 +14,9 @@ public sealed record LibraryPresentation
     public int MetadataHeight { get; init; }
     public int? MetadataAudioTracks { get; init; }
     public int? MetadataSubtitleTracks { get; init; }
+    public string? MetadataAudioName { get; init; }
+    public string? MetadataSubtitleName { get; init; }
+    public bool MetadataSubtitlesDisabled { get; init; }
     public bool MetadataLoading { get; init; }
     public bool MetadataUnavailable { get; init; }
     public string RoomStatus { get; init; } = "";
@@ -26,6 +29,8 @@ public sealed record LibraryPresentation
     public bool Allows(string action) => EnabledActions.Contains(action) && SyncWatchCopy.LibraryActions.Contains(action) && (action switch
     {
         "startWatching" => State == LibraryVisualState.Selected && Selected is not null,
+        "openLibraryAudio" or "openLibrarySubtitles" => State == LibraryVisualState.Selected && Selected is not null &&
+            !MetadataLoading && !MetadataUnavailable && (action == "openLibraryAudio" ? MetadataAudioName is not null : MetadataSubtitleTracks > 0),
         "selectMovie" or "search" => State != LibraryVisualState.Scanning,
         _ => true,
     });
@@ -54,14 +59,28 @@ public sealed class LibraryWorkspace : UserControl
     public LibraryPresentation Presentation { get; private set; } = new();
     public string UiLanguage { get; private set; } = "en";
     public event Action<string, string?>? ActionRequested;
+    public event Action<SelectionMenuRequest>? SelectionRequested;
+    public event Action? SelectionDismissed;
+    public SelectionMenuPresentation? SelectionPresentation { get; set; }
+    private readonly SelectionMenu menu = new();
     private readonly DesignSurface surface = new("Library");
     private string query = "";
     public LibraryWorkspace()
     {
         Content = surface; surface.ConfigureHost(this);
-        surface.EventRequested += e => { if (e.Action == "search") { query = e.Value ?? ""; Refresh(); } Presentation.Dispatch(e.Action, e.Value, (a, v) => ActionRequested?.Invoke(a, v)); };
+        surface.EventRequested += e => { if (e.Action == "dismissSelection") { SelectionDismissed?.Invoke(); return; } if (e.Action == "search") { query = e.Value ?? ""; Refresh(); } Presentation.Dispatch(e.Action, e.Value, (a, v) => ActionRequested?.Invoke(a, v)); };
+        menu.SelectionRequested += request => SelectionRequested?.Invoke(request);
         Refresh();
     }
     public void Render(LibraryPresentation presentation, string language = "en") { Presentation = presentation; UiLanguage = language; Refresh(); }
-    private void Refresh() => surface.Render(DesignBindings.Library(Presentation, query, UiLanguage), UiLanguage);
+    private void Refresh()
+    {
+        surface.Slots.Clear();
+        if (SelectionPresentation is { } selection)
+        {
+            menu.Render(selection, UiLanguage);
+            surface.Slots[selection.Kind + "Selection"] = menu;
+        }
+        surface.Render(DesignBindings.Library(Presentation, query, UiLanguage), UiLanguage);
+    }
 }

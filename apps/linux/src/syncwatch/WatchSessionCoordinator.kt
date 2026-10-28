@@ -46,7 +46,7 @@ internal class WatchSessionCoordinator(
         val live = source.selectedID == session.mediaId && player?.scope == session.scope &&
             phase in setOf(WatchPhase.active, WatchPhase.preparing) && player?.failed == false
         if (runtimeAvailable && !preferences.savingWatchState && !live) enabled += "startWatching"
-        if (live) enabled += setOf("continueWatching", "endWatching")
+        if (live) { enabled += setOf("continueWatching", "endWatching"); enabled -= setOf("openLibraryAudio", "openLibrarySubtitles") }
         if (preferences.savingWatchState) enabled -= "openSettings"
         return source.copy(enabledActions = enabled)
     }

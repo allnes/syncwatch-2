@@ -43,7 +43,8 @@ actor LibraryMetadataReader: MediaMetadataReading {
                     let subtitles = try await player.tracks(subtitles: true, scope: scope).filter { $0.id >= 0 }
                     result = try MediaMetadata(
                         durationMs: observation.durationMs, width: observation.width, height: observation.height,
-                        audioTracks: audio.count, subtitleTracks: subtitles.count)
+                        audioTracks: audio.count, subtitleTracks: subtitles.count,
+                        audioTrackNames: audio.map(\.name), subtitleTrackNames: subtitles.map(\.name))
                     if observation.durationMs != nil, observation.width > 0, observation.height > 0 { break }
                 }
                 try await Task.sleep(for: .milliseconds(50))

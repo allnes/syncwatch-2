@@ -19,6 +19,7 @@
         <ProjectReference Include="../../../windows-domain/SyncWatch.Domain/SyncWatch.Domain.csproj" />
         <ProjectReference Include="../../../windows-library/SyncWatch.Library/SyncWatch.Library.csproj" />
         <Compile Include="../../../../apps/windows/SyncWatch/LibraryController.cs" Link="LibraryController.cs" />
+        <Compile Include="../../../../apps/windows/SyncWatch/LibraryTrackSelection.cs" Link="LibraryTrackSelection.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/NativeVideoHost.cs" Link="NativeVideoHost.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/AppearancePreferences.cs" Link="AppearancePreferences.cs" />
         <Compile Include="../../../../apps/windows/SyncWatch/LocalStatePersistence.cs" Link="LocalStatePersistence.cs" />

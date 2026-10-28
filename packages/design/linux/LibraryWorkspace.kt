@@ -2,6 +2,7 @@
 package syncwatch.design
 
 import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.ui.Modifier
 
 
@@ -20,12 +21,17 @@ data class LibraryPresentation(
     val metadataHeight: Int = 0,
     val metadataAudioTracks: Int? = null,
     val metadataSubtitleTracks: Int? = null,
+    val metadataAudioName: String? = null,
+    val metadataSubtitleName: String? = null,
+    val metadataSubtitlesDisabled: Boolean = false,
     val metadataLoading: Boolean = false,
     val metadataUnavailable: Boolean = false,
 ) {
     val selected: LibraryEntry? get() = entries.firstOrNull { it.id == selectedID }
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchCopy.libraryActions && when (action) {
         "startWatching" -> state == LibraryVisualState.selected && selected != null
+        "openLibraryAudio", "openLibrarySubtitles" -> state == LibraryVisualState.selected && selected != null &&
+            !metadataLoading && !metadataUnavailable && (if (action == "openLibraryAudio") metadataAudioName != null else (metadataSubtitleTracks ?: 0) > 0)
         "selectMovie", "search" -> state != LibraryVisualState.scanning
         else -> true
     }
@@ -43,9 +49,14 @@ data class LibraryPresentation(
 }
 
 @Composable fun LibraryWorkspace(presentation: LibraryPresentation = LibraryPresentation(), language: String = "en",
-    theme: SyncWatchTheme = SyncWatchTheme.dark, modifier: Modifier = Modifier, onAction: (String, String?) -> Unit = { _, _ -> }) {
+    theme: SyncWatchTheme = SyncWatchTheme.dark, modifier: Modifier = Modifier,
+    selectionMenu: SelectionMenuPresentation? = null, onSelection: (SelectionMenuRequest) -> Unit = {}, onDismissSelection: () -> Unit = {},
+    onAction: (String, String?) -> Unit = { _, _ -> }) {
     var query by remember { mutableStateOf("") }
-    DesignSurface("Library", DesignBindings.library(presentation,query,language),language,theme,modifier) { event ->
+    val slots = mutableMapOf<String, @Composable BoxScope.() -> Unit>()
+    selectionMenu?.let { menu -> slots[menu.kind + "Selection"] = { SelectionMenu(menu, language, theme, onSelection = onSelection) } }
+    DesignSurface("Library", DesignBindings.library(presentation,query,language),language,theme,modifier,slots) { event ->
+        if (event.action == "dismissSelection") { onDismissSelection(); return@DesignSurface }
         if(event.action=="search")query=event.value.orEmpty()
         presentation.dispatch(event.action,event.value,onAction)
     }

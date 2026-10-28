@@ -29,7 +29,9 @@ The shared Library presentation receives entries and observed capabilities. It p
 ## Selected-file inspection
 
 The library packages define a metadata-reader port and validated local facts:
-optional duration, video dimensions and audio/embedded-subtitle track counts.
+optional duration, video dimensions, audio/embedded-subtitle track counts and
+optional ordered raw track names. Unknown names and a known empty list remain
+distinct; supplied lists must match their counts and are immutable snapshots.
 They have no media-engine dependency. Each native application composes that
 port with one serialized, silent, paused VLC owner, separate from its watch
 player and synchronization helper. Inspection does not render video, play audio,
@@ -48,9 +50,21 @@ late results even when a provider ignores cancellation. Refresh and restart
 inspect the current selected file again. The common Apache-2.0 Design package
 owns loading/error copy and duration, resolution and no-subtitle formatting;
 applications supply raw observations only. Unavailable metadata stays inline
-and leaves the catalog usable. Named track selection, external subtitle
-association and duration caching in catalog rows remain separate integration
-work.
+and leaves the catalog usable. A local track draft belongs to one completed
+metadata generation. It starts with the first audio stream and subtitles off,
+correlates menu requests by source/revision, and resets on selection, refresh,
+failure and close. Choosing a draft never advances the room catalog revision.
+Start captures the draft together with the file/access owner. Native IDs from
+the inspector are discarded; the new playback input must expose the same ordered
+raw names before an ordinal resolves to its own current ID. A changed/reordered
+list rejects admission rather than silently choosing a different stream.
+
+Both lists are validated before either local command is submitted. Actual VLC
+selected-ID acknowledgement precedes the loaded callback, watch controls and
+shared admission. Cancellation/close interrupts this preparation. Home/Continue
+retains the live input; its Library presentation disables draft selectors for
+that same movie. External subtitle association and duration caching in catalog
+rows remain separate integration work.
 
 ## Shared media preparation
 

@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import syncwatch.ipc.Json
 
 fun main(arguments: Array<String>) = runBlocking {
+    mediaMetadataChecks()
     fileContentHasherChecks(Path.of(arguments.single()))
     @Suppress("UNCHECKED_CAST")
     val corpus = Json.parse(Files.readString(Path.of(arguments.single()))) as Map<String, Any?>

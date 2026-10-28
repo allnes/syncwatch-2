@@ -22,6 +22,22 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
     var menu by mutableStateOf<SelectionMenuPresentation?>(null)
         private set
 
+    /** Before watch admission/controls; validate both lists before mutating either. */
+    suspend fun applyInitial(preferences: LocalTrackPreferences) {
+        check(!closed)
+        val audio = preferences.audioNames?.let { preferences.resolve(player.tracks(false, scope), false) }
+        val subtitles = preferences.subtitleNames?.let { preferences.resolve(player.tracks(true, scope), true) }
+        for ((id, isSubtitle) in listOf(audio to false, subtitles to true)) {
+            if (id == null) continue
+            check(!closed)
+            acknowledge(id, isSubtitle)
+        }
+    }
+    private suspend fun acknowledge(id: Int, subtitles: Boolean) {
+        if (player.selectedTrack(subtitles, scope) == id) return
+        player.selectTrack(id, subtitles, scope)
+        withTimeout(3_000) { while (player.selectedTrack(subtitles, scope) != id) { check(!closed); delay(20) } }
+    }
     fun open(kind: String) {
         if (closed || kind !in setOf("audio", "subtitles")) return
         dismiss(); val current = revision
@@ -43,8 +59,7 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
         request = work.launch {
             try {
                 val subtitles = value.kind == "subtitles"
-                player.selectTrack(id, subtitles, scope)
-                withTimeout(3_000) { while (player.selectedTrack(subtitles, scope) != id) delay(20) }
+                acknowledge(id, subtitles)
                 publish(snapshot(value.kind, current), current)
                 if (!closed && current == revision) dismiss()
             } catch (_: Exception) { publish(SelectionMenuPresentation(kind = value.kind), current) }

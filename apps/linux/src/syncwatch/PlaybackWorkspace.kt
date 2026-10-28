@@ -16,6 +16,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import syncwatch.design.*
 import syncwatch.domain.*
@@ -129,12 +130,12 @@ internal class PlaybackController(
             try {
                 player.open(launch.bridge, launch.packageDirectory, canvas)
                 player.load(launch.file, scope)
-                loaded.complete(Unit)
-                onLoaded?.invoke(scope)
+                var admissionPending = true
                 var resumePending = initialPositionMs > 0
                 while (isActive && !closing) {
                     val value = player.observe(scope)
                     if (value.status == PlaybackStatus.failed) throw WatchFailure("media")
+                    // Restore the local position before track acknowledgement and admission.
                     if (resumePending && value.status == PlaybackStatus.ready) {
                         resumePending = false
                         if (value.seekable) {
@@ -143,6 +144,13 @@ internal class PlaybackController(
                             catch (_: Exception) { /* The next observation remains authoritative. */ }
                             continue
                         }
+                    }
+                    if (admissionPending && value.status == PlaybackStatus.ready) {
+                        tracks.applyInitial(selection?.tracks ?: LocalTrackPreferences())
+                        ensureActive()
+                        if (closing) break
+                        admissionPending = false; loaded.complete(Unit); onLoaded?.invoke(scope)
+                        continue
                     }
                     apply(value)
                     onObservation?.invoke(value)

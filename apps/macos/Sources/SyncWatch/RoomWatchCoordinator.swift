@@ -84,7 +84,8 @@ import SyncWatchRoom
                 guard room.isCurrent(intent.membership), watch.scope == scope, watch.errorKey == nil,
                     ContinuousClock.now < deadline
                 else { throw HelperSessionFailure.unavailable }
-                if let player = watch.player, player.scope == scope, !player.failed,
+                // Native readiness can precede restored-position and track acknowledgement.
+                if watch.phase == .active, let player = watch.player, player.scope == scope, !player.failed,
                     let actual = try? await player.player.observe(scope), actual.status == .ready,
                     actual.seekable, (actual.durationMs ?? 0) > 0
                 {

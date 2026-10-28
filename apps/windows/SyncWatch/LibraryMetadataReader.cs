@@ -39,7 +39,9 @@ internal sealed class LibraryMetadataReader(MediaConfiguration media) : IMediaMe
                     var audio = await player.TracksAsync(false, scope, cancellation);
                     var subtitles = await player.TracksAsync(true, scope, cancellation);
                     result = new(value.DurationMs, value.Width, value.Height,
-                        audio.Count(track => track.Id >= 0), subtitles.Count(track => track.Id >= 0));
+                        audio.Count(track => track.Id >= 0), subtitles.Count(track => track.Id >= 0),
+                        audio.Where(track => track.Id >= 0).Select(track => track.Name).ToArray(),
+                        subtitles.Where(track => track.Id >= 0).Select(track => track.Name).ToArray());
                     if (value.DurationMs is not null && value.Width > 0 && value.Height > 0) break;
                 }
                 await Task.Delay(50, cancellation);

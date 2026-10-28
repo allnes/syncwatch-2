@@ -830,7 +830,7 @@ public static class SyncWatchCopy
         _ => key,
     };
     public static string[] GalleryStates => ["empty", "scanning", "selected", "missingMedia", "reconnecting"];
-    public static string[] LibraryActions => ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom"];
+    public static string[] LibraryActions => ["chooseFolder", "rescan", "search", "selectMovie", "startWatching", "continueWatching", "endWatching", "openSettings", "openCall", "openRoom", "openLibraryAudio", "openLibrarySubtitles"];
     public static string[] GalleryMovies => ["Example Movie 01.mkv", "A very long movie title for responsive layout and selection.mkv", "Example Movie 03.mp4"];
 }
 
@@ -1036,7 +1036,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52";
+    public const string SourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1727,7 +1727,70 @@ public static class SyncWatchLayouts
             ["text"] = "$metadataAudio",
             ["weight"] = "semibold",
             ["automation"] = "{namespace}.metadataAudio",
+            ["when"] = "= $can.openLibraryAudio false true if",
         }, []);
+        var node22ChoiceLabel = new DesignNode("node22ChoiceLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "$metadataAudio",
+            ["width"] = "fill",
+            ["lines"] = "1",
+        }, []);
+        var node22ChoiceMark = new DesignNode("node22ChoiceMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "symbols.chevronDown",
+            ["width"] = "8",
+            ["height"] = "4",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var node22ChoiceRow = new DesignNode("node22ChoiceRow", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node22ChoiceLabel, node22ChoiceMark]);
+        var node22Choice = new DesignNode("node22Choice", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "leading",
+            ["height"] = "@layout.settingsControlHeight",
+            ["when"] = "$can.openLibraryAudio",
+            ["action"] = "openLibraryAudio",
+            ["enabled"] = "$can.openLibraryAudio",
+            ["automation"] = "{namespace}.metadataAudio",
+            ["label"] = "$metadataAudio",
+            ["width"] = "fill",
+            ["popoverSlot"] = "audioSelection",
+            ["popoverEdge"] = "bottom",
+            ["popoverDismiss"] = "dismissSelection",
+        }, [node22ChoiceRow]);
         var node23 = new DesignNode("node23", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1738,7 +1801,7 @@ public static class SyncWatchLayouts
             ["align"] = "leading",
             ["gap"] = "@control.compactGap",
             ["width"] = "fill",
-        }, [node21, node22]);
+        }, [node21, node22, node22Choice]);
         var node24 = new DesignNode("node24", "text", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1761,7 +1824,70 @@ public static class SyncWatchLayouts
             ["text"] = "$metadataSubtitles",
             ["weight"] = "semibold",
             ["automation"] = "{namespace}.metadataSubtitles",
+            ["when"] = "= $can.openLibrarySubtitles false true if",
         }, []);
+        var node25ChoiceLabel = new DesignNode("node25ChoiceLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "$metadataSubtitles",
+            ["width"] = "fill",
+            ["lines"] = "1",
+        }, []);
+        var node25ChoiceMark = new DesignNode("node25ChoiceMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "symbols.chevronDown",
+            ["width"] = "8",
+            ["height"] = "4",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var node25ChoiceRow = new DesignNode("node25ChoiceRow", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node25ChoiceLabel, node25ChoiceMark]);
+        var node25Choice = new DesignNode("node25Choice", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "leading",
+            ["height"] = "@layout.settingsControlHeight",
+            ["when"] = "$can.openLibrarySubtitles",
+            ["action"] = "openLibrarySubtitles",
+            ["enabled"] = "$can.openLibrarySubtitles",
+            ["automation"] = "{namespace}.metadataSubtitles",
+            ["label"] = "$metadataSubtitles",
+            ["width"] = "fill",
+            ["popoverSlot"] = "subtitlesSelection",
+            ["popoverEdge"] = "bottom",
+            ["popoverDismiss"] = "dismissSelection",
+        }, [node25ChoiceRow]);
         var node26 = new DesignNode("node26", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1772,7 +1898,7 @@ public static class SyncWatchLayouts
             ["align"] = "leading",
             ["gap"] = "@control.compactGap",
             ["width"] = "fill",
-        }, [node24, node25]);
+        }, [node24, node25, node25Choice]);
         var node27 = new DesignNode("node27", "row", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1882,7 +2008,70 @@ public static class SyncWatchLayouts
             ["text"] = "$metadataAudio",
             ["weight"] = "semibold",
             ["automation"] = "{namespace}.metadataAudio",
+            ["when"] = "= $can.openLibraryAudio false true if",
         }, []);
+        var node36ChoiceLabel = new DesignNode("node36ChoiceLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "$metadataAudio",
+            ["width"] = "fill",
+            ["lines"] = "1",
+        }, []);
+        var node36ChoiceMark = new DesignNode("node36ChoiceMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "symbols.chevronDown",
+            ["width"] = "8",
+            ["height"] = "4",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var node36ChoiceRow = new DesignNode("node36ChoiceRow", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node36ChoiceLabel, node36ChoiceMark]);
+        var node36Choice = new DesignNode("node36Choice", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "leading",
+            ["height"] = "@layout.settingsControlHeight",
+            ["when"] = "$can.openLibraryAudio",
+            ["action"] = "openLibraryAudio",
+            ["enabled"] = "$can.openLibraryAudio",
+            ["automation"] = "{namespace}.metadataAudio",
+            ["label"] = "$metadataAudio",
+            ["width"] = "fill",
+            ["popoverSlot"] = "audioSelection",
+            ["popoverEdge"] = "bottom",
+            ["popoverDismiss"] = "dismissSelection",
+        }, [node36ChoiceRow]);
         var node37 = new DesignNode("node37", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1893,7 +2082,7 @@ public static class SyncWatchLayouts
             ["align"] = "leading",
             ["gap"] = "@control.compactGap",
             ["width"] = "fill",
-        }, [node35, node36]);
+        }, [node35, node36, node36Choice]);
         var node38 = new DesignNode("node38", "text", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1916,7 +2105,70 @@ public static class SyncWatchLayouts
             ["text"] = "$metadataSubtitles",
             ["weight"] = "semibold",
             ["automation"] = "{namespace}.metadataSubtitles",
+            ["when"] = "= $can.openLibrarySubtitles false true if",
         }, []);
+        var node39ChoiceLabel = new DesignNode("node39ChoiceLabel", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "$metadataSubtitles",
+            ["width"] = "fill",
+            ["lines"] = "1",
+        }, []);
+        var node39ChoiceMark = new DesignNode("node39ChoiceMark", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "symbols.chevronDown",
+            ["width"] = "8",
+            ["height"] = "4",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
+        var node39ChoiceRow = new DesignNode("node39ChoiceRow", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["gap"] = "@control.compactGap",
+            ["width"] = "fill",
+        }, [node39ChoiceLabel, node39ChoiceMark]);
+        var node39Choice = new DesignNode("node39Choice", "button", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["paddingX"] = "@layout.settingsCardPadding",
+            ["minHeight"] = "0",
+            ["radius"] = "@control.buttonRadius",
+            ["border"] = "theme.border",
+            ["borderWidth"] = "@control.borderWidth",
+            ["background"] = "theme.surfaceRaised",
+            ["foreground"] = "theme.text",
+            ["fontSize"] = "@type.settingsBodySize",
+            ["weight"] = "normal",
+            ["contentAlign"] = "leading",
+            ["height"] = "@layout.settingsControlHeight",
+            ["when"] = "$can.openLibrarySubtitles",
+            ["action"] = "openLibrarySubtitles",
+            ["enabled"] = "$can.openLibrarySubtitles",
+            ["automation"] = "{namespace}.metadataSubtitles",
+            ["label"] = "$metadataSubtitles",
+            ["width"] = "fill",
+            ["popoverSlot"] = "subtitlesSelection",
+            ["popoverEdge"] = "bottom",
+            ["popoverDismiss"] = "dismissSelection",
+        }, [node39ChoiceRow]);
         var node40 = new DesignNode("node40", "column", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1927,7 +2179,7 @@ public static class SyncWatchLayouts
             ["align"] = "leading",
             ["gap"] = "@control.compactGap",
             ["width"] = "fill",
-        }, [node38, node39]);
+        }, [node38, node39, node39Choice]);
         var node41 = new DesignNode("node41", "row", new()
         {
             ["disabledOpacity"] = "0.4",

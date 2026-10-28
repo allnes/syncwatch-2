@@ -204,10 +204,14 @@ fun main(arguments: Array<String>) {
     val call = callChecks(root)
     val selection = selectionChecks(root)
     for (row in corpus(root, "library-metadata.json")) {
-        val p = LibraryPresentation.gallery(LibraryVisualState.selected).copy(
+        val base = LibraryPresentation.gallery(LibraryVisualState.selected)
+        val p = base.copy(
             metadataDurationMs = (row["durationMs"] as Number?)?.toLong(), metadataWidth = row.number("width").toInt(),
             metadataHeight = row.number("height").toInt(), metadataAudioTracks = (row["audioTracks"] as Number?)?.toInt(),
-            metadataSubtitleTracks = (row["subtitleTracks"] as Number?)?.toInt())
+            metadataSubtitleTracks = (row["subtitleTracks"] as Number?)?.toInt(),
+            metadataAudioName = row["audioName"] as String?, metadataSubtitleName = row["subtitleName"] as String?,
+            metadataSubtitlesDisabled = row["subtitlesDisabled"] == true, metadataLoading = row["loading"] == true,
+            enabledActions = if (row["selectable"] == true) SyncWatchCopy.libraryActions else base.enabledActions)
         val context = DesignBindings.library(p, "", row.text("language"))
         for ((key, value) in row["expected"].record()) check(context.values[key] == value) { "metadata-presentation-$key" }
     }

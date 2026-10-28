@@ -56,6 +56,64 @@
         "metadataAudio": "0",
         "metadataSubtitles": "Нет субтитров"
       }
+    },
+    {
+      "language": "en",
+      "durationMs": 5400000,
+      "width": 1920,
+      "height": 1080,
+      "audioTracks": 2,
+      "subtitleTracks": 3,
+      "expected": {
+        "metadataDuration": "1:30:00",
+        "metadataResolution": "1920×1080",
+        "metadataAudio": "Track 2 - [Russian]",
+        "metadataSubtitles": "Track 1 - [English]",
+        "can.openLibraryAudio": "true",
+        "can.openLibrarySubtitles": "true"
+      },
+      "audioName": "Track 2 - [Russian]",
+      "subtitleName": "Track 1 - [English]",
+      "selectable": true
+    },
+    {
+      "language": "en",
+      "durationMs": 5400000,
+      "width": 1920,
+      "height": 1080,
+      "audioTracks": 2,
+      "subtitleTracks": 3,
+      "expected": {
+        "metadataDuration": "1:30:00",
+        "metadataResolution": "1920×1080",
+        "metadataAudio": "Track 1 - [English]",
+        "metadataSubtitles": "No subtitles",
+        "can.openLibraryAudio": "true",
+        "can.openLibrarySubtitles": "true"
+      },
+      "audioName": "Track 1 - [English]",
+      "subtitlesDisabled": true,
+      "selectable": true
+    },
+    {
+      "language": "en",
+      "durationMs": 5400000,
+      "width": 1920,
+      "height": 1080,
+      "audioTracks": 2,
+      "subtitleTracks": 3,
+      "expected": {
+        "metadataDuration": "1:30:00",
+        "metadataResolution": "1920×1080",
+        "metadataAudio": "Unknown",
+        "metadataSubtitles": "Unknown",
+        "can.openLibraryAudio": "false",
+        "can.openLibrarySubtitles": "false"
+      },
+      "audioName": "",
+      "subtitleName": "",
+      "selectable": true,
+      "loading": true
     }
   ]
 }

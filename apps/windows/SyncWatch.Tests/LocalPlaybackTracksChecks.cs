@@ -16,6 +16,15 @@ internal static class LocalPlaybackTracksChecks
         var model = new LocalPlaybackTracks(player, scope, () => { });
         try
         {
+            var invalid = new LocalTrackPreferences(["First", "Second"], ["Changed"], 1);
+            bool rejected = false;
+            try { await model.ApplyInitialAsync(invalid, default); } catch (InvalidOperationException) { rejected = true; }
+            Require(rejected && player.Selections == 0);
+            var applying = model.ApplyInitialAsync(new(["First", "Second"], ["First", "Second"], 1), default);
+            await Until(() => player.Selections == 1); Require(model.Menu is null && !applying.IsCompleted);
+            player.AutoAcknowledge = true; player.Selected = 2; await applying;
+            Require(player.Selections == 2 && player.Selected == -1);
+            player.AutoAcknowledge = false; player.Selected = 1; player.Selections = 0;
             model.Open("audio"); await model.SettledAsync(); Require(player.LastScope == scope);
             var initial = model.Menu!; SelectionMenuRequest? request = null;
             initial.Dispatch("2", initial.ContextToken, value => request = value);
@@ -45,7 +54,7 @@ internal static class LocalPlaybackTracksChecks
     private sealed class TrackPlayer : IPlaybackTrackControlPort
     {
         internal int Selected = 1, Selections, Reads;
-        internal bool Reject;
+        internal bool Reject, AutoAcknowledge;
         internal TaskCompletionSource? Hold;
         internal PlaybackScope? LastScope;
         public async Task<IReadOnlyList<PlaybackTrack>> TracksAsync(bool subtitles, PlaybackScope scope, CancellationToken cancellation = default)
@@ -56,7 +65,7 @@ internal static class LocalPlaybackTracksChecks
         }
         public Task<int> SelectedTrackAsync(bool subtitles, PlaybackScope scope, CancellationToken cancellation = default) => Task.FromResult(Selected);
         public Task SelectTrackAsync(int id, bool subtitles, PlaybackScope scope, CancellationToken cancellation = default)
-        { Selections++; return Reject ? Task.FromException(new InvalidOperationException("rejected")) : Task.CompletedTask; }
+        { Selections++; if (AutoAcknowledge) Selected = id; return Reject ? Task.FromException(new InvalidOperationException("rejected")) : Task.CompletedTask; }
         public Task LoadAsync(string file, PlaybackScope scope, CancellationToken cancellation = default) => throw new NotSupportedException();
         public Task<PlaybackObservation> ObserveAsync(PlaybackScope scope, CancellationToken cancellation = default) => throw new NotSupportedException();
         public Task SetPausedAsync(bool paused, PlaybackScope scope, CancellationToken cancellation = default) => throw new NotSupportedException();

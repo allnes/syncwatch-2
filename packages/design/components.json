@@ -34,7 +34,9 @@
         "endWatching",
         "openSettings",
         "openCall",
-        "openRoom"
+        "openRoom",
+        "openLibraryAudio",
+        "openLibrarySubtitles"
       ]
     },
     "PlayerChrome": {

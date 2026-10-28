@@ -17,6 +17,34 @@ import SyncWatchDomain
         self.player = player
         self.activeScope = scope
     }
+    /// Called before the watch is admitted or any controls are enabled.
+    func applyInitial(_ preferences: LocalTrackPreferences) async throws {
+        guard !closed, let scope = activeScope() else { throw Failure.unavailable }
+        let audio =
+            try preferences.audioNames == nil
+            ? nil
+            : preferences.resolve(try await player.tracks(subtitles: false, scope: scope), subtitles: false)
+        let subtitles =
+            try preferences.subtitleNames == nil
+            ? nil
+            : preferences.resolve(try await player.tracks(subtitles: true, scope: scope), subtitles: true)
+        for (id, isSubtitle) in [(audio, false), (subtitles, true)] {
+            guard let id else { continue }
+            try Task.checkCancellation()
+            guard !closed else { throw Failure.unavailable }
+            try await acknowledge(id, subtitles: isSubtitle, scope: scope)
+        }
+    }
+    private func acknowledge(_ id: Int32, subtitles: Bool, scope: PlaybackScope) async throws {
+        if try await player.selectedTrack(subtitles: subtitles, scope: scope) == id { return }
+        try await player.selectTrack(id, subtitles: subtitles, scope: scope)
+        let deadline = ContinuousClock.now.advanced(by: .seconds(3))
+        while try await player.selectedTrack(subtitles: subtitles, scope: scope) != id {
+            try Task.checkCancellation()
+            guard !closed, ContinuousClock.now < deadline else { throw Failure.timeout }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+    }
     func open(_ kind: String) {
         guard !closed, kind == "audio" || kind == "subtitles" else { return }
         dismiss()
@@ -49,12 +77,7 @@ import SyncWatchDomain
             do {
                 let subtitles = request.kind == "subtitles"
                 guard let scope = activeScope() else { throw Failure.unavailable }
-                try await player.selectTrack(id, subtitles: subtitles, scope: scope)
-                let deadline = ContinuousClock.now.advanced(by: .seconds(3))
-                while try await player.selectedTrack(subtitles: subtitles, scope: scope) != id {
-                    guard ContinuousClock.now < deadline else { throw Failure.timeout }
-                    try await Task.sleep(for: .milliseconds(20))
-                }
+                try await acknowledge(id, subtitles: subtitles, scope: scope)
                 publish(try await snapshot(request.kind, revision: revision), revision: revision)
                 if !closed, !Task.isCancelled, revision == self.revision { dismiss() }
             } catch { unavailable(request.kind, revision: revision) }

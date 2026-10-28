@@ -854,6 +854,8 @@ public enum SyncWatchCopy {
         "openSettings",
         "openCall",
         "openRoom",
+        "openLibraryAudio",
+        "openLibrarySubtitles",
     ]
     public static let galleryMovies = [
         "Example Movie 01.mkv",
@@ -2089,7 +2091,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52"
+    public static let sourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -3674,8 +3676,79 @@ public enum SyncWatchLayouts {
                 "text": "$metadataAudio",
                 "weight": "semibold",
                 "automation": "{namespace}.metadataAudio",
+                "when": "= $can.openLibraryAudio false true if",
             ],
             children: [])
+        let node22ChoiceLabel = DesignNode(
+            id: "node22ChoiceLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "$metadataAudio",
+                "width": "fill",
+                "lines": "1",
+            ],
+            children: [])
+        let node22ChoiceMark = DesignNode(
+            id: "node22ChoiceMark", kind: "icon",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "symbols.chevronDown",
+                "width": "8",
+                "height": "4",
+                "foreground": "theme.textSecondary",
+            ],
+            children: [])
+        let node22ChoiceRow = DesignNode(
+            id: "node22ChoiceRow", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "gap": "@control.compactGap",
+                "width": "fill",
+            ],
+            children: [node22ChoiceLabel, node22ChoiceMark])
+        let node22Choice = DesignNode(
+            id: "node22Choice", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "leading",
+                "height": "@layout.settingsControlHeight",
+                "when": "$can.openLibraryAudio",
+                "action": "openLibraryAudio",
+                "enabled": "$can.openLibraryAudio",
+                "automation": "{namespace}.metadataAudio",
+                "label": "$metadataAudio",
+                "width": "fill",
+                "popoverSlot": "audioSelection",
+                "popoverEdge": "bottom",
+                "popoverDismiss": "dismissSelection",
+            ],
+            children: [node22ChoiceRow])
         let node23 = DesignNode(
             id: "node23", kind: "column",
             props: [
@@ -3688,7 +3761,7 @@ public enum SyncWatchLayouts {
                 "gap": "@control.compactGap",
                 "width": "fill",
             ],
-            children: [node21, node22])
+            children: [node21, node22, node22Choice])
         let node24 = DesignNode(
             id: "node24", kind: "text",
             props: [
@@ -3714,8 +3787,79 @@ public enum SyncWatchLayouts {
                 "text": "$metadataSubtitles",
                 "weight": "semibold",
                 "automation": "{namespace}.metadataSubtitles",
+                "when": "= $can.openLibrarySubtitles false true if",
             ],
             children: [])
+        let node25ChoiceLabel = DesignNode(
+            id: "node25ChoiceLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "$metadataSubtitles",
+                "width": "fill",
+                "lines": "1",
+            ],
+            children: [])
+        let node25ChoiceMark = DesignNode(
+            id: "node25ChoiceMark", kind: "icon",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "symbols.chevronDown",
+                "width": "8",
+                "height": "4",
+                "foreground": "theme.textSecondary",
+            ],
+            children: [])
+        let node25ChoiceRow = DesignNode(
+            id: "node25ChoiceRow", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "gap": "@control.compactGap",
+                "width": "fill",
+            ],
+            children: [node25ChoiceLabel, node25ChoiceMark])
+        let node25Choice = DesignNode(
+            id: "node25Choice", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "leading",
+                "height": "@layout.settingsControlHeight",
+                "when": "$can.openLibrarySubtitles",
+                "action": "openLibrarySubtitles",
+                "enabled": "$can.openLibrarySubtitles",
+                "automation": "{namespace}.metadataSubtitles",
+                "label": "$metadataSubtitles",
+                "width": "fill",
+                "popoverSlot": "subtitlesSelection",
+                "popoverEdge": "bottom",
+                "popoverDismiss": "dismissSelection",
+            ],
+            children: [node25ChoiceRow])
         let node26 = DesignNode(
             id: "node26", kind: "column",
             props: [
@@ -3728,7 +3872,7 @@ public enum SyncWatchLayouts {
                 "gap": "@control.compactGap",
                 "width": "fill",
             ],
-            children: [node24, node25])
+            children: [node24, node25, node25Choice])
         let node27 = DesignNode(
             id: "node27", kind: "row",
             props: [
@@ -3857,8 +4001,79 @@ public enum SyncWatchLayouts {
                 "text": "$metadataAudio",
                 "weight": "semibold",
                 "automation": "{namespace}.metadataAudio",
+                "when": "= $can.openLibraryAudio false true if",
             ],
             children: [])
+        let node36ChoiceLabel = DesignNode(
+            id: "node36ChoiceLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "$metadataAudio",
+                "width": "fill",
+                "lines": "1",
+            ],
+            children: [])
+        let node36ChoiceMark = DesignNode(
+            id: "node36ChoiceMark", kind: "icon",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "symbols.chevronDown",
+                "width": "8",
+                "height": "4",
+                "foreground": "theme.textSecondary",
+            ],
+            children: [])
+        let node36ChoiceRow = DesignNode(
+            id: "node36ChoiceRow", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "gap": "@control.compactGap",
+                "width": "fill",
+            ],
+            children: [node36ChoiceLabel, node36ChoiceMark])
+        let node36Choice = DesignNode(
+            id: "node36Choice", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "leading",
+                "height": "@layout.settingsControlHeight",
+                "when": "$can.openLibraryAudio",
+                "action": "openLibraryAudio",
+                "enabled": "$can.openLibraryAudio",
+                "automation": "{namespace}.metadataAudio",
+                "label": "$metadataAudio",
+                "width": "fill",
+                "popoverSlot": "audioSelection",
+                "popoverEdge": "bottom",
+                "popoverDismiss": "dismissSelection",
+            ],
+            children: [node36ChoiceRow])
         let node37 = DesignNode(
             id: "node37", kind: "column",
             props: [
@@ -3871,7 +4086,7 @@ public enum SyncWatchLayouts {
                 "gap": "@control.compactGap",
                 "width": "fill",
             ],
-            children: [node35, node36])
+            children: [node35, node36, node36Choice])
         let node38 = DesignNode(
             id: "node38", kind: "text",
             props: [
@@ -3897,8 +4112,79 @@ public enum SyncWatchLayouts {
                 "text": "$metadataSubtitles",
                 "weight": "semibold",
                 "automation": "{namespace}.metadataSubtitles",
+                "when": "= $can.openLibrarySubtitles false true if",
             ],
             children: [])
+        let node39ChoiceLabel = DesignNode(
+            id: "node39ChoiceLabel", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "$metadataSubtitles",
+                "width": "fill",
+                "lines": "1",
+            ],
+            children: [])
+        let node39ChoiceMark = DesignNode(
+            id: "node39ChoiceMark", kind: "icon",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "symbols.chevronDown",
+                "width": "8",
+                "height": "4",
+                "foreground": "theme.textSecondary",
+            ],
+            children: [])
+        let node39ChoiceRow = DesignNode(
+            id: "node39ChoiceRow", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "gap": "@control.compactGap",
+                "width": "fill",
+            ],
+            children: [node39ChoiceLabel, node39ChoiceMark])
+        let node39Choice = DesignNode(
+            id: "node39Choice", kind: "button",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "paddingX": "@layout.settingsCardPadding",
+                "minHeight": "0",
+                "radius": "@control.buttonRadius",
+                "border": "theme.border",
+                "borderWidth": "@control.borderWidth",
+                "background": "theme.surfaceRaised",
+                "foreground": "theme.text",
+                "fontSize": "@type.settingsBodySize",
+                "weight": "normal",
+                "contentAlign": "leading",
+                "height": "@layout.settingsControlHeight",
+                "when": "$can.openLibrarySubtitles",
+                "action": "openLibrarySubtitles",
+                "enabled": "$can.openLibrarySubtitles",
+                "automation": "{namespace}.metadataSubtitles",
+                "label": "$metadataSubtitles",
+                "width": "fill",
+                "popoverSlot": "subtitlesSelection",
+                "popoverEdge": "bottom",
+                "popoverDismiss": "dismissSelection",
+            ],
+            children: [node39ChoiceRow])
         let node40 = DesignNode(
             id: "node40", kind: "column",
             props: [
@@ -3911,7 +4197,7 @@ public enum SyncWatchLayouts {
                 "gap": "@control.compactGap",
                 "width": "fill",
             ],
-            children: [node38, node39])
+            children: [node38, node39, node39Choice])
         let node41 = DesignNode(
             id: "node41", kind: "row",
             props: [
