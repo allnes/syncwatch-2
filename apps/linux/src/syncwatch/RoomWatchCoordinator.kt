@@ -58,10 +58,13 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
         var finished = false; admitted = false
+        var stage = "membership"
         try {
             val (ticket, intent) = room.beginWatch(); membership = ticket
+            stage = "runtime"
             val runtime = helper.verify()
             currentCoroutineContext().ensureActive()
+            stage = "input"
             watch.end(); watch.start(selection, requiresSharedAdmission = true)
             val nativeScope = watch.scope
             val deadline = System.nanoTime() + 20_000_000_000L
@@ -79,21 +82,28 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 if (owned == null) delay(100)
             }
             val player = checkNotNull(owned)
+            stage = "media"
             val local = player.prepareSharedMedia()
+            stage = "publication"
             val published = room.publishPrepared(local, ticket); publication = published
+            stage = "generation"
             var context = room.watchContext(ticket)
             requireSameGeneration(intent, context)
             if (context.bootstrap.snapshot.watchStatus != "active") {
+                stage = "selection"
                 context = room.performWatch(RoomCommandAction.Select(published.media.mediaId), ticket, context)
                 check(context.definition.selection?.media == published.media) { "selection-changed" }
+                stage = "start"
                 context = room.performWatch(RoomCommandAction.Start(published.media.mediaId), ticket, context)
             }
             requireMatch(local, context)
+            stage = "agreement"
             val current = room.watchContext(ticket)
             requireSameGeneration(context, current); requireMatch(local, current)
             check(watch.player === player && watch.scope == nativeScope) { "media-changed" }
             active = ActiveWatch(ticket, current, player)
             currentCoroutineContext().ensureActive()
+            stage = "helper"
             var transport: HelperTransport? = null
             try {
                 // Keep ownership even if cancellation wins the dispatch back to the UI thread.
@@ -113,13 +123,18 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
                 if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
-                    if (!admitted) { player.admitSharedPlayback(); admitted = true }
+                    if (!admitted) { player.admitSharedPlayback(); admitted = true; stage = "playback" }
                     busy = false; status = "sharedWatchConnected"
                 } else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
                 delay(100)
             }
         } catch (_: CancellationException) {
-        } catch (_: Exception) { val key = if (owned?.sharedState?.identityRejected == true) "sharedWatchIdentityRejected" else "sharedWatchFailed"; errorKey = key; status = key }
+        } catch (error: Exception) {
+            val key = failureKey(error, owned?.sharedState?.identityRejected == true)
+            // Fixed vocabulary only; exception text can contain private local or room data.
+            System.err.println("syncwatch.shared-watch failure stage=$stage key=$key")
+            errorKey = key; status = key
+        }
         finally {
             withContext(NonCancellable) {
                 val previous = active; active = null; admitted = false
@@ -162,6 +177,11 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     }
     suspend fun close() = withContext(NonCancellable) { closing = true; stop() }
     companion object {
+        fun failureKey(error: Exception, identityRejected: Boolean): String = when {
+            identityRejected -> "sharedWatchIdentityRejected"
+            error is RoomProtocolException && error.code == "staleGeneration" -> "sharedWatchRoomChanged"
+            else -> "sharedWatchFailed"
+        }
         fun requireSameGeneration(expected: RoomWatchContext, current: RoomWatchContext) {
             if (expected.bootstrap.snapshot.epoch != current.bootstrap.snapshot.epoch || expected.bootstrap.snapshot.watchGeneration != current.bootstrap.snapshot.watchGeneration) throw RoomProtocolException("staleGeneration")
         }

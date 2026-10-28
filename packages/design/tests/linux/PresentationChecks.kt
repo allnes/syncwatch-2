@@ -206,6 +206,7 @@ fun main(arguments: Array<String>) {
     for (row in corpus(root, "library-metadata.json")) {
         val base = LibraryPresentation.gallery(LibraryVisualState.selected)
         val p = base.copy(
+            entries = base.entries.map { it.copy(durationMs = (row["durationMs"] as Number?)?.toLong()) },
             metadataDurationMs = (row["durationMs"] as Number?)?.toLong(), metadataWidth = row.number("width").toInt(),
             metadataHeight = row.number("height").toInt(), metadataAudioTracks = (row["audioTracks"] as Number?)?.toInt(),
             metadataSubtitleTracks = (row["subtitleTracks"] as Number?)?.toInt(),
@@ -213,6 +214,7 @@ fun main(arguments: Array<String>) {
             metadataSubtitlesDisabled = row["subtitlesDisabled"] == true, metadataLoading = row["loading"] == true,
             enabledActions = if (row["selectable"] == true) SyncWatchCopy.libraryActions else base.enabledActions)
         val context = DesignBindings.library(p, "", row.text("language"))
+        check(context.collections["entries"]?.first()?.values?.get("rowDuration") == row.text("rowDuration"))
         for ((key, value) in row["expected"].record()) check(context.values[key] == value) { "metadata-presentation-$key" }
     }
     libraryChecks()

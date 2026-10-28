@@ -9,6 +9,10 @@ internal suspend fun roomWatchContextChecks() {
     check(RoomController.isMetadataInterruption(java.io.IOException()))
     check(RoomController.isMetadataInterruption(RoomProtocolException("transport")))
     for (code in listOf("malformed", "unauthorized", "forbidden", "frameTooLarge")) check(!RoomController.isMetadataInterruption(RoomProtocolException(code)))
+    check(RoomWatchCoordinator.failureKey(RoomProtocolException("staleGeneration"), false) == "sharedWatchRoomChanged")
+    check(RoomWatchCoordinator.failureKey(RoomProtocolException("staleGeneration"), true) == "sharedWatchIdentityRejected")
+    for (error in listOf(RoomProtocolException("unauthorized"), java.io.IOException(), Exception("/private/movie/token")))
+        check(RoomWatchCoordinator.failureKey(error, false) == "sharedWatchFailed")
     val address = System.getenv("SYNCWATCH_ROOM_SERVICE") ?: return
     val key = System.getenv("SYNCWATCH_ROOM_CREATION_KEY") ?: return
     preparedPublication(address, key)

@@ -46,7 +46,16 @@ enum DesignBindings {
         values["metadataLoading"] = String(p.metadataLoading)
         values["metadataUnavailable"] = String(p.metadataUnavailable)
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {
-            DesignContext(["id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID)])
+            DesignContext([
+                "id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID),
+                "rowDuration": $0.durationMs.flatMap { ms in
+                    ms > 0
+                        ? SyncWatchCopy.text("libraryRowDurationFormat", language: language)
+                            .replacingOccurrences(of: "{hours}", with: String(ms / 3_600_000))
+                            .replacingOccurrences(of: "{minutes}", with: String(format: "%02d", Int(ms / 60_000 % 60)))
+                        : nil
+                } ?? "",
+            ])
         }
         return DesignContext(values, collections: ["entries": entries])
     }

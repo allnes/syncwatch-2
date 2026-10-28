@@ -16,6 +16,7 @@ internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolder
 internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null, IMediaMetadataReader? metadata = null) : IDisposable
 {
     private readonly FileSystemLibrary scanner = new();
+    private readonly LibraryDurationCache durations = new();
     private readonly SemaphoreSlim persistence = new(1, 1);
     private CancellationTokenSource? pending;
     private CancellationTokenSource? metadataCancellation;
@@ -80,7 +81,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     public void Dispose()
     {
         dispatcher.VerifyAccess(); if (closed) return; closed = true; Tracks = Tracks.Reset(); generation++; pending?.Cancel(); metadataGeneration++; metadataCancellation?.Cancel(); grant = null;
-        catalog = new Dictionary<string, LocalMediaFile>();
+        catalog = new Dictionary<string, LocalMediaFile>(); durations.Clear();
         Presentation = Presentation with { EnabledActions = new HashSet<string>() };
     }
 
@@ -117,39 +118,60 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         long current = metadataGeneration;
         metadataCancellation = new();
         Presentation = Presentation with { MetadataLoading = true }; stable = Presentation;
-        MetadataSettled = ReadMetadata(previous, previousCancellation, selection, current, metadataCancellation.Token);
+        var files = new[] { selection.Media }.Concat(Presentation.Entries.Select(row => catalog[row.Id]).Where(file => file.Id != selection.Media.Id)).ToArray();
+        MetadataSettled = ReadMetadata(previous, previousCancellation, selection, files, current, metadataCancellation.Token);
+    }
+    private void PublishDuration(long? value, LocalMediaFile file)
+    {
+        durations.Record(value, file);
+        Presentation = Presentation with { Entries = Presentation.Entries.Select(row => row.Id == file.Id ? row with { DurationMs = value } : row).ToArray() };
     }
     private async Task ReadMetadata(Task previous, CancellationTokenSource? previousCancellation,
-        LibraryMediaSelection selection, long current, CancellationToken token)
+        LibraryMediaSelection selection, IReadOnlyList<LocalMediaFile> files, long current, CancellationToken token)
     {
         try
         {
             await previous; previousCancellation?.Dispose(); token.ThrowIfCancellationRequested();
-            var value = await metadata!.ReadAsync(selection.Media, token);
-            token.ThrowIfCancellationRequested(); if (closed || current != metadataGeneration) return;
-            Tracks = Tracks.Reset(value);
-            Presentation = Presentation with
+            foreach (var file in files)
             {
-                MetadataDurationMs = value.DurationMs,
-                MetadataWidth = value.Width,
-                MetadataHeight = value.Height,
-                MetadataAudioTracks = value.AudioTracks,
-                MetadataSubtitleTracks = value.SubtitleTracks,
-                MetadataLoading = false,
-                MetadataAudioName = Tracks.AudioName,
-                MetadataSubtitleName = Tracks.SubtitleName,
-                MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled,
-                EnabledActions = new HashSet<string>(Presentation.EnabledActions.Concat(["openLibraryAudio", "openLibrarySubtitles"]))
-            };
-            stable = Presentation; Changed?.Invoke();
+                token.ThrowIfCancellationRequested(); if (closed || current != metadataGeneration) return;
+                bool selected = file.Id == selection.Media.Id;
+                if (!selected && durations.Duration(file) is not null) continue;
+                try
+                {
+                    var value = await metadata!.ReadAsync(file, token);
+                    token.ThrowIfCancellationRequested(); if (closed || current != metadataGeneration) return;
+                    PublishDuration(value.DurationMs, file);
+                    if (selected)
+                    {
+                        Tracks = Tracks.Reset(value);
+                        Presentation = Presentation with
+                        {
+                            MetadataDurationMs = value.DurationMs,
+                            MetadataWidth = value.Width,
+                            MetadataHeight = value.Height,
+                            MetadataAudioTracks = value.AudioTracks,
+                            MetadataSubtitleTracks = value.SubtitleTracks,
+                            MetadataLoading = false,
+                            MetadataAudioName = Tracks.AudioName,
+                            MetadataSubtitleName = Tracks.SubtitleName,
+                            MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled,
+                            EnabledActions = new HashSet<string>(Presentation.EnabledActions.Concat(["openLibraryAudio", "openLibrarySubtitles"]))
+                        };
+                    }
+                    stable = Presentation; Changed?.Invoke();
+                }
+                catch (OperationCanceledException) { return; }
+                catch (Exception)
+                {
+                    if (closed || current != metadataGeneration) return;
+                    PublishDuration(null, file);
+                    if (selected) Presentation = Presentation with { MetadataLoading = false, MetadataUnavailable = true };
+                    stable = Presentation; Changed?.Invoke();
+                }
+            }
         }
         catch (OperationCanceledException) { }
-        catch (Exception)
-        {
-            if (closed || current != metadataGeneration) return;
-            Presentation = Presentation with { MetadataLoading = false, MetadataUnavailable = true };
-            stable = Presentation; Changed?.Invoke();
-        }
         finally { GC.KeepAlive(selection.Access); }
     }
 
@@ -177,8 +199,9 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             var files = await scanner.ScanAsync(next.RootPath, next.RootId, next.Record.ScanSubfolders, token);
             token.ThrowIfCancellationRequested(); if (closed || generation != current) return;
             var utf8 = Comparer<string>.Create((a, b) => Encoding.UTF8.GetBytes(a).AsSpan().SequenceCompareTo(Encoding.UTF8.GetBytes(b)));
+            durations.Reconcile(files);
             var rows = files.OrderBy(x => x.Title.ToLowerInvariant(), utf8).ThenBy(x => x.RelativePath, utf8)
-                .Select(x => new LibraryEntry(x.Id, x.Title, x.File)).ToArray();
+                .Select(x => new LibraryEntry(x.Id, x.Title, x.File, durations.Duration(x))).ToArray();
             string? selected = new[] { previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
             var nextCatalog = files.ToDictionary(x => x.Id);
             grant = next; catalog = nextCatalog; RoomRevision = Guid.NewGuid(); Presentation = new()

@@ -78,6 +78,7 @@ private struct MetadataCorpus: Decodable {
     struct Case: Decodable {
         let language: String
         let durationMs: Int64?
+        let rowDuration: String
         let width: Int
         let height: Int
         let audioTracks: Int?
@@ -98,6 +99,9 @@ private struct MetadataCorpus: Decodable {
     let corpus = try JSONDecoder().decode(MetadataCorpus.self, from: Data(contentsOf: fixture))
     for row in corpus.cases {
         var p = LibraryPresentation.gallery(.selected)
+        let first = p.entries[0]
+        p.entries[0] = LibraryEntry(
+            id: first.id, title: first.title, location: first.location, durationMs: row.durationMs)
         p.metadataDurationMs = row.durationMs
         p.metadataWidth = row.width
         p.metadataHeight = row.height
@@ -109,6 +113,7 @@ private struct MetadataCorpus: Decodable {
         p.metadataLoading = row.loading ?? false
         if row.selectable == true { p.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"]) }
         let context = DesignBindings.library(p, query: "", language: row.language)
+        #expect(context.collections["entries"]?.first?.values["rowDuration"] == row.rowDuration)
         for (key, value) in row.expected { #expect(context.values[key] == value) }
     }
 }

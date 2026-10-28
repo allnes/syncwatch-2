@@ -69,12 +69,15 @@ import SyncWatchRoom
         var owned: PlaybackController?
         var finished = false
         admitted = false
+        var stage = "membership"
         do {
             let intent = try await room.beginWatch()
             membership = intent.membership
+            stage = "runtime"
             let runtime = try await helper.verify()
             try Task.checkCancellation()
             // A fresh scope prevents a prepared hash or helper from being reused for another load.
+            stage = "input"
             watch.end()
             watch.start(selection, requiresSharedAdmission: true)
             let scope = watch.scope
@@ -95,26 +98,33 @@ import SyncWatchRoom
                 }
             }
             guard let player = owned else { throw HelperSessionFailure.unavailable }
+            stage = "media"
             let local = try await player.prepareSharedMedia()
+            stage = "publication"
             publication = try await room.publishPrepared(local, membership: intent.membership)
+            stage = "generation"
             var context = try await room.watchContext(intent.membership)
             try Self.requireSameGeneration(intent.context, context)
             if context.bootstrap.snapshot.watchStatus != "active" {
                 guard let publication else { throw HelperSessionFailure.unavailable }
+                stage = "selection"
                 context = try await room.performWatch(
                     .select(mediaID: publication.media.mediaID), membership: intent.membership, expected: context)
                 guard context.definition.selection?.media == publication.media else {
                     throw HelperSessionFailure.malformed
                 }
+                stage = "start"
                 context = try await room.performWatch(
                     .start(mediaID: publication.media.mediaID), membership: intent.membership, expected: context)
             }
             try Self.requireMatch(local, context)
+            stage = "agreement"
             let current = try await room.watchContext(intent.membership)
             try Self.requireSameGeneration(context, current)
             try Self.requireMatch(local, current)
             guard watch.player === player, watch.scope == scope else { throw HelperSessionFailure.unavailable }
             active = (intent.membership, current, player)
+            stage = "helper"
             let transport = try await HelperProcess.launch(executable: runtime.executable, runtime: runtime.package)
             do {
                 try Task.checkCancellation()
@@ -155,6 +165,7 @@ import SyncWatchRoom
                     if !admitted {
                         try player.admitSharedPlayback()
                         admitted = true
+                        stage = "playback"
                     }
                     if busy {
                         busy = false
@@ -167,7 +178,9 @@ import SyncWatchRoom
             }
         } catch is CancellationError {
         } catch {
-            let key = owned?.sharedState?.identityRejected == true ? "sharedWatchIdentityRejected" : "sharedWatchFailed"
+            let key = Self.failureKey(error, identityRejected: owned?.sharedState?.identityRejected == true)
+            // Fixed stage/key vocabulary only: never serialize errors, paths or room credentials.
+            FileHandle.standardError.write(Data("syncwatch.shared-watch failure stage=\(stage) key=\(key)\n".utf8))
             errorKey = key
             status = key
         }
@@ -194,6 +207,11 @@ import SyncWatchRoom
         return current.snapshot.epoch == active.context.bootstrap.snapshot.epoch
             && current.snapshot.watchGeneration == active.context.bootstrap.snapshot.watchGeneration
             && current.snapshot.watchStatus == "active"
+    }
+    static func failureKey(_ error: Error, identityRejected: Bool) -> String {
+        if identityRejected { return "sharedWatchIdentityRejected" }
+        if case RoomProtocolFailure.rejected("staleGeneration") = error { return "sharedWatchRoomChanged" }
+        return "sharedWatchFailed"
     }
     static func requireSameGeneration(_ expected: RoomWatchContext, _ current: RoomWatchContext) throws {
         guard expected.bootstrap.snapshot.epoch == current.bootstrap.snapshot.epoch,

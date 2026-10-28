@@ -593,12 +593,15 @@ public enum SyncWatchCopy {
             "sharedWatchConnected": "Shared playback connected",
             "sharedWatchFailed":
                 "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
+            "sharedWatchRoomChanged":
+                "The room changed while preparing playback. End this attempt, check the selected movie, then press Start again.",
             "sharedWatchIdentityRejected":
                 "Syncplay changed your name. Leave the room and reconnect with a shorter or different name.",
             "metadataLoading": "Reading movie information…",
             "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "No subtitles",
             "audioDisabled": "Audio disabled",
         ],
@@ -829,12 +832,15 @@ public enum SyncWatchCopy {
             "sharedWatchConnected": "Совместный просмотр подключён",
             "sharedWatchFailed":
                 "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
+            "sharedWatchRoomChanged":
+                "Комната изменилась во время подготовки просмотра. Завершите эту попытку, проверьте выбранный фильм и повторите запуск.",
             "sharedWatchIdentityRejected":
                 "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем.",
             "metadataLoading": "Чтение сведений о фильме…",
             "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
+            "libraryRowDurationFormat": "{hours}:{minutes}",
             "metadataNoSubtitles": "Нет субтитров",
             "audioDisabled": "Звук выключен",
         ],
@@ -2091,7 +2097,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "bed5b5eb0b00f2d576b44efe472ff3ecf39ce67b0c0bf37cff3db6325bbb46de"
+    public static let sourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -3430,10 +3436,37 @@ public enum SyncWatchLayouts {
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
                 "text": "{title}",
-                "lines": "2",
+                "lines": "1",
                 "width": "fill",
             ],
             children: [])
+        let libraryMovieRowDuration = DesignNode(
+            id: "libraryMovieRowDuration", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "foreground": "theme.textSecondary",
+                "text": "{rowDuration}",
+                "automation": "library.movieDuration.{id}",
+                "lines": "1",
+            ],
+            children: [])
+        let libraryMovieRowContent = DesignNode(
+            id: "libraryMovieRowContent", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "width": "fill",
+                "gap": "@layout.panelGap",
+            ],
+            children: [node81, libraryMovieRowDuration])
         let node82 = DesignNode(
             id: "node82", kind: "button",
             props: [
@@ -3455,7 +3488,7 @@ public enum SyncWatchLayouts {
                 "automation": "library.movie.{id}",
                 "label": "{title}",
             ],
-            children: [node81])
+            children: [libraryMovieRowContent])
         let node83 = DesignNode(
             id: "node83", kind: "repeat",
             props: [

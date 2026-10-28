@@ -63,8 +63,32 @@ Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
 retains the live input; its Library presentation disables draft selectors for
-that same movie. External subtitle association and duration caching in catalog
-rows remain separate integration work.
+that same movie. External subtitle association remains separate integration work.
+
+## Whole-library duration observations
+
+A completed scan schedules the selected file first, then the other files in display
+order through the same single silent inspector. A new selection cancels that work,
+awaits native release and takes priority. Failures remain local to their row and do
+not prevent inspection of later files or overwrite the selected card and track draft.
+Background results cannot advance the room catalog revision. Close cancels and awaits
+the entire inspection chain while retaining its folder grant through native release.
+
+`LibraryDurationCache` belongs to the local library package. It stores at most256
+positive duration observations in memory, evicting the oldest observation. Its key
+is the complete scanned file version (root-scoped ID, path, size and modification
+time). Reconciliation removes missing or changed entries; unknown modification
+time is never reused across scans. Failed/unknown reads remove a prior duration.
+The cache stores no tracks, native IDs, grants, digests or room credentials. Each
+selected file is inspected afresh even on a cache hit, so current track preparation
+and retry semantics stay independent of display hints. Background cache hits avoid
+repeat probes; evicted rows may be inspected again on a later scan. Nothing is
+persisted, and restart reconstructs observations from the authorized library.
+
+The common Design entry accepts optional milliseconds. Its shared localized format
+and declarative row layout show a trailing hour:minute duration only when positive,
+without changing sorting, search or selection. Platform controllers supply facts;
+they do not format labels or specify row geometry.
 
 ## Shared media preparation
 

@@ -8,11 +8,13 @@ public struct LibraryEntry: Identifiable, Equatable, Sendable {
     public let id: String
     public let title: String
     public let location: String
+    public let durationMs: Int64?
 
-    public init(id: String, title: String, location: String) {
+    public init(id: String, title: String, location: String, durationMs: Int64? = nil) {
         self.id = id
         self.title = title
         self.location = location
+        self.durationMs = durationMs
     }
 }
 

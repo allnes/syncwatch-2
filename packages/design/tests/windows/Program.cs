@@ -92,6 +92,7 @@ internal static class Program
             {
                 var p = LibraryPresentation.Gallery(LibraryVisualState.Selected) with
                 {
+                    Entries = LibraryPresentation.Gallery(LibraryVisualState.Selected).Entries.Select(e => e with { DurationMs = row.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : row.GetProperty("durationMs").GetInt64() }).ToArray(),
                     MetadataDurationMs = row.GetProperty("durationMs").ValueKind == JsonValueKind.Null ? null : row.GetProperty("durationMs").GetInt64(),
                     MetadataWidth = row.GetProperty("width").GetInt32(),
                     MetadataHeight = row.GetProperty("height").GetInt32(),
@@ -105,6 +106,7 @@ internal static class Program
                         ? SyncWatchCopy.LibraryActions.ToHashSet() : LibraryPresentation.Gallery(LibraryVisualState.Selected).EnabledActions
                 };
                 var context = DesignBindings.Library(p, "", row.GetProperty("language").GetString()!);
+                Check(context.Collections["entries"].First().Values["rowDuration"] == row.GetProperty("rowDuration").GetString(), "row-duration");
                 foreach (var expected in row.GetProperty("expected").EnumerateObject()) Check(context.Values[expected.Name] == expected.Value.GetString(), expected.Name);
             }
         }

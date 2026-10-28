@@ -138,3 +138,18 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
         #expect(!RoomController.isMetadataInterruption(error))
     }
 }
+
+@Test @MainActor func sharedWatchFailurePreservesExplicitIntentAndPrivateDetails() {
+    #expect(
+        RoomWatchCoordinator.failureKey(RoomProtocolFailure.rejected("staleGeneration"), identityRejected: false)
+            == "sharedWatchRoomChanged")
+    #expect(
+        RoomWatchCoordinator.failureKey(RoomProtocolFailure.rejected("staleGeneration"), identityRejected: true)
+            == "sharedWatchIdentityRejected")
+    for error: Error in [
+        RoomProtocolFailure.rejected("unauthorized"), URLError(.networkConnectionLost),
+        NSError(domain: "/private/movie/token", code: 1),
+    ] {
+        #expect(RoomWatchCoordinator.failureKey(error, identityRejected: false) == "sharedWatchFailed")
+    }
+}

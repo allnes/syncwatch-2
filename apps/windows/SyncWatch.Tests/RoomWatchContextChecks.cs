@@ -9,6 +9,10 @@ internal static class RoomWatchContextChecks
         if (!RoomController.IsMetadataInterruption(new System.Net.Http.HttpRequestException()) || !RoomController.IsMetadataInterruption(new RoomProtocolException("transport"))) throw new Exception("Transport interruption classification");
         foreach (string code in new[] { "malformed", "unauthorized", "forbidden", "frameTooLarge" })
             if (RoomController.IsMetadataInterruption(new RoomProtocolException(code))) throw new Exception("Invalid membership retained");
+        if (RoomWatchCoordinator.FailureKey(new RoomProtocolException("staleGeneration"), false) != "sharedWatchRoomChanged"
+            || RoomWatchCoordinator.FailureKey(new RoomProtocolException("staleGeneration"), true) != "sharedWatchIdentityRejected") throw new Exception("Shared intent failure lost actionable classification");
+        foreach (Exception error in new Exception[] { new RoomProtocolException("unauthorized"), new System.Net.Http.HttpRequestException(), new Exception("C:/private/movie/token") })
+            if (RoomWatchCoordinator.FailureKey(error, false) != "sharedWatchFailed") throw new Exception("Shared failure exposed unclassified details");
         string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), key = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_CREATION_KEY");
         if (address is null || key is null) return;
         await PreparedPublicationAsync(address, key);

@@ -55,10 +55,13 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     {
         await Task.Yield();
         RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false; admitted = false;
+        string stage = "membership";
         try
         {
             var intent = await room.BeginWatchAsync(token); membership = intent.Membership;
+            stage = "runtime";
             var runtime = await helper.VerifyAsync(token);
+            stage = "input";
             token.ThrowIfCancellationRequested(); watch.End(); watch.Start(selection, requiresSharedAdmission: true);
             var scope = watch.Scope; long deadline = Environment.TickCount64 + 20000;
             while (owned is null)
@@ -77,22 +80,29 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 }
                 if (owned is null) await Task.Delay(100, token);
             }
+            stage = "media";
             var local = await owned.PrepareSharedMediaAsync(token);
+            stage = "publication";
             publication = await room.PublishPreparedAsync(local, intent.Membership, token);
+            stage = "generation";
             var context = await room.WatchContextAsync(intent.Membership, token);
             RequireSameGeneration(intent.Context, context);
             if (context.Bootstrap.Snapshot.WatchStatus != "active")
             {
+                stage = "selection";
                 context = await room.PerformWatchAsync(new RoomCommandAction.Select(publication.Media.MediaId), intent.Membership, context, token);
                 if (context.Definition.Selection?.Media != publication.Media) throw new InvalidOperationException("selection-changed");
+                stage = "start";
                 context = await room.PerformWatchAsync(new RoomCommandAction.Start(publication.Media.MediaId), intent.Membership, context, token);
             }
             RequireMatch(local, context);
+            stage = "agreement";
             var current = await room.WatchContextAsync(intent.Membership, token);
             RequireSameGeneration(context, current); RequireMatch(local, current);
             if (!ReferenceEquals(watch.Player, owned) || watch.Scope != scope) throw new InvalidOperationException("media-changed");
             active = new(intent.Membership, current, owned);
             token.ThrowIfCancellationRequested();
+            stage = "helper";
             var transport = HelperProcess.Start(runtime.Executable, runtime.Package);
             try
             {
@@ -115,7 +125,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 if (owned.SharedState is { Connection: HelperConnection.Connected, Ready: true } state)
                 {
                     if (state.AcceptedUsername != intent.Membership.Identity.SyncplayUsername) throw new InvalidOperationException("identity-changed");
-                    if (!admitted) { owned.AdmitSharedPlayback(); admitted = true; }
+                    if (!admitted) { owned.AdmitSharedPlayback(); admitted = true; stage = "playback"; }
                     if (Busy) { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
                 else if (!admitted && Environment.TickCount64 >= readyDeadline) throw new TimeoutException();
@@ -123,7 +133,13 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             }
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
-        catch (Exception) { ErrorKey = owned?.SharedState?.IdentityRejected == true ? "sharedWatchIdentityRejected" : "sharedWatchFailed"; Status = ErrorKey; }
+        catch (Exception error)
+        {
+            ErrorKey = FailureKey(error, owned?.SharedState?.IdentityRejected == true);
+            // Fixed vocabulary only; never serialize exception text, paths or room credentials.
+            Console.Error.WriteLine($"syncwatch.shared-watch failure stage={stage} key={ErrorKey}");
+            Status = ErrorKey;
+        }
         finally
         {
             var previous = active; active = null; admitted = false;
@@ -152,6 +168,8 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             && current.Snapshot.Epoch == value.Context.Bootstrap.Snapshot.Epoch
             && current.Snapshot.WatchGeneration == value.Context.Bootstrap.Snapshot.WatchGeneration && current.Snapshot.WatchStatus == "active";
     }
+    internal static string FailureKey(Exception error, bool identityRejected) => identityRejected ? "sharedWatchIdentityRejected"
+        : error is RoomProtocolException { Message: "staleGeneration" } ? "sharedWatchRoomChanged" : "sharedWatchFailed";
     internal static void RequireSameGeneration(RoomWatchContext expected, RoomWatchContext current)
     {
         if (expected.Bootstrap.Snapshot.Epoch != current.Bootstrap.Snapshot.Epoch || expected.Bootstrap.Snapshot.WatchGeneration != current.Bootstrap.Snapshot.WatchGeneration) throw new RoomProtocolException("staleGeneration");
