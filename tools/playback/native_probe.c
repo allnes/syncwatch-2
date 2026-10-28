@@ -37,6 +37,15 @@ static sw_observation await_state_at(int line, sw_playback *p, uint64_t generati
     require(0, "bounded native state transition"); return value;
 }
 #define await_state(...) await_state_at(__LINE__, __VA_ARGS__)
+static void await_track(sw_playback *p, uint64_t generation, int subtitles, int32_t expected) {
+    for (int i = 0; i < 150; i++) {
+        int32_t id = INT32_MAX;
+        require(sw_playback_selected_track(p, generation, subtitles, &id) == SW_OK, "selected track observation");
+        if (id == expected) return;
+        wait_ms(20);
+    }
+    require(0, "bounded native track acknowledgement");
+}
 int main(int argc, char **argv) {
     require(argc == 4 || argc == 5, "arguments");
     sw_playback *player = NULL;
@@ -59,15 +68,27 @@ int main(int argc, char **argv) {
     require(sw_playback_load(player, 1, argv[3]) == SW_STALE, "duplicate generation rejection");
     require(sw_playback_rate(player, 1, NAN) == SW_INVALID && sw_playback_volume(player, 1, INFINITY, 0) == SW_INVALID, "nonfinite rejection");
     require(sw_playback_seek(player, 1, value.duration_ms + 1) == SW_INVALID, "seek bounds");
-    int32_t ids[256]; size_t count;
+    int32_t ids[256], selected = INT32_MAX; size_t count;
+    require(sw_playback_selected_track(NULL, 1, 0, &selected) == SW_INVALID, "null track owner rejection");
+    require(sw_playback_selected_track(player, 1, 0, NULL) == SW_INVALID, "null track destination rejection");
+    require(sw_playback_selected_track(player, 1, 2, &selected) == SW_INVALID, "foreign track kind rejection");
     require(sw_playback_tracks(player, 1, 0, ids, 256, &count) == SW_OK && count > 0, "actual audio tracks");
     char name[65536];
     require(sw_playback_track_name(player, 1, 0, ids[count - 1], name, sizeof(name)) == SW_OK && name[0], "actual track name");
     require(sw_playback_select_track(player, 1, 0, INT32_MAX) == SW_INVALID, "foreign track rejection");
+    int32_t audio_id = -1;
+    for (size_t i = 0; i < count; i++) if (ids[i] >= 0) { audio_id = ids[i]; break; }
+    require(audio_id >= 0, "real audio track ID");
     require(sw_playback_pause(player, 1, 0) == SW_OK, "play submission");
     value = await_state(player, 1, 0, 400, 1500);
     require(sw_playback_pause(player, 1, 1) == SW_OK, "pause submission");
     value = await_state(player, 1, 1, 0, 2000);
+    await_track(player, 1, 0, audio_id);
+    require(sw_playback_select_track(player, 1, 0, -1) == SW_OK, "disable audio submission");
+    await_track(player, 1, 0, -1);
+    require(sw_playback_select_track(player, 1, 0, audio_id) == SW_OK, "restore audio submission");
+    await_track(player, 1, 0, audio_id);
+    await_track(player, 1, 1, -1);
     int64_t before = value.position_ms; wait_ms(300); value = observation(player, 1);
     require(value.paused && llabs(value.position_ms - before) <= 60, "actual paused clock");
     require(sw_playback_seek(player, 1, 2500) == SW_OK, "forward seek submission");
@@ -86,9 +107,11 @@ int main(int argc, char **argv) {
     require(sw_playback_stop(player, 1) == SW_OK && sw_playback_stop(player, 1) == SW_OK, "idempotent stop");
     value = observation(player, 1); require(value.status == SW_UNLOADED && value.position_ms == 0, "observed release");
     require(sw_playback_pause(player, 1, 0) == SW_UNAVAILABLE, "no stopped resurrection");
+    require(sw_playback_selected_track(player, 1, 0, &selected) == SW_UNAVAILABLE, "stopped track owner rejection");
     require(sw_playback_load(player, 2, argv[3]) == SW_OK, "new generation reload");
     await_state(player, 2, 1, 0, 300);
     require(sw_playback_seek(player, 1, 0) == SW_STALE && sw_playback_observe(player, 1, &value) == SW_STALE, "stale native commands and observations");
+    require(sw_playback_selected_track(player, 1, 0, &selected) == SW_STALE, "stale track observation rejection");
     value = observation(player, 2); require(value.sequence > start_sequence, "native event callbacks");
     sw_playback_close(player);
     for (int i = 0; i < 8; i++) {

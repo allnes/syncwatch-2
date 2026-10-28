@@ -89,16 +89,34 @@ fun main(arguments: Array<String>) = runBlocking {
             player.setPaused(true, scope); observed { it.paused }
             player.seek(2500, scope); observed { it.paused && it.positionMs in 2300..2700 }
             player.seek(250, scope); observed { it.paused && it.positionMs <= 650 }
-            check(player.tracks(false, scope).any { it.id >= 0 })
+            val trackPort: syncwatch.domain.PlaybackTrackControlPort = player
+            val audioId = trackPort.tracks(false, scope).first { it.id >= 0 }.id
+            suspend fun observedTrack(id: Int, subtitles: Boolean = false) = withTimeout(3_000) {
+                while (trackPort.selectedTrack(subtitles, scope) != id) delay(20)
+            }
+            observedTrack(audioId)
+            trackPort.selectTrack(-1, false, scope); observedTrack(-1)
+            trackPort.selectTrack(audioId, false, scope); observedTrack(audioId)
+            observedTrack(-1, true)
+            check(runCatching { trackPort.selectTrack(Int.MAX_VALUE, false, scope) }.isFailure)
+            check(runCatching { trackPort.selectedTrack(false, PlaybackScope("foreign-tracks", 1)) }.isFailure)
+            val cancelledTrack = launch(start = CoroutineStart.UNDISPATCHED) {
+                currentCoroutineContext().cancel()
+                check(runCatching { trackPort.selectedTrack(false, scope) }.exceptionOrNull() is kotlinx.coroutines.CancellationException)
+            }
+            cancelledTrack.join()
             val next = scope.replacingMedia()
             player.load(Path.of(arguments[2]), next)
             check(runCatching { content.contentVersion(scope) }.isFailure)
             check(runCatching { content.readContent(0, 8, scope) }.isFailure)
+            check(runCatching { trackPort.selectedTrack(false, scope) }.isFailure)
             check(content.contentVersion(next) != version)
             player.stop(next)
             check(runCatching { content.readContent(0, 8, next) }.isFailure)
+            check(runCatching { trackPort.selectedTrack(false, next) }.isFailure)
             println("SYNCWATCH_KOTLIN_LOADED_CONTENT_OK")
         } finally { player.close() }
+        check(runCatching { player.selectedTrack(false, scope) }.isFailure)
     }
     println("SYNCWATCH_KOTLIN_PLAYBACK_OK")
 }

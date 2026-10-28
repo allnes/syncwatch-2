@@ -46,3 +46,8 @@ interface PlaybackPort {
     suspend fun stop(scope: PlaybackScope)
     suspend fun close()
 }
+
+/** Observed local track selection; -1 means disabled/no active track. */
+interface PlaybackTrackControlPort : PlaybackPort {
+    suspend fun selectedTrack(subtitles: Boolean, scope: PlaybackScope): Int
+}

@@ -53,7 +53,7 @@ public actor VLCPlaybackRuntime {
     }
 }
 
-public actor VLCPlayback: PlaybackPort, LoadedMediaContentPort {
+public actor VLCPlayback: PlaybackTrackControlPort, LoadedMediaContentPort {
     private var owner = NativeOwner()
     private var scope: PlaybackScope?
     private var closed = false
@@ -155,6 +155,11 @@ public actor VLCPlayback: PlaybackPort, LoadedMediaContentPort {
     }
     public func selectTrack(_ id: Int32, subtitles: Bool, scope: PlaybackScope) throws {
         try check(sw_playback_select_track(native(scope), scope.mediaGeneration, subtitles ? 1 : 0, id))
+    }
+    public func selectedTrack(subtitles: Bool, scope: PlaybackScope) throws -> Int32 {
+        var id: Int32 = -1
+        try check(sw_playback_selected_track(native(scope), scope.mediaGeneration, subtitles ? 1 : 0, &id))
+        return id
     }
     public func stop(_ scope: PlaybackScope) throws {
         try check(sw_playback_stop(native(scope), scope.mediaGeneration))

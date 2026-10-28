@@ -306,6 +306,12 @@ int sw_playback_track_name(sw_playback *p, uint64_t generation, int subtitles, i
     }
     p->api.libvlc_track_description_list_release(head); return result;
 }
+int sw_playback_selected_track(sw_playback *p, uint64_t generation, int subtitles, int32_t *id) {
+    int code = check(p, generation); if (code) return code;
+    if (!id || (subtitles != 0 && subtitles != 1)) return SW_INVALID;
+    *id = subtitles ? p->api.libvlc_video_get_spu(p->player) : p->api.libvlc_audio_get_track(p->player);
+    return SW_OK;
+}
 int sw_playback_select_track(sw_playback *p, uint64_t generation, int subtitles, int32_t id) {
     int code = check(p, generation); if (code) return code;
     if (subtitles != 0 && subtitles != 1) return SW_INVALID;

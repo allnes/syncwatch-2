@@ -75,6 +75,9 @@ SW_PLAYBACK_API int sw_playback_tracks(sw_playback *, uint64_t generation, int s
 SW_PLAYBACK_API int sw_playback_track_name(sw_playback *, uint64_t generation, int subtitles,
     int32_t id, char *utf8, size_t capacity);
 SW_PLAYBACK_API int sw_playback_select_track(sw_playback *, uint64_t generation, int subtitles, int32_t id);
+/* Actual engine selection; -1 means disabled/no active track. A selection
+ * submission is not an acknowledgement. The loaded-input scope still applies. */
+SW_PLAYBACK_API int sw_playback_selected_track(sw_playback *, uint64_t generation, int subtitles, int32_t *id);
 SW_PLAYBACK_API void sw_playback_close(sw_playback *);
 #ifdef __cplusplus
 }

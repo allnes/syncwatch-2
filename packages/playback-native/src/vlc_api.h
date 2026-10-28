@@ -45,6 +45,8 @@
  X(libvlc_track_description_t *, libvlc_audio_get_track_description, (libvlc_media_player_t *)) \
  X(libvlc_track_description_t *, libvlc_video_get_spu_description, (libvlc_media_player_t *)) \
  X(void, libvlc_track_description_list_release, (libvlc_track_description_t *)) \
+ X(int, libvlc_audio_get_track, (libvlc_media_player_t *)) \
+ X(int, libvlc_video_get_spu, (libvlc_media_player_t *)) \
  X(int, libvlc_audio_set_track, (libvlc_media_player_t *, int)) \
  X(int, libvlc_video_set_spu, (libvlc_media_player_t *, int)) \
  X(libvlc_event_manager_t *, libvlc_media_player_event_manager, (libvlc_media_player_t *)) \

@@ -153,6 +153,9 @@ public final class NativePlayback {
     public CompletableFuture<Void> selectTrack(int id, boolean subtitles, Scope owner) {
         return submit(() -> { check(owner); selectTrack(player, owner.generation(), subtitles, id); return null; });
     }
+    public CompletableFuture<Integer> selectedTrack(boolean subtitles, Scope owner) {
+        return submit(() -> { check(owner); return selectedTrack(player, owner.generation(), subtitles); });
+    }
     public CompletableFuture<Void> closeAsync() {
         if (closing.compareAndSet(false, true)) {
             // Normal work has at most MAX_REQUESTS permits. The reserved queue
@@ -188,5 +191,6 @@ public final class NativePlayback {
     private static native int[] trackIds(long player, long generation, boolean subtitles);
     private static native byte[] trackName(long player, long generation, boolean subtitles, int id);
     private static native void selectTrack(long player, long generation, boolean subtitles, int id);
+    private static native int selectedTrack(long player, long generation, boolean subtitles);
     private static native void close(long player);
 }
