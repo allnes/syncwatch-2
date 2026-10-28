@@ -125,8 +125,8 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                             if (selected) {
                                 tracks = tracks.reset(value, file.companions)
                                 presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
-                                    metadataHeight = value.height, metadataAudioTracks = value.audioTracks?.plus(file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.audio }),
-                                    metadataSubtitleTracks = value.subtitleTracks?.plus(file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.subtitles }), metadataLoading = false,
+                                    metadataHeight = value.height, metadataAudioTracks = value.audioTracks + file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.audio },
+                                    metadataSubtitleTracks = value.subtitleTracks + file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.subtitles }, metadataLoading = false,
                                     metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
                                     metadataSubtitlesDisabled = tracks.subtitlesDisabled,
                                     enabledActions = presentation.enabledActions + setOf("openLibraryAudio", "openLibrarySubtitles"))

@@ -6,7 +6,7 @@ import {dirname, join, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {after, test} from 'node:test';
-import {validSelection, selectionRequest} from '../selection-menu-formats.mjs';
+import {validSelection, selectionRequest, validateSelectionMenu} from '../selection-menu-formats.mjs';
 import {validPlayerSetting} from '../player-settings-formats.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -14,6 +14,21 @@ const platform = {'darwin': 'macos-arm64', 'linux': 'linux-x64', 'win32': 'windo
 const runtime = process.env.SYNCWATCH_DESIGN_RUNTIME ?? join(root, 'artifacts/dependencies/design-generator', platform, 'payload/runtime');
 const temporary = mkdtempSync(join(tmpdir(), 'syncwatch-native-design-'));
 after(() => rmSync(temporary, {recursive: true, force: true}));
+
+test('library companion labels remain declared and validated by the common design', () => {
+    const policy = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
+    const components = JSON.parse(readFileSync(join(root, 'packages/design/components.json')));
+    const copy = JSON.parse(readFileSync(join(root, 'packages/design/copy.json')));
+    validateSelectionMenu(policy, components, copy);
+    for (const field of ['normal', 'duplicate']) {
+        const changed = structuredClone(policy);
+        changed.externalFile.libraryLabels[field] = 'platformDefault';
+        assert.throws(() => validateSelectionMenu(changed, components, copy), /library companion labels/);
+    }
+    const missing = structuredClone(policy);
+    delete missing.externalFile.libraryLabels;
+    assert.throws(() => validateSelectionMenu(missing, components, copy), /library companion labels/);
+});
 const files = ['macos/SyncWatchTokens.swift', 'windows/SyncWatchTokens.g.cs', 'windows/SyncWatchTheme.g.xaml', 'design-manifest.json', 'linux/SyncWatchTokens.kt'];
 function generate(design, output, check = false) {
     const result = spawnSync(process.execPath, [join(root, 'tools/design/generate.mjs'), '--runtime', runtime,
