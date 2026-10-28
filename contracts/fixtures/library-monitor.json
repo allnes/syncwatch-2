@@ -1,0 +1,8 @@
+{
+  "rootId": "73777df1-45ee-43b1-ae4f-e50405d5a83c",
+  "created": "Кино.One.mkv",
+  "renamed": "Кино.Two.mkv",
+  "nested": "New/deep/Other.mkv",
+  "content": "first movie",
+  "replacement": "changed movie version"
+}
