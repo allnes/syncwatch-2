@@ -96,7 +96,9 @@ struct RoomPreparedPublication {
                 _ = try await performWatch(
                     .missing(mediaID: mediaID, missing: true),
                     membership: intent.membership, expected: intent.context)
-            } catch { /* A later membership/catalog update retries under its current generation. */  }
+            } catch {
+                // A later membership/catalog update retries under its current generation.
+            }
         }
     }
     func clearSecrets() { editor.clearSecrets() }
