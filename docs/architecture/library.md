@@ -22,9 +22,35 @@ The application captures a typed local selection from the current completed cata
 
 The normal application Library now owns a native folder picker and a cancellable catalog controller on each platform. Startup restores the saved folder; selection, refresh and search use the common Library presentation. Only completed, current scans replace the last stable snapshot. Replacing an in-flight scan with a failing request restores the preceding catalog rather than leaving the UI busy. Persistence failures leave the current folder usable and show a localized message. Close cancels pending publication and serialized store work cannot overwrite a newer selection out of order.
 
-The Library-to-WatchSession workflow captures the selected local media and its folder-access owner before starting playback. The watch owner retains that access independently of subsequent Library scans and selections until native release. Metadata/sidecar extraction and filesystem watching still require their application integration. On macOS, the access adapter renews stale/moved bookmarks while access is active and reports denied/corrupt grants. A saved path cannot silently replace a failed grant. Windows and Linux retain their own explicit folder selection and revalidate access after restart. These local grant records are separate from the preference/resume format, which deliberately contains no paths or permissions.
+The Library-to-WatchSession workflow captures the selected local media and its folder-access owner before starting playback. The watch owner retains that access independently of subsequent Library scans and selections until native release. Selected-file inspection is described below; sidecar extraction and filesystem watching still require their application integration. On macOS, the access adapter renews stale/moved bookmarks while access is active and reports denied/corrupt grants. A saved path cannot silently replace a failed grant. Windows and Linux retain their own explicit folder selection and revalidate access after restart. These local grant records are separate from the preference/resume format, which deliberately contains no paths or permissions.
 
-The shared Library presentation receives entries and observed capabilities. It performs no filesystem work and starts no media provider. Application controllers map actual catalog state and selection into that presentation; only the existing WatchSession owner allocates or releases playback generations. A completed scan supplies a new revision and immutable local file facts to the separate [room publisher](../room-client.md#local-catalog-publication). That owner converts them to path-free descriptors and publishes only while membership is connected. Scanning and catalog exchange do not enable shared playback or establish practical readiness.
+The shared Library presentation receives entries and observed capabilities. It performs no filesystem work and starts no media provider. Application controllers map actual catalog state and selection into that presentation; only the existing WatchSession owner allocates or releases watch playback generations. A completed scan supplies a new revision and immutable local file facts to the separate [room publisher](../room-client.md#local-catalog-publication). That owner converts them to path-free descriptors and publishes only while membership is connected. Scanning and catalog exchange do not enable shared playback or establish practical readiness.
+
+## Selected-file inspection
+
+The library packages define a metadata-reader port and validated local facts:
+optional duration, video dimensions and audio/embedded-subtitle track counts.
+They have no media-engine dependency. Each native application composes that
+port with one serialized, silent, paused VLC owner, separate from its watch
+player and synchronization helper. Inspection does not render video, play audio,
+start a watch or advance the catalog revision published to a room.
+
+A reader retains the selected folder grant, validates the loaded input against
+the catalog size and waits up to three seconds for native observations. Before
+returning facts it rechecks the loaded version and current filesystem size and
+modification time. Invalid, missing or observably changed media is unavailable;
+these checks do not claim an immutable snapshot or replace watch admission.
+Every success, failure and cancellation releases the native input. Application
+shutdown cancels and awaits inspection before closing its reusable VLC owner.
+
+Controllers cancel obsolete selections, serialize replacement reads and reject
+late results even when a provider ignores cancellation. Refresh and restart
+inspect the current selected file again. The common Apache-2.0 Design package
+owns loading/error copy and duration, resolution and no-subtitle formatting;
+applications supply raw observations only. Unavailable metadata stays inline
+and leaves the catalog usable. Named track selection, external subtitle
+association and duration caching in catalog rows remain separate integration
+work.
 
 ## Shared media preparation
 
