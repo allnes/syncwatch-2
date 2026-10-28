@@ -96,6 +96,11 @@ symlinks. New Linux directories are registered before reconciliation; lost event
 buffers invalidate the whole snapshot. These facilities are platform APIs and
 introduce no additional third-party library.
 
+Removal or renaming of the selected root ends its monitor with an unavailable
+invalidation. Windows and Linux additionally watch that name in its parent;
+an open directory handle alone can keep following a moved directory. A manual
+Refresh after the folder returns creates a new monitor and reconciles its contents.
+
 The application starts a candidate monitor before listing a new folder and adopts
 it only with the completed snapshot. It coalesces events, waits for an ongoing
 operation, and rescans under the current folder owner. An unchanged snapshot does
@@ -111,8 +116,8 @@ automatic room publication; paths and local track choices stay private.
 Each monitor retains its folder owner through shutdown. Choosing another folder
 invalidates the previous consumer; close cancels consumers, stops native sources
 and awaits their completion. Monitoring failures leave manual Refresh available
-with an explicit localized warning. The saved folder flag controls whether a
-monitor is created. Common Settings exposes subfolder scanning and automatic
+with an explicit localized warning. The effective refresh option controls whether
+a monitor is created. Common Settings exposes subfolder scanning and automatic
 refresh through the existing declarative fields. Their values persist atomically
 with appearance in local preferences and survive watch checkpoints. Missing
 values in older state files inherit the saved folder options until Settings saves
@@ -126,7 +131,7 @@ Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
 retains the live input; its Library presentation disables draft selectors for
-that same movie. External subtitle association remains separate integration work.
+that same movie.
 
 ## Whole-library duration observations
 

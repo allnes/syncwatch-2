@@ -64,6 +64,15 @@ suspend fun libraryRefreshChecks(owner: CoroutineScope) {
         val nested = second.resolve("deep/ignored.mkv"); Files.createDirectories(nested.parent); Files.writeString(nested, "fixture")
         next.rescan(); next.settled()
         check(next.presentation.entries.size == 4 && store.count() == writes)
+        val moved = scratch.resolve("moved")
+        Files.move(second, moved)
+        eventually { next.errorKey == "libraryUnavailable" }
+        Files.move(moved, second)
+        next.rescan(); next.settled()
+        check(next.errorKey == null && next.presentation.entries.size == 4)
+        Files.writeString(second.resolve("recovered.mp4"), "fixture")
+        eventually { next.presentation.entries.size == 5 }
+        check(store.count() == writes)
         next.closeAndWait(); check(next.presentation.enabledActions.isEmpty())
     } finally {
         model.closeAndWait(); restored?.closeAndWait()

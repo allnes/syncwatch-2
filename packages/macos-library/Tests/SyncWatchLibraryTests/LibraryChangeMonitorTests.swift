@@ -85,3 +85,35 @@ private actor MonitorEvents {
         }
     }
 }
+
+@Test func directoryMonitorReportsRemovedOrMovedRoot() async throws {
+    for moved in [false, true] {
+        let files = FileManager.default
+        let scratch = files.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let root = scratch.appendingPathComponent("selected")
+        try files.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? files.removeItem(at: scratch) }
+        let monitor = try LibraryChangeMonitor(root: root, recursive: true)
+        let events = MonitorEvents()
+        let observer = Task { for await event in monitor.changes { await events.receive(event) } }
+        do {
+            if moved {
+                try files.moveItem(at: root, to: scratch.appendingPathComponent("moved"))
+            } else {
+                try files.removeItem(at: root)
+            }
+            let deadline = ContinuousClock.now + .seconds(8)
+            while await !events.unavailable {
+                try #require(ContinuousClock.now < deadline, "Removed or moved root remained active")
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            #expect(!monitor.isActive)
+            monitor.close()
+            await observer.value
+        } catch {
+            monitor.close()
+            await observer.value
+            throw error
+        }
+    }
+}

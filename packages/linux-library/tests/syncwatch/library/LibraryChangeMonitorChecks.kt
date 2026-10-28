@@ -3,6 +3,7 @@ package syncwatch.library
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import syncwatch.ipc.Json
 
 suspend fun libraryChangeMonitorChecks(fixture: Path) {
@@ -39,6 +40,22 @@ suspend fun libraryChangeMonitorChecks(fixture: Path) {
         } finally {
             monitor.closeAndWait()
             root.toFile().deleteRecursively(); check(!Files.exists(root))
+        }
+    }
+    for (moved in listOf(false, true)) {
+        val scratch = Files.createTempDirectory("syncwatch-library-root-")
+        val root = Files.createDirectory(scratch.resolve("selected"))
+        val monitor = LibraryChangeMonitor.open(root, true)
+        try {
+            if (moved) Files.move(root, scratch.resolve("moved")) else Files.delete(root)
+            val unavailable = withTimeoutOrNull(8000) {
+                while (monitor.changes.receive() != LibraryMonitorEvent.unavailable) { }
+                true
+            }
+            check(unavailable == true && !monitor.isActive) { "library-monitor-root-timeout: moved=$moved" }
+        } finally {
+            monitor.closeAndWait()
+            scratch.toFile().deleteRecursively(); check(!Files.exists(scratch))
         }
     }
 }

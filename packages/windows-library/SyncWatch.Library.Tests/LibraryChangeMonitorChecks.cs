@@ -56,5 +56,28 @@ internal static class LibraryChangeMonitorChecks
             }
             finally { monitor.Dispose(); Directory.Delete(root, true); }
         }
+        foreach (bool moved in new[] { false, true })
+        {
+            string scratch = Path.Combine(Path.GetTempPath(), "syncwatch-library-root-" + Guid.NewGuid().ToString("N"));
+            string root = Path.Combine(scratch, "selected");
+            Directory.CreateDirectory(root);
+            using var monitor = new LibraryChangeMonitor(root, true);
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+            try
+            {
+                if (moved) Directory.Move(root, Path.Combine(scratch, "moved")); else Directory.Delete(root);
+                bool unavailable = false;
+                await foreach (var change in monitor.Changes(deadline.Token))
+                {
+                    if (change == LibraryMonitorEvent.Unavailable) { unavailable = true; break; }
+                }
+                if (!unavailable || monitor.IsActive) throw new InvalidOperationException("library-monitor-removed-root");
+            }
+            catch (OperationCanceledException error)
+            {
+                throw new InvalidOperationException($"library-monitor-root-timeout: moved={moved}", error);
+            }
+            finally { monitor.Dispose(); Directory.Delete(scratch, true); }
+        }
     }
 }

@@ -73,6 +73,15 @@ internal static class LibraryRefreshChecks
             string nested = Path.Combine(second, "deep/ignored.mkv"); Directory.CreateDirectory(Path.GetDirectoryName(nested)!); File.WriteAllText(nested, "fixture");
             restored.Rescan(); await restored.Settled;
             Require(restored.Presentation.Entries.Count == 4 && store.Count == writes);
+            string moved = Path.Combine(scratch, "moved");
+            Directory.Move(second, moved);
+            await Eventually(() => restored.ErrorKey == "libraryUnavailable");
+            Directory.Move(moved, second);
+            restored.Rescan(); await restored.Settled;
+            Require(restored.ErrorKey is null && restored.Presentation.Entries.Count == 4);
+            File.WriteAllText(Path.Combine(second, "recovered.mp4"), "fixture");
+            await Eventually(() => restored.Presentation.Entries.Count == 5);
+            Require(store.Count == writes);
             await restored.CloseAsync(); Require(restored.Presentation.EnabledActions.Count == 0);
         }
         finally

@@ -104,6 +104,16 @@ private final class RefreshAccessStore: LibraryAccessStore, @unchecked Sendable 
         next.rescan()
         await next.settled()
         #expect(next.presentation.entries.count == 4 && store.count == writes)
+        let moved = scratch.appendingPathComponent("moved")
+        try files.moveItem(at: second, to: moved)
+        try await refreshEventually { next.errorKey == "libraryUnavailable" }
+        try files.moveItem(at: moved, to: second)
+        next.rescan()
+        await next.settled()
+        #expect(next.errorKey == nil && next.presentation.entries.count == 4)
+        try Data("fixture".utf8).write(to: second.appendingPathComponent("recovered.mp4"))
+        try await refreshEventually { next.presentation.entries.count == 5 }
+        #expect(store.count == writes)
         await next.closeAndWait()
         #expect(next.presentation.enabledActions.isEmpty)
     } catch {

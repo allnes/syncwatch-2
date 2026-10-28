@@ -20,6 +20,7 @@ class LibraryChangeMonitor private constructor(private val root: Path, private v
     val changes: ReceiveChannel<LibraryMonitorEvent> get() = events
     val isActive: Boolean get() = !stopped.get() && !failed.get()
     private val directories = HashMap<WatchKey, Path>()
+    private var parentKey: WatchKey? = null
     private lateinit var worker: Thread
 
     private fun register(directory: Path) {
@@ -39,6 +40,18 @@ class LibraryChangeMonitor private constructor(private val root: Path, private v
         try {
             while (!stopped.get()) {
                 val key = service.take()
+                if (key == parentKey) {
+                    for (event in key.pollEvents()) {
+                        // A root handle follows a moved directory. Its selected name must
+                        // remain valid too; lost parent events lose that identity proof.
+                        if (event.kind() == StandardWatchEventKinds.OVERFLOW ||
+                            event.kind() == StandardWatchEventKinds.ENTRY_DELETE && event.context() == root.fileName) {
+                            throw java.io.IOException("library-watch-root")
+                        }
+                    }
+                    if (!key.reset()) throw java.io.IOException("library-watch-parent")
+                    continue
+                }
                 val directory = directories[key] ?: continue
                 for (event in key.pollEvents()) {
                     if (recursive && event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
@@ -60,15 +73,14 @@ class LibraryChangeMonitor private constructor(private val root: Path, private v
         } catch (_: Exception) {
             if (!stopped.get()) unavailable()
         } finally {
-            service.close()
-            events.close()
+            try { service.close() } finally { events.close() }
         }
     }
     private fun unavailable() { failed.set(true); events.trySend(LibraryMonitorEvent.unavailable) }
     override fun close() {
         if (stopped.compareAndSet(false, true)) service.close()
     }
-    suspend fun closeAndWait() = withContext(Dispatchers.IO) { close(); worker.join() }
+    suspend fun closeAndWait() = withContext(Dispatchers.IO) { try { close() } finally { worker.join() } }
 
     companion object {
         /** Create off the UI thread; recursive registration does not follow symlink directories. */
@@ -76,6 +88,7 @@ class LibraryChangeMonitor private constructor(private val root: Path, private v
             require(root.isAbsolute && Files.isDirectory(root)) { "library-watch-root" }
             val monitor = LibraryChangeMonitor(root.toRealPath(), recursive, root.fileSystem.newWatchService())
             try {
+                monitor.parentKey = monitor.root.parent?.register(monitor.service, StandardWatchEventKinds.ENTRY_DELETE)
                 if (recursive) monitor.registerTree(monitor.root) else monitor.register(monitor.root)
                 monitor.worker = thread(name = "SyncWatch.LibraryChanges", isDaemon = true) { monitor.run() }
                 return monitor
