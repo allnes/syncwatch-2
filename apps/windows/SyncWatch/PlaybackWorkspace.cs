@@ -147,14 +147,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                 PlaybackObservation value = await player.ObserveAsync(scope, cancellation.Token);
                 if (closing || cancellation.IsCancellationRequested) break;
                 if (value.Status == PlaybackStatus.Failed) throw new PlaybackException("media");
-                if (admissionPending && value.Status == PlaybackStatus.Ready)
-                {
-                    await tracks.ApplyInitialAsync(selection?.Tracks ?? new(), cancellation.Token);
-                    cancellation.Token.ThrowIfCancellationRequested();
-                    if (closing) break;
-                    admissionPending = false; onLoaded?.Invoke(scope);
-                    continue;
-                }
+                // Restore the local position before track acknowledgement and admission.
                 if (resumePending && value.Status == PlaybackStatus.Ready)
                 {
                     resumePending = false;
@@ -164,6 +157,14 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                         catch (PlaybackException) { /* The next actual observation remains authoritative. */ }
                         continue;
                     }
+                }
+                if (admissionPending && value.Status == PlaybackStatus.Ready)
+                {
+                    await tracks.ApplyInitialAsync(selection?.Tracks ?? new(), cancellation.Token);
+                    cancellation.Token.ThrowIfCancellationRequested();
+                    if (closing) break;
+                    admissionPending = false; onLoaded?.Invoke(scope);
+                    continue;
                 }
                 HashSet<string> enabled = NavigationActions; enabled.Add("playPause");
                 if (value.Seekable) enabled.UnionWith(["seek", "skip"]);

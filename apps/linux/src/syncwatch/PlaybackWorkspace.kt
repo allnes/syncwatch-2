@@ -135,13 +135,7 @@ internal class PlaybackController(
                 while (isActive && !closing) {
                     val value = player.observe(scope)
                     if (value.status == PlaybackStatus.failed) throw WatchFailure("media")
-                    if (admissionPending && value.status == PlaybackStatus.ready) {
-                        tracks.applyInitial(selection?.tracks ?: LocalTrackPreferences())
-                        ensureActive()
-                        if (closing) break
-                        admissionPending = false; loaded.complete(Unit); onLoaded?.invoke(scope)
-                        continue
-                    }
+                    // Restore the local position before track acknowledgement and admission.
                     if (resumePending && value.status == PlaybackStatus.ready) {
                         resumePending = false
                         if (value.seekable) {
@@ -150,6 +144,13 @@ internal class PlaybackController(
                             catch (_: Exception) { /* The next observation remains authoritative. */ }
                             continue
                         }
+                    }
+                    if (admissionPending && value.status == PlaybackStatus.ready) {
+                        tracks.applyInitial(selection?.tracks ?: LocalTrackPreferences())
+                        ensureActive()
+                        if (closing) break
+                        admissionPending = false; loaded.complete(Unit); onLoaded?.invoke(scope)
+                        continue
                     }
                     apply(value)
                     onObservation?.invoke(value)

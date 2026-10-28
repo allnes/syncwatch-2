@@ -21,3 +21,7 @@ off, and audio without streams submits no selection. Initial commands use the
 same observed acknowledgement path as live menus. Watch admission follows
 successful preparation, so an intended local choice cannot be advertised as
 ready while VLC still reports another track. See [Library ownership](library.md#selected-file-inspection).
+
+When opening a movie, the local playback owner restores its saved position before applying the captured library preferences. Both native track lists must match the metadata generation before either selection is submitted. Watch admission and transport controls follow actual selected-ID acknowledgement.
+
+A stream selected while paused can be acknowledged before its decoder consumes the demux refill. The common native adapter refills once at the actual local clock when playback resumes and clears this pending work when the input is released. This behavior belongs below the platform ports and emits no Syncplay seek intent. It requires output acceptance at a restored mid-movie position on every desktop; selected IDs alone are insufficient.
