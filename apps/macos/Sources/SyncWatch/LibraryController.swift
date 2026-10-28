@@ -43,6 +43,10 @@ private actor LibraryRecordIO {
     private var grant: LibraryFolderAccess?
     private var catalog: [String: LocalMediaFile] = [:]
     private var pending: Task<Void, Never>?
+    private var monitor: LibraryChangeMonitor?
+    private var monitorAccess: LibraryFolderAccess?
+    private var monitorID: UUID?
+    private var monitorTasks: [UUID: Task<Void, Never>] = [:]
     private var generation = UUID()
     private var closed = false
     private let metadata: (any MediaMetadataReading)?
@@ -67,7 +71,7 @@ private actor LibraryRecordIO {
     func choose(_ url: URL) {
         run { try await Task.detached { try LibraryFolderAccess.selected(url) }.value }
     }
-    func rescan() { if let grant { run { grant } } }
+    func rescan() { if let grant { run({ grant }, persistAccess: false) } }
     func select(_ id: String) {
         guard !closed else { return }
         presentation.dispatch("selectMovie", value: id) { _, _ in
@@ -106,6 +110,10 @@ private actor LibraryRecordIO {
         pending?.cancel()
         metadataTask?.cancel()
         metadataGeneration = UUID()
+        for task in monitorTasks.values { task.cancel() }
+        monitor?.close()
+        monitor = nil
+        monitorAccess = nil
         grant = nil
         catalog = [:]
         durations.clear()
@@ -114,9 +122,11 @@ private actor LibraryRecordIO {
     func settled() async { await pending?.value }
     func metadataSettled() async { await metadataTask?.value }
     func closeAndWait() async {
+        let monitors = Array(monitorTasks.values)
         close()
         await pending?.value
         await metadataTask?.value
+        for task in monitors { await task.value }
         await metadata?.close()
     }
 
@@ -196,17 +206,60 @@ private actor LibraryRecordIO {
         }
     }
 
-    private func run(_ acquire: @escaping @Sendable () async throws -> LibraryFolderAccess?) {
+    private func replaceMonitor(_ source: LibraryChangeMonitor?, access: LibraryFolderAccess) {
+        if let monitorID { monitorTasks[monitorID]?.cancel() }
+        monitor?.close()
+        monitor = source
+        monitorAccess = source == nil ? nil : access
+        guard let source else {
+            monitorID = nil
+            return
+        }
+        let id = UUID()
+        monitorID = id
+        monitorTasks[id] = Task { [weak self] in
+            defer {
+                source.close()
+                self?.monitorTasks.removeValue(forKey: id)
+                withExtendedLifetime(access) {}
+            }
+            do {
+                for await event in source.changes {
+                    try await Task.sleep(for: .milliseconds(300))
+                    await self?.pending?.value
+                    try Task.checkCancellation()
+                    guard let self, !closed, monitor === source else { return }
+                    run({ access }, automatic: true, persistAccess: false)
+                    await pending?.value
+                    if case .unavailable = event {
+                        if monitor === source { errorKey = errorKey ?? "libraryWatchFailed" }
+                        return
+                    }
+                }
+            } catch is CancellationError {} catch {
+                if let self, !closed, monitor === source { errorKey = "libraryWatchFailed" }
+            }
+        }
+    }
+
+    private func run(
+        _ acquire: @escaping @Sendable () async throws -> LibraryFolderAccess?, automatic: Bool = false,
+        persistAccess: Bool = true
+    ) {
         guard !closed else { return }
         pending?.cancel()
-        cancelMetadata()
+        if !automatic { cancelMetadata() }
         let token = UUID()
         generation = token
         let previous = stable ?? presentation
         stable = previous
-        errorKey = nil
-        presentation.state = .scanning
+        if !automatic {
+            errorKey = nil
+            presentation.state = .scanning
+        }
         pending = Task {
+            var candidate: LibraryChangeMonitor?
+            defer { candidate?.close() }
             do {
                 guard let next = try await acquire() else {
                     if generation == token {
@@ -216,10 +269,31 @@ private actor LibraryRecordIO {
                     return
                 }
                 try Task.checkCancellation()
+                let reuse =
+                    next.autoRefresh && monitor?.isActive == true && monitorAccess?.rootId == next.rootId
+                    && monitorAccess?.url == next.url && monitorAccess?.scanSubfolders == next.scanSubfolders
+                var watchFailed = false
+                if next.autoRefresh && !reuse {
+                    do {
+                        candidate = try await Task.detached {
+                            try LibraryChangeMonitor(root: next.url, recursive: next.scanSubfolders)
+                        }.value
+                    } catch { watchFailed = true }
+                }
+                try Task.checkCancellation()
                 let files = try await scanner.scan(
                     root: next.url, rootID: next.rootId, recursive: next.scanSubfolders)
                 try Task.checkCancellation()
                 guard generation == token, !closed else { return }
+                if automatic, Dictionary(uniqueKeysWithValues: files.map { ($0.id, $0) }) == catalog {
+                    if !reuse {
+                        replaceMonitor(candidate, access: next)
+                        candidate = nil
+                    }
+                    if watchFailed { errorKey = "libraryWatchFailed" }
+                    return
+                }
+                if automatic { cancelMetadata() }
                 let ordered = files.sorted { a, b in
                     let left = a.title.lowercased()
                     let right = b.title.lowercased()
@@ -234,8 +308,9 @@ private actor LibraryRecordIO {
                         folderMovie: $0.folderMovie)
                 }
                 let selected =
-                    [previous.selectedID, savedSelection].compactMap { $0 }.first { id in rows.contains { $0.id == id }
-                    } ?? rows.first?.id
+                    [automatic ? presentation.selectedID : previous.selectedID, savedSelection].compactMap { $0 }.first
+                { id in rows.contains { $0.id == id }
+                } ?? rows.first?.id
                 grant = next
                 catalog = Dictionary(uniqueKeysWithValues: files.map { ($0.id, $0) })
                 roomRevision = UUID()
@@ -243,6 +318,12 @@ private actor LibraryRecordIO {
                     state: rows.isEmpty ? .empty : .selected, entries: rows, selectedID: selected,
                     enabledActions: ["chooseFolder", "rescan", "search", "selectMovie", "openSettings"])
                 startMetadata()
+                if !reuse {
+                    replaceMonitor(candidate, access: next)
+                    candidate = nil
+                }
+                if watchFailed { errorKey = "libraryWatchFailed" }
+                guard persistAccess else { return }
                 if let record = next.record {
                     do { try await persistence.write(record) } catch is CancellationError {} catch {
                         if generation == token { errorKey = "librarySaveFailed" }
@@ -252,8 +333,10 @@ private actor LibraryRecordIO {
                 }
             } catch is CancellationError {} catch {
                 if generation == token, !closed {
-                    presentation = previous
-                    startMetadata()
+                    if !automatic {
+                        presentation = previous
+                        startMetadata()
+                    }
                     errorKey = "libraryUnavailable"
                 }
             }

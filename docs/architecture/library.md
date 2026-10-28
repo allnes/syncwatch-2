@@ -87,6 +87,30 @@ rescan or a different selection. Drafts reset on refresh, selection and restart;
 companions are not silently enabled. Paths, names and choices are excluded from
 peer metadata and Syncplay messages.
 
+## Directory change invalidation
+
+Native monitoring produces a bounded invalidation stream, never catalog entries.
+macOS uses FSEvents with physical path identities, Windows uses FileSystemWatcher,
+and Linux registers actual directories with WatchService without following child
+symlinks. New Linux directories are registered before reconciliation; lost event
+buffers invalidate the whole snapshot. These facilities are platform APIs and
+introduce no additional third-party library.
+
+The application starts a candidate monitor before listing a new folder and adopts
+it only with the completed snapshot. It coalesces events, waits for an ongoing
+operation, and rescans under the current folder owner. An unchanged snapshot does
+not reset track drafts or restart metadata inspection. A changed snapshot keeps
+the latest valid selection and publishes a new catalog revision. Automatic and
+manual rescans do not rewrite the access record, preventing notification loops
+when application state is stored inside the selected folder.
+
+Each monitor retains its folder owner through shutdown. Choosing another folder
+invalidates the previous consumer; close cancels consumers, stops native sources
+and awaits their completion. Monitoring failures leave manual Refresh available
+with an explicit localized warning. The saved folder flag controls whether a
+monitor is created. User-facing Library option editing and complete desktop
+change-recovery acceptance remain integration work.
+
 Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
@@ -150,5 +174,5 @@ This workflow is under qualification. Native controller/transport checks run
 on all three target operating systems. Metadata interruption, end bookkeeping,
 file completion and the complete directed playback matrix must pass actual
 application checks before the feature is qualified. Explicit edition
-confirmation, file watching and persistent digest-cache invalidation remain
+confirmation, user-facing Library options and persistent digest-cache invalidation remain
 integration work.

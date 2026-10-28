@@ -100,8 +100,9 @@ private final class LibraryEventSource: @unchecked Sendable {
                 continue
             }
             let path = String(cString: names[index])
-            guard path == root || path.hasPrefix(root + "/") else { continue }
-            let relative = path == root ? "" : String(path.dropFirst(root.count + 1))
+            let prefix = root == "/" ? root : root + "/"
+            guard path == root || path.hasPrefix(prefix) else { continue }
+            let relative = path == root ? "" : String(path.dropFirst(prefix.count))
             if recursive || !relative.contains("/") { sink.yield(.changed) }
         }
     }

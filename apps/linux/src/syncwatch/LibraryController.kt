@@ -14,6 +14,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -35,6 +37,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     }.toMap())
     private val durations = LibraryDurationCache()
     private var pending: Job? = null
+    private var monitor: LibraryChangeMonitor? = null
+    private var monitorAccess: LibraryFolderAccess? = null
+    private var monitorJob: Job? = null
     private var metadataTask: Job? = null
     private var metadataGeneration = 0L
     private var grant: LibraryFolderAccess? = null
@@ -60,7 +65,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         }
     }
     fun choose(path: Path) = start { withContext(Dispatchers.IO) { LibraryFolderAccess.selected(path) } }
-    fun rescan() { grant?.let { current -> start { current } } }
+    fun rescan() { grant?.let { current -> start(persistAccess = false) { current } } }
     fun select(id: String) {
         if (!closed) presentation.dispatch("selectMovie", id) { _, _ -> presentation = presentation.copy(selectedID = id); startMetadata() }
     }
@@ -84,7 +89,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     fun dismissTracks() { tracks = tracks.dismiss() }
     fun clearError() { errorKey = null }
     fun close() {
-        closed = true; tracks = tracks.reset(); generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel(); scope.cancel(); grant = null; catalog = emptyMap(); durations.clear()
+        closed = true; tracks = tracks.reset(); generation++; metadataGeneration++; pending?.cancel(); metadataTask?.cancel()
+        monitorJob?.cancel(); monitor?.close(); monitor = null; monitorAccess = null
+        scope.cancel(); grant = null; catalog = emptyMap(); durations.clear()
         presentation = presentation.copy(enabledActions = emptySet())
     }
     suspend fun settled() { pending?.join() }
@@ -147,36 +154,82 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         }
     }
     private suspend fun <T> storage(operation: () -> T): T = persistence.withLock { withContext(Dispatchers.IO) { operation() } }
-    private fun start(acquire: suspend () -> LibraryFolderAccess?) {
+    private fun replaceMonitor(source: LibraryChangeMonitor?, access: LibraryFolderAccess) {
+        monitorJob?.cancel(); monitor?.close()
+        monitor = source; monitorAccess = if (source == null) null else access
+        monitorJob = source?.let { owner -> scope.launch {
+            try {
+                for (event in owner.changes) {
+                    delay(300); pending?.join(); coroutineContext.ensureActive()
+                    if (closed || monitor !== owner) return@launch
+                    start(automatic = true, persistAccess = false) { access }
+                    pending?.join()
+                    if (event == LibraryMonitorEvent.unavailable) {
+                        if (monitor === owner) errorKey = errorKey ?: "libraryWatchFailed"
+                        return@launch
+                    }
+                }
+            } catch (_: CancellationException) { }
+            catch (_: Exception) { if (!closed && monitor === owner) errorKey = "libraryWatchFailed" }
+            finally {
+                withContext(NonCancellable) { owner.closeAndWait() }
+                java.lang.ref.Reference.reachabilityFence(access)
+            }
+        } }
+    }
+    private fun start(automatic: Boolean = false, persistAccess: Boolean = true, acquire: suspend () -> LibraryFolderAccess?) {
         if (closed) return
-        pending?.cancel(); cancelMetadata(); val current = ++generation
+        pending?.cancel(); if (!automatic) cancelMetadata(); val current = ++generation
         val previous = stable ?: presentation
         stable = previous
-        presentation = previous.copy(state = LibraryVisualState.scanning); errorKey = null
+        if (!automatic) { presentation = previous.copy(state = LibraryVisualState.scanning); errorKey = null }
         pending = scope.launch {
+            var candidate: LibraryChangeMonitor? = null
             try {
                 val next = acquire()
                 coroutineContext.ensureActive()
                 if (next == null) { if (generation == current) { presentation = previous; startMetadata() }; return@launch }
+                val reuse = next.record.autoRefresh && monitor?.isActive == true && monitorAccess?.rootId == next.rootId &&
+                    monitorAccess?.root == next.root && monitorAccess?.record?.scanSubfolders == next.record.scanSubfolders
+                var watchFailed = false
+                if (next.record.autoRefresh && !reuse) {
+                    try {
+                        candidate = withContext(Dispatchers.IO + NonCancellable) { LibraryChangeMonitor.open(next.root, next.record.scanSubfolders) }
+                    } catch (_: Exception) { watchFailed = true }
+                }
+                coroutineContext.ensureActive()
                 val files = scanner.scan(next.root, next.rootId, next.record.scanSubfolders)
                 coroutineContext.ensureActive()
                 if (closed || current != generation) return@launch
+                if (automatic && files.associateBy { it.id } == catalog) {
+                    if (!reuse) { replaceMonitor(candidate, next); candidate = null }
+                    if (watchFailed) errorKey = "libraryWatchFailed"
+                    return@launch
+                }
+                if (automatic) cancelMetadata()
                 fun compare(a: String, b: String) = java.util.Arrays.compareUnsigned(a.toByteArray(Charsets.UTF_8), b.toByteArray(Charsets.UTF_8))
                 durations.reconcile(files)
                 val rows = files.sortedWith { a, b -> compare(a.title.lowercase(), b.title.lowercase()).takeIf { it != 0 } ?: compare(a.relativePath, b.relativePath) }
                     .map { LibraryEntry(it.id, it.title, it.file.toString(), durations.duration(it), it.folderMovie) }
-                val selected = listOfNotNull(previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
+                val selected = listOfNotNull(if (automatic) presentation.selectedID else previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
                 catalog = files.associateBy { it.id }
                 roomRevision = java.util.UUID.randomUUID()
                 presentation = LibraryPresentation(if (rows.isEmpty()) LibraryVisualState.empty else LibraryVisualState.selected,
                     rows, selected, setOf("chooseFolder", "rescan", "search", "selectMovie", "openSettings"))
                 startMetadata()
+                if (!reuse) { replaceMonitor(candidate, next); candidate = null }
+                if (watchFailed) errorKey = "libraryWatchFailed"
+                if (!persistAccess) return@launch
                 try { storage { store.write(next.record) } }
                 catch (_: CancellationException) { }
                 catch (_: Exception) { if (current == generation) errorKey = "librarySaveFailed" }
             } catch (_: CancellationException) { }
-            catch (_: Exception) { if (!closed && current == generation) { presentation = previous; startMetadata(); errorKey = "libraryUnavailable" } }
+            catch (_: Exception) { if (!closed && current == generation) {
+                if (!automatic) { presentation = previous; startMetadata() }
+                errorKey = "libraryUnavailable"
+            } }
+            finally { withContext(NonCancellable) { candidate?.closeAndWait() } }
         }
     }
 }
