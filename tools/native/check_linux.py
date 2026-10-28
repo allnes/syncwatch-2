@@ -40,7 +40,7 @@ def main():
               "domain": domain,
               "blocked": json.loads((ROOT / "apps/linux/application.json").read_text())["blockedCapabilities"]}
     (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
-    print("Linux Kotlin domain/JVM checks passed; Compose application build and GUI acceptance remain incomplete")
+    print("Linux Kotlin domain/JVM checks passed; this command does not build or accept the desktop application")
 
 
 if __name__ == "__main__":

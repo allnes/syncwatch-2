@@ -27,8 +27,8 @@
     "libvlc"
   ],
   "blockedCapabilities": [
-    "complete JVM/application runtime distribution and native renderer desktop qualification",
-    "visible native video, fullscreen, DPI and focus acceptance on X11/XWayland",
-    "compiled desktop galleries and application acceptance"
+    "aggregate source-component readiness and release distribution qualification",
+    "complete DPI, focus and display-environment acceptance across X11/XWayland",
+    "complete interactive gallery and remaining application workflow acceptance"
   ]
 }
