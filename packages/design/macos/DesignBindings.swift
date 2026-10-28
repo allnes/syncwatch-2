@@ -48,6 +48,7 @@ enum DesignBindings {
         let entries = p.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }.map {
             DesignContext([
                 "id": $0.id, "title": $0.title, "selected": String($0.id == p.selectedID),
+                "folderMovie": String($0.folderMovie),
                 "rowDuration": $0.durationMs.flatMap { ms in
                     ms > 0
                         ? SyncWatchCopy.text("libraryRowDurationFormat", language: language)

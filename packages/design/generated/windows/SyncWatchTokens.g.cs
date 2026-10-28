@@ -1040,6 +1040,8 @@ public static class SyncWatchSelectionMenu
     public const string ExternalFileErrorID = "external-file-error";
     public const string ExternalFileErrorLabel = "externalTrackUnavailable";
     public static ExternalTrackFileFilter[] ExternalFileFilters => [new("audio", "openAudioTrack", ["aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav"]), new("subtitles", "openSubtitles", ["ass", "srt", "ssa", "sub", "vtt"])];
+    public const string CompanionFileLabel = "fileName";
+    public const string DuplicateCompanionFileLabel = "relativePath";
     public const int MaximumEntries = 500;
     public const int MaximumIDBytes = 128;
     public const int MaximumLabelBytes = 4096;
@@ -1051,7 +1053,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d";
+    public const string SourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -1202,6 +1204,8 @@ public static class SyncWatchLayouts
     {
         ["symbols.playMark"] = [[5,3,17,10,5,17]],
         ["symbols.chevronDown"] = [[0,0,20,0,10,20]],
+        ["symbols.libraryFolder"] = [[2,5,8,5,10,7,18,7,18,16,2,16]],
+        ["symbols.libraryMovie"] = [[2,3,4,3,4,17,2,17],[16,3,18,3,18,17,16,17],[4,3,16,3,16,5,4,5],[4,15,16,15,16,17,4,17],[8,7,13,10,8,13]],
         ["call.volume"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[14,5,16,5,18,10,16,15,14,15,16,10]],
         ["call.muted"] = [[2,7,6,7,11,3,11,17,6,13,2,13],[13,6,14,5,18,14,17,15],[17,5,18,6,14,15,13,14]],
         ["call.fullscreen"] = [[2,2,8,2,8,4,4,4,4,8,2,8],[12,2,18,2,18,8,16,8,16,4,12,4],[2,12,4,12,4,16,8,16,8,18,2,18],[16,12,18,12,18,18,12,18,12,16,16,16]],
@@ -1521,6 +1525,18 @@ public static class SyncWatchLayouts
             ["automation"] = "library.search",
             ["width"] = "fill",
         }, []);
+        var libraryMovieIcon = new DesignNode("libraryMovieIcon", "icon", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["name"] = "= $folderMovie symbols.libraryFolder symbols.libraryMovie if",
+            ["width"] = "@control.iconSize",
+            ["height"] = "@control.iconSize",
+            ["foreground"] = "theme.textSecondary",
+        }, []);
         var node81 = new DesignNode("node81", "text", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -1555,7 +1571,7 @@ public static class SyncWatchLayouts
             ["focusWidth"] = "@control.borderWidth",
             ["width"] = "fill",
             ["gap"] = "@layout.panelGap",
-        }, [node81, libraryMovieRowDuration]);
+        }, [libraryMovieIcon, node81, libraryMovieRowDuration]);
         var node82 = new DesignNode("node82", "button", new()
         {
             ["disabledOpacity"] = "0.4",

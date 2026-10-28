@@ -35,10 +35,25 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
         check(!closed)
         val audio = preferences.audioNames?.let { preferences.resolve(player.tracks(false, scope), false) }
         val subtitles = preferences.subtitleNames?.let { preferences.resolve(player.tracks(true, scope), true) }
+        val prepared = listOf(preferences.audioFile to false, preferences.subtitleFile to true).mapNotNull { (file, subtitles) ->
+            file?.let {
+                check(it.kind == if (subtitles) syncwatch.library.LibraryCompanionKind.subtitles else syncwatch.library.LibraryCompanionKind.audio)
+                Triple(it, it.open(), subtitles)
+            }
+        }
+        check(prepared.isEmpty() || player is PlaybackExternalTrackPort)
+        externalFiles.addAll(prepared.map { it.second })
         for ((id, isSubtitle) in listOf(audio to false, subtitles to true)) {
             if (id == null) continue
             check(!closed)
             acknowledge(id, isSubtitle)
+        }
+        for ((file, access, isSubtitle) in prepared) {
+            currentCoroutineContext().ensureActive(); check(!closed)
+            val previous = player.tracks(isSubtitle, scope).map { it.id }.toSet()
+            (player as PlaybackExternalTrackPort).attachTrack(access.file, isSubtitle, scope)
+            val id = attachment(isSubtitle, previous)
+            aliases[(if (isSubtitle) "subtitles" else "audio") to id] = file.file.fileName.toString()
         }
     }
     private suspend fun acknowledge(id: Int, subtitles: Boolean) {

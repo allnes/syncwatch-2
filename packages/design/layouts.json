@@ -306,6 +306,72 @@
         10,
         20
       ]
+    ],
+    "symbols.libraryFolder": [
+      [
+        2,
+        5,
+        8,
+        5,
+        10,
+        7,
+        18,
+        7,
+        18,
+        16,
+        2,
+        16
+      ]
+    ],
+    "symbols.libraryMovie": [
+      [
+        2,
+        3,
+        4,
+        3,
+        4,
+        17,
+        2,
+        17
+      ],
+      [
+        16,
+        3,
+        18,
+        3,
+        18,
+        17,
+        16,
+        17
+      ],
+      [
+        4,
+        3,
+        16,
+        3,
+        16,
+        5,
+        4,
+        5
+      ],
+      [
+        4,
+        15,
+        16,
+        15,
+        16,
+        17,
+        4,
+        17
+      ],
+      [
+        8,
+        7,
+        13,
+        10,
+        8,
+        13
+      ]
     ]
   },
   "components": {
@@ -638,6 +704,18 @@
                                         "gap": "@layout.panelGap"
                                       },
                                       "children": [
+                                        {
+                                          "id": "libraryMovieIcon",
+                                          "kind": "icon",
+                                          "styles": [],
+                                          "props": {
+                                            "name": "= $folderMovie symbols.libraryFolder symbols.libraryMovie if",
+                                            "width": "@control.iconSize",
+                                            "height": "@control.iconSize",
+                                            "foreground": "theme.textSecondary"
+                                          },
+                                          "children": []
+                                        },
                                         {
                                           "id": "node81",
                                           "kind": "text",

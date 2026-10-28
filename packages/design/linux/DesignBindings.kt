@@ -22,7 +22,7 @@ internal object DesignBindings {
         "namespace" to "library","query" to query,"entryCount" to p.entries.size.toString(),"filesLabel" to SyncWatchCopy.text("files",language),"hasEntries" to p.entries.isNotEmpty().toString(),
         "hasSelection" to (p.selected!=null).toString(),"selectedTitle" to p.selected?.title.orEmpty(),"selectedLocation" to p.selected?.location.orEmpty(),
         "emptyMessage" to if(p.state==LibraryVisualState.scanning)"scanning"else"empty","missingMedia" to (p.state==LibraryVisualState.missingMedia).toString(),"roomMessage" to if(p.roomStatus.isNotEmpty())p.roomStatus else if(p.state==LibraryVisualState.reconnecting)"reconnecting"else"disconnected"),
-        mapOf("entries" to p.entries.filter{query.isEmpty()||it.title.contains(query,ignoreCase=true)}.map{DesignContext(mapOf("id" to it.id,"title" to it.title,"selected" to (it.id==p.selectedID).toString(),
+        mapOf("entries" to p.entries.filter{query.isEmpty()||it.title.contains(query,ignoreCase=true)}.map{DesignContext(mapOf("id" to it.id,"title" to it.title,"folderMovie" to it.folderMovie.toString(),"selected" to (it.id==p.selectedID).toString(),
             "rowDuration" to (it.durationMs?.takeIf { ms -> ms > 0 }?.let { ms ->
                 SyncWatchCopy.text("libraryRowDurationFormat", language).replace("{hours}", (ms / 3_600_000).toString())
                     .replace("{minutes}", (ms / 60_000 % 60).toString().padStart(2, '0'))

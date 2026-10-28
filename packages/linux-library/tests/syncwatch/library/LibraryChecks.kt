@@ -11,6 +11,7 @@ import syncwatch.ipc.Json
 
 fun main(arguments: Array<String>) = runBlocking {
     libraryFileIndexChecks(Path.of(arguments.single()))
+    libraryCompanionScanChecks(Path.of(arguments.single()))
     mediaMetadataChecks()
     fileContentHasherChecks(Path.of(arguments.single()))
     @Suppress("UNCHECKED_CAST")

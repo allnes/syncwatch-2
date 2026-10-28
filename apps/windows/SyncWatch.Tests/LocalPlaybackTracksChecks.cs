@@ -6,6 +6,52 @@ using SyncWatch.Library;
 
 internal static class LocalPlaybackTracksChecks
 {
+    private static async Task CompanionPreselectionAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "syncwatch-companion-draft-" + Guid.NewGuid());
+        Directory.CreateDirectory(Path.Combine(root, "subs"));
+        try
+        {
+            foreach (string name in new[] { "Movie.mkv", "Movie.en.srt", "subs/Movie.en.srt", "Movie.wav" })
+                File.WriteAllText(Path.Combine(root, name.Replace('/', Path.DirectorySeparatorChar)), name);
+            var files = await new FileSystemLibrary(new Dictionary<string, LibraryCompanionKind> { ["srt"] = LibraryCompanionKind.Subtitles, ["wav"] = LibraryCompanionKind.Audio })
+                .ScanAsync(root, Guid.NewGuid().ToString("D"), true);
+            var movie = files.Single();
+            var metadata = new MediaMetadata(1000, 1, 1, 2, 2, ["First", "Second"], ["First", "Second"]);
+            var draft = new LibraryTrackSelection().Reset(metadata, movie.Companions).Open("subtitles", "en");
+            var menu = draft.Menu!;
+            var entries = menu.Entries.Where(e => e.Id.StartsWith("companion:", StringComparison.Ordinal)).ToArray();
+            Require(entries.Select(e => e.Label).SequenceEqual(new[] { "Movie.en.srt", "subs/Movie.en.srt" }));
+            SelectionMenuRequest? chosen = null;
+            menu.Dispatch(entries.Last().Id, menu.ContextToken, request => { chosen = request; draft = draft.Select(request); });
+            var preferences = draft.Preferences;
+            Require(preferences.SubtitleFile?.RelativePath == "subs/Movie.en.srt" && !draft.SubtitlesDisabled);
+            draft = draft.Reset(metadata).Select(chosen!);
+            Require(draft.Preferences.SubtitleFile is null && draft.SubtitlesDisabled);
+            var scope = PlaybackScope.Create().ReplacingMedia();
+            var player = new TrackPlayer { AutoAcknowledge = true };
+            var playback = new LocalPlaybackTracks(player, scope, () => { });
+            try
+            {
+                await playback.ApplyInitialAsync(preferences, default);
+                Require(player.Attachments == 1 && player.Selected == 3);
+                playback.Open("subtitles"); await playback.SettledAsync();
+                Require(playback.Menu is { SelectedID: "3" } observed && observed.Entries.Last().Label == "Movie.en.srt");
+            }
+            finally { await playback.CloseAsync(); playback.ReleaseExternalAccess(); }
+            var audio = movie.Companions.First(f => f.Kind == LibraryCompanionKind.Audio);
+            File.Delete(audio.File);
+            var rejected = new TrackPlayer(); var other = new LocalPlaybackTracks(rejected, scope, () => { });
+            try
+            {
+                bool failed = false;
+                try { await other.ApplyInitialAsync(preferences with { AudioFile = audio }, default); } catch (IOException) { failed = true; }
+                Require(failed && rejected.Attachments == 0 && rejected.Selections == 0);
+            }
+            finally { await other.CloseAsync(); other.ReleaseExternalAccess(); }
+        }
+        finally { Directory.Delete(root, true); }
+    }
     private static void Require(bool value) { if (!value) throw new InvalidOperationException("local track ownership"); }
     private static async Task Until(Func<bool> condition)
     {
@@ -14,6 +60,7 @@ internal static class LocalPlaybackTracksChecks
     }
     internal static async Task RunAsync()
     {
+        await CompanionPreselectionAsync();
         var player = new TrackPlayer(); var scope = PlaybackScope.Create().ReplacingMedia();
         var model = new LocalPlaybackTracks(player, scope, () => { });
         try

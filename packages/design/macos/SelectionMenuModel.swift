@@ -25,6 +25,14 @@ public struct SelectionMenuEntry: Sendable, Codable, Equatable {
         return Self(
             id: SyncWatchSelectionMenu.externalFileID, label: SyncWatchCopy.text(filter.label, language: language))
     }
+    public static func companionLabel(relativePath: String, duplicate: Bool, language: String) -> String {
+        let policy =
+            duplicate ? SyncWatchSelectionMenu.duplicateCompanionFileLabel : SyncWatchSelectionMenu.companionFileLabel
+        let label =
+            policy == "relativePath"
+            ? relativePath : relativePath.split(separator: "/").last.map(String.init) ?? relativePath
+        return observedLabel(label, language: language)
+    }
     public static func externalFileFailure(language: String) -> Self {
         Self(
             id: SyncWatchSelectionMenu.externalFileErrorID,

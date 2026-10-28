@@ -9,12 +9,14 @@ public struct LibraryEntry: Identifiable, Equatable, Sendable {
     public let title: String
     public let location: String
     public let durationMs: Int64?
+    public let folderMovie: Bool
 
-    public init(id: String, title: String, location: String, durationMs: Int64? = nil) {
+    public init(id: String, title: String, location: String, durationMs: Int64? = nil, folderMovie: Bool = false) {
         self.id = id
         self.title = title
         self.location = location
         self.durationMs = durationMs
+        self.folderMovie = folderMovie
     }
 }
 
@@ -53,7 +55,7 @@ public struct LibraryPresentation: Sendable {
         if action == "startWatching" { return state == .selected && selected != nil }
         if action == "openLibraryAudio" || action == "openLibrarySubtitles" {
             return state == .selected && selected != nil && !metadataLoading && !metadataUnavailable
-                && (action == "openLibraryAudio" ? metadataAudioName != nil : (metadataSubtitleTracks ?? 0) > 0)
+                && (action == "openLibraryAudio" ? (metadataAudioTracks ?? 0) > 0 : (metadataSubtitleTracks ?? 0) > 0)
         }
         if action == "selectMovie" || action == "search" { return state != .scanning }
         return true

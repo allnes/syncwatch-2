@@ -1,0 +1,45 @@
+{
+  "rootId": "6f6e52ba-9bb4-4a34-9b91-44b52bf58cf2",
+  "files": [
+    "Movie.Part.1.mkv",
+    "Movie.Part.1.en.srt",
+    "nested/Movie.Part.1.ru.srt",
+    "nested/Movie.Part.1.WAV",
+    "nested2/movie.part.1.lower.srt",
+    "nested/Other.mkv",
+    "dup/Movie.Part.1.mkv",
+    "one/Only.mkv",
+    "one/subs/unrelated.srt",
+    "two/Deep.mkv",
+    "two/a/b/unrelated.srt",
+    "Кино/Фильм.mkv",
+    "Кино/Фильм.en.srt",
+    "ignore.txt"
+  ],
+  "expected": {
+    "Movie.Part.1.mkv": [
+      "nested/Movie.Part.1.WAV",
+      "Movie.Part.1.en.srt",
+      "nested/Movie.Part.1.ru.srt"
+    ],
+    "dup/Movie.Part.1.mkv": [
+      "nested/Movie.Part.1.WAV",
+      "Movie.Part.1.en.srt",
+      "nested/Movie.Part.1.ru.srt"
+    ],
+    "Кино/Фильм.mkv": [
+      "Кино/Фильм.en.srt"
+    ]
+  },
+  "insensitiveExtra": "nested2/movie.part.1.lower.srt",
+  "folderMovies": [
+    "Movie.Part.1.mkv",
+    "nested/Other.mkv",
+    "one/Only.mkv",
+    "Кино/Фильм.mkv"
+  ],
+  "notFolderMovies": [
+    "dup/Movie.Part.1.mkv",
+    "two/Deep.mkv"
+  ]
+}

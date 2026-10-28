@@ -6,6 +6,69 @@ import Testing
 
 @testable import SyncWatch
 
+@MainActor @Test func libraryCompanionsKeepDistinctFilesAndApplyBeforeAdmission() async throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: root.appendingPathComponent("subs"), withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    for name in ["Movie.mkv", "Movie.en.srt", "subs/Movie.en.srt", "Movie.wav"] {
+        try Data(name.utf8).write(to: root.appendingPathComponent(name))
+    }
+    let files = try await FileSystemLibrary(companionExtensions: ["srt": .subtitles, "wav": .audio])
+        .scan(root: root, rootID: UUID().uuidString.lowercased(), recursive: true)
+    let movie = try #require(files.first)
+    let metadata = try MediaMetadata(
+        durationMs: 1000, width: 1, height: 1, audioTracks: 2, subtitleTracks: 2,
+        audioTrackNames: ["First", "Second"], subtitleTrackNames: ["First", "Second"])
+    var draft = LibraryTrackSelection()
+    draft.reset(metadata, companions: movie.companions)
+    draft.open("subtitles", language: "en")
+    let menu = try #require(draft.menu)
+    let entries = menu.entries.filter { $0.id.hasPrefix("companion:") }
+    #expect(entries.map(\.label) == ["Movie.en.srt", "subs/Movie.en.srt"])
+    var chosen: SelectionMenuRequest?
+    menu.dispatch(try #require(entries.last).id, contextToken: menu.contextToken) {
+        chosen = $0
+        draft.select($0)
+    }
+    let preferences = draft.preferences
+    #expect(preferences.subtitleFile?.relativePath == "subs/Movie.en.srt" && !draft.subtitlesDisabled)
+    draft.reset(metadata)
+    draft.select(try #require(chosen))
+    #expect(draft.preferences.subtitleFile == nil && draft.subtitlesDisabled)
+    let scope = try PlaybackScope.fresh().replacingMedia()
+    let player = TrackPlayer()
+    await player.acknowledgeAutomatically()
+    let playback = LocalPlaybackTracks(player: player, scope: { scope })
+    do {
+        try await playback.applyInitial(preferences)
+        #expect(await player.attachments == 1)
+        #expect(await player.selected == 3)
+        playback.open("subtitles")
+        await playback.settled()
+        #expect(playback.menu?.selectedID == "3" && playback.menu?.entries.last?.label == "Movie.en.srt")
+    } catch {
+        await playback.close()
+        playback.releaseExternalAccess()
+        throw error
+    }
+    await playback.close()
+    playback.releaseExternalAccess()
+    var invalid = preferences
+    let audio = try #require(movie.companions.first { $0.kind == .audio })
+    try FileManager.default.removeItem(at: audio.file)
+    invalid.audioFile = audio
+    let rejected = TrackPlayer()
+    let other = LocalPlaybackTracks(player: rejected, scope: { scope })
+    do {
+        try await other.applyInitial(invalid)
+        Issue.record("Missing companion admitted")
+    } catch {}
+    #expect(await rejected.attachments == 0)
+    #expect(await rejected.selections == 0)
+    await other.close()
+    other.releaseExternalAccess()
+}
+
 private actor TrackPlayer: PlaybackExternalTrackPort {
     enum Failure: Error { case rejected }
     var selected: Int32 = 1

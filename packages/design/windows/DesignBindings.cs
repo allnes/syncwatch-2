@@ -34,6 +34,7 @@ internal static class DesignBindings
                     {
                         ["id"] = e.Id,
                         ["title"] = e.Title,
+                        ["folderMovie"] = Flag(e.FolderMovie),
                         ["selected"] = Flag(e.Id == p.SelectedId),
                         ["rowDuration"] = e.DurationMs is long duration && duration > 0
                 ? SyncWatchCopy.Text("libraryRowDurationFormat", language).Replace("{hours}", (duration / 3_600_000).ToString(CultureInfo.InvariantCulture))

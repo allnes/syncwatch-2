@@ -38,11 +38,30 @@ import SyncWatchLibrary
             try preferences.subtitleNames == nil
             ? nil
             : preferences.resolve(try await player.tracks(subtitles: true, scope: scope), subtitles: true)
+        let files = [(preferences.audioFile, false), (preferences.subtitleFile, true)]
+        let prepared = try files.compactMap { file, subtitles -> (LocalCompanionFile, LocalFileAccess, Bool)? in
+            guard let file else { return nil }
+            guard file.kind == (subtitles ? .subtitles : .audio) else { throw Failure.unavailable }
+            return (file, try file.open(), subtitles)
+        }
+        guard prepared.isEmpty || player is any PlaybackExternalTrackPort else { throw Failure.unavailable }
+        // Retain every prepared grant before the first native borrower, including failed acknowledgements.
+        externalFiles.append(contentsOf: prepared.map { $0.1 })
         for (id, isSubtitle) in [(audio, false), (subtitles, true)] {
             guard let id else { continue }
             try Task.checkCancellation()
             guard !closed else { throw Failure.unavailable }
             try await acknowledge(id, subtitles: isSubtitle, scope: scope)
+        }
+        for (file, access, isSubtitle) in prepared {
+            try Task.checkCancellation()
+            guard !closed, activeScope() == scope, let external = player as? any PlaybackExternalTrackPort else {
+                throw Failure.unavailable
+            }
+            let previous = Set(try await player.tracks(subtitles: isSubtitle, scope: scope).map(\.id))
+            try await external.attachTrack(access.file, subtitles: isSubtitle, scope: scope)
+            let id = try await attachment(subtitles: isSubtitle, excluding: previous, scope: scope)
+            aliases[isSubtitle ? "subtitles" : "audio", default: [:]][id] = file.file.lastPathComponent
         }
     }
     private func acknowledge(_ id: Int32, subtitles: Bool, scope: PlaybackScope) async throws {
