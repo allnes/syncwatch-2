@@ -44,7 +44,7 @@ private actor TrackPlayer: PlaybackTrackControlPort {
     func close() {}
 }
 
-@MainActor private final class TrackScope { var value = PlaybackScope.fresh() }
+@MainActor private final class TrackScope { var value: PlaybackScope? = PlaybackScope.fresh() }
 
 @MainActor @Test func localTracksRequireAcknowledgementRejectStaleInputAndAwaitClose() async throws {
     let player = TrackPlayer()
@@ -58,7 +58,7 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         }
     }
     do {
-        scope.value = try scope.value.replacingMedia()
+        scope.value = try #require(scope.value).replacingMedia()
         model.open("audio")
         await model.settled()
         #expect(await player.lastScope == scope.value)
@@ -86,6 +86,14 @@ private actor TrackPlayer: PlaybackTrackControlPort {
         model.open("subtitles")
         await model.settled()
         #expect(model.menu?.isValid == true && model.menu?.kind == "subtitles")
+        let savedScope = scope.value
+        scope.value = nil
+        let reads = await player.reads
+        model.open("audio")
+        await model.settled()
+        #expect(model.menu?.isValid == false)
+        #expect(await player.reads == reads)
+        scope.value = savedScope
         await player.configure(hold: true)
         let before = await player.reads
         model.open("audio")

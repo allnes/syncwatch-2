@@ -4,16 +4,16 @@ import SyncWatchDomain
 
 /// One movie owns local track requests. Room state and Syncplay are not involved.
 @MainActor final class LocalPlaybackTracks: ObservableObject {
-    private enum Failure: Error { case timeout }
+    private enum Failure: Error { case timeout, unavailable }
     @Published private(set) var menu: SelectionMenuPresentation?
     private let player: any PlaybackTrackControlPort
-    private let activeScope: @MainActor () -> PlaybackScope
+    private let activeScope: @MainActor () -> PlaybackScope?
     private let sourceID = "tracks-" + UUID().uuidString
     private var revision: Int64 = 0
     private var work: Task<Void, Never>?
     private var closed = false
 
-    init(player: any PlaybackTrackControlPort, scope: @escaping @MainActor () -> PlaybackScope) {
+    init(player: any PlaybackTrackControlPort, scope: @escaping @MainActor () -> PlaybackScope?) {
         self.player = player
         self.activeScope = scope
     }
@@ -48,7 +48,7 @@ import SyncWatchDomain
             guard !Task.isCancelled else { return }
             do {
                 let subtitles = request.kind == "subtitles"
-                let scope = activeScope()
+                guard let scope = activeScope() else { throw Failure.unavailable }
                 try await player.selectTrack(id, subtitles: subtitles, scope: scope)
                 let deadline = ContinuousClock.now.advanced(by: .seconds(3))
                 while try await player.selectedTrack(subtitles: subtitles, scope: scope) != id {
@@ -61,7 +61,7 @@ import SyncWatchDomain
         }
     }
     private func snapshot(_ kind: String, revision: Int64) async throws -> SelectionMenuPresentation {
-        let scope = activeScope()
+        guard let scope = activeScope() else { throw Failure.unavailable }
         let subtitles = kind == "subtitles"
         let tracks = try await player.tracks(subtitles: subtitles, scope: scope)
         let selected = try await player.selectedTrack(subtitles: subtitles, scope: scope)

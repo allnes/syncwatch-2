@@ -30,7 +30,7 @@ struct LocalPlaybackLaunch {
     private var sharedAuthority: (@MainActor () -> Bool)?
     let player = VLCPlayback()
     private(set) var scope: PlaybackScope
-    private(set) lazy var tracks = LocalPlaybackTracks(player: player, scope: { [unowned self] in self.scope })
+    private(set) lazy var tracks = LocalPlaybackTracks(player: player, scope: { [weak self] in self?.scope })
     private let launch: LocalPlaybackLaunch
     private let runtime: VLCPlaybackRuntime?
     private var polling: Task<Void, Never>?
