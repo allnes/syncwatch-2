@@ -285,6 +285,11 @@ int sw_playback_seek(sw_playback *p, uint64_t generation, int64_t target) {
     int64_t duration = p->api.libvlc_media_player_get_length(p->player);
     if (target < 0 || duration < 0 || target > duration || target > INT64_C(604800000)) return SW_INVALID;
     if (!p->api.libvlc_media_player_is_seekable(p->player)) return SW_UNAVAILABLE;
+    /* A paused seek can discard packets for the selected streams just as a
+     * paused selection does. Rearm even after an earlier resume consumed the
+     * marker; connection setup may already have resumed this input once. */
+    if (p->api.libvlc_media_player_get_state(p->player) == libvlc_Paused)
+        p->refill_on_resume = 1;
     p->api.libvlc_media_player_set_time(p->player, target); return SW_OK;
 }
 int sw_playback_rate(sw_playback *p, uint64_t generation, double rate) {

@@ -24,6 +24,7 @@ def check_external_inputs(library, libvlc, revision, fixture, output):
         "sw_playback_attach_track": [handle, generation, ctypes.c_int, ctypes.c_char_p],
         "sw_playback_observe": [handle, generation, ctypes.POINTER(Observation)],
         "sw_playback_pause": [handle, generation, ctypes.c_int],
+        "sw_playback_seek": [handle, generation, ctypes.c_int64],
         "sw_playback_stop": [handle, generation],
         "sw_playback_tracks": [handle, generation, ctypes.c_int, ctypes.POINTER(ctypes.c_int32),
                                ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t)],
@@ -96,6 +97,27 @@ def check_external_inputs(library, libvlc, revision, fixture, output):
                 assert api.sw_playback_pause(player, scope, 1) == 0
                 assert selected_track(scope) == selected
                 ready(scope)
+                # The initial resume has already consumed selection refill.
+                # Exercise subsequent paused seeks in both directions using
+                # actual clock acknowledgements and native stream identities.
+                for target in (1500, 500):
+                    assert api.sw_playback_seek(player, scope, target) == 0
+                    until = time.monotonic() + 4
+                    while True:
+                        value = observe(scope)
+                        if value.status == 2 and value.paused and abs(value.position_ms - target) <= 100:
+                            break
+                        assert time.monotonic() < until, "Paused external-input seek did not settle"
+                        time.sleep(.02)
+                    assert api.sw_playback_pause(player, scope, 0) == 0
+                    until = time.monotonic() + 4
+                    while observe(scope).position_ms < target + 150:
+                        assert time.monotonic() < until, "External-input seek did not resume"
+                        time.sleep(.02)
+                    assert api.sw_playback_pause(player, scope, 1) == 0
+                    ready(scope)
+                    assert selected_track(scope) == selected
+                    selected_track(scope, False, (original_audio,))
                 if os.name == "nt":
                     try:
                         subtitle.write_bytes(b"replacement")
@@ -111,6 +133,7 @@ def check_external_inputs(library, libvlc, revision, fixture, output):
             proof.update(pausedAttachment=True, actualSelectedID=True, scopedGeneration=True,
                          localOnly=True, rejectedMissingInputPreservesWatch=True,
                          repeatedRelease=True, transportPreserved=True, externalAudioSelectedID=True)
+            proof["repeatedPausedSeekResumeKeepsExternalTracks"] = True
             if os.name != "nt":
                 assert api.sw_playback_load(player, 5, str(media).encode()) == 0
                 ready(5)
