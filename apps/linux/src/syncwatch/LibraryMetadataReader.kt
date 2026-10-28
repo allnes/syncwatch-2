@@ -39,9 +39,10 @@ internal class LibraryMetadataReader(private val media: MediaConfiguration) : Me
                 val value = player.observe(owner)
                 check(value.status != PlaybackStatus.failed) { "metadata-unavailable" }
                 if (value.status == PlaybackStatus.ready && !value.buffering) {
-                    val audio = player.tracks(false, owner).count { it.id >= 0 }
-                    val subtitles = player.tracks(true, owner).count { it.id >= 0 }
-                    result = MediaMetadata(value.durationMs, value.width, value.height, audio, subtitles)
+                    val audio = player.tracks(false, owner).filter { it.id >= 0 }
+                    val subtitles = player.tracks(true, owner).filter { it.id >= 0 }
+                    result = MediaMetadata(value.durationMs, value.width, value.height, audio.size, subtitles.size,
+                        audio.map { it.name }, subtitles.map { it.name })
                     if (value.durationMs != null && value.width > 0 && value.height > 0) break
                 }
                 delay(50)
