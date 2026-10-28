@@ -18,6 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.clip
@@ -226,12 +228,20 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
         "icon"->Canvas(frame){for(p in SyncWatchLayouts.assets[n.text("name")].orEmpty()){val path=Path();for(i in p.indices step 2){val x=p[i]/SyncWatchLayouts.coordinateSize*size.width;val y=p[i+1]/SyncWatchLayouts.coordinateSize*size.height;if(i==0)path.moveTo(x,y)else path.lineTo(x,y)};path.close();drawPath(path,designColor(n.text("foreground"),theme))}}
         "button"->{
           var anchor by remember { mutableStateOf(androidx.compose.ui.unit.IntRect.Zero) }
-          Box(modifier.onGloballyPositioned { anchor=it.boundsInWindow().roundToIntRect() }.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){
+          val presented=LocalDesignPresented.current
+          val currentPresented by rememberUpdatedState(presented)
+          val popupFocus=if(n.text("popoverSlot").isNotEmpty())remember { FocusRequester() } else null
+          var focusReturns by remember { mutableStateOf(0L) }
+          if(popupFocus!=null)LaunchedEffect(focusReturns) {
+              if(focusReturns>0 && currentPresented)popupFocus.requestFocus()
+          }
+          val focusModifier=if(popupFocus!=null)Modifier.focusRequester(popupFocus) else Modifier
+          Box(modifier.then(focusModifier).onGloballyPositioned { anchor=it.boundsInWindow().roundToIntRect() }.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){
             if(n.children.isEmpty())BasicText(n.props["text"]?:n.text("label"),style=textStyle(n,theme))else n.children.forEach{RenderDesignNode(it,theme,slots,onEvent)}
-            val presented=LocalDesignPresented.current
             LaunchedEffect(presented) { if(!presented && slots.containsKey(n.text("popoverSlot")))currentEvent(DesignEvent(n.text("popoverDismiss"))) }
             if(presented)slots[n.text("popoverSlot")]?.let { content ->
-                NativeDesignPopover(anchor,n.text("popoverEdge"),onDismiss={currentEvent(DesignEvent(n.text("popoverDismiss")))}) {
+                NativeDesignPopover(anchor,n.text("popoverEdge"),onDismiss={currentEvent(DesignEvent(n.text("popoverDismiss")))},
+                    onReturnFocus={if(currentPresented)focusReturns++}) {
                     Box { content() }
                 }
             }
