@@ -79,8 +79,11 @@ internal sealed record LibraryTrackSelection
             request.Action != menu.Definition?.Action) return this;
         var file = Companions.FirstOrDefault(f => "companion:" + f.Id == request.EntryID &&
             (f.Kind == LibraryCompanionKind.Audio ? "audio" : "subtitles") == request.Kind);
-        if (file is not null) return Dismiss() with { Preferences = request.Kind == "audio"
-            ? Preferences with { AudioFile = file, AudioIndex = null } : Preferences with { SubtitleFile = file, SubtitleIndex = null } };
+        if (file is not null) return Dismiss() with
+        {
+            Preferences = request.Kind == "audio"
+            ? Preferences with { AudioFile = file, AudioIndex = null } : Preferences with { SubtitleFile = file, SubtitleIndex = null }
+        };
         if (!int.TryParse(request.EntryID, System.Globalization.NumberStyles.Integer,
                 System.Globalization.CultureInfo.InvariantCulture, out int index)) return this;
         return Dismiss() with

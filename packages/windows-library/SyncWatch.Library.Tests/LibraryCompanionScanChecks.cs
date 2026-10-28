@@ -32,10 +32,13 @@ internal static class LibraryCompanionScanChecks
                 Require(file.Companions.All(f => f.Id != file.Id && f.SizeBytes > 0), "local-facts");
             }
             var movie = files.Single(f => f.RelativePath == "Movie.Part.1.mkv");
+            var durations = new LibraryDurationCache(); durations.Record(1000, movie);
             var subtitle = movie.Companions.First(f => f.Kind == LibraryCompanionKind.Subtitles);
             Require(subtitle.Open().File == subtitle.File, "open-current");
             File.WriteAllText(subtitle.File, "changed"); Reject(subtitle);
             var updated = await scanner.ScanAsync(root, id, true);
+            durations.Reconcile(updated);
+            Require(durations.Duration(updated.Single(f => f.Id == movie.Id)) == 1000, "companion-independent-duration");
             var next = updated.Single(f => f.Id == movie.Id).Companions.Single(f => f.Id == subtitle.Id);
             Require(next.SizeBytes == 7 && next != subtitle, "rescan-version");
             File.Delete(next.File); Reject(next);

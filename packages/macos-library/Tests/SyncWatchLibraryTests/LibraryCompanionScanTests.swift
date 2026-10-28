@@ -39,12 +39,16 @@ private struct CompanionScanCorpus: Decodable {
         #expect(file.companions.allSatisfy { $0.id != file.id && $0.sizeBytes > 0 })
     }
     let movie = try #require(files.first { $0.relativePath == "Movie.Part.1.mkv" })
+    var durations = LibraryDurationCache()
+    durations.record(1000, for: movie)
     let subtitle = try #require(movie.companions.first { $0.kind == .subtitles })
     let access = try subtitle.open()
     #expect(access.file.path == subtitle.file.standardizedFileURL.path)
     try Data("changed".utf8).write(to: subtitle.file)
     #expect(throws: CocoaError.self) { try subtitle.open() }
     let updated = try await scanner.scan(root: root, rootID: corpus.rootId, recursive: true)
+    durations.reconcile(updated)
+    #expect(durations.duration(for: try #require(updated.first { $0.id == movie.id })) == 1000)
     let next = try #require(updated.first { $0.id == movie.id }?.companions.first { $0.id == subtitle.id })
     #expect(next.sizeBytes == 7 && next != subtitle)
     try FileManager.default.removeItem(at: next.file)

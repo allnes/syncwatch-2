@@ -28,11 +28,16 @@ internal suspend fun libraryCompanionScanChecks(fixture: Path) {
             check(file.companions.all { it.id != file.id && it.sizeBytes > 0 })
         }
         val movie = files.single { it.relativePath == "Movie.Part.1.mkv" }
+        val durations = LibraryDurationCache().apply { record(1_000, movie) }
         val subtitle = movie.companions.first { it.kind == LibraryCompanionKind.subtitles }
         check(subtitle.open().file == subtitle.file)
         Files.writeString(subtitle.file, "changed")
         check(runCatching { subtitle.open() }.isFailure)
-        val next = scanner.scan(root, id, true).single { it.id == movie.id }.companions.single { it.id == subtitle.id }
+        val updated = scanner.scan(root, id, true)
+        durations.reconcile(updated)
+        val same = updated.single { it.id == movie.id }
+        check(durations.duration(same) == 1_000L)
+        val next = same.companions.single { it.id == subtitle.id }
         check(next.sizeBytes == 7L && next != subtitle)
         Files.delete(next.file); check(runCatching { next.open() }.isFailure)
         val flat = scanner.scan(root, id, false)
