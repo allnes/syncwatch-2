@@ -68,8 +68,12 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
     {
         dispatcher.VerifyAccess(); if (closed) return;
         Tracks = Tracks.Select(request);
-        Presentation = Presentation with { MetadataAudioName = Tracks.AudioName, MetadataSubtitleName = Tracks.SubtitleName,
-            MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled };
+        Presentation = Presentation with
+        {
+            MetadataAudioName = Tracks.AudioName,
+            MetadataSubtitleName = Tracks.SubtitleName,
+            MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled
+        };
         stable = Presentation; Changed?.Invoke();
     }
     public void DismissTracks() { if (Tracks.Menu is null) return; Tracks = Tracks.Dismiss(); Changed?.Invoke(); }
@@ -98,7 +102,9 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             MetadataHeight = 0,
             MetadataAudioTracks = null,
             MetadataSubtitleTracks = null,
-            MetadataAudioName = null, MetadataSubtitleName = null, MetadataSubtitlesDisabled = false,
+            MetadataAudioName = null,
+            MetadataSubtitleName = null,
+            MetadataSubtitlesDisabled = false,
             MetadataLoading = false,
             MetadataUnavailable = false
         };
@@ -147,7 +153,8 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                             MetadataAudioTracks = value.AudioTracks,
                             MetadataSubtitleTracks = value.SubtitleTracks,
                             MetadataLoading = false,
-                            MetadataAudioName = Tracks.AudioName, MetadataSubtitleName = Tracks.SubtitleName,
+                            MetadataAudioName = Tracks.AudioName,
+                            MetadataSubtitleName = Tracks.SubtitleName,
                             MetadataSubtitlesDisabled = Tracks.SubtitlesDisabled,
                             EnabledActions = new HashSet<string>(Presentation.EnabledActions.Concat(["openLibraryAudio", "openLibrarySubtitles"]))
                         };
