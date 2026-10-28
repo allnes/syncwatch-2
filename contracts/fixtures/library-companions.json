@@ -200,6 +200,42 @@
         "extras/stray.srt"
       ],
       "expected": []
+    },
+    {
+      "id": "directory-identity-is-not-a-name-match",
+      "caseSensitive": false,
+      "videos": [
+        "One/Film.mkv",
+        "one/Film.mkv"
+      ],
+      "audio": [
+        "One/Film.wav"
+      ],
+      "subtitles": [
+        "one/subs/Film.srt"
+      ],
+      "expected": [
+        {
+          "video": "One/Film.mkv",
+          "folder": true,
+          "audio": [
+            "One/Film.wav"
+          ],
+          "subtitles": [
+            "one/subs/Film.srt"
+          ]
+        },
+        {
+          "video": "one/Film.mkv",
+          "folder": true,
+          "audio": [
+            "One/Film.wav"
+          ],
+          "subtitles": [
+            "one/subs/Film.srt"
+          ]
+        }
+      ]
     }
   ],
   "invalidPaths": [

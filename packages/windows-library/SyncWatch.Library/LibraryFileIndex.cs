@@ -23,14 +23,14 @@ public sealed class LibraryFileIndex
                 throw new ArgumentException("library-relative-path");
         foreach (string movie in movies)
         {
-            string directory = Key(Directory(movie));
+            string directory = Directory(movie);
             videoCounts[directory] = videoCounts.GetValueOrDefault(directory) + 1;
         }
         foreach (string path in audioFiles.Concat(subtitleFiles))
         {
             string directory = Directory(path);
-            extraDirectories.Add(Key(directory));
-            if (directory.Length != 0) extraDirectories.Add(Key(Directory(directory)));
+            extraDirectories.Add(directory);
+            if (directory.Length != 0) extraDirectories.Add(Directory(directory));
         }
         var stems = movies.Select(Stem).ToHashSet();
         this.audio = Index(audioFiles, stems);
@@ -39,7 +39,7 @@ public sealed class LibraryFileIndex
     public bool IsFolderMovie(string video)
     {
         if (!videos.Contains(video)) return false;
-        string directory = Key(Directory(video));
+        string directory = Directory(video);
         return videoCounts.GetValueOrDefault(directory) == 1 && extraDirectories.Contains(directory);
     }
     public IReadOnlyList<string> AudioPaths(string video) => videos.Contains(video) ? audio.GetValueOrDefault(Stem(video)) ?? [] : [];

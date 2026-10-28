@@ -23,15 +23,15 @@ public struct LibraryFileIndex: Sendable {
         var counts: [String: Int] = [:]
         var stems: Set<String> = []
         for path in videos {
-            counts[key(Self.directory(path)), default: 0] += 1
+            counts[Self.directory(path), default: 0] += 1
             let name = Self.name(path)
             stems.insert(key(name.lastIndex(of: ".").map { String(name[..<$0]) } ?? name))
         }
         var extras: Set<String> = []
         for path in audio + subtitles {
             let directory = Self.directory(path)
-            extras.insert(key(directory))
-            if !directory.isEmpty { extras.insert(key(Self.directory(directory))) }
+            extras.insert(directory)
+            if !directory.isEmpty { extras.insert(Self.directory(directory)) }
         }
         func index(_ paths: [String]) -> [String: [String]] {
             var result: [String: [String]] = [:]
@@ -56,7 +56,7 @@ public struct LibraryFileIndex: Sendable {
     }
     public func isFolderMovie(_ video: String) -> Bool {
         guard videos.contains(video) else { return false }
-        let directory = key(Self.directory(video))
+        let directory = Self.directory(video)
         return videoCounts[directory] == 1 && extraDirectories.contains(directory)
     }
     public func audioPaths(for video: String) -> [String] { videos.contains(video) ? audio[stem(video)] ?? [] : [] }

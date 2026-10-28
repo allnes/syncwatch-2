@@ -13,11 +13,11 @@ class LibraryFileIndex(videos: List<String>, audio: List<String>, subtitles: Lis
         for (path in videos + audio + subtitles)
             require(path.isNotEmpty() && !path.startsWith('/') && '\u0000' !in path &&
                 path.split('/').all { it.isNotEmpty() && it != "." && it != ".." }) { "library-relative-path" }
-        videoCounts = videos.groupingBy { key(directory(it)) }.eachCount()
+        videoCounts = videos.groupingBy { directory(it) }.eachCount()
         val stems = videos.map { stem(it) }.toSet()
         extraDirectories = (audio + subtitles).flatMap {
             val folder = directory(it)
-            if (folder.isEmpty()) listOf("") else listOf(key(folder), key(directory(folder)))
+            if (folder.isEmpty()) listOf("") else listOf(folder, directory(folder))
         }.toSet()
         fun index(paths: List<String>): Map<String, List<String>> {
             val result = HashMap<String, MutableList<String>>()
@@ -36,7 +36,7 @@ class LibraryFileIndex(videos: List<String>, audio: List<String>, subtitles: Lis
     }
     fun isFolderMovie(video: String): Boolean {
         if (video !in videoPaths) return false
-        val folder = key(directory(video))
+        val folder = directory(video)
         return videoCounts[folder] == 1 && folder in extraDirectories
     }
     fun audioPaths(video: String): List<String> = if (video in videoPaths) audioIndex[stem(video)] ?: emptyList() else emptyList()
