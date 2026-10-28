@@ -36,3 +36,9 @@ It disables Compose's default process-exit shortcut: application, playback,
 metadata and toolkit owners must finish disposal before process termination.
 A closed window alone is insufficient acceptance; the owned process must exit
 normally and its helper and temporary resources must be absent.
+
+### Admission conflict feedback
+
+A changed room epoch or watch generation invalidates the frozen Start intent. All three application coordinators retain that rejection and present the common Design `sharedWatchRoomChanged` message, asking the user to end the attempt, review the selected movie and start again. They never adopt a newer selection or retry a metadata command automatically. Identity rejection keeps its own recovery message.
+
+Failure diagnostics contain only a fixed coordinator stage and a common Design failure key. They never serialize exception text, local paths, media descriptors, member identities or room credentials. Diagnostics classify an observed failure; they do not authorize playback or replace generation and media-agreement checks.

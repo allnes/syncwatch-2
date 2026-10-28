@@ -593,6 +593,8 @@ public enum SyncWatchCopy {
             "sharedWatchConnected": "Shared playback connected",
             "sharedWatchFailed":
                 "Shared playback stopped. Check that you selected the same file and that the connection is available, then try Start again.",
+            "sharedWatchRoomChanged":
+                "The room changed while preparing playback. End this attempt, check the selected movie, then press Start again.",
             "sharedWatchIdentityRejected":
                 "Syncplay changed your name. Leave the room and reconnect with a shorter or different name.",
             "metadataLoading": "Reading movie information…",
@@ -829,6 +831,8 @@ public enum SyncWatchCopy {
             "sharedWatchConnected": "Совместный просмотр подключён",
             "sharedWatchFailed":
                 "Совместный просмотр остановлен. Проверьте, что выбран тот же файл и соединение доступно, затем повторите запуск.",
+            "sharedWatchRoomChanged":
+                "Комната изменилась во время подготовки просмотра. Завершите эту попытку, проверьте выбранный фильм и повторите запуск.",
             "sharedWatchIdentityRejected":
                 "Syncplay изменил ваше имя. Выйдите из комнаты и подключитесь с более коротким или другим именем.",
             "metadataLoading": "Чтение сведений о фильме…",
