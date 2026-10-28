@@ -15,7 +15,9 @@ internal sealed record LibraryMediaSelection(LocalMediaFile Media, LibraryFolder
 /// <summary>Application state; filesystem, access, persistence and design retain independent owners.</summary>
 internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher dispatcher, string? selectedId = null, IMediaMetadataReader? metadata = null) : IDisposable
 {
-    private readonly FileSystemLibrary scanner = new();
+    private readonly FileSystemLibrary scanner = new(SyncWatchSelectionMenu.ExternalFileFilters.SelectMany(filter =>
+        filter.Extensions.Select(extension => (Extension: extension, Kind: filter.Kind == "audio" ? LibraryCompanionKind.Audio : LibraryCompanionKind.Subtitles)))
+        .ToDictionary(item => item.Extension, item => item.Kind));
     private readonly LibraryDurationCache durations = new();
     private readonly SemaphoreSlim persistence = new(1, 1);
     private CancellationTokenSource? pending;
@@ -144,14 +146,14 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
                     PublishDuration(value.DurationMs, file);
                     if (selected)
                     {
-                        Tracks = Tracks.Reset(value);
+                        Tracks = Tracks.Reset(value, file.Companions);
                         Presentation = Presentation with
                         {
                             MetadataDurationMs = value.DurationMs,
                             MetadataWidth = value.Width,
                             MetadataHeight = value.Height,
-                            MetadataAudioTracks = value.AudioTracks,
-                            MetadataSubtitleTracks = value.SubtitleTracks,
+                            MetadataAudioTracks = value.AudioTracks + file.Companions.Count(f => f.Kind == LibraryCompanionKind.Audio),
+                            MetadataSubtitleTracks = value.SubtitleTracks + file.Companions.Count(f => f.Kind == LibraryCompanionKind.Subtitles),
                             MetadataLoading = false,
                             MetadataAudioName = Tracks.AudioName,
                             MetadataSubtitleName = Tracks.SubtitleName,
@@ -201,7 +203,7 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
             var utf8 = Comparer<string>.Create((a, b) => Encoding.UTF8.GetBytes(a).AsSpan().SequenceCompareTo(Encoding.UTF8.GetBytes(b)));
             durations.Reconcile(files);
             var rows = files.OrderBy(x => x.Title.ToLowerInvariant(), utf8).ThenBy(x => x.RelativePath, utf8)
-                .Select(x => new LibraryEntry(x.Id, x.Title, x.File, durations.Duration(x))).ToArray();
+                .Select(x => new LibraryEntry(x.Id, x.Title, x.File, durations.Duration(x), x.FolderMovie)).ToArray();
             string? selected = new[] { previous.SelectedId, selectedId }.FirstOrDefault(id => id is not null && rows.Any(x => x.Id == id)) ?? rows.FirstOrDefault()?.Id;
             var nextCatalog = files.ToDictionary(x => x.Id);
             grant = next; catalog = nextCatalog; RoomRevision = Guid.NewGuid(); Presentation = new()

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "6fd00a76f78ee0aa77eb3ecdfd60fa8ad642f0695505032ccfa702dbc5113dd6",
+  "sourceDigest": "030ebb7caf09b9faccbf236c5d0d312bb2e1e6200311b951231136b7358649b4",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -13,11 +13,11 @@
     "player.json": "a9b59d7eeee2dafb534266ad8d4cf6f0a2a89811fe574c23bf17ef716b237ffc",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "selection-menu.json": "f1c2c4a3e227f5da5eb8f294e397fb1b22d9da0cbf00ec402c1a950957f242bb",
-    "layouts.json": "d693c29e3b6c9cfb14a8c167e3549421acb4ed40f9e8acdfd41c56dbde6b89fb",
+    "selection-menu.json": "0b6851adeac9fc0d0598f73a0f7543cac09061f9399d24f50d004d96ea83729f",
+    "layouts.json": "2093b7db0fe553ee2a67fc310a9f139a7380ffc83711c52208147014e6718d22",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "3535ff047c501e54ddbce309b0a57b074db9200f7036e4b6003118702ae9876d",
+  "generatorRevision": "080b61beaab764af86e33df0fce56c3cc9ec021dd9be390a046e7ec85bc6572f",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -33,7 +33,7 @@
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
       "tools/design/layout-formats.mjs": "28ff7a4da70b4364fc28ba1069f8bc497642150f7d7154c7f03189cee7566c6b",
       "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
-      "tools/design/selection-menu-formats.mjs": "babadadc7fb945d2f4198a6c7eb063b572bd4016916cf5c8cca1b4ee35d19db0"
+      "tools/design/selection-menu-formats.mjs": "d0618702c1f375179b86f66fd0d27ca9425fb9535f5aff6b6cf0c6f0a75b9abb"
     },
     "sourceRevisions": {
       "3rdparty/style-dictionary": "745264a62d01037581c6654fb4ac66bb3d245f07",
@@ -2200,7 +2200,11 @@
             "vtt"
           ]
         }
-      ]
+      ],
+      "libraryLabels": {
+        "normal": "fileName",
+        "duplicate": "relativePath"
+      }
     }
   },
   "layouts": {
@@ -2510,6 +2514,72 @@
           0,
           10,
           20
+        ]
+      ],
+      "symbols.libraryFolder": [
+        [
+          2,
+          5,
+          8,
+          5,
+          10,
+          7,
+          18,
+          7,
+          18,
+          16,
+          2,
+          16
+        ]
+      ],
+      "symbols.libraryMovie": [
+        [
+          2,
+          3,
+          4,
+          3,
+          4,
+          17,
+          2,
+          17
+        ],
+        [
+          16,
+          3,
+          18,
+          3,
+          18,
+          17,
+          16,
+          17
+        ],
+        [
+          4,
+          3,
+          16,
+          3,
+          16,
+          5,
+          4,
+          5
+        ],
+        [
+          4,
+          15,
+          16,
+          15,
+          16,
+          17,
+          4,
+          17
+        ],
+        [
+          8,
+          7,
+          13,
+          10,
+          8,
+          13
         ]
       ]
     },
@@ -2843,6 +2913,18 @@
                                           "gap": "@layout.panelGap"
                                         },
                                         "children": [
+                                          {
+                                            "id": "libraryMovieIcon",
+                                            "kind": "icon",
+                                            "styles": [],
+                                            "props": {
+                                              "name": "= $folderMovie symbols.libraryFolder symbols.libraryMovie if",
+                                              "width": "@control.iconSize",
+                                              "height": "@control.iconSize",
+                                              "foreground": "theme.textSecondary"
+                                            },
+                                            "children": []
+                                          },
                                           {
                                             "id": "node81",
                                             "kind": "text",

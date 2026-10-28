@@ -1,5 +1,7 @@
 package syncwatch
 
+import syncwatch.design.SyncWatchSelectionMenu
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +30,9 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
     private val scope = CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]))
     private val persistence = Mutex()
     private val metadataSerial = Mutex()
-    private val scanner = FileSystemLibrary()
+    private val scanner = FileSystemLibrary(SyncWatchSelectionMenu.externalFileFilters.flatMap { filter ->
+        filter.extensions.map { it to (if (filter.kind == "audio") syncwatch.library.LibraryCompanionKind.audio else syncwatch.library.LibraryCompanionKind.subtitles) }
+    }.toMap())
     private val durations = LibraryDurationCache()
     private var pending: Job? = null
     private var metadataTask: Job? = null
@@ -121,10 +125,10 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                             if (closed || current != metadataGeneration) return@launch
                             publishDuration(value.durationMs, file)
                             if (selected) {
-                                tracks = tracks.reset(value)
+                                tracks = tracks.reset(value, file.companions)
                                 presentation = presentation.copy(metadataDurationMs = value.durationMs, metadataWidth = value.width,
-                                    metadataHeight = value.height, metadataAudioTracks = value.audioTracks,
-                                    metadataSubtitleTracks = value.subtitleTracks, metadataLoading = false,
+                                    metadataHeight = value.height, metadataAudioTracks = value.audioTracks + file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.audio },
+                                    metadataSubtitleTracks = value.subtitleTracks + file.companions.count { it.kind == syncwatch.library.LibraryCompanionKind.subtitles }, metadataLoading = false,
                                     metadataAudioName = tracks.audioName, metadataSubtitleName = tracks.subtitleName,
                                     metadataSubtitlesDisabled = tracks.subtitlesDisabled,
                                     enabledActions = presentation.enabledActions + setOf("openLibraryAudio", "openLibrarySubtitles"))
@@ -160,7 +164,7 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
                 fun compare(a: String, b: String) = java.util.Arrays.compareUnsigned(a.toByteArray(Charsets.UTF_8), b.toByteArray(Charsets.UTF_8))
                 durations.reconcile(files)
                 val rows = files.sortedWith { a, b -> compare(a.title.lowercase(), b.title.lowercase()).takeIf { it != 0 } ?: compare(a.relativePath, b.relativePath) }
-                    .map { LibraryEntry(it.id, it.title, it.file.toString(), durations.duration(it)) }
+                    .map { LibraryEntry(it.id, it.title, it.file.toString(), durations.duration(it), it.folderMovie) }
                 val selected = listOfNotNull(previous.selectedID, savedSelection).firstOrNull { id -> rows.any { it.id == id } } ?: rows.firstOrNull()?.id
                 grant = next
                 catalog = files.associateBy { it.id }

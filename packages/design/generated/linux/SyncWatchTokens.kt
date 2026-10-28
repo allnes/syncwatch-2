@@ -853,6 +853,8 @@ object SyncWatchSelectionMenu {
     const val externalFileErrorID = "external-file-error"
     const val externalFileErrorLabel = "externalTrackUnavailable"
     val externalFileFilters = listOf(ExternalTrackFileFilter("audio", "openAudioTrack", listOf("aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav")), ExternalTrackFileFilter("subtitles", "openSubtitles", listOf("ass", "srt", "ssa", "sub", "vtt")))
+    const val companionFileLabel = "fileName"
+    const val duplicateCompanionFileLabel = "relativePath"
     const val maximumEntries = 500
     const val maximumIDBytes = 128
     const val maximumLabelBytes = 4096
@@ -863,7 +865,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d"
+    const val sourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -1027,6 +1029,8 @@ object SyncWatchLayouts {
     val assets = mapOf(
         "symbols.playMark" to listOf(listOf(5.0f, 3.0f, 17.0f, 10.0f, 5.0f, 17.0f)),
         "symbols.chevronDown" to listOf(listOf(0.0f, 0.0f, 20.0f, 0.0f, 10.0f, 20.0f)),
+        "symbols.libraryFolder" to listOf(listOf(2.0f, 5.0f, 8.0f, 5.0f, 10.0f, 7.0f, 18.0f, 7.0f, 18.0f, 16.0f, 2.0f, 16.0f)),
+        "symbols.libraryMovie" to listOf(listOf(2.0f, 3.0f, 4.0f, 3.0f, 4.0f, 17.0f, 2.0f, 17.0f), listOf(16.0f, 3.0f, 18.0f, 3.0f, 18.0f, 17.0f, 16.0f, 17.0f), listOf(4.0f, 3.0f, 16.0f, 3.0f, 16.0f, 5.0f, 4.0f, 5.0f), listOf(4.0f, 15.0f, 16.0f, 15.0f, 16.0f, 17.0f, 4.0f, 17.0f), listOf(8.0f, 7.0f, 13.0f, 10.0f, 8.0f, 13.0f)),
         "call.volume" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(14.0f, 5.0f, 16.0f, 5.0f, 18.0f, 10.0f, 16.0f, 15.0f, 14.0f, 15.0f, 16.0f, 10.0f)),
         "call.muted" to listOf(listOf(2.0f, 7.0f, 6.0f, 7.0f, 11.0f, 3.0f, 11.0f, 17.0f, 6.0f, 13.0f, 2.0f, 13.0f), listOf(13.0f, 6.0f, 14.0f, 5.0f, 18.0f, 14.0f, 17.0f, 15.0f), listOf(17.0f, 5.0f, 18.0f, 6.0f, 14.0f, 15.0f, 13.0f, 14.0f)),
         "call.fullscreen" to listOf(listOf(2.0f, 2.0f, 8.0f, 2.0f, 8.0f, 4.0f, 4.0f, 4.0f, 4.0f, 8.0f, 2.0f, 8.0f), listOf(12.0f, 2.0f, 18.0f, 2.0f, 18.0f, 8.0f, 16.0f, 8.0f, 16.0f, 4.0f, 12.0f, 4.0f), listOf(2.0f, 12.0f, 4.0f, 12.0f, 4.0f, 16.0f, 8.0f, 16.0f, 8.0f, 18.0f, 2.0f, 18.0f), listOf(16.0f, 12.0f, 18.0f, 12.0f, 18.0f, 18.0f, 12.0f, 18.0f, 12.0f, 16.0f, 16.0f, 16.0f)),
@@ -1324,6 +1328,17 @@ object SyncWatchLayouts {
             "automation" to "library.search",
             "width" to "fill",
         ), listOf())
+        val libraryMovieIcon = DesignNode("libraryMovieIcon", "icon", mapOf(
+            "disabledOpacity" to "0.4",
+            "pressedOpacity" to "0.75",
+            "focusBorder" to "theme.accentSoft",
+            "hoverBorder" to "theme.accent",
+            "focusWidth" to "@control.borderWidth",
+            "name" to "= \$folderMovie symbols.libraryFolder symbols.libraryMovie if",
+            "width" to "@control.iconSize",
+            "height" to "@control.iconSize",
+            "foreground" to "theme.textSecondary",
+        ), listOf())
         val node81 = DesignNode("node81", "text", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",
@@ -1355,7 +1370,7 @@ object SyncWatchLayouts {
             "focusWidth" to "@control.borderWidth",
             "width" to "fill",
             "gap" to "@layout.panelGap",
-        ), listOf(node81, libraryMovieRowDuration))
+        ), listOf(libraryMovieIcon, node81, libraryMovieRowDuration))
         val node82 = DesignNode("node82", "button", mapOf(
             "disabledOpacity" to "0.4",
             "pressedOpacity" to "0.75",

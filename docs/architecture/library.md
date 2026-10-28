@@ -59,6 +59,34 @@ the inspector are discarded; the new playback input must expose the same ordered
 raw names before an ordinal resolves to its own current ID. A changed/reordered
 list rejects admission rather than silently choosing a different stream.
 
+## Local companion files
+
+The application supplies the scanner with audio/subtitle extensions from the
+common Design file-filter description. The filesystem module has no Design
+dependency. A completed scan indexes regular files only, preserving root-relative
+identities, sizes and modification times. Symlink entries are excluded. Multiple
+dot-separated filename prefixes can associate a companion across scanned folders;
+duplicate basenames retain distinct paths and deterministic UTF-8 ordering.
+
+Matching follows each movie directory's observed naming behavior. A read-only
+alternate-case lookup of the known video extension determines case sensitivity;
+an exactly enumerated alternate entry remains a distinct file. The implementation
+does not infer filesystem behavior from the operating system or write probe files.
+Folder identity retains its exact scanned spelling. A directory containing one
+video is presented as a movie folder when an audio/subtitle file is present there
+or one directory level below it.
+
+Library menus combine fresh embedded names and associated local companions.
+Common Design policy shows a filename normally and a relative path when names
+would be ambiguous. Selection stores the companion's scan identity and version,
+never a native track ID. Start freezes the draft with the folder grant, validates
+both embedded lists and every selected companion before issuing track commands,
+then attaches files and waits for actual enumerated selected IDs before admission.
+Missing or changed files reject that Start and leave the Library available for
+rescan or a different selection. Drafts reset on refresh, selection and restart;
+companions are not silently enabled. Paths, names and choices are excluded from
+peer metadata and Syncplay messages.
+
 Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue

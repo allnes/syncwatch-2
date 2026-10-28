@@ -15,6 +15,11 @@ public sealed record SelectionMenuEntry(string Id, string Label, bool Enabled = 
         var filter = SyncWatchSelectionMenu.ExternalFileFilters.FirstOrDefault(item => item.Kind == kind);
         return filter is null ? null : new(SyncWatchSelectionMenu.ExternalFileID, SyncWatchCopy.Text(filter.Label, language));
     }
+    public static string CompanionLabel(string relativePath, bool duplicate, string language)
+    {
+        string policy = duplicate ? SyncWatchSelectionMenu.DuplicateCompanionFileLabel : SyncWatchSelectionMenu.CompanionFileLabel;
+        return ObservedLabel(policy == "relativePath" ? relativePath : relativePath.Split('/').Last(), language);
+    }
     public static SelectionMenuEntry ExternalFileFailure(string language) =>
         new(SyncWatchSelectionMenu.ExternalFileErrorID, SyncWatchCopy.Text(SyncWatchSelectionMenu.ExternalFileErrorLabel, language), Enabled: false);
 }

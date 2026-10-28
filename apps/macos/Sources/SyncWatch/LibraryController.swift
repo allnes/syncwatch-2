@@ -31,7 +31,12 @@ private actor LibraryRecordIO {
     @Published var errorKey: String?
     @Published private(set) var roomRevision = UUID()
     var roomFiles: [LocalMediaFile] { catalog.values.sorted { $0.id < $1.id } }
-    private let scanner = FileSystemLibrary()
+    private let scanner = FileSystemLibrary(
+        companionExtensions: Dictionary(
+            uniqueKeysWithValues:
+                SyncWatchSelectionMenu.externalFileFilters.flatMap { filter in
+                    filter.extensions.map { ($0, filter.kind == "audio" ? LibraryCompanionKind.audio : .subtitles) }
+                }))
     private var durations = LibraryDurationCache()
     private let persistence: LibraryRecordIO
     private var stable: LibraryPresentation?
@@ -134,7 +139,9 @@ private actor LibraryRecordIO {
         durations.record(value, for: file)
         presentation.entries = presentation.entries.map { row in
             row.id == file.id
-                ? LibraryEntry(id: row.id, title: row.title, location: row.location, durationMs: value) : row
+                ? LibraryEntry(
+                    id: row.id, title: row.title, location: row.location, durationMs: value,
+                    folderMovie: row.folderMovie) : row
         }
     }
     private func startMetadata() {
@@ -166,10 +173,12 @@ private actor LibraryRecordIO {
                         presentation.metadataDurationMs = value.durationMs
                         presentation.metadataWidth = value.width
                         presentation.metadataHeight = value.height
-                        presentation.metadataAudioTracks = value.audioTracks
-                        presentation.metadataSubtitleTracks = value.subtitleTracks
+                        presentation.metadataAudioTracks =
+                            value.audioTracks + file.companions.filter { $0.kind == .audio }.count
+                        presentation.metadataSubtitleTracks =
+                            value.subtitleTracks + file.companions.filter { $0.kind == .subtitles }.count
                         presentation.metadataLoading = false
-                        tracks.reset(value)
+                        tracks.reset(value, companions: file.companions)
                         presentation.enabledActions.formUnion(["openLibraryAudio", "openLibrarySubtitles"])
                         applyTrackSelection()
                     }
@@ -221,7 +230,8 @@ private actor LibraryRecordIO {
                 durations.reconcile(files)
                 let rows = ordered.map {
                     LibraryEntry(
-                        id: $0.id, title: $0.title, location: $0.file.path, durationMs: durations.duration(for: $0))
+                        id: $0.id, title: $0.title, location: $0.file.path, durationMs: durations.duration(for: $0),
+                        folderMovie: $0.folderMovie)
                 }
                 let selected =
                     [previous.selectedID, savedSelection].compactMap { $0 }.first { id in rows.contains { $0.id == id }

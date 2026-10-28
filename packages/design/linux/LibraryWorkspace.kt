@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 // Source-only renderer until the pinned Compose/compiler/native graph is buildable.
 // Foundation primitives deliberately avoid an additional Material theme dependency.
 enum class LibraryVisualState { empty, scanning, selected, missingMedia, reconnecting }
-data class LibraryEntry(val id: String, val title: String, val location: String, val durationMs: Long? = null)
+data class LibraryEntry(val id: String, val title: String, val location: String, val durationMs: Long? = null, val folderMovie: Boolean = false)
 data class LibraryPresentation(
     val state: LibraryVisualState = LibraryVisualState.empty,
     val entries: List<LibraryEntry> = emptyList(),
@@ -31,7 +31,7 @@ data class LibraryPresentation(
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchCopy.libraryActions && when (action) {
         "startWatching" -> state == LibraryVisualState.selected && selected != null
         "openLibraryAudio", "openLibrarySubtitles" -> state == LibraryVisualState.selected && selected != null &&
-            !metadataLoading && !metadataUnavailable && (if (action == "openLibraryAudio") metadataAudioName != null else (metadataSubtitleTracks ?: 0) > 0)
+            !metadataLoading && !metadataUnavailable && (if (action == "openLibraryAudio") (metadataAudioTracks ?: 0) > 0 else (metadataSubtitleTracks ?: 0) > 0)
         "selectMovie", "search" -> state != LibraryVisualState.scanning
         else -> true
     }

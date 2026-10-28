@@ -14,6 +14,10 @@ data class SelectionMenuEntry(val id: String, val label: String, val enabled: Bo
         fun externalFileFailure(language: String) = SelectionMenuEntry(
             SyncWatchSelectionMenu.externalFileErrorID,
             SyncWatchCopy.text(SyncWatchSelectionMenu.externalFileErrorLabel, language), enabled = false)
+        fun companionLabel(relativePath: String, duplicate: Boolean, language: String): String {
+            val policy = if (duplicate) SyncWatchSelectionMenu.duplicateCompanionFileLabel else SyncWatchSelectionMenu.companionFileLabel
+            return observedLabel(if (policy == "relativePath") relativePath else relativePath.substringAfterLast('/'), language)
+        }
     }
 }
 data class SelectionMenuRequest(

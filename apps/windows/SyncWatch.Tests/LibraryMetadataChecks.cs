@@ -22,12 +22,12 @@ internal static class LibraryMetadataChecks
             var value = new MediaMetadata(60_000, 64, 48, 1, 0);
             reader.Complete(value); await reader.Entered(2);
             Require(model.Presentation.SelectedId == last && model.Presentation.MetadataDurationMs is null);
-            reader.Fail(); await reader.Entered(3); reader.Complete(value); await model.MetadataSettled;
+            reader.Fail(); await reader.Entered(3); reader.Complete(value); await model.MetadataSettled.WaitAsync(TimeSpan.FromSeconds(2));
             Require(model.Presentation.Entries.First().DurationMs == 60_000 && model.Presentation.Entries.Last().DurationMs is null);
             Require(model.Presentation.MetadataUnavailable && !model.Presentation.MetadataLoading && model.ErrorKey is null);
             Require(model.RoomRevision == revision && model.SelectedMedia()?.Media.Id == last);
             model.Rescan(); await model.Settled; await reader.Entered(4);
-            reader.Complete(value); await model.MetadataSettled; Require(reader.Calls == 4);
+            reader.Complete(value); await model.MetadataSettled.WaitAsync(TimeSpan.FromSeconds(2)); Require(reader.Calls == 4);
             Require(model.Presentation.MetadataDurationMs == 60_000 && model.Presentation.MetadataAudioTracks == 1 &&
                 model.Presentation.MetadataSubtitleTracks == 0 && !model.Presentation.MetadataUnavailable);
             File.WriteAllText(Path.Combine(root, "A.mkv"), "changed fixture");

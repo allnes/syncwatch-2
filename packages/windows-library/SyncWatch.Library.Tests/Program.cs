@@ -2,6 +2,8 @@ using System.Text.Json;
 using SyncWatch.Library;
 
 MediaMetadataChecks.Run();
+LibraryFileIndexChecks.Run(args.Single());
+await LibraryCompanionScanChecks.RunAsync(args.Single());
 await FileContentHasherTests.RunAsync(args.Single());
 
 using var corpus = JsonDocument.Parse(File.ReadAllBytes(args.Single()));

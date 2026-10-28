@@ -2102,6 +2102,8 @@ public enum SyncWatchSelectionMenu {
             kind: "subtitles", label: "openSubtitles",
             extensions: ["ass", "srt", "ssa", "sub", "vtt"]),
     ]
+    public static let companionFileLabel = "fileName"
+    public static let duplicateCompanionFileLabel = "relativePath"
     public static let maximumEntries = 500
     public static let maximumIDBytes = 128
     public static let maximumLabelBytes = 4096
@@ -2119,7 +2121,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "b7cbbbc04da334a8d82e166ae8e98b02649b1e370196873764f0aa78cb9c886d"
+    public static let sourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -2302,6 +2304,72 @@ public enum SyncWatchLayouts {
                 10,
                 20,
             ]
+        ],
+        "symbols.libraryFolder": [
+            [
+                2,
+                5,
+                8,
+                5,
+                10,
+                7,
+                18,
+                7,
+                18,
+                16,
+                2,
+                16,
+            ]
+        ],
+        "symbols.libraryMovie": [
+            [
+                2,
+                3,
+                4,
+                3,
+                4,
+                17,
+                2,
+                17,
+            ],
+            [
+                16,
+                3,
+                18,
+                3,
+                18,
+                17,
+                16,
+                17,
+            ],
+            [
+                4,
+                3,
+                16,
+                3,
+                16,
+                5,
+                4,
+                5,
+            ],
+            [
+                4,
+                15,
+                16,
+                15,
+                16,
+                17,
+                4,
+                17,
+            ],
+            [
+                8,
+                7,
+                13,
+                10,
+                8,
+                13,
+            ],
         ],
         "call.volume": [
             [
@@ -3448,6 +3516,20 @@ public enum SyncWatchLayouts {
                 "width": "fill",
             ],
             children: [])
+        let libraryMovieIcon = DesignNode(
+            id: "libraryMovieIcon", kind: "icon",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "name": "= $folderMovie symbols.libraryFolder symbols.libraryMovie if",
+                "width": "@control.iconSize",
+                "height": "@control.iconSize",
+                "foreground": "theme.textSecondary",
+            ],
+            children: [])
         let node81 = DesignNode(
             id: "node81", kind: "text",
             props: [
@@ -3488,7 +3570,7 @@ public enum SyncWatchLayouts {
                 "width": "fill",
                 "gap": "@layout.panelGap",
             ],
-            children: [node81, libraryMovieRowDuration])
+            children: [libraryMovieIcon, node81, libraryMovieRowDuration])
         let node82 = DesignNode(
             id: "node82", kind: "button",
             props: [

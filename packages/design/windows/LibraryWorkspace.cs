@@ -4,7 +4,7 @@ namespace SyncWatch.Design;
 
 public enum LibraryVisualState { Empty, Scanning, Selected, MissingMedia, Reconnecting }
 
-public sealed record LibraryEntry(string Id, string Title, string Location, long? DurationMs = null);
+public sealed record LibraryEntry(string Id, string Title, string Location, long? DurationMs = null, bool FolderMovie = false);
 
 // Presentation/capabilities only: no filesystem, media engine, call or network dependency.
 public sealed record LibraryPresentation
@@ -30,7 +30,7 @@ public sealed record LibraryPresentation
     {
         "startWatching" => State == LibraryVisualState.Selected && Selected is not null,
         "openLibraryAudio" or "openLibrarySubtitles" => State == LibraryVisualState.Selected && Selected is not null &&
-            !MetadataLoading && !MetadataUnavailable && (action == "openLibraryAudio" ? MetadataAudioName is not null : MetadataSubtitleTracks > 0),
+            !MetadataLoading && !MetadataUnavailable && (action == "openLibraryAudio" ? MetadataAudioTracks > 0 : MetadataSubtitleTracks > 0),
         "selectMovie" or "search" => State != LibraryVisualState.Scanning,
         _ => true,
     });

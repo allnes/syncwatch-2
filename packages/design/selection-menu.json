@@ -64,6 +64,10 @@
           "vtt"
         ]
       }
-    ]
+    ],
+    "libraryLabels": {
+      "normal": "fileName",
+      "duplicate": "relativePath"
+    }
   }
 }

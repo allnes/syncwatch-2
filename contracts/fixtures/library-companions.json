@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "folder-extras-one-level",
+      "caseSensitive": true,
+      "videos": [
+        "one/film.mkv",
+        "two/film.mkv"
+      ],
+      "audio": [
+        "one/audio/commentary.flac"
+      ],
+      "subtitles": [
+        "two/extras/deeper/film.srt"
+      ],
+      "expected": [
+        {
+          "video": "one/film.mkv",
+          "folder": true,
+          "audio": [],
+          "subtitles": [
+            "two/extras/deeper/film.srt"
+          ]
+        },
+        {
+          "video": "two/film.mkv",
+          "folder": false,
+          "audio": [],
+          "subtitles": [
+            "two/extras/deeper/film.srt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multiple-dots-global-duplicates",
+      "caseSensitive": false,
+      "videos": [
+        "one/a.mkv",
+        "two/A.B.mp4",
+        ".mkv"
+      ],
+      "audio": [],
+      "subtitles": [
+        "elsewhere/a.b.en.srt",
+        "elsewhere/A.RU.srt",
+        "other/a.b.en.srt",
+        "ab.srt",
+        ".en.srt"
+      ],
+      "expected": [
+        {
+          "video": "one/a.mkv",
+          "folder": false,
+          "audio": [],
+          "subtitles": [
+            "elsewhere/A.RU.srt",
+            "elsewhere/a.b.en.srt",
+            "other/a.b.en.srt"
+          ]
+        },
+        {
+          "video": "two/A.B.mp4",
+          "folder": false,
+          "audio": [],
+          "subtitles": [
+            "elsewhere/a.b.en.srt",
+            "other/a.b.en.srt"
+          ]
+        },
+        {
+          "video": ".mkv",
+          "folder": true,
+          "audio": [],
+          "subtitles": [
+            ".en.srt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sensitive-name-rules",
+      "caseSensitive": true,
+      "videos": [
+        "Film.mkv"
+      ],
+      "audio": [
+        "film.en.wav"
+      ],
+      "subtitles": [
+        "film.en.srt",
+        "Film.RU.srt"
+      ],
+      "expected": [
+        {
+          "video": "Film.mkv",
+          "folder": true,
+          "audio": [],
+          "subtitles": [
+            "Film.RU.srt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "insensitive-name-rules",
+      "caseSensitive": false,
+      "videos": [
+        "Film.mkv"
+      ],
+      "audio": [
+        "film.en.wav"
+      ],
+      "subtitles": [
+        "film.en.srt",
+        "Film.RU.srt"
+      ],
+      "expected": [
+        {
+          "video": "Film.mkv",
+          "folder": true,
+          "audio": [
+            "film.en.wav"
+          ],
+          "subtitles": [
+            "Film.RU.srt",
+            "film.en.srt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unicode-and-distinct-paths",
+      "caseSensitive": false,
+      "videos": [
+        "Кино/Фильм.映画.mkv"
+      ],
+      "audio": [
+        "Звук/фильм.映画.English.WAV"
+      ],
+      "subtitles": [
+        "Субтитры/ФИЛЬМ.映画.srt",
+        "Другие/ФИЛЬМ.映画.srt"
+      ],
+      "expected": [
+        {
+          "video": "Кино/Фильм.映画.mkv",
+          "folder": false,
+          "audio": [
+            "Звук/фильм.映画.English.WAV"
+          ],
+          "subtitles": [
+            "Другие/ФИЛЬМ.映画.srt",
+            "Субтитры/ФИЛЬМ.映画.srt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "several-videos-prevent-folder-status",
+      "caseSensitive": true,
+      "videos": [
+        "one/film.mkv",
+        "one/other.mp4"
+      ],
+      "audio": [
+        "one/film.commentary.flac"
+      ],
+      "subtitles": [
+        "one/subs/film.en.srt"
+      ],
+      "expected": [
+        {
+          "video": "one/film.mkv",
+          "folder": false,
+          "audio": [
+            "one/film.commentary.flac"
+          ],
+          "subtitles": [
+            "one/subs/film.en.srt"
+          ]
+        },
+        {
+          "video": "one/other.mp4",
+          "folder": false,
+          "audio": [],
+          "subtitles": []
+        }
+      ]
+    },
+    {
+      "id": "empty-snapshot",
+      "caseSensitive": true,
+      "videos": [],
+      "audio": [
+        "extras/stray.wav"
+      ],
+      "subtitles": [
+        "extras/stray.srt"
+      ],
+      "expected": []
+    },
+    {
+      "id": "directory-identity-is-not-a-name-match",
+      "caseSensitive": false,
+      "videos": [
+        "One/Film.mkv",
+        "one/Film.mkv"
+      ],
+      "audio": [
+        "One/Film.wav"
+      ],
+      "subtitles": [
+        "one/subs/Film.srt"
+      ],
+      "expected": [
+        {
+          "video": "One/Film.mkv",
+          "folder": true,
+          "audio": [
+            "One/Film.wav"
+          ],
+          "subtitles": [
+            "one/subs/Film.srt"
+          ]
+        },
+        {
+          "video": "one/Film.mkv",
+          "folder": true,
+          "audio": [
+            "One/Film.wav"
+          ],
+          "subtitles": [
+            "one/subs/Film.srt"
+          ]
+        }
+      ]
+    }
+  ],
+  "invalidPaths": [
+    "",
+    "/absolute.mkv",
+    "../escape.mkv",
+    "nested/../escape.mkv",
+    "a//film.mkv",
+    "./film.mkv",
+    "a/./film.mkv",
+    "film\u0000.mkv"
+  ]
+}

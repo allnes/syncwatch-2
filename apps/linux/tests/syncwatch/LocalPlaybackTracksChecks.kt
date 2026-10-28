@@ -101,6 +101,7 @@ private suspend fun externalTrackFileChecks(owner: CoroutineScope) {
 }
 
 internal suspend fun localPlaybackTracksChecks(owner: CoroutineScope) {
+    companionPreselectionChecks(owner)
     val player = TrackPlayer(); val scope = PlaybackScope.fresh().replacingMedia()
     val model = LocalPlaybackTracks(player, scope, owner)
     suspend fun until(condition: () -> Boolean) = withTimeout(2_000) { while (!condition()) delay(5) }
@@ -136,4 +137,41 @@ internal suspend fun localPlaybackTracksChecks(owner: CoroutineScope) {
     } finally { player.release(); model.close() }
     externalTrackFileChecks(owner)
     println("SYNCWATCH_LOCAL_TRACKS_OK acknowledgement, stale input, late completion, retry, awaited close")
+}
+
+private suspend fun companionPreselectionChecks(owner: CoroutineScope) {
+    val root = Files.createTempDirectory("syncwatch-companion-draft-")
+    try {
+        Files.createDirectories(root.resolve("subs"))
+        for (name in listOf("Movie.mkv", "Movie.en.srt", "subs/Movie.en.srt", "Movie.wav")) Files.writeString(root.resolve(name), name)
+        val movie = syncwatch.library.FileSystemLibrary(mapOf("srt" to syncwatch.library.LibraryCompanionKind.subtitles,
+            "wav" to syncwatch.library.LibraryCompanionKind.audio)).scan(root, java.util.UUID.randomUUID().toString(), true).single()
+        val metadata = syncwatch.library.MediaMetadata(1_000, 1, 1, 2, 2, listOf("First", "Second"), listOf("First", "Second"))
+        var draft = LibraryTrackSelection().reset(metadata, movie.companions).open("subtitles", "en")
+        val menu = checkNotNull(draft.menu)
+        val entries = menu.entries.filter { it.id.startsWith("companion:") }
+        check(entries.map { it.label } == listOf("Movie.en.srt", "subs/Movie.en.srt"))
+        var chosen: SelectionMenuRequest? = null
+        menu.dispatch(entries.last().id, menu.contextToken) { chosen = it; draft = draft.select(it) }
+        val preferences = draft.preferences
+        check(preferences.subtitleFile?.relativePath == "subs/Movie.en.srt" && !draft.subtitlesDisabled)
+        draft = draft.reset(metadata).select(checkNotNull(chosen))
+        check(draft.preferences.subtitleFile == null && draft.subtitlesDisabled)
+        val scope = PlaybackScope.fresh().replacingMedia()
+        val player = TrackPlayer().apply { autoAcknowledge = true }
+        val playback = LocalPlaybackTracks(player, scope, owner)
+        try {
+            playback.applyInitial(preferences)
+            check(player.attachments == 1 && player.selected == 3)
+            playback.open("subtitles"); playback.settled()
+            check(playback.menu?.selectedID == "3" && playback.menu?.entries?.last()?.label == "Movie.en.srt")
+        } finally { playback.close(); playback.releaseExternalAccess() }
+        val audio = movie.companions.first { it.kind == syncwatch.library.LibraryCompanionKind.audio }
+        Files.delete(audio.file)
+        val rejected = TrackPlayer(); val other = LocalPlaybackTracks(rejected, scope, owner)
+        try {
+            check(runCatching { other.applyInitial(preferences.copy(audioFile = audio)) }.isFailure)
+            check(rejected.attachments == 0 && rejected.selections == 0)
+        } finally { other.close(); other.releaseExternalAccess() }
+    } finally { root.toFile().deleteRecursively(); check(!Files.exists(root)) }
 }

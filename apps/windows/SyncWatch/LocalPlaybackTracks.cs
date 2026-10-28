@@ -24,12 +24,31 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
         if (closed) throw new OperationCanceledException(token);
         int? audio = preferences.AudioNames is null ? null : preferences.Resolve(await player.TracksAsync(false, scope, token), false);
         int? subtitles = preferences.SubtitleNames is null ? null : preferences.Resolve(await player.TracksAsync(true, scope, token), true);
+        var prepared = new List<(LocalCompanionFile File, LocalFileAccess Access, bool Subtitles)>();
+        foreach (var (file, isSubtitle) in new[] { (preferences.AudioFile, false), (preferences.SubtitleFile, true) })
+        {
+            if (file is null) continue;
+            if (file.Kind != (isSubtitle ? LibraryCompanionKind.Subtitles : LibraryCompanionKind.Audio))
+                throw new InvalidOperationException("companion-kind");
+            prepared.Add((file, file.Open(), isSubtitle));
+        }
+        if (prepared.Count > 0 && player is not IPlaybackExternalTrackPort) throw new InvalidOperationException("companion-player");
+        externalFiles.AddRange(prepared.Select(file => file.Access));
         foreach (var (id, isSubtitle) in new[] { (audio, false), (subtitles, true) })
         {
             if (id is null) continue;
             token.ThrowIfCancellationRequested();
             if (closed) throw new OperationCanceledException(token);
             await AcknowledgeAsync(id.Value, isSubtitle, token);
+        }
+        foreach (var (file, access, isSubtitle) in prepared)
+        {
+            token.ThrowIfCancellationRequested();
+            if (closed) throw new OperationCanceledException(token);
+            var previous = (await player.TracksAsync(isSubtitle, scope, token)).Select(track => track.Id).ToHashSet();
+            await ((IPlaybackExternalTrackPort)player).AttachTrackAsync(access.File, isSubtitle, scope, token);
+            int id = await AttachmentAsync(isSubtitle, previous, token);
+            aliases[(isSubtitle ? "subtitles" : "audio", id)] = System.IO.Path.GetFileName(file.File);
         }
     }
     private async Task AcknowledgeAsync(int id, bool subtitles, CancellationToken token)
