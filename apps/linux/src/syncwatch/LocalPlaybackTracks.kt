@@ -117,12 +117,10 @@ internal class LocalPlaybackTracks(private val player: PlaybackTrackControlPort,
             currentCoroutineContext().ensureActive()
             SelectionMenuPresentation(kind = kind, sourceID = sourceId, revision = current)
         }
-        if (picker != null && player is PlaybackExternalTrackPort) {
-            val entries = value.entries.toMutableList()
-            if (entries.isEmpty()) SelectionMenuEntry.externalFile(kind, language)?.let(entries::add)
-            entries.add(0, SelectionMenuEntry.externalFileFailure(language))
-            value = value.copy(entries = entries, enabled = true)
-        }
+        val entries = value.entries.toMutableList()
+        if (entries.isEmpty()) SelectionMenuEntry.externalFile(kind, language)?.let(entries::add)
+        entries.add(0, SelectionMenuEntry.externalFileFailure(language))
+        value = value.copy(entries = entries, enabled = true)
         publish(value, current)
     }
     private fun publish(value: SelectionMenuPresentation, current: Long) {

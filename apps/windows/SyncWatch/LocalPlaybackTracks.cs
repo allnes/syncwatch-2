@@ -145,13 +145,10 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
         SelectionMenuPresentation value;
         try { value = await SnapshotAsync(kind, current, token); }
         catch { value = new() { Kind = kind, SourceID = sourceId, Revision = current }; }
-        if (picker is not null && player is IPlaybackExternalTrackPort)
-        {
-            var entries = value.Entries.ToList();
-            if (entries.Count == 0 && SelectionMenuEntry.ExternalFile(kind, language) is { } fileEntry) entries.Add(fileEntry);
-            entries.Insert(0, SelectionMenuEntry.ExternalFileFailure(language));
-            value = value with { Entries = entries, Enabled = true };
-        }
+        var entries = value.Entries.ToList();
+        if (entries.Count == 0 && SelectionMenuEntry.ExternalFile(kind, language) is { } fileEntry) entries.Add(fileEntry);
+        entries.Insert(0, SelectionMenuEntry.ExternalFileFailure(language));
+        value = value with { Entries = entries, Enabled = true };
         Publish(value, current, token);
     }
     private CancellationToken Renew()

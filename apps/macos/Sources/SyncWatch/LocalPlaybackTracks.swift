@@ -168,15 +168,13 @@ import SyncWatchLibrary
         }
         var value = (try? await snapshot(kind, revision: revision)) ?? SelectionMenuPresentation()
         value.kind = kind
-        if picker != nil, player is any PlaybackExternalTrackPort {
-            value.sourceID = sourceID
-            value.revision = revision
-            if value.entries.isEmpty, let entry = SelectionMenuEntry.externalFile(kind: kind, language: language) {
-                value.entries = [entry]
-            }
-            value.entries.insert(.externalFileFailure(language: language), at: 0)
-            value.enabled = true
+        value.sourceID = sourceID
+        value.revision = revision
+        if value.entries.isEmpty, let entry = SelectionMenuEntry.externalFile(kind: kind, language: language) {
+            value.entries = [entry]
         }
+        value.entries.insert(.externalFileFailure(language: language), at: 0)
+        value.enabled = true
         publish(value, revision: revision)
     }
     func dismiss() {
