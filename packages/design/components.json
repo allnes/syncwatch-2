@@ -93,7 +93,9 @@
         "endWatching",
         "openCall",
         "toggleFullscreen",
-        "openPlayerSettings"
+        "openPlayerSettings",
+        "selectAudio",
+        "selectSubtitles"
       ]
     },
     "SettingsDialog": {

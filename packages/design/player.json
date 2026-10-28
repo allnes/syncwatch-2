@@ -21,7 +21,9 @@
     "endWatching",
     "openCall",
     "toggleFullscreen",
-    "openPlayerSettings"
+    "openPlayerSettings",
+    "selectAudio",
+    "selectSubtitles"
   ],
   "maximumPositionMs": 604800000,
   "icons": {

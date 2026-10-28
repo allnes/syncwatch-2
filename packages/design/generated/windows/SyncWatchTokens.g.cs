@@ -594,6 +594,7 @@ public static class SyncWatchCopy
         ("en", "metadataResolutionFormat") => "{width}×{height}",
         ("en", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
         ("en", "metadataNoSubtitles") => "No subtitles",
+        ("en", "audioDisabled") => "Audio disabled",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -824,6 +825,7 @@ public static class SyncWatchCopy
         ("ru", "metadataResolutionFormat") => "{width}×{height}",
         ("ru", "metadataDurationFormat") => "{hours}:{minutes}:{seconds}",
         ("ru", "metadataNoSubtitles") => "Нет субтитров",
+        ("ru", "audioDisabled") => "Звук выключен",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -903,7 +905,7 @@ public static class SyncWatchRoomForm
 public static class SyncWatchPlayer
 {
     public static string[] States => ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"];
-    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings"];
+    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles"];
     public const long MaximumPositionMs = 604800000;
     public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
     {
@@ -1034,7 +1036,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507";
+    public const string SourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -3773,6 +3775,9 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.selectSubtitles",
             ["automation"] = "player.subtitles",
             ["label"] = "~subtitles",
+            ["popoverSlot"] = "subtitlesSelection",
+            ["popoverEdge"] = "top",
+            ["popoverDismiss"] = "dismissSelection",
         }, [node135]);
         var node137 = new DesignNode("node137", "icon", new()
         {
@@ -3803,6 +3808,9 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.selectAudio",
             ["automation"] = "player.audioTracks",
             ["label"] = "~audioTracks",
+            ["popoverSlot"] = "audioSelection",
+            ["popoverEdge"] = "top",
+            ["popoverDismiss"] = "dismissSelection",
         }, [node137]);
         var node139 = new DesignNode("node139", "icon", new()
         {
@@ -5193,7 +5201,7 @@ public static class SyncWatchLayouts
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
             ["align"] = "leading",
-            ["text"] = "$label",
+            ["text"] = "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
             ["width"] = "fill",
             ["lines"] = "1",
             ["truncate"] = "end",
@@ -5224,7 +5232,7 @@ public static class SyncWatchLayouts
             ["selected"] = "$selected",
             ["contentAlign"] = "leading",
             ["enabled"] = "$enabled",
-            ["label"] = "$label",
+            ["label"] = "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
             ["automation"] = "selection.{id}",
             ["action"] = "selectEntry",
             ["value"] = "$id",
@@ -5315,8 +5323,8 @@ public static class SyncWatchLayouts
             ["focusBorder"] = "theme.accentSoft",
             ["hoverBorder"] = "theme.accent",
             ["focusWidth"] = "@control.borderWidth",
-            ["width"] = "fill",
-            ["height"] = "fill",
+            ["width"] = "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if @layout.selectionEdgeInset 2 * +",
+            ["height"] = "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min @layout.selectionEdgeInset 2 * +",
             ["cycleFocus"] = "true",
         }, [selectionPanel]);
         return selectionRoot;

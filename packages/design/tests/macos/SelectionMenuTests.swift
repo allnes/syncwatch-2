@@ -15,6 +15,7 @@ private struct SelectionCases: Decodable {
         let valid: Bool
         let requests: [Input]
         let expected: [SelectionMenuRequest]
+        let labels: [String: [String]]?
     }
     let cases: [Case]
 }
@@ -23,7 +24,7 @@ private struct SelectionCases: Decodable {
     let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("fixtures/selection-menu.json")
     let corpus = try JSONDecoder().decode(SelectionCases.self, from: Data(contentsOf: source))
-    #expect(corpus.cases.count == 28)
+    #expect(corpus.cases.count == 30)
     for item in corpus.cases {
         let p = item.presentation
         #expect(p.isValid == item.valid, "\(item.name)")
@@ -40,7 +41,16 @@ private struct SelectionCases: Decodable {
                     "SelectionMenu", context: SelectionMenuBindings.context(p),
                     viewport: CGSize(width: 420, height: 360)))
             let labels = elements(tree).filter { $0.id.hasSuffix(".selectionLabel") }.map { $0.string("text") }
-            #expect(labels == p.entries.map(\.label), "\(item.name): labels remain literal")
+            #expect(labels == item.labels?["en"] ?? p.entries.map(\.label), "\(item.name): observed labels")
+            if let localized = item.labels?["ru"] {
+                let translated = try #require(
+                    DesignTree.resolve(
+                        "SelectionMenu", context: SelectionMenuBindings.context(p), language: "ru",
+                        viewport: CGSize(width: 420, height: 360)))
+                #expect(
+                    elements(translated).filter { $0.id.hasSuffix(".selectionLabel") }.map { $0.string("text") }
+                        == localized)
+            }
         }
     }
     var p = SelectionMenuFixtures.presentation(kind: "playlist", state: "available")

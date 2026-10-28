@@ -28,7 +28,7 @@ public sealed record PlayerPresentation
         if (!EnabledActions.Contains(action) || !SyncWatchPlayer.Actions.Contains(action)) return false;
         return action switch
         {
-            "playPause" or "seek" or "skip" or "previousFile" or "nextFile" => IsValid && (State is PlayerVisualState.Paused or PlayerVisualState.Playing or PlayerVisualState.Fullscreen) && (action switch
+            "playPause" or "seek" or "skip" or "previousFile" or "nextFile" or "selectAudio" or "selectSubtitles" => IsValid && (State is PlayerVisualState.Paused or PlayerVisualState.Playing or PlayerVisualState.Fullscreen) && (action switch
             {
                 "seek" or "skip" => DurationMs > 0,
                 "previousFile" => HasPrevious,
@@ -78,17 +78,31 @@ public sealed class PlayerChrome : UserControl
     public PlayerPresentation Presentation { get; private set; } = new();
     public string UiLanguage { get; private set; } = "en";
     public event Action<string, double?>? ActionRequested;
+    public event Action<SelectionMenuRequest>? SelectionRequested;
+    public event Action? SelectionDismissed;
+    public SelectionMenuPresentation? SelectionPresentation { get; set; }
     public UIElement? VideoSurface { get; set; }
+    private readonly SelectionMenu menu = new();
     private readonly DesignSurface surface = new("Player");
     public PlayerChrome()
     {
         Content = surface; surface.ConfigureHost(this);
-        surface.EventRequested += e => Presentation.Dispatch(e.Action, e.Value is null ? null : double.TryParse(e.Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : double.NaN, (a, v) => ActionRequested?.Invoke(a, v));
+        surface.EventRequested += e =>
+        {
+            if (e.Action == "dismissSelection") SelectionDismissed?.Invoke();
+            else Presentation.Dispatch(e.Action, e.Value is null ? null : double.TryParse(e.Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : double.NaN, (a, v) => ActionRequested?.Invoke(a, v));
+        };
+        menu.SelectionRequested += request => SelectionRequested?.Invoke(request);
         Render(new());
     }
     public void Render(PlayerPresentation presentation, string language = "en")
     {
         Presentation = presentation; UiLanguage = language; surface.Slots.Clear(); if (VideoSurface is not null) surface.Slots["video"] = VideoSurface;
+        if (SelectionPresentation is { } selection)
+        {
+            menu.Render(selection, language);
+            surface.Slots[selection.Kind + "Selection"] = menu;
+        }
         surface.Render(DesignBindings.Player(presentation), language);
     }
 }

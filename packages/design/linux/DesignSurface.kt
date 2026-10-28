@@ -223,6 +223,20 @@ private fun Modifier.designFrame(n: DesignElement, theme: SyncWatchTheme): Modif
         "icon"->Canvas(frame){for(p in SyncWatchLayouts.assets[n.text("name")].orEmpty()){val path=Path();for(i in p.indices step 2){val x=p[i]/SyncWatchLayouts.coordinateSize*size.width;val y=p[i+1]/SyncWatchLayouts.coordinateSize*size.height;if(i==0)path.moveTo(x,y)else path.lineTo(x,y)};path.close();drawPath(path,designColor(n.text("foreground"),theme))}}
         "button"->Box(modifier.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()).clickable(enabled=enabled,role=Role.Button){emit()}.designFrame(n,theme),contentAlignment=if(n.text("contentAlign")=="leading")Alignment.CenterStart else Alignment.Center){
             if(n.children.isEmpty())BasicText(n.props["text"]?:n.text("label"),style=textStyle(n,theme))else n.children.forEach{RenderDesignNode(it,theme,slots,onEvent)}
+            val presented=LocalDesignPresented.current
+            LaunchedEffect(presented) { if(!presented && slots.containsKey(n.text("popoverSlot")))currentEvent(DesignEvent(n.text("popoverDismiss"))) }
+            if(presented)slots[n.text("popoverSlot")]?.let { content ->
+                Popup(popupPositionProvider=object: androidx.compose.ui.window.PopupPositionProvider {
+                        override fun calculatePosition(anchorBounds: androidx.compose.ui.unit.IntRect, windowSize: androidx.compose.ui.unit.IntSize,
+                            layoutDirection: androidx.compose.ui.unit.LayoutDirection, popupContentSize: androidx.compose.ui.unit.IntSize): IntOffset {
+                            val x=(anchorBounds.right-popupContentSize.width).coerceIn(0,(windowSize.width-popupContentSize.width).coerceAtLeast(0))
+                            val y=if(n.text("popoverEdge")=="top")anchorBounds.top-popupContentSize.height else anchorBounds.bottom
+                            return IntOffset(x,y.coerceIn(0,(windowSize.height-popupContentSize.height).coerceAtLeast(0)))
+                        }
+                    }, onDismissRequest={currentEvent(DesignEvent(n.text("popoverDismiss")))},properties=PopupProperties(focusable=true)) {
+                    Box { content() }
+                }
+            }
         }
         "input"->BasicTextField(n.text("value"),{emit(it)},visualTransformation=if(n.flag("secret"))androidx.compose.ui.text.input.PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,modifier=frame.alpha(if(enabled)1f else n.number("disabledOpacity").toFloat()),enabled=enabled,textStyle=textStyle(n,theme),singleLine=true,decorationBox={inner->Box(Modifier.fillMaxSize(),contentAlignment=Alignment.CenterStart){if(n.text("value").isEmpty())BasicText(n.text("label"),style=textStyle(n,theme).copy(color=designColor(n.text("placeholderFill"),theme)));inner()}})
         "choice"->{

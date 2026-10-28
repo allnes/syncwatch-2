@@ -423,6 +423,7 @@ object SyncWatchCopy {
         "en" to "metadataResolutionFormat" -> "{width}×{height}"
         "en" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
         "en" to "metadataNoSubtitles" -> "No subtitles"
+        "en" to "audioDisabled" -> "Audio disabled"
         "ru" to "brand" -> "SyncWatch"
         "ru" to "room" -> "Смотрим вместе"
         "ru" to "library" -> "Библиотека фильмов"
@@ -653,6 +654,7 @@ object SyncWatchCopy {
         "ru" to "metadataResolutionFormat" -> "{width}×{height}"
         "ru" to "metadataDurationFormat" -> "{hours}:{minutes}:{seconds}"
         "ru" to "metadataNoSubtitles" -> "Нет субтитров"
+        "ru" to "audioDisabled" -> "Звук выключен"
         else -> if (language != "en") text(key, "en") else key
     }
     val galleryStates = listOf("empty", "scanning", "selected", "missingMedia", "reconnecting")
@@ -724,7 +726,7 @@ object SyncWatchRoomForm {
 
 object SyncWatchPlayer {
     val states = listOf("loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended")
-    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings")
+    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles")
     const val maximumPositionMs: Long = 604800000L
     val icons = mapOf(
         "play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
@@ -846,7 +848,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507"
+    const val sourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -3400,6 +3402,9 @@ object SyncWatchLayouts {
             "enabled" to "\$can.selectSubtitles",
             "automation" to "player.subtitles",
             "label" to "~subtitles",
+            "popoverSlot" to "subtitlesSelection",
+            "popoverEdge" to "top",
+            "popoverDismiss" to "dismissSelection",
         ), listOf(node135))
         val node137 = DesignNode("node137", "icon", mapOf(
             "disabledOpacity" to "0.4",
@@ -3428,6 +3433,9 @@ object SyncWatchLayouts {
             "enabled" to "\$can.selectAudio",
             "automation" to "player.audioTracks",
             "label" to "~audioTracks",
+            "popoverSlot" to "audioSelection",
+            "popoverEdge" to "top",
+            "popoverDismiss" to "dismissSelection",
         ), listOf(node137))
         val node139 = DesignNode("node139", "icon", mapOf(
             "disabledOpacity" to "0.4",
@@ -4709,7 +4717,7 @@ object SyncWatchLayouts {
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
             "align" to "leading",
-            "text" to "\$label",
+            "text" to "= \$disabledTrack \$kind subtitles == ~metadataNoSubtitles ~audioDisabled if \$label if",
             "width" to "fill",
             "lines" to "1",
             "truncate" to "end",
@@ -4738,7 +4746,7 @@ object SyncWatchLayouts {
             "selected" to "\$selected",
             "contentAlign" to "leading",
             "enabled" to "\$enabled",
-            "label" to "\$label",
+            "label" to "= \$disabledTrack \$kind subtitles == ~metadataNoSubtitles ~audioDisabled if \$label if",
             "automation" to "selection.{id}",
             "action" to "selectEntry",
             "value" to "\$id",
@@ -4822,8 +4830,8 @@ object SyncWatchLayouts {
             "focusBorder" to "theme.accentSoft",
             "hoverBorder" to "theme.accent",
             "focusWidth" to "@control.borderWidth",
-            "width" to "fill",
-            "height" to "fill",
+            "width" to "= \$kind playlist == @layout.selectionPlaylistWidth \$kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if @layout.selectionEdgeInset 2 * +",
+            "height" to "= \$entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max \$kind playlist == @layout.selectionPlaylistMaxHeight \$kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min @layout.selectionEdgeInset 2 * +",
             "cycleFocus" to "true",
         ), listOf(selectionPanel))
         return selectionRoot

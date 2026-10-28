@@ -600,6 +600,7 @@ public enum SyncWatchCopy {
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
             "metadataNoSubtitles": "No subtitles",
+            "audioDisabled": "Audio disabled",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -835,6 +836,7 @@ public enum SyncWatchCopy {
             "metadataResolutionFormat": "{width}×{height}",
             "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
             "metadataNoSubtitles": "Нет субтитров",
+            "audioDisabled": "Звук выключен",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -999,6 +1001,8 @@ public enum SyncWatchPlayer {
         "openCall",
         "toggleFullscreen",
         "openPlayerSettings",
+        "selectAudio",
+        "selectSubtitles",
     ]
     public static let maximumPositionMs: Int64 = 604_800_000
     public static let icons: [String: [[Double]]] = [
@@ -2085,7 +2089,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "39b60c101cdecf91ed48ba0478f7eeaf2d0f74b4378adf33d01d1c70862f8507"
+    public static let sourceDigest = "97f6581fc0101b517801e5b66584a9c926b74766b9d2db90efdded955c2cbd52"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -6026,6 +6030,9 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.selectSubtitles",
                 "automation": "player.subtitles",
                 "label": "~subtitles",
+                "popoverSlot": "subtitlesSelection",
+                "popoverEdge": "top",
+                "popoverDismiss": "dismissSelection",
             ],
             children: [node135])
         let node137 = DesignNode(
@@ -6060,6 +6067,9 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.selectAudio",
                 "automation": "player.audioTracks",
                 "label": "~audioTracks",
+                "popoverSlot": "audioSelection",
+                "popoverEdge": "top",
+                "popoverDismiss": "dismissSelection",
             ],
             children: [node137])
         let node139 = DesignNode(
@@ -7653,7 +7663,7 @@ public enum SyncWatchLayouts {
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
                 "align": "leading",
-                "text": "$label",
+                "text": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
                 "width": "fill",
                 "lines": "1",
                 "truncate": "end",
@@ -7688,7 +7698,7 @@ public enum SyncWatchLayouts {
                 "selected": "$selected",
                 "contentAlign": "leading",
                 "enabled": "$enabled",
-                "label": "$label",
+                "label": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
                 "automation": "selection.{id}",
                 "action": "selectEntry",
                 "value": "$id",
@@ -7795,8 +7805,10 @@ public enum SyncWatchLayouts {
                 "focusBorder": "theme.accentSoft",
                 "hoverBorder": "theme.accent",
                 "focusWidth": "@control.borderWidth",
-                "width": "fill",
-                "height": "fill",
+                "width":
+                    "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if @layout.selectionEdgeInset 2 * +",
+                "height":
+                    "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min @layout.selectionEdgeInset 2 * +",
                 "cycleFocus": "true",
             ],
             children: [selectionPanel])

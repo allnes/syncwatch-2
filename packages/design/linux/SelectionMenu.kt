@@ -4,7 +4,7 @@ package syncwatch.design
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-// Source-only until the declared Compose/compiler/native/font/license build is available.
+// Native event binding; the common document owns layout and copy.
 @Composable fun SelectionMenu(
     presentation: SelectionMenuPresentation = SelectionMenuPresentation(),
     language: String = "en",
@@ -39,6 +39,7 @@ internal object SelectionMenuBindings {
                     "label" to entry.label,
                     "selected" to (p.selectedID == entry.id).toString(),
                     "enabled" to (p.enabled && entry.enabled).toString(),
+                    "disabledTrack" to entry.disabledTrack.toString(),
                 ))
             }),
         )

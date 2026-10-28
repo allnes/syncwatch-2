@@ -25,6 +25,7 @@ fun main(arguments: Array<String>) = runBlocking {
         helperRuntimeChecks()
         withContext(MainUIDispatcher) {
             libraryMetadataChecks(owner)
+            localPlaybackTracksChecks(owner)
             watchPersistenceChecks(scratch)
             roomPlaybackGateChecks(owner)
             roomPublicationChecks(repository.resolve("contracts/fixtures/room-client.json"))

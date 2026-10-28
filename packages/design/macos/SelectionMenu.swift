@@ -36,6 +36,7 @@ enum SelectionMenuBindings {
                     DesignContext([
                         "id": $0.id, "label": $0.label, "selected": String(p.selectedID == $0.id),
                         "enabled": String(p.enabled && $0.enabled),
+                        "disabledTrack": String($0.disabledTrack == true),
                     ])
                 }
             ])

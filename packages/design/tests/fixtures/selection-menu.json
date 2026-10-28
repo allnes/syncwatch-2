@@ -1394,6 +1394,74 @@
           "scope": "shared"
         }
       ]
+    },
+    {
+      "name": "localized-off-audio",
+      "presentation": {
+        "kind": "audio",
+        "sourceID": "owned-tracks",
+        "revision": 1,
+        "entries": [
+          {
+            "id": "-1",
+            "label": "Engine supplied disabled label",
+            "enabled": true,
+            "disabledTrack": true
+          }
+        ],
+        "selectedID": "-1",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "-1",
+          "contextToken": "audio|owned-tracks|1"
+        }
+      ],
+      "expected": [],
+      "labels": {
+        "en": [
+          "Audio disabled"
+        ],
+        "ru": [
+          "Звук выключен"
+        ]
+      }
+    },
+    {
+      "name": "localized-off-subtitles",
+      "presentation": {
+        "kind": "subtitles",
+        "sourceID": "owned-tracks",
+        "revision": 1,
+        "entries": [
+          {
+            "id": "-1",
+            "label": "Engine supplied disabled label",
+            "enabled": true,
+            "disabledTrack": true
+          }
+        ],
+        "selectedID": "-1",
+        "enabled": true
+      },
+      "valid": true,
+      "requests": [
+        {
+          "entryID": "-1",
+          "contextToken": "subtitles|owned-tracks|1"
+        }
+      ],
+      "expected": [],
+      "labels": {
+        "en": [
+          "No subtitles"
+        ],
+        "ru": [
+          "Нет субтитров"
+        ]
+      }
     }
   ]
 }

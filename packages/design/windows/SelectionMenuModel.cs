@@ -4,7 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace SyncWatch.Design;
 
-public sealed record SelectionMenuEntry(string Id, string Label, bool Enabled = true);
+public sealed record SelectionMenuEntry(string Id, string Label, bool Enabled = true, bool DisabledTrack = false)
+{
+    public static SelectionMenuEntry OffTrack => new("-1", "off", DisabledTrack: true);
+}
 public sealed record SelectionMenuRequest(string Kind, string SourceID, long Revision, string EntryID, string Action, string Scope);
 
 // Provider observations only. Dispatch never changes the observed selection.

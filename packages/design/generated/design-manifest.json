@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "9198cd5552d858122e5ab9f06ba3cd5ddbd7c56c3045632aa61e078fd5dbe2d4",
+  "sourceDigest": "40efbe83046e7d88e21ebd05062c8e7f28c82ad2ee26dec1864395d25a1b70be",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "6a4a583d13a2bb53537c93e7be11bfeef208871eed20d18f6d05d75a0287a929",
-    "copy.json": "ecdeb80ce40cb6fe6f8893900eddc0751b61f8f5a228311672b7cca6cdb526d3",
+    "components.json": "a7cc6bcf2db8d0a92c8337c381fe66efb1f19bf201b03677b2dcfeca166d253f",
+    "copy.json": "a59097d29b8693f99c12257bc47e57f7ba298302c8593f07b64de70117344cc8",
     "settings.json": "818079072fbe5b4aa53613205f25a8f539ad992592ad235a76e94893b8cc5960",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
-    "player.json": "7b060da2075b7954de00dc6c012f9a0cb2532f02839d94edd85de3d897441476",
+    "player.json": "a9b59d7eeee2dafb534266ad8d4cf6f0a2a89811fe574c23bf17ef716b237ffc",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "457494dc680fd68b16908ef35722263178a52a0a08aa018df97885fe3c458114",
-    "layouts.json": "4fb8afbd60340cc79053194dd3781d402f80a6932eaa291f53228bcb0e2ee46f",
+    "layouts.json": "6056de0b96fd922dd19132b21338422195ae2bcfe2c4be78b31b3d0f4551667a",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
-  "generatorRevision": "5ee16c9378bc6e3834b0bc3db2a820e2d28297dd27f219cead934b94da737efc",
+  "generatorRevision": "e13d6c4353e01d7b2fc82d7c6fe9a62099e22b6cb6c60ab3125b2f251a9f3bcb",
   "generator": {
     "styleDictionary": "5.7.0",
     "files": {
@@ -31,7 +31,7 @@
       "tools/design/settings-formats.mjs": "b17647dd949614a82025800452ac9a81bcf6f2d4c20dadeb68aacfa0c3221136",
       "tools/design/player-formats.mjs": "1833944e86aad693e81bab14783abc505961ee3892e09308830e5a61590c0b36",
       "tools/design/player-settings-formats.mjs": "1f1a623d7ff3de8f7f4c3af6536e8baf83c56e89b5bb2364f60f5267e5b43927",
-      "tools/design/layout-formats.mjs": "7f47142e7982e9bd2dad2690a2e705417e93ae43d678cfebffbebd04eec62b7b",
+      "tools/design/layout-formats.mjs": "28ff7a4da70b4364fc28ba1069f8bc497642150f7d7154c7f03189cee7566c6b",
       "tools/design/call-formats.mjs": "9856ebe6902df77af71c86934b85d3fc2c2f9928bc9bef3cf3aa0d26fb07299c",
       "tools/design/selection-menu-formats.mjs": "f5c6334203d99b239f1e2397af158efad317fb7aa9c237f01226e183445b2df3"
     },
@@ -318,7 +318,8 @@
         "metadataUnavailable": "Movie information is unavailable. Refresh to try again.",
         "metadataResolutionFormat": "{width}×{height}",
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
-        "metadataNoSubtitles": "No subtitles"
+        "metadataNoSubtitles": "No subtitles",
+        "audioDisabled": "Audio disabled"
       },
       "ru": {
         "brand": "SyncWatch",
@@ -550,7 +551,8 @@
         "metadataUnavailable": "Сведения о фильме недоступны. Обновите библиотеку, чтобы повторить.",
         "metadataResolutionFormat": "{width}×{height}",
         "metadataDurationFormat": "{hours}:{minutes}:{seconds}",
-        "metadataNoSubtitles": "Нет субтитров"
+        "metadataNoSubtitles": "Нет субтитров",
+        "audioDisabled": "Звук выключен"
       }
     },
     "gallery": {
@@ -832,7 +834,9 @@
       "endWatching",
       "openCall",
       "toggleFullscreen",
-      "openPlayerSettings"
+      "openPlayerSettings",
+      "selectAudio",
+      "selectSubtitles"
     ],
     "maximumPositionMs": 604800000,
     "icons": {
@@ -2361,7 +2365,7 @@
         "selected": "$selected",
         "contentAlign": "leading",
         "enabled": "$enabled",
-        "label": "$label",
+        "label": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
         "automation": "selection.{id}",
         "action": "selectEntry",
         "value": "$id",
@@ -4793,7 +4797,10 @@
                           "action": "selectSubtitles",
                           "enabled": "$can.selectSubtitles",
                           "automation": "player.subtitles",
-                          "label": "~subtitles"
+                          "label": "~subtitles",
+                          "popoverSlot": "subtitlesSelection",
+                          "popoverEdge": "top",
+                          "popoverDismiss": "dismissSelection"
                         },
                         "children": [
                           {
@@ -4819,7 +4826,10 @@
                           "action": "selectAudio",
                           "enabled": "$can.selectAudio",
                           "automation": "player.audioTracks",
-                          "label": "~audioTracks"
+                          "label": "~audioTracks",
+                          "popoverSlot": "audioSelection",
+                          "popoverEdge": "top",
+                          "popoverDismiss": "dismissSelection"
                         },
                         "children": [
                           {
@@ -6014,8 +6024,8 @@
         "kind": "overlay",
         "styles": [],
         "props": {
-          "width": "fill",
-          "height": "fill",
+          "width": "= $kind playlist == @layout.selectionPlaylistWidth $kind subtitles == @layout.selectionSubtitleWidth @layout.selectionAudioWidth if if @layout.selectionEdgeInset 2 * +",
+          "height": "= $entryCount @control.menuRowHeight * @layout.selectionPaddingY 2 * + @layout.selectionMinHeight max $kind playlist == @layout.selectionPlaylistMaxHeight $kind subtitles == @layout.selectionSubtitleMaxHeight @layout.selectionAudioMaxHeight if if min @layout.selectionEdgeInset 2 * +",
           "cycleFocus": "true"
         },
         "children": [
@@ -6117,7 +6127,7 @@
                                         "kind": "text",
                                         "styles": [],
                                         "props": {
-                                          "text": "$label",
+                                          "text": "= $disabledTrack $kind subtitles == ~metadataNoSubtitles ~audioDisabled if $label if",
                                           "width": "fill",
                                           "lines": "1",
                                           "truncate": "end"
