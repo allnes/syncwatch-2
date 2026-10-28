@@ -128,7 +128,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
                     if (!admitted) {
                         if (ticket.memberId in current.bootstrap.missingMembers) {
-                            val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection!!.media.mediaId, false), ticket, current)
+                            val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection.media.mediaId, false), ticket, current)
                             requireSameGeneration(current, recovered)
                         }
                         player.admitSharedPlayback(); admitted = true; stage = "playback"
