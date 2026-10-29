@@ -295,10 +295,16 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             if (!admitted || !room.Connected || active is not { } value || !ReferenceEquals(watch.Player, value.Player) || watch.Scope != value.Player.Scope) return false;
             if (!completed) return value.Player.SharedState?.Connection == HelperConnection.Connected;
             return room.IsCurrent(value.Membership) && room.WatchBootstrap is { } latest &&
-                latest.Snapshot.Epoch == value.Context.Bootstrap.Snapshot.Epoch &&
-                latest.Snapshot.WatchGeneration == value.Context.Bootstrap.Snapshot.WatchGeneration &&
-                latest.Snapshot.WatchStatus is "active" or "ended";
+                CompletedPlaylistAvailable(value.Context.Bootstrap.Snapshot, latest.Snapshot);
         }
+    }
+    internal static bool CompletedPlaylistAvailable(RoomSnapshot expected, RoomSnapshot latest)
+    {
+        if (expected.Epoch != latest.Epoch || expected.WatchStatus != "active" || expected.MediaId is null || expected.MediaId != latest.MediaId) return false;
+        if (latest.WatchGeneration == expected.WatchGeneration) return latest.WatchStatus == "active";
+        // watch.ended advances the same movie exactly once; later loads are separate authority.
+        return latest.WatchStatus == "ended" && latest.WatchGeneration > expected.WatchGeneration &&
+            latest.WatchGeneration - expected.WatchGeneration == 1;
     }
     internal void UpdatePlaylist(WatchPlaylist playlist)
     {

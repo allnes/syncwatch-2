@@ -370,9 +370,16 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         else { return false }
         if !completed { return active.player.sharedState?.connection == .connected }
         guard room.isCurrent(active.membership), let latest = room.watchBootstrap else { return false }
-        return latest.snapshot.epoch == active.context.bootstrap.snapshot.epoch
-            && latest.snapshot.watchGeneration == active.context.bootstrap.snapshot.watchGeneration
-            && ["active", "ended"].contains(latest.snapshot.watchStatus)
+        return Self.completedPlaylistAvailable(active.context.bootstrap.snapshot, latest.snapshot)
+    }
+    static func completedPlaylistAvailable(_ expected: RoomSnapshot, _ latest: RoomSnapshot) -> Bool {
+        guard expected.epoch == latest.epoch, expected.watchStatus == "active", let media = expected.mediaID,
+            media == latest.mediaID
+        else { return false }
+        if latest.watchGeneration == expected.watchGeneration { return latest.watchStatus == "active" }
+        // watch.ended advances the same movie exactly once; later loads are separate authority.
+        return latest.watchStatus == "ended" && latest.watchGeneration > expected.watchGeneration
+            && latest.watchGeneration - expected.watchGeneration == 1
     }
     func updatePlaylist(_ playlist: WatchPlaylist) {
         guard let library, !closing else {

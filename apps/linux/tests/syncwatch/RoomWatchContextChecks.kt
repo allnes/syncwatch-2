@@ -53,7 +53,16 @@ internal suspend fun roomWatchContextChecks() {
             MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, null))) {
             check(runCatching { RoomWatchCoordinator.requireMatch(changed, active) }.isFailure)
         }
-        owner.perform(RoomCommandAction.End(RoomWatchEndReason.user), active)
+        val finished = owner.perform(RoomCommandAction.End(RoomWatchEndReason.finished), active)
+        check(RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, active.bootstrap.snapshot))
+        check(RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, finished.bootstrap.snapshot))
+        val next = owner.perform(RoomCommandAction.Select("movie-a"), finished)
+        check(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, next.bootstrap.snapshot))
+        val restarted = owner.perform(RoomCommandAction.Start("movie-a"), next)
+        check(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, restarted.bootstrap.snapshot))
+        val laterEnd = owner.perform(RoomCommandAction.End(RoomWatchEndReason.finished), restarted)
+        check(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
+        check(RoomWatchCoordinator.completedPlaylistAvailable(restarted.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
         peer.leave(joined); client.leave(admission)
         println("SYNCWATCH_ROOM_WATCH_CONTEXT_OK")
     } finally { peer.close(); client.close() }

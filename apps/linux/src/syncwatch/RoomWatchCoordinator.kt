@@ -259,8 +259,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         if (!admitted || !room.connected || watch.player !== value.player || watch.scope != value.player.scope) return false
         if (!completed) return value.player.sharedState?.connection == HelperConnection.connected
         val latest = room.watchBootstrap ?: return false
-        return room.isCurrent(value.membership) && latest.snapshot.epoch == value.context.bootstrap.snapshot.epoch &&
-            latest.snapshot.watchGeneration == value.context.bootstrap.snapshot.watchGeneration && latest.snapshot.watchStatus in setOf("active", "ended")
+        return room.isCurrent(value.membership) && completedPlaylistAvailable(value.context.bootstrap.snapshot, latest.snapshot)
     }
     fun updatePlaylist(playlist: WatchPlaylist) {
         val library = library
@@ -306,6 +305,12 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     }
     suspend fun close() = withContext(NonCancellable) { closing = true; stop() }
     companion object {
+        fun completedPlaylistAvailable(expected: RoomSnapshot, latest: RoomSnapshot): Boolean {
+            if (expected.epoch != latest.epoch || expected.watchStatus != "active" || expected.mediaId == null || expected.mediaId != latest.mediaId) return false
+            if (latest.watchGeneration == expected.watchGeneration) return latest.watchStatus == "active"
+            // watch.ended advances the same movie exactly once; later loads are separate authority.
+            return latest.watchStatus == "ended" && latest.watchGeneration > expected.watchGeneration && latest.watchGeneration - expected.watchGeneration == 1L
+        }
         fun failureKey(error: Exception, identityRejected: Boolean): String = when {
             identityRejected -> "sharedWatchIdentityRejected"
             error is RoomProtocolException && error.code == "staleGeneration" -> "sharedWatchRoomChanged"

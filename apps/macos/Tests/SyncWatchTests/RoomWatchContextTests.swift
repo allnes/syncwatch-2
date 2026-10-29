@@ -135,7 +135,16 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
             mediaID: "private-local-id", title: "Movie", titleKey: "movie",
             fileSizeBytes: 1000, durationMs: 60000, fullHashSha256: nil)
         #expect(throws: (any Error).self) { try RoomWatchCoordinator.requireMatch(weak, active) }
-        _ = try await owner.perform(.end(reason: .user), expected: active)
+        let finished = try await owner.perform(.end(reason: .finished), expected: active)
+        #expect(RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, active.bootstrap.snapshot))
+        #expect(RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, finished.bootstrap.snapshot))
+        let next = try await owner.perform(.select(mediaID: "movie-a"), expected: finished)
+        #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, next.bootstrap.snapshot))
+        let restarted = try await owner.perform(.start(mediaID: "movie-a"), expected: next)
+        #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, restarted.bootstrap.snapshot))
+        let laterEnd = try await owner.perform(.end(reason: .finished), expected: restarted)
+        #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
+        #expect(RoomWatchCoordinator.completedPlaylistAvailable(restarted.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
         try await peer.leave(joined)
         try await client.leave(admission)
         await peer.close()
