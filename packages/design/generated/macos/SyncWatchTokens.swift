@@ -2134,7 +2134,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
+    public static let sourceDigest = "6290c6f16c4fcde482b14b4d805ddbdfb4e80f6ed8a1d307990ea8f60551fc22"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -6265,6 +6265,9 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.openPlaylist",
                 "automation": "player.playlist",
                 "label": "~playlist",
+                "popoverSlot": "playlistSelection",
+                "popoverEdge": "top",
+                "popoverDismiss": "dismissSelection",
             ],
             children: [node121])
         let node123 = DesignNode(

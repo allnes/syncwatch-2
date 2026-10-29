@@ -1061,7 +1061,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e";
+    public const string SourceDigest = "6290c6f16c4fcde482b14b4d805ddbdfb4e80f6ed8a1d307990ea8f60551fc22";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -3912,6 +3912,9 @@ public static class SyncWatchLayouts
             ["enabled"] = "$can.openPlaylist",
             ["automation"] = "player.playlist",
             ["label"] = "~playlist",
+            ["popoverSlot"] = "playlistSelection",
+            ["popoverEdge"] = "top",
+            ["popoverDismiss"] = "dismissSelection",
         }, [node121]);
         var node123 = new DesignNode("node123", "row", new()
         {

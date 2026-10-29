@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "35e5afc89f12e26a0015b8bd03e1316380e0e373802c65ebff913bd8d14385f0",
+  "sourceDigest": "1ac55834a9d9b87187c9ad7a613b6353da2e389e887c3777ee75ea787dc253ca",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
@@ -14,7 +14,7 @@
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
     "selection-menu.json": "86ff7683d675213327acd83ebc38174dbcfea37235b454e0afe37671c59d1502",
-    "layouts.json": "23f664060590a30191ccea67c7e1da65241edbe98bed012795c8780b13a71b45",
+    "layouts.json": "ac4f55de7bcfd25bde0e66cad0a368e8a03b572a557fc52079be2e42dfb33ea8",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "080b61beaab764af86e33df0fce56c3cc9ec021dd9be390a046e7ec85bc6572f",
@@ -5031,7 +5031,10 @@
                           "action": "openPlaylist",
                           "enabled": "$can.openPlaylist",
                           "automation": "player.playlist",
-                          "label": "~playlist"
+                          "label": "~playlist",
+                          "popoverSlot": "playlistSelection",
+                          "popoverEdge": "top",
+                          "popoverDismiss": "dismissSelection"
                         },
                         "children": [
                           {

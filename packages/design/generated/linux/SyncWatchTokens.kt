@@ -873,7 +873,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
+    const val sourceDigest = "6290c6f16c4fcde482b14b4d805ddbdfb4e80f6ed8a1d307990ea8f60551fc22"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -3532,6 +3532,9 @@ object SyncWatchLayouts {
             "enabled" to "\$can.openPlaylist",
             "automation" to "player.playlist",
             "label" to "~playlist",
+            "popoverSlot" to "playlistSelection",
+            "popoverEdge" to "top",
+            "popoverDismiss" to "dismissSelection",
         ), listOf(node121))
         val node123 = DesignNode("node123", "row", mapOf(
             "disabledOpacity" to "0.4",
