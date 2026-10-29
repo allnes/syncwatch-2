@@ -33,7 +33,7 @@ import syncwatch.ipc.Json
 data class SharedMedia(val handle: String, val name: String, val durationMs: Long, val fileSizeBytes: Long)
 data class SyncplayEndpoint(val host: String, val port: Int, val room: String, val username: String)
 data class SyncplayParticipant(val username: String, val ready: Boolean)
-enum class HelperConnection { starting, connecting, connected, failed, stopped }
+enum class HelperConnection { starting, connecting, reconnecting, connected, failed, stopped }
 data class HelperSessionState(val connection: HelperConnection = HelperConnection.starting, val ready: Boolean = false,
     val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList(), val identityRejected: Boolean = false)
 
@@ -70,6 +70,10 @@ class HelperSession(
     private var heartbeat = true
     private var observed = false
     private var readyRequested = false
+    private var requestingReady = false
+    private var recoveryIdentity = false
+    private var recoveryConnected = false
+    private var recoveryDeadline: Long? = null
     private var started = false
     private var closed = false
     private var deadline: Long? = null
@@ -101,7 +105,8 @@ class HelperSession(
             try {
                 while (!closed) {
                     checkOwner()
-                    if (deadline?.let { System.nanoTime() - it >= 0 } == true) { stop(true); return@launch }
+                    if (deadline?.let { System.nanoTime() - it >= 0 } == true ||
+                        recoveryDeadline?.let { System.nanoTime() - it >= 0 } == true) { stop(true); return@launch }
                     heartbeat = true; signal(); delay(100)
                 }
             } catch (_: CancellationException) { }
@@ -174,11 +179,37 @@ class HelperSession(
                     send(commands.observation(nextId(), value, nativeScope)); observationHigh = value.sequence; observed = true
                 }
             }
-            if (state.connection == HelperConnection.connected && observed && !readyRequested) {
-                request(HelperReplyKind.applied) { commands.ready(it, true) }; readyRequested = true; continue
+            if ((state.connection == HelperConnection.connected || recoveryConnected) && observed && !readyRequested) {
+                requestingReady = true
+                request(HelperReplyKind.applied) { commands.ready(it, true) }; readyRequested = true
+                requestingReady = false; finishRecovery(); continue
             }
             if (inbox.isEmpty() && users.isEmpty() && !heartbeat) waitSignal()
         }
+    }
+    private suspend fun reconnect() {
+        // Do not replay unpublished intents or old timing corrections across transports.
+        if (users.isNotEmpty() || fence.issuedSequence != fence.publishedSequence ||
+            corrections.any { it.operation != PlayerCorrection.Operation.Pause(true) }) bad()
+        if (recoveryDeadline == null) recoveryDeadline = System.nanoTime() + 25_000_000_000L
+        recoveryIdentity = false; recoveryConnected = false; observed = false
+        readyRequested = false; requestingReady = false
+        publish(state.copy(connection = HelperConnection.reconnecting, ready = false, participants = emptyList()))
+        setDeadline(2)
+        try {
+            player.setPaused(true, nativeScope)
+            while (true) {
+                val value = player.observe(nativeScope); validate(value)
+                if (value.paused) break
+                delay(20)
+            }
+        } finally { deadline = null }
+        heartbeat = true
+    }
+    private fun finishRecovery() {
+        if (recoveryDeadline == null || !recoveryConnected || !observed || !readyRequested || !state.ready) return
+        recoveryDeadline = null; recoveryConnected = false
+        publish(state.copy(connection = HelperConnection.connected))
     }
     private suspend fun user(sequence: Long, intent: Intent) {
         setDeadline(2)
@@ -248,6 +279,7 @@ class HelperSession(
                 if (requireDeclaredIdentity && username != endpoint.username) { state = state.copy(identityRejected = true); bad() }
                 if (state.acceptedUsername != null && state.acceptedUsername != username) { state = state.copy(identityRejected = true); bad() }
                 state = state.copy(acceptedUsername = username)
+                if (recoveryDeadline != null) recoveryIdentity = true
             }
             "sync.connection" -> {
                 PlayerCorrection.keys(payload, setOf("state"), setOf("error"))
@@ -256,14 +288,25 @@ class HelperSession(
                         "mediaGeneration" to wireScope.mediaGeneration, "payload" to payload["error"])) + "\n").toByteArray(Charsets.UTF_8)
                     HelperReply.decode(wrapped, wireScope, 1, HelperReplyKind.applied)
                 }
-                state = when (payload["state"]) {
-                    "connecting" -> state.copy(connection = HelperConnection.connecting)
-                    "connected" -> { if (state.acceptedUsername == null) bad(); state.copy(connection = HelperConnection.connected) }
+                when (payload["state"]) {
+                    "connecting" -> {
+                        if (state.connection in setOf(HelperConnection.connected, HelperConnection.reconnecting)) reconnect()
+                        else state = state.copy(connection = HelperConnection.connecting)
+                    }
+                    "connected" -> {
+                        if (state.acceptedUsername == null) bad()
+                        if (recoveryDeadline != null) { if (!recoveryIdentity) bad(); recoveryConnected = true }
+                        else state = state.copy(connection = HelperConnection.connected)
+                    }
                     else -> bad()
                 }
             }
             "sync.readiness" -> {
                 PlayerCorrection.keys(payload, setOf("ready")); state = state.copy(ready = payload["ready"] as? Boolean ?: bad())
+                if (recoveryDeadline != null && state.ready) {
+                    if (!recoveryConnected || !observed || !(requestingReady || readyRequested)) bad()
+                    finishRecovery()
+                }
             }
             "sync.participants" -> {
                 PlayerCorrection.keys(payload, setOf("participants")); val rows = payload["participants"] as? List<*> ?: bad()

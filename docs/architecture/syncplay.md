@@ -103,6 +103,29 @@ A room snapshot defines the Syncplay endpoint, room name, and agreed client iden
 
 Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position. The first confirmed ready state admits that playback scope. Syncplay may subsequently clear the local readiness flag when the user pauses; that flag alone must not disable the next Play intent. Retain the admission until its scope, membership or connected helper is revoked.
 
+### Established transport recovery
+
+An ordinary loss of an established authenticated Syncplay transport retains the
+owned helper, native media scope and monotonically increasing IPC counters.
+Upstream `ClientService` owns reconnection timing. The application pauses the
+borrowed player, clears readiness and participant presentation, and gates shared
+Play/Seek while displaying the common Design reconnecting notice. A separate
+25-second monotonic recovery deadline is never extended by heartbeats or repeated
+connection attempts. End, Leave and shutdown remain available.
+
+Recovery requires a new authenticated initial state, the same accepted username,
+a fresh native observation, acknowledgement of a new readiness request and the
+actual upstream ready event. TLS/protocol rejection, changed identity, premature
+readiness, helper EOF and deadline exhaustion terminate the helper and leave the
+borrowed player paused for an explicit retry. A TLS rejection followed by an
+ordinary connection-lost callback remains terminal; trust policy is unchanged.
+
+Unpublished user intents or pending timing corrections other than Pause(true)
+at the interruption boundary also terminate safely. They are never replayed into
+the replacement transport or discarded by resetting action watermarks. Native
+media and the application window remain owned by their existing coordinators.
+Metadata-only event recovery is independent of this Syncplay lifecycle.
+
 If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 
 ## Media identity

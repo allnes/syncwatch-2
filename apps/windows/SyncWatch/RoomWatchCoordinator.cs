@@ -28,7 +28,8 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         if (Busy || closing) enabled.Remove("startWatching");
         return result with { EnabledActions = enabled, RoomStatus = !Busy && room.MediaNotice.Length > 0 ? room.MediaNotice : Status.Length > 0 ? Status : result.RoomStatus };
     }
-    internal string PlayerNotice => Busy ? "" : room.MediaNotice;
+    internal string PlayerNotice => Busy ? "" : room.MediaNotice.Length > 0 ? room.MediaNotice
+        : active?.Player.SharedState?.Connection == HelperConnection.Reconnecting ? "reconnecting" : "";
     internal void MembershipChanged()
     {
         if (!room.Connected) { seenMembership = false; return; }
@@ -137,8 +138,10 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                         }
                         owned.AdmitSharedPlayback(); admitted = true; stage = "playback";
                     }
-                    if (Busy) { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
+                    if (Busy || Status == "reconnecting") { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
+                else if (owned.SharedState?.Connection == HelperConnection.Reconnecting)
+                { if (Status != "reconnecting") { Status = "reconnecting"; Changed?.Invoke(); } }
                 else if (!admitted && Environment.TickCount64 >= readyDeadline) throw new TimeoutException();
                 await Task.Delay(100, token);
             }

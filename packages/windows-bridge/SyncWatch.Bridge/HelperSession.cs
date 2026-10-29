@@ -13,7 +13,7 @@ public interface IHelperTransport : IAsyncDisposable
 public sealed record SharedMedia(string Handle, string Name, long DurationMs, ulong FileSizeBytes);
 public sealed record SyncplayEndpoint(string Host, int Port, string Room, string Username);
 public sealed record SyncplayParticipant(string Username, bool Ready);
-public enum HelperConnection { Starting, Connecting, Connected, Failed, Stopped }
+public enum HelperConnection { Starting, Connecting, Reconnecting, Connected, Failed, Stopped }
 public sealed record HelperSessionState(HelperConnection Connection = HelperConnection.Starting, bool Ready = false,
     string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null, bool IdentityRejected = false);
 
@@ -47,7 +47,9 @@ public sealed class HelperSession : IAsyncDisposable
     private CancellationTokenSource? applying;
     private ulong commandSequence, correctionHigh, eventSequence, observationHigh;
     private bool heartbeat = true, observed, readyRequested, started, closed;
+    private bool requestingReady, recoveryIdentity, recoveryConnected;
     private long? deadline;
+    private long? recoveryDeadline;
 
     public HelperSession(IHelperTransport transport, IPlaybackPort player, PlaybackScope nativeScope,
         SyncplayEndpoint endpoint, SharedMedia media, string revision, Action<HelperSessionState>? changed = null, bool requireDeclaredIdentity = false)
@@ -106,7 +108,8 @@ public sealed class HelperSession : IAsyncDisposable
         {
             while (!closed)
             {
-                if (deadline is long end && Stopwatch.GetTimestamp() >= end) { Stop(true); return; }
+                if ((deadline is long end && Stopwatch.GetTimestamp() >= end) ||
+                    (recoveryDeadline is long recoveryEnd && Stopwatch.GetTimestamp() >= recoveryEnd)) { Stop(true); return; }
                 heartbeat = true; Signal(); await Task.Delay(100, timerCancellation.Token);
             }
         }
@@ -174,10 +177,43 @@ public sealed class HelperSession : IAsyncDisposable
                 if (value.Sequence > observationHigh)
                 { await SendAsync(commands.Observation(NextId(), value, nativeScope)); observationHigh = value.Sequence; observed = true; }
             }
-            if (State.Connection == HelperConnection.Connected && observed && !readyRequested)
-            { await RequestAsync(HelperReplyKind.Applied, id => commands.Ready(id, true)); readyRequested = true; continue; }
+            if ((State.Connection == HelperConnection.Connected || recoveryConnected) && observed && !readyRequested)
+            {
+                requestingReady = true;
+                await RequestAsync(HelperReplyKind.Applied, id => commands.Ready(id, true)); readyRequested = true;
+                requestingReady = false; FinishRecovery(); continue;
+            }
             if (inbox.Count == 0 && users.Count == 0 && !heartbeat) await WaitSignalAsync();
         }
+    }
+    private async Task ReconnectAsync()
+    {
+        // Do not replay unpublished intents or old timing corrections across transports.
+        if (users.Count > 0 || fence.IssuedSequence != fence.PublishedSequence ||
+            corrections.Any(c => c.Kind != CorrectionKind.Pause || !c.Paused)) throw Bad();
+        recoveryDeadline ??= Stopwatch.GetTimestamp() + Stopwatch.Frequency * 25;
+        recoveryIdentity = false; recoveryConnected = false; observed = false;
+        readyRequested = false; requestingReady = false;
+        Publish(State with { Connection = HelperConnection.Reconnecting, Ready = false, Participants = Array.Empty<SyncplayParticipant>() });
+        SetDeadline(2);
+        try
+        {
+            await player.SetPausedAsync(true, nativeScope, workCancellation.Token);
+            while (true)
+            {
+                var value = await player.ObserveAsync(nativeScope, workCancellation.Token); Validate(value);
+                if (value.Paused) break;
+                await Task.Delay(20, workCancellation.Token);
+            }
+        }
+        finally { deadline = null; }
+        heartbeat = true;
+    }
+    private void FinishRecovery()
+    {
+        if (recoveryDeadline is null || !recoveryConnected || !observed || !readyRequested || !State.Ready) return;
+        recoveryDeadline = null; recoveryConnected = false;
+        Publish(State with { Connection = HelperConnection.Connected });
     }
     private async Task UserAsync(Intent intent)
     {
@@ -259,7 +295,9 @@ public sealed class HelperSession : IAsyncDisposable
                 PlayerCorrection.Keys(payload, ["username"]); string username = Text(payload.GetProperty("username"), 64);
                 if (requireDeclaredIdentity && username != endpoint.Username) { State = State with { IdentityRejected = true }; throw Bad(); }
                 if (State.AcceptedUsername is not null && State.AcceptedUsername != username) { State = State with { IdentityRejected = true }; throw Bad(); }
-                State = State with { AcceptedUsername = username }; break;
+                State = State with { AcceptedUsername = username };
+                if (recoveryDeadline is not null) recoveryIdentity = true;
+                break;
             case "sync.connection":
                 PlayerCorrection.Keys(payload, ["state"], ["error"]);
                 if (payload.TryGetProperty("error", out var error))
@@ -267,10 +305,28 @@ public sealed class HelperSession : IAsyncDisposable
                     byte[] wrapped = JsonSerializer.SerializeToUtf8Bytes(new { v = 1, replyTo = "cmd-1", type = "bridge.error", clientRunId = WireScope.ClientRunId, mediaGeneration = WireScope.MediaGeneration, payload = error }).Concat(new byte[] { 10 }).ToArray();
                     _ = HelperReply.Decode(wrapped, WireScope, 1, HelperReplyKind.Applied);
                 }
-                State = PlayerCorrection.Text(payload, "state") switch
-                { "connecting" => State with { Connection = HelperConnection.Connecting }, "connected" when State.AcceptedUsername is not null => State with { Connection = HelperConnection.Connected }, _ => throw Bad() }; break;
+                switch (PlayerCorrection.Text(payload, "state"))
+                {
+                    case "connecting":
+                        if (State.Connection is HelperConnection.Connected or HelperConnection.Reconnecting) await ReconnectAsync();
+                        else State = State with { Connection = HelperConnection.Connecting };
+                        break;
+                    case "connected":
+                        if (State.AcceptedUsername is null) throw Bad();
+                        if (recoveryDeadline is not null) { if (!recoveryIdentity) throw Bad(); recoveryConnected = true; }
+                        else State = State with { Connection = HelperConnection.Connected };
+                        break;
+                    default: throw Bad();
+                }
+                break;
             case "sync.readiness":
-                PlayerCorrection.Keys(payload, ["ready"]); State = State with { Ready = Boolean(payload.GetProperty("ready")) }; break;
+                PlayerCorrection.Keys(payload, ["ready"]); State = State with { Ready = Boolean(payload.GetProperty("ready")) };
+                if (recoveryDeadline is not null && State.Ready)
+                {
+                    if (!recoveryConnected || !observed || !(requestingReady || readyRequested)) throw Bad();
+                    FinishRecovery();
+                }
+                break;
             case "sync.participants":
                 PlayerCorrection.Keys(payload, ["participants"]); var rows = payload.GetProperty("participants");
                 if (rows.ValueKind != JsonValueKind.Array || rows.GetArrayLength() > 64) throw Bad();

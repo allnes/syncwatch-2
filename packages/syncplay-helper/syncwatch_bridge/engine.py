@@ -50,12 +50,16 @@ class Engine:
         self.last_participants = None
         self.last_ready = None
         self.last_identity = None
+        self.established = False
+        self.terminal = False
 
     def connect(self, payload):
         from syncwatch_syncplay.session import Session
         from syncplay import constants
         if self.session is not None:
             raise ContractError("invalidState")
+        self.established = self.terminal = False
+        self.last_identity = self.last_ready = self.last_participants = None
         self.port = PlayerPort(self.controller)
         self.session = Session(payload["host"], payload["port"], payload["username"], payload["room"],
                                self.port, self.event, trust_roots=self.trust_roots)
@@ -76,8 +80,16 @@ class Engine:
         # forwarded to stderr or mistaken for a wire frame.
         if kind == "sync.disconnected":
             self.last_identity = None
-            self.connection("disconnected")
+            # Retry timing belongs to upstream ClientService. Only an ordinary
+            # loss of an established authenticated transport is recoverable.
+            # A TLS/protocol rejection followed by connectionLost stays fatal.
+            if payload.get("code") != "connection_lost" or not self.established:
+                self.terminal = True
+            self.connection("disconnected" if self.terminal else "connecting")
+            self.last_ready = False
+            self.last_participants = []
             self.controller.event("sync.readiness", {"ready": False})
+            self.controller.event("sync.participants", {"participants": []})
 
     def connection(self, state):
         if self.status != state:
@@ -117,14 +129,15 @@ class Engine:
         self.observe(state, user_initiated=False)
 
     def ready(self, value):
-        if (self.session is None or not self.session.has_initial_state or self.port.state is None
+        if (self.terminal or self.status != "connected" or self.session is None
+                or not self.session.has_initial_state or self.port.state is None
                 or self.port.state["status"] != "ready"):
             raise ContractError("invalidState")
         self.session.changeReadyState(value)
 
     def tick(self):
         session = self.session
-        if session is None:
+        if session is None or self.terminal or not session.has_initial_state:
             return
         if session.has_initial_state:
             # getUsername is updated by the authenticated upstream Hello, including
@@ -134,6 +147,7 @@ class Engine:
                 self.controller.event("sync.identity", {"username": username})
                 self.last_identity = username
             self.connection("connected")
+            self.established = True
         ready = session.userlist.currentUser.isReady() is True
         if ready != self.last_ready:
             self.last_ready = ready

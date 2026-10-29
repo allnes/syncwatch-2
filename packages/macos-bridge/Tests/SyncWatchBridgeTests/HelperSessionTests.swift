@@ -17,6 +17,7 @@ private actor SessionPeer: HelperTransport {
     private var event = 0
     private var ended = false
     private var holdUser = false
+    private var automaticReady = true
     private(set) var userWriteHeld = false
 
     private func encode(_ value: [String: Any]) throws -> Data {
@@ -63,7 +64,7 @@ private actor SessionPeer: HelperTransport {
             try emit("sync.identity", ["username": "Viewer_2"])
             try emit("sync.connection", ["state": "connected"])
         }
-        if kind == "sync.setReady" { try emit("sync.readiness", ["ready": true]) }
+        if kind == "sync.setReady", automaticReady { try emit("sync.readiness", ["ready": true]) }
     }
     func read() async throws -> Data {
         if !incoming.isEmpty { return incoming.removeFirst() }
@@ -78,6 +79,12 @@ private actor SessionPeer: HelperTransport {
         writing = nil
     }
     func readiness(_ value: Bool) throws { try emit("sync.readiness", ["ready": value]) }
+    func connection(_ value: String) throws { try emit("sync.connection", ["state": value]) }
+    func identity(_ value: String) throws { try emit("sync.identity", ["username": value]) }
+    func holdReadiness() { automaticReady = false }
+    func readyCount() throws -> Int {
+        try sent.filter { try HelperJSON.object($0)["type"] as? String == "sync.setReady" }.count
+    }
     func gateUserWrite() { holdUser = true }
     func releaseUserWrite() {
         holdUser = false
@@ -266,4 +273,89 @@ private actor SessionPlayer: PlaybackPort {
         await session.close()
         throw error
     }
+}
+
+@Test(arguments: [
+    "recover", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout",
+])
+@MainActor func sessionRecovery(_ scenario: String) async throws {
+    let native = try PlaybackScope.fresh().replacingMedia()
+    let player = SessionPlayer(native)
+    let peer = SessionPeer()
+    let session = try HelperSession(
+        transport: peer, player: player, nativeScope: native,
+        endpoint: SyncplayEndpoint(host: "localhost", port: 8999, room: "room", username: "Viewer_2"),
+        media: SharedMedia(handle: "media-1", name: "Movie.mkv", durationMs: 60000, fileSizeBytes: 1234),
+        revision: sessionRevision, requireDeclaredIdentity: true)
+    do {
+        try session.start()
+        try await eventually { session.state.ready }
+        await peer.holdReadiness()
+        if scenario == "pendingIntent" || scenario == "pendingCorrection" { await peer.gateUserWrite() }
+        try session.pause(false)
+        if scenario == "pendingIntent" || scenario == "pendingCorrection" {
+            try await eventually { await peer.userWriteHeld }
+            if scenario == "pendingIntent" {
+                try session.seek(4000)
+            } else {
+                try await peer.correction(1, after: 1, position: 4000)
+            }
+            try await peer.connection("connecting")
+            try await Task.sleep(for: .milliseconds(30))
+            await peer.releaseUserWrite()
+            try await eventually { session.state.connection == .failed }
+            #expect(try await peer.userCount() == 1)
+        } else {
+            try await eventually { try await peer.userCount() == 1 }
+            try await peer.connection("connecting")
+            try await eventually { session.state.connection == .reconnecting && !session.state.ready }
+            try await eventually { await player.paused }
+            #expect(session.state.acceptedUsername == "Viewer_2")
+            #expect(throws: (any Error).self) { try session.togglePause() }
+            #expect(throws: (any Error).self) { try session.seek(4000) }
+            switch scenario {
+            case "missingIdentity":
+                try await peer.connection("connected")
+                try await eventually { session.state.connection == .failed }
+            case "renamed":
+                try await peer.identity("Viewer_3")
+                try await eventually { session.state.connection == .failed }
+                #expect(session.state.identityRejected)
+            case "earlyReady":
+                try await peer.readiness(true)
+                try await eventually { session.state.connection == .failed }
+            case "cancel":
+                await session.close()
+                #expect(session.state.connection == .stopped)
+            case "timeout":
+                try await Task.sleep(for: .seconds(20))
+                try await peer.connection("connecting")
+                try await Task.sleep(for: .milliseconds(5300))
+                try await eventually { session.state.connection == .failed }
+            default:
+                for attempt in 2...3 {
+                    try await peer.identity("Viewer_2")
+                    try await peer.connection("connected")
+                    try await eventually { try await peer.readyCount() == attempt }
+                    #expect(session.state.connection == .reconnecting && !session.state.ready)
+                    try await peer.readiness(true)
+                    try await eventually { session.state.connection == .connected && session.state.ready }
+                    try session.seek(Int64(attempt * 1000))
+                    try await eventually { try await peer.userCount() == attempt }
+                    if attempt == 2 {
+                        try await peer.connection("connecting")
+                        try await eventually { session.state.connection == .reconnecting }
+                    }
+                }
+                #expect(await player.position == 3000)
+            }
+        }
+        await session.close()
+    } catch {
+        await session.close()
+        throw error
+    }
+    await session.close()
+    #expect(await player.paused)
+    #expect(await player.closes == 0)
 }

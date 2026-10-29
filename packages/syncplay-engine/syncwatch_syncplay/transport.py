@@ -73,7 +73,7 @@ class StrictClientProtocol(SyncClientProtocol):
     def connectionLost(self, reason):
         self._cancel_deadline()
         super().connectionLost(reason)
-        self._client.transport_failed("connection_lost")
+        self._client.transport_failed("connection_lost" if self._phase == "secured" else "tls_handshake_failed")
 
 
 class StrictClientFactory(SyncClientFactory):

@@ -33,7 +33,9 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         if (busy || closing) enabled -= "startWatching"
         return result.copy(enabledActions = enabled, roomStatus = if (!busy && room.mediaNotice.isNotEmpty()) room.mediaNotice else status.ifEmpty { result.roomStatus })
     }
-    val playerNotice: String get() = if (busy) "" else room.mediaNotice
+    val playerNotice: String get() = if (busy) "" else room.mediaNotice.ifEmpty {
+        if (active?.player?.sharedState?.connection == HelperConnection.reconnecting) "reconnecting" else ""
+    }
     fun membershipChanged() {
         if (!room.connected) { seenMembership = false; return }
         if (seenMembership) return
@@ -134,7 +136,8 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                         player.admitSharedPlayback(); admitted = true; stage = "playback"
                     }
                     busy = false; status = "sharedWatchConnected"
-                } else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
+                } else if (player.sharedState?.connection == HelperConnection.reconnecting) status = "reconnecting"
+                else check(admitted || System.nanoTime() < readyDeadline) { "helper-timeout" }
                 delay(100)
             }
         } catch (_: CancellationException) {
