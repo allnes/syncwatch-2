@@ -194,7 +194,11 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                 }
                 let actual = try await player.player.observe(scope)
                 if completed || actual.ended {
-                    guard admitted else { finished = true; status = "ended"; break }
+                    guard admitted else {
+                        finished = true
+                        status = "ended"
+                        break
+                    }
                     guard authorized() else { throw HelperSessionFailure.unavailable }
                     if !completed {
                         busy = true
