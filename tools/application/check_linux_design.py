@@ -35,7 +35,8 @@ def check(arguments):
         classes.mkdir()
         kotlin.compile(["-jvm-target", "21", "-Werror", "-Xfriend-paths=" + str(application),
                         "-classpath", os.pathsep.join(map(str, classpath)), "-d", str(classes),
-                        str(ROOT / "packages/design/tests/linux/RetainedChecks.kt")],
+                        str(ROOT / "packages/design/tests/linux/RetainedChecks.kt"),
+                        str(ROOT / "packages/design/tests/linux/RenderChecks.kt")],
                        work, home, compiler, plugins=("compose",))
         output = kotlin.java(["-Djava.awt.headless=true",
                               "-Dskiko.library.path=" + str(arguments.renderer_package.resolve() / "runtime"),
