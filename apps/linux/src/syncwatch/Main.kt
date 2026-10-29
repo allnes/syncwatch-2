@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -56,7 +57,15 @@ fun main(arguments: Array<String>) {
         Window(onCloseRequest = {
             if (playback != null) playback.requestClose(close)
             else if (workspace != null) workspace.requestClose(close) else close()
-        }, title = "SyncWatch", state = state) {
+        }, title = "SyncWatch", state = state, onPreviewKeyEvent = { event ->
+            // Retained hidden players yield input. Keep the native window's
+            // fullscreen exit available on Library and gallery screens as well.
+            if (event.type == KeyEventType.KeyDown && event.key == Key.Escape
+                && !event.isAltPressed && !event.isCtrlPressed && !event.isShiftPressed && !event.isMetaPressed
+                && playback == null && workspace?.watch?.playerPresented != true && state.placement == WindowPlacement.Fullscreen) {
+                state.placement = placementBeforeFullscreen; true
+            } else false
+        }) {
             if (playback != null || workspace != null) NativePlayerWindowBounds(window)
             when {
                 playback != null -> PlaybackWorkspace(playback, close, toggleFullscreen)
