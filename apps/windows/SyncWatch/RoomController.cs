@@ -55,6 +55,7 @@ internal sealed class RoomController
         get
         {
             if (Editor.State == "reconnecting") return "reconnecting";
+            if (Editor.State == "failed") return playbackSession is null ? "roomConnectionFailed" : "roomUpdatesUnavailable";
             if (!Connected || Bootstrap is not { } value || value.Snapshot.WatchStatus != "active" || admission is null) return "";
             if (value.MissingMembers.Contains(admission.MemberId) || localFiles.Count == 0 && prepared is null) return "sharedWatchMediaMissing";
             return value.MissingMembers.Count == 0 ? "" : "roomPeersMissingMedia";

@@ -101,6 +101,9 @@ catalog state survive an event reconnect. New shared admission is disabled while
 reconnecting. Already admitted native playback retains its existing Syncplay
 owner; metadata transport recovery does not issue playback commands or reload a
 movie. The common Design presents reconnecting state and keeps Leave available.
+After retries are exhausted, the Library and Player retain a visible connection
+notice with an explicit route to reconnect or leave. An admitted Syncplay scope
+must not hide the metadata failure behind its playback status.
 Leaving or closing cancels the monitor, its backoff and all owned network work
 before releasing credentials.
 

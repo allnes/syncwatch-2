@@ -49,6 +49,7 @@ internal class RoomController(private val scope: CoroutineScope) {
         roomStatus = if (connected) (editor.status.takeIf { it in setOf("roomCatalogPublishing", "roomCatalogPublishFailed") } ?: "roomMetadataConnected") else if (editor.state == "reconnecting") "reconnecting" else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
     val mediaNotice: String get() {
         if (editor.state == "reconnecting") return "reconnecting"
+        if (editor.state == "failed") return if (playbackSession == null) "roomConnectionFailed" else "roomUpdatesUnavailable"
         val value = bootstrap ?: return ""
         val member = admission?.memberId ?: return ""
         if (!connected || value.snapshot.watchStatus != "active") return ""

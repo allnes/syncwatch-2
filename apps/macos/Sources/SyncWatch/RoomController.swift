@@ -66,6 +66,9 @@ struct RoomPreparedPublication {
     }
     var mediaNotice: String {
         if editor.state == "reconnecting" { return "reconnecting" }
+        if editor.state == "failed" {
+            return playbackSession == nil ? "roomConnectionFailed" : "roomUpdatesUnavailable"
+        }
         guard connected, let bootstrap, bootstrap.snapshot.watchStatus == "active", let admission else { return "" }
         if bootstrap.missingMembers.contains(admission.memberID) || (localFiles.isEmpty && prepared == nil) {
             return "sharedWatchMediaMissing"

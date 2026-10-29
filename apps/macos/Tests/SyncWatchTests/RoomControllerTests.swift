@@ -34,8 +34,10 @@ import Testing
         controller.editor.state = state
         #expect(!controller.libraryPresentation(source).allows("startWatching"))
         if state == "failed" { #expect(controller.editor.context.values["can.leaveRoom"] == "true") }
+        if state == "failed" { #expect(controller.mediaNotice == "roomConnectionFailed") }
         await controller.close()
         #expect(controller.libraryPresentation(source).allows("startWatching"))
+        #expect(controller.mediaNotice.isEmpty)
     }
 }
 

@@ -26,8 +26,10 @@ internal suspend fun roomPlaybackGateChecks(scope: CoroutineScope) {
         controller.editor = controller.editor.copy(state = state)
         check(!controller.libraryPresentation(source).allows("startWatching"))
         if (state == "failed") check(controller.editor.context.values["can.leaveRoom"] == "true")
+        if (state == "failed") check(controller.mediaNotice == "roomConnectionFailed")
         controller.close()
         check(controller.libraryPresentation(source).allows("startWatching"))
+        check(controller.mediaNotice.isEmpty())
     }
     println("SYNCWATCH_ROOM_PLAYBACK_GATE_OK explicit exit after failure")
     println("SYNCWATCH_ROOM_INVITATION_OK atomic paste with an explicit service destination")
