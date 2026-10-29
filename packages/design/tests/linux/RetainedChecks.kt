@@ -72,6 +72,11 @@ private fun verifyRetainedFocus() {
             Snapshot.sendApplyNotifications()
             repeat(4) { scene.render().close() }
             check(focused == active) { "inactive retained content kept keyboard focus: $active $focused" }
+            if (!active) {
+                requester.requestFocus()
+                repeat(2) { scene.render().close() }
+                check(!focused) { "inactive retained content accepted new keyboard focus" }
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
@@ -66,7 +67,9 @@ internal val LocalDesignPresented = compositionLocalOf { true }
         if (wasActive && !active) focus.clearFocus(force = true)
         wasActive = active
     }
-    var frame = modifier.clipToBounds().onPreviewKeyEvent { !active }
+    // Retained children remain composed. Exclude every child focus target while
+    // hidden, including requests made after its former sibling is replaced.
+    var frame = modifier.clipToBounds().focusProperties { canFocus = active }.onPreviewKeyEvent { !active }
     if (!active) frame = frame.clearAndSetSemantics { }
     Box(frame) {
         CompositionLocalProvider(LocalDesignPresented provides active) {
