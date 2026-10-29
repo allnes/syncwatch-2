@@ -9,6 +9,8 @@ internal suspend fun roomWatchContextChecks() {
     check(RoomWatchCoordinator.failureKey(SharedMediaUnavailable(), false) == "sharedWatchMediaMissing")
     check(RoomWatchCoordinator.failureKey(SharedMediaUnavailable(), true) == "sharedWatchIdentityRejected")
     check(RoomController.isMetadataInterruption(java.io.IOException()))
+    check(RoomController.isMetadataInterruption(java.util.concurrent.CompletionException(java.io.IOException())))
+    check(!RoomController.isMetadataInterruption(java.util.concurrent.CompletionException(RoomProtocolException("unauthorized"))))
     check(RoomController.isMetadataInterruption(RoomProtocolException("transport")))
     for (code in listOf("malformed", "unauthorized", "forbidden", "frameTooLarge")) check(!RoomController.isMetadataInterruption(RoomProtocolException(code)))
     check(RoomWatchCoordinator.failureKey(RoomProtocolException("staleGeneration"), false) == "sharedWatchRoomChanged")
@@ -17,6 +19,7 @@ internal suspend fun roomWatchContextChecks() {
         check(RoomWatchCoordinator.failureKey(error, false) == "sharedWatchFailed")
     val address = System.getenv("SYNCWATCH_ROOM_SERVICE") ?: return
     val key = System.getenv("SYNCWATCH_ROOM_CREATION_KEY") ?: return
+    roomEventMonitorChecks(address, key)
     preparedPublication(address, key)
     val client = RoomClient(RoomAddress(address)); val peer = RoomClient(RoomAddress(address))
     try {

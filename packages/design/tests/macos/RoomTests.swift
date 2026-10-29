@@ -25,4 +25,13 @@ import Testing
     #expect(editor.context.values["can.copyInvitation"] == "false")
     editor.owner = true
     #expect(editor.context.values["can.copyInvitation"] == "true")
+    editor.state = "reconnecting"
+    #expect(editor.busy && !editor.connected)
+    #expect(editor.context.values["status"] == "reconnecting")
+    #expect(editor.context.values["showForm"] == "false" && editor.context.values["can.leaveRoom"] == "true")
+    #expect(
+        editor.context.values["can.copyInvitation"] == "false" && editor.context.values["can.connectRoom"] == "false")
+    editor.edit("username", value: "Changed")
+    #expect(editor.values["username"] == "Alice")
+
 }

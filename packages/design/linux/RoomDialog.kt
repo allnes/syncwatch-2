@@ -8,7 +8,7 @@ class RoomEditor private constructor(initial: Map<String, String>, val mode: Str
     val values: Map<String, String> = java.util.Collections.unmodifiableMap(HashMap(initial))
     constructor(initial: Map<String, String> = emptyMap()) : this(SyncWatchRoomForm.defaults + initial.filterKeys { id ->
         SyncWatchRoomForm.fields.any { it.id == id && it.kind != "secret" } }, "createRoom", "disconnected", "", "", 0, false)
-    val busy: Boolean get() = state == "connecting"
+    val busy: Boolean get() = state == "connecting" || state == "reconnecting"
     val connected: Boolean get() = state == "connected"
     val fields: List<SyncWatchRoomFormField> get() = SyncWatchRoomForm.fields.filter { it.section == "connection" || it.section == mode }
     val isValid: Boolean get() = fields.all { field -> values[field.id]?.let { value ->
@@ -22,11 +22,11 @@ class RoomEditor private constructor(initial: Map<String, String>, val mode: Str
     fun selectMode(mode: String): RoomEditor = if (busy || connected || mode == this.mode || mode !in listOf("createRoom", "joinRoom")) this else
         RoomEditor(clearSecrets().values, mode, state, "", roomId, memberCount, owner)
     fun clearSecrets(): RoomEditor = RoomEditor(values + SyncWatchRoomForm.fields.filter { it.kind == "secret" }.associate { it.id to "" }, mode, state, status, roomId, memberCount, owner)
-    val context: DesignContext get() = DesignContext(mapOf("namespace" to "room", "showForm" to (!connected).toString(), "connected" to connected.toString(),
+    val context: DesignContext get() = DesignContext(mapOf("namespace" to "room", "showForm" to (!connected && state != "reconnecting").toString(), "connected" to (connected || state == "reconnecting").toString(),
         "createMode" to (mode == "createRoom").toString(), "joinMode" to (mode == "joinRoom").toString(), "connectLabel" to mode,
-        "status" to if (busy) "roomConnecting" else status, "roomID" to roomId, "memberCount" to memberCount.toString(),
+        "status" to if (state == "reconnecting") "reconnecting" else if (busy) "roomConnecting" else status, "roomID" to roomId, "memberCount" to memberCount.toString(),
         "can.close" to "true", "can.chooseRoomMode" to (!busy && !connected).toString(), "can.connectRoom" to (!busy && !connected && isValid).toString(),
-        "can.leaveRoom" to (connected || state == "failed").toString(), "can.copyInvitation" to (connected && owner).toString(), "can.pasteInvitation" to (!busy && !connected && mode == "joinRoom").toString()),
+        "can.leaveRoom" to (connected || state == "failed" || state == "reconnecting").toString(), "can.copyInvitation" to (connected && owner).toString(), "can.pasteInvitation" to (!busy && !connected && mode == "joinRoom").toString()),
         mapOf("fields" to fields.map { DesignContext(mapOf("id" to it.id, "label" to it.label, "value" to values[it.id].orEmpty(), "secret" to (it.kind == "secret").toString(), "editable" to (!busy).toString())) }))
 }
 @Composable fun RoomDialog(editor: RoomEditor, onEditorChange: (RoomEditor) -> Unit, language: String = "en", theme: SyncWatchTheme = SyncWatchTheme.dark,

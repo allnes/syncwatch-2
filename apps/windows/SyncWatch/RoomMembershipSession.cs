@@ -19,6 +19,19 @@ internal sealed class RoomMembershipSession(RoomClient client, RoomAdmission adm
         try { minimumSequence = Math.Max(minimumSequence, sequence); return await ReadAsync(initial, cancellation); }
         finally { gate.Release(); }
     }
+    // Creating a socket bootstrap replaces the server cursor; serialize it with commands and walks.
+    internal async Task<(RoomEventStream Stream, RoomCatalogView View)> ConnectEventsAsync(RoomClient events, bool recovering, CancellationToken cancellation)
+    {
+        await gate.WaitAsync(cancellation);
+        try
+        {
+            if (recovering) _ = await ValidatedSnapshotAsync(null, cancellation);
+            var stream = await events.OpenEventsAsync(admission, cancellation);
+            _ = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(cancellation), admission);
+            return (stream, await ReadAsync(null, cancellation));
+        }
+        finally { gate.Release(); }
+    }
     internal async Task<RoomCatalogView> PublishAsync(IReadOnlyList<MediaDescriptor> items, CancellationToken cancellation = default)
     {
         await gate.WaitAsync(cancellation);

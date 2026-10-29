@@ -23,8 +23,10 @@ internal static class RoomPlaybackGateChecks
             controller.Editor.State = state;
             if (controller.LibraryPresentation(source).Allows("startWatching")) throw new InvalidOperationException("Room attempt enabled unsynchronized playback");
             if (state == "failed" && controller.Editor.Context.Values["can.leaveRoom"] != "true") throw new InvalidOperationException("Failed room has no explicit exit");
+            if (state == "failed" && controller.MediaNotice != "roomConnectionFailed") throw new InvalidOperationException("Room failure is hidden by playback presentation");
             await controller.CloseAsync();
             if (!controller.LibraryPresentation(source).Allows("startWatching")) throw new InvalidOperationException("Explicit exit did not restore local playback");
+            if (controller.MediaNotice.Length != 0) throw new InvalidOperationException("Explicit exit retained a connection failure notice");
         }
         Console.WriteLine("SYNCWATCH_ROOM_PLAYBACK_GATE_OK explicit exit after failure");
         Console.WriteLine("SYNCWATCH_ROOM_INVITATION_OK atomic paste with an explicit service destination");

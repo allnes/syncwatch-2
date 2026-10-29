@@ -579,6 +579,8 @@ public enum SyncWatchCopy {
             "roomMetadataConnected": "Connected to room",
             "roomDisconnected": "Room connection interrupted",
             "roomConnectionFailed": "Could not connect. Check the service, credentials and username.",
+            "roomUpdatesUnavailable":
+                "Room updates are unavailable. Return to the library and open Room connection to reconnect or leave.",
             "leaveRoom": "Leave room",
             "copyInvitation": "Copy invitation",
             "roomInvitationCopied": "Room ID and invitation copied",
@@ -825,6 +827,8 @@ public enum SyncWatchCopy {
             "roomMetadataConnected": "Подключено к комнате",
             "roomDisconnected": "Соединение с комнатой прервано",
             "roomConnectionFailed": "Не удалось подключиться. Проверьте сервис, ключи и имя участника.",
+            "roomUpdatesUnavailable":
+                "Обновления комнаты недоступны. Вернитесь в библиотеку и откройте подключение к комнате, чтобы подключиться заново или выйти.",
             "leaveRoom": "Выйти из комнаты",
             "copyInvitation": "Копировать приглашение",
             "roomInvitationCopied": "Идентификатор и приглашение скопированы",

@@ -9,6 +9,7 @@ internal static class RoomWatchContextChecks
         if (RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), false) != "sharedWatchMediaMissing"
             || RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), true) != "sharedWatchIdentityRejected") throw new Exception("Missing media failure classification");
         if (!RoomController.IsMetadataInterruption(new System.Net.Http.HttpRequestException()) || !RoomController.IsMetadataInterruption(new RoomProtocolException("transport"))) throw new Exception("Transport interruption classification");
+        if (!RoomController.IsMetadataInterruption(new System.Net.WebSockets.WebSocketException())) throw new Exception("Event handshake interruption classification");
         foreach (string code in new[] { "malformed", "unauthorized", "forbidden", "frameTooLarge" })
             if (RoomController.IsMetadataInterruption(new RoomProtocolException(code))) throw new Exception("Invalid membership retained");
         if (RoomWatchCoordinator.FailureKey(new RoomProtocolException("staleGeneration"), false) != "sharedWatchRoomChanged"
@@ -17,6 +18,7 @@ internal static class RoomWatchContextChecks
             if (RoomWatchCoordinator.FailureKey(error, false) != "sharedWatchFailed") throw new Exception("Shared failure exposed unclassified details");
         string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), key = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_CREATION_KEY");
         if (address is null || key is null) return;
+        await RoomEventMonitorChecks.RunAsync(address, key);
         await PreparedPublicationAsync(address, key);
         await using var client = new RoomClient(new(address)); await using var peer = new RoomClient(new(address));
         var identity = new RoomIdentity("run-" + Guid.NewGuid().ToString("N"), "Windows watch");
