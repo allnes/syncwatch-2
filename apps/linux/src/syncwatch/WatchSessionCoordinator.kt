@@ -144,7 +144,7 @@ internal class WatchSessionCoordinator(
     }
     private fun observed(value: PlaybackObservation) {
         if (closing || value.scope != session.scope || phase != WatchPhase.active || value.status != PlaybackStatus.ready) return
-        try { session.recordPlayback(value.scope, value.positionMs, value.durationMs, value.paused) }
+        try { session.recordPlayback(value.scope, value.positionMs, value.durationMs, value.paused, value.ended) }
         catch (_: WatchFailure) { failed(value.scope) }
     }
     private fun failed(owner: PlaybackScope) {

@@ -38,7 +38,7 @@ def check(payload, output, *, toolchain_root=ROOT):
     if "SYNCWATCH_LINUX_DOMAIN_OK" not in transcript:
         raise ValueError("Kotlin domain did not complete the shared contract corpus")
     report = {"schemaVersion": 1, "hostTarget": jdk.current_target(), "kotlinDomainCompiled": True,
-              "sharedDomainAccepted": True, "stateCases": 31, "lifecycleScenarios": 6,
+              "sharedDomainAccepted": True, "stateCases": 31, "lifecycleScenarios": 7,
               "nativeActionScenarios": len(json.loads((ROOT / "contracts/fixtures/playback-authority.json").read_text())["cases"]),
               "mediaAgreementScenarios": len(json.loads((ROOT / "contracts/fixtures/media-agreement.json").read_text())["cases"]),
               "applicationBuilt": False, "guiAccepted": False, "physicalOutputAccepted": False,

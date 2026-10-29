@@ -165,7 +165,7 @@ internal sealed class WatchSessionCoordinator
     private void Observed(PlaybackObservation value)
     {
         if (closing || value.Scope != session.Scope || session.Phase != WatchPhase.Active || value.Status != PlaybackStatus.Ready) return;
-        try { session.RecordPlayback(value.Scope, value.PositionMs, value.DurationMs, value.Paused); }
+        try { session.RecordPlayback(value.Scope, value.PositionMs, value.DurationMs, value.Paused, value.Ended); }
         catch (Exception error) when (error is WatchException or ContractException) { Failed(value.Scope); }
     }
     private void Failed(PlaybackScope owner)

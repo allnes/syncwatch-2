@@ -42,7 +42,7 @@ fun main(arguments: Array<String>) {
                         "select" -> effects = session.select(step["mediaId"] as String)
                         "start" -> effects = session.start()
                         "loaded" -> session.loaded(owner)
-                        "observe" -> session.recordPlayback(owner, number(step["positionMs"]), step["durationMs"]?.let(::number), step["paused"] as? Boolean ?: true)
+                        "observe" -> session.recordPlayback(owner, number(step["positionMs"]), step["durationMs"]?.let(::number), step["paused"] as? Boolean ?: true, step["ended"] as? Boolean ?: false)
                         "home" -> session.returnToLibrary()
                         "continue" -> session.continueWatching()
                         "end" -> effects = session.end()
@@ -86,7 +86,7 @@ fun main(arguments: Array<String>) {
             session.select("movie-$i"); session.start(); session.loaded(session.scope); session.recordPlayback(session.scope, i + 1L, null, true)
         }
         requireCase(session.localState.resumePositions.size == 256 && session.localState.resumePositionFor("movie-0") == 0L, "bounded history")
-        requireCase(stateCases.size == 31 && lifecycleCases.size == 6, "complete corpus")
+        requireCase(stateCases.size == 31 && lifecycleCases.size == 7, "complete corpus")
         println("SYNCWATCH_LINUX_DOMAIN_OK 31 state cases; 6 lifecycle scenarios; atomic persistence, ownership and bounded history")
     } finally {
         Files.walk(directory).use { paths -> paths.sorted(Comparator.reverseOrder()).forEach(Files::delete) }

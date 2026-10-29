@@ -37,18 +37,19 @@ class WatchSession(localState: LocalState = LocalState(), scope: PlaybackScope =
         val selected = mediaId ?: throw WatchFailure("invalidState")
         if (phase in setOf(WatchPhase.active, WatchPhase.preparing)) { playerPresented = true; return emptyList() }
         val next = scope.replacingMedia()
-        scope = next; phase = WatchPhase.preparing; playerPresented = true; paused = true
+        scope = next; positionMs = localState.resumePositionFor(selected); phase = WatchPhase.preparing; playerPresented = true; paused = true
         return listOf(WatchEffect.Load(scope, selected, positionMs))
     }
     fun loaded(owner: PlaybackScope) { check(owner, WatchPhase.preparing); phase = WatchPhase.active }
-    fun recordPlayback(owner: PlaybackScope, positionMs: Long, durationMs: Long?, paused: Boolean) {
+    fun recordPlayback(owner: PlaybackScope, positionMs: Long, durationMs: Long?, paused: Boolean, ended: Boolean = false) {
         check(owner, WatchPhase.active)
         if (positionMs !in 0..MAXIMUM_POSITION_MS || durationMs != null && (durationMs !in 0..MAXIMUM_POSITION_MS || positionMs > durationMs)) {
             throw WatchFailure("invalidLocalState")
         }
         val selected = mediaId ?: throw WatchFailure("invalidState")
         this.positionMs = positionMs; this.paused = paused
-        localState = localState.copy(resumePositions = (localState.resumePositions.filterNot { it.mediaId == selected } + ResumePosition(selected, positionMs)).takeLast(256))
+        // Completion resets the next load, while the current observation keeps its actual position.
+        localState = localState.copy(resumePositions = (localState.resumePositions.filterNot { it.mediaId == selected } + ResumePosition(selected, if (ended) 0 else positionMs)).takeLast(256))
     }
     fun returnToLibrary() { playerPresented = false }
     fun continueWatching() {
