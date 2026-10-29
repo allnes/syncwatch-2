@@ -101,6 +101,9 @@
         },
         {
           "action": "showLibrary"
+        },
+        {
+          "action": "nextFile"
         }
       ],
       "expected": [
@@ -156,6 +159,9 @@
         },
         {
           "action": "showLibrary"
+        },
+        {
+          "action": "nextFile"
         }
       ],
       "expected": [
@@ -211,6 +217,9 @@
         },
         {
           "action": "showLibrary"
+        },
+        {
+          "action": "nextFile"
         }
       ],
       "expected": [
@@ -224,7 +233,7 @@
       ]
     },
     {
-      "name": "ended blocks playback",
+      "name": "ended allows playlist navigation while playback stays stopped",
       "state": "ended",
       "positionMs": 1000,
       "durationMs": 20000,
@@ -243,7 +252,9 @@
         "showLibrary",
         "endWatching",
         "openCall",
-        "toggleFullscreen"
+        "toggleFullscreen",
+        "selectAudio",
+        "selectSubtitles"
       ],
       "requests": [
         {
@@ -261,14 +272,29 @@
           "action": "previousFile"
         },
         {
+          "action": "nextFile"
+        },
+        {
           "action": "setMovieVolume",
           "value": 0.25
         },
         {
           "action": "showLibrary"
+        },
+        {
+          "action": "selectAudio"
+        },
+        {
+          "action": "selectSubtitles"
         }
       ],
       "expected": [
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "nextFile"
+        },
         {
           "action": "setMovieVolume",
           "value": 0.25
@@ -703,6 +729,119 @@
         {
           "action": "skip",
           "value": 1
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ended without neighbours",
+      "state": "ended",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": false,
+      "hasNext": false,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen",
+        "selectAudio",
+        "selectSubtitles"
+      ],
+      "requests": [
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "nextFile"
+        },
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ended without playlist capability",
+      "state": "ended",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": 0.7,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip"
+      ],
+      "requests": [
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "nextFile"
+        },
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ended invalid observations",
+      "state": "ended",
+      "positionMs": 1000,
+      "durationMs": 20000,
+      "volume": -1,
+      "skipSeconds": 10,
+      "hasPrevious": true,
+      "hasNext": true,
+      "enabledActions": [
+        "playPause",
+        "seek",
+        "skip",
+        "previousFile",
+        "nextFile",
+        "setMovieVolume",
+        "muteMovie",
+        "showLibrary",
+        "endWatching",
+        "openCall",
+        "toggleFullscreen",
+        "selectAudio",
+        "selectSubtitles"
+      ],
+      "requests": [
+        {
+          "action": "previousFile"
+        },
+        {
+          "action": "nextFile"
+        },
+        {
+          "action": "playPause"
+        },
+        {
+          "action": "seek",
+          "value": 5000
         }
       ],
       "expected": []

@@ -27,7 +27,7 @@ data class PlayerPresentation(
     val displayedDuration: Double get() = durationMs.coerceIn(0, SyncWatchPlayer.maximumPositionMs).toDouble()
     val displayedPosition: Double get() = positionMs.coerceAtLeast(0).toDouble().coerceAtMost(displayedDuration)
     fun allows(action: String): Boolean = action in enabledActions && action in SyncWatchPlayer.actions && when (action) {
-        "playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles" -> isValid && state in setOf(PlayerVisualState.paused, PlayerVisualState.playing, PlayerVisualState.fullscreen) && when (action) {
+        "playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles" -> isValid && (state in setOf(PlayerVisualState.paused, PlayerVisualState.playing, PlayerVisualState.fullscreen) || state == PlayerVisualState.ended && action in SyncWatchPlayer.completedNavigationActions) && when (action) {
             "seek", "skip" -> durationMs > 0
             "previousFile" -> hasPrevious
             "nextFile" -> hasNext

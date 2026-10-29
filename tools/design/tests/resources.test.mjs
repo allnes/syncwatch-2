@@ -133,6 +133,9 @@ test('player states, supported actions and first-party polygons generate into al
 
 test('invalid player contracts and polygon bounds fail before native generation', () => {
     for (const change of [s => s.schemaVersion = 2, s => s.states.reverse(), s => s.actions.push('unknown'),
+        s => delete s.completedNavigationActions, s => s.completedNavigationActions = [],
+        s => s.completedNavigationActions = ['playPause'], s => s.completedNavigationActions = ['unknown'],
+        s => s.completedNavigationActions = ['nextFile', 'nextFile'],
         s => s.maximumPositionMs++, s => s.icons.play = [[0, 1, 2]], s => s.icons.play[0][0] = 21,
         s => s.icons.play[0][0] = null, s => delete s.icons.pause]) {
         const design = fixture();

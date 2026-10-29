@@ -20,7 +20,7 @@ private fun corpus(root: Path, name: String) =
 private fun playerChecks(root: Path): Int {
     data class Event(val action: String, val value: Double?)
     val cases = corpus(root, "player-actions.json")
-    check(cases.size == 16)
+    check(cases.size == 19)
     for (fixture in cases) {
         val model = PlayerPresentation(
             state = PlayerVisualState.valueOf(fixture.text("state")),
