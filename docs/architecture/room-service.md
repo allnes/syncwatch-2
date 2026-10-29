@@ -81,11 +81,14 @@ client. It closes and joins the previous client before rebinding the same admitt
 member and credential; it never creates a new room, identity or invitation.
 
 Only transport interruption permits automatic rebinding. Recovery has at most
-four retries, with 250, 500, 1000 and 2000 millisecond delays, and a 25 second
+five retries, with 500, 1000, 2000, 4000 and 8000 millisecond delays, and a 25 second
 budget after the first failure. Each connection bootstrap is additionally bounded
 to 20 seconds. An accepted connection resets the budget. Invalid metadata,
 identity/epoch/connection changes, authorization rejection and expired membership
 remain terminal. A failed recovery requires an explicit new connection decision.
+Before retrying a socket handshake, the retained HTTP membership refreshes its
+authoritative binding. This exposes authorization or expiry errors even when the
+native WebSocket API reports a generic failed handshake.
 
 Before publishing a connected state, the retained membership validates the new
 bootstrap and complete catalog against its identity and monotonic sequence floor.

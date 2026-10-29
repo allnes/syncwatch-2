@@ -8,7 +8,7 @@ internal static class RoomEventMonitor
     internal static async Task RunAsync(RoomAddress address, RoomAdmission admission, RoomMembershipSession membership,
         Action reconnecting, Action<RoomCatalogView> accepted, CancellationToken cancellation)
     {
-        int[] delays = [250, 500, 1000, 2000];
+        int[] delays = [500, 1000, 2000, 4000, 8000];
         int failures = 0;
         long? deadline = null;
         while (true)
@@ -26,6 +26,7 @@ internal static class RoomEventMonitor
                     using (var bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellation))
                     {
                         bootstrap.CancelAfter(TimeSpan.FromMilliseconds(allowance));
+                        if (failures > 0) _ = await membership.RefreshAsync(cancellation: bootstrap.Token);
                         stream = await client.OpenEventsAsync(admission, bootstrap.Token);
                         var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(bootstrap.Token), admission);
                         first = await membership.RefreshAsync(initial, cancellation: bootstrap.Token);

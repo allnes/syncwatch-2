@@ -39,7 +39,7 @@ internal static class RoomEventMonitorChecks
                 throw new Exception("Transport retries were not bounded");
             }
             catch (RoomProtocolException error) when (error.Message == "transport") { }
-            if (exhaustedAttempts != 5 || exhaustedRetries != 4) throw new Exception("Recovery exceeded its attempt budget");
+            if (exhaustedAttempts != 6 || exhaustedRetries != 5) throw new Exception("Recovery exceeded its attempt budget");
             int retries = 0;
             try
             {

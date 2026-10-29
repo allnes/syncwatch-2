@@ -7,7 +7,7 @@ import syncwatch.room.*
 internal object RoomEventMonitor {
     suspend fun run(address: RoomAddress, admission: RoomAdmission, membership: RoomMembershipSession,
         reconnecting: () -> Unit, accepted: (RoomCatalogView) -> Unit) {
-        val delays = longArrayOf(250, 500, 1000, 2000)
+        val delays = longArrayOf(500, 1000, 2000, 4000, 8000)
         var failures = 0
         var deadline: Long? = null
         while (true) {
@@ -18,6 +18,7 @@ internal object RoomEventMonitor {
                 val allowance = minOf(20000L, deadline?.let { (it - System.nanoTime()) / 1000000 } ?: 20000L)
                 if (allowance <= 0) throw RoomProtocolException("transport")
                 val (stream, first) = withTimeout(allowance) {
+                    if (failures > 0) membership.refresh()
                     val events = client.openEvents(admission)
                     val initial = RoomBootstrap.initialEvent(events.receive(), admission)
                     events to membership.refresh(initial = initial)

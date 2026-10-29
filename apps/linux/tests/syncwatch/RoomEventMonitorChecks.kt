@@ -32,7 +32,7 @@ internal suspend fun roomEventMonitorChecks(address: String, key: String) = coro
             RoomEventMonitor.run(RoomAddress(address), admission, owner, reconnecting = { exhaustedRetries++ },
                 accepted = { exhaustedAttempts++; throw RoomProtocolException("transport") })
         }.exceptionOrNull()
-        check(exhausted is RoomProtocolException && exhausted.code == "transport" && exhaustedAttempts == 5 && exhaustedRetries == 4)
+        check(exhausted is RoomProtocolException && exhausted.code == "transport" && exhaustedAttempts == 6 && exhaustedRetries == 5)
         var retries = 0
         val failure = runCatching {
             RoomEventMonitor.run(RoomAddress(address), admission, owner, reconnecting = { retries++ },

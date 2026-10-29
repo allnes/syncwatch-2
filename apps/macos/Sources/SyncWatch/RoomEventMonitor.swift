@@ -13,15 +13,17 @@ import SyncWatchRoom
     ) async throws {
         var failures = 0
         var deadline: ContinuousClock.Instant?
-        let delays: [Duration] = [.milliseconds(250), .milliseconds(500), .seconds(1), .seconds(2)]
+        let delays: [Duration] = [.milliseconds(500), .seconds(1), .seconds(2), .seconds(4), .seconds(8)]
         while true {
             try Task.checkCancellation()
             let client = RoomClient(address: address)
             do {
                 let allowance = deadline.map { min(.seconds(20), ContinuousClock.now.duration(to: $0)) } ?? .seconds(20)
                 guard allowance > .zero else { throw RoomProtocolFailure.transport }
+                let recovering = failures > 0
                 let connection = try await withThrowingTaskGroup(of: Connection.self) { group in
                     group.addTask {
+                        if recovering { _ = try await membership.refresh() }
                         let stream = try await client.openEvents(admission)
                         let initial = try RoomBootstrap.initialEvent(await stream.receive(), admission: admission)
                         return Connection(stream: stream, view: try await membership.refresh(initial: initial))

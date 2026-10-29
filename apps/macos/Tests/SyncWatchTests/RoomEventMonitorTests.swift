@@ -60,7 +60,7 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
                 })
             Issue.record("Transport retries were not bounded")
         } catch RoomProtocolFailure.transport {}
-        #expect(exhaustedAttempts == 5 && exhaustedRetries == 4)
+        #expect(exhaustedAttempts == 6 && exhaustedRetries == 5)
         var retries = 0
         do {
             try await RoomEventMonitor.run(
