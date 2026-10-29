@@ -201,3 +201,31 @@ private func describe(_ effect: WatchEffect) -> String {
     invalid.resumePositions.append(ResumePosition(mediaID: "extra", positionMs: 1))
     #expect(throws: WatchError.invalidLocalState) { try invalid.validate() }
 }
+
+@Test func playlistSelectionRestartsOnlyTheChosenFileAndFencesOldObservations() throws {
+    var session = try WatchSession()
+    for (id, position) in [("first", Int64(12000)), ("second", Int64(24000))] {
+        _ = try session.select(id)
+        _ = try session.start()
+        try session.loaded(session.scope)
+        try session.recordPlayback(session.scope, positionMs: position, durationMs: 60000, paused: true)
+    }
+    let old = session.scope
+    #expect(try session.select("second").isEmpty)
+    let release = try session.select("second", restartFromBeginning: true)
+    #expect(release == [.release(old)])
+    #expect(session.positionMs == 0 && session.localState.resumePosition(for: "second") == 0)
+    #expect(session.localState.resumePosition(for: "first") == 12000)
+    #expect(session.scope != old && session.phase == .selected)
+    #expect(throws: (any Error).self) {
+        try session.recordPlayback(old, positionMs: 50000, durationMs: 60000, paused: false)
+    }
+    guard case .load(let load) = try #require(session.start().first) else {
+        Issue.record("Missing playlist load")
+        return
+    }
+    #expect(load.positionMs == 0 && load.scope == session.scope)
+    try session.loaded(session.scope)
+    _ = try session.select("first")
+    #expect(session.positionMs == 12000)
+}

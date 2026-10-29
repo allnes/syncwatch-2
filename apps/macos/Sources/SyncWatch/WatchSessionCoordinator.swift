@@ -12,6 +12,9 @@ import SyncWatchPlayback
     @Published private(set) var phase: WatchPhase
     @Published var errorKey: String?
     var onEndWatching: (@MainActor () -> Void)?
+    var onPlaylistUpdate: (@MainActor (WatchPlaylist) -> Void)?
+    var onPlaylistSelection: (@MainActor (String) -> Void)?
+    var mediaID: String? { session.mediaID }
     private var session: WatchSession
     private let preferences: AppearancePreferences
     private let media: MediaConfiguration
@@ -65,10 +68,12 @@ import SyncWatchPlayback
         if preferences.savingWatchState { result.enabledActions.remove("openSettings") }
         return liveSelection ? player!.libraryPresentation(result) : result
     }
-    func start(_ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false) {
+    func start(
+        _ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false, restartFromBeginning: Bool = false
+    ) {
         guard runtimeAvailable, !closing else { return }
         do {
-            for effect in try session.select(selection.media.id) {
+            for effect in try session.select(selection.media.id, restartFromBeginning: restartFromBeginning) {
                 if case .release(let owner) = effect { release(owner) }
             }
             let effects = try session.start()
@@ -171,7 +176,9 @@ import SyncWatchPlayback
                         if let handler = self?.onEndWatching { handler() } else { self?.end() }
                     }
                 },
-                onFailure: { [weak self] in self?.failed(request.scope) })
+                onFailure: { [weak self] in self?.failed(request.scope) },
+                onPlaylistUpdate: { [weak self] in self?.onPlaylistUpdate?($0) },
+                onPlaylistSelection: { [weak self] in self?.onPlaylistSelection?($0) })
         }
     }
     private func release(_ owner: PlaybackScope) {

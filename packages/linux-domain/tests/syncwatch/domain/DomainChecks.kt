@@ -63,6 +63,19 @@ fun main(arguments: Array<String>) {
             }
         }
         Files.delete(store.path)
+        val playlist = WatchSession()
+        for ((id, position) in listOf("first" to 12000L, "second" to 24000L)) {
+            playlist.select(id); playlist.start(); playlist.loaded(playlist.scope)
+            playlist.recordPlayback(playlist.scope, position, 60000, true)
+        }
+        val oldPlaylistScope = playlist.scope
+        check(playlist.select("second").isEmpty())
+        check(playlist.select("second", restartFromBeginning = true) == listOf(WatchEffect.Release(oldPlaylistScope)))
+        check(playlist.positionMs == 0L && playlist.localState.resumePositionFor("second") == 0L && playlist.localState.resumePositionFor("first") == 12000L)
+        check(runCatching { playlist.recordPlayback(oldPlaylistScope, 50000, 60000, false) }.isFailure)
+        check(playlist.scope != oldPlaylistScope && playlist.phase == WatchPhase.selected)
+        check((playlist.start().single() as WatchEffect.Load).positionMs == 0L)
+        playlist.loaded(playlist.scope); playlist.select("first"); check(playlist.positionMs == 12000L)
         val session = WatchSession(); session.select("movie-a"); session.start(); session.loaded(session.scope)
         session.recordPlayback(session.scope, 12345, 50000, true)
         session.setPreferences(LocalPreferences(movieVolume = .25, callVolume = 0.0, cameraEnabled = false))

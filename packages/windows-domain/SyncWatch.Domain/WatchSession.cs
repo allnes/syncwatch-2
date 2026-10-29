@@ -40,16 +40,17 @@ public sealed class WatchSession
         PositionMs = MediaId is not null ? LocalState.ResumePositionFor(MediaId) : 0;
     }
 
-    public IReadOnlyList<WatchEffect> Select(string mediaId)
+    public IReadOnlyList<WatchEffect> Select(string mediaId, bool restartFromBeginning = false)
     {
         ValidateId(mediaId);
-        if (MediaId == mediaId) { return []; }
+        if (!restartFromBeginning && MediaId == mediaId) { return []; }
         PlaybackScope next = Scope.ReplacingMedia();
         IReadOnlyList<WatchEffect> effects = ReleaseEffects();
         Scope = next;
         MediaId = mediaId;
         LocalState = LocalState with { SelectedMediaId = mediaId };
-        PositionMs = LocalState.ResumePositionFor(mediaId);
+        PositionMs = restartFromBeginning ? 0 : LocalState.ResumePositionFor(mediaId);
+        if (restartFromBeginning) LocalState = LocalState with { ResumePositions = LocalState.ResumePositions.RemoveAll(value => value.MediaId == mediaId) };
         Phase = WatchPhase.Selected;
         Paused = true;
         PlayerPresented = false;

@@ -3,6 +3,7 @@ import SwiftUI
 import SyncWatchBridge
 import SyncWatchDesign
 import SyncWatchDomain
+import SyncWatchLibrary
 import SyncWatchRoom
 
 enum SharedMediaAvailabilityFailure: Error { case unavailable }
@@ -15,16 +16,26 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
     private let room: RoomController
     private let watch: WatchSessionCoordinator
     private let helper: HelperConfiguration
+    private let library: LibraryController?
+    private struct NextWatch {
+        let selection: LibraryMediaSelection
+        let forceSelection: Bool
+    }
+    private var pendingSelection: LibraryMediaSelection?
     private var work: Task<Void, Never>?
     private var active: (membership: RoomWatchMembership, context: RoomWatchContext, player: PlaybackController)?
     private var seenMembership = false
     private var closing = false
     private var admitted = false
 
-    init(room: RoomController, watch: WatchSessionCoordinator, helper: HelperConfiguration) {
+    init(
+        room: RoomController, watch: WatchSessionCoordinator, helper: HelperConfiguration,
+        library: LibraryController? = nil
+    ) {
         self.room = room
         self.watch = watch
         self.helper = helper
+        self.library = library
     }
     func libraryPresentation(_ source: LibraryPresentation) -> LibraryPresentation {
         var result = room.libraryPresentation(source, sharedStartAvailable: !busy && active == nil)
@@ -71,11 +82,24 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         status = "sharedWatchPreparing"
         work = Task { [self] in await run(selection) }
     }
-    private func run(_ selection: LibraryMediaSelection) async {
+    private func run(_ initial: LibraryMediaSelection, forceSelection: Bool = false, restart: Bool = false) async {
+        defer {
+            busy = false
+            work = nil
+        }
+        var next: NextWatch? = NextWatch(selection: initial, forceSelection: forceSelection)
+        var restart = restart
+        while !closing, !Task.isCancelled, let current = next {
+            next = await runOne(current.selection, forceSelection: current.forceSelection, restart: restart)
+            restart = true
+        }
+    }
+    private func runOne(_ selection: LibraryMediaSelection, forceSelection: Bool, restart: Bool) async -> NextWatch? {
         var publication: RoomPreparedPublication?
         var membership: RoomWatchMembership?
         var owned: PlaybackController?
         var finished = false
+        var follow = false
         admitted = false
         var stage = "membership"
         do {
@@ -87,7 +111,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
             // A fresh scope prevents a prepared hash or helper from being reused for another load.
             stage = "input"
             watch.end()
-            watch.start(selection, requiresSharedAdmission: true)
+            watch.start(selection, requiresSharedAdmission: true, restartFromBeginning: restart)
             let scope = watch.scope
             let deadline = ContinuousClock.now + .seconds(20)
             while owned == nil {
@@ -113,7 +137,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
             stage = "generation"
             var context = try await room.watchContext(intent.membership)
             try Self.requireSameGeneration(intent.context, context)
-            if context.bootstrap.snapshot.watchStatus != "active" {
+            if forceSelection || context.bootstrap.snapshot.watchStatus != "active" {
                 guard let publication else { throw HelperSessionFailure.unavailable }
                 stage = "selection"
                 context = try await room.performWatch(
@@ -156,6 +180,16 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
             let readyDeadline = ContinuousClock.now + .seconds(20)
             while true {
                 try Task.checkCancellation()
+                if pendingSelection != nil { break }
+                if admitted, room.connected, let latest = room.watchBootstrap,
+                    latest.snapshot.epoch == current.bootstrap.snapshot.epoch,
+                    latest.snapshot.watchGeneration > current.bootstrap.snapshot.watchGeneration,
+                    ["selected", "active"].contains(latest.snapshot.watchStatus)
+                {
+                    player.requireSharedAdmission()
+                    follow = true
+                    break
+                }
                 let actual = try await player.player.observe(scope)
                 if actual.ended {
                     finished = true
@@ -193,6 +227,9 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                 try await Task.sleep(for: .milliseconds(100))
             }
         } catch is CancellationError {
+        } catch RoomProtocolFailure.rejected("staleGeneration") {
+            // A simultaneous selection lost the compare-and-swap; follow the winning generation.
+            follow = true
         } catch {
             let key = Self.failureKey(error, identityRejected: owned?.sharedState?.identityRejected == true)
             // Fixed stage/key vocabulary only: never serialize errors, paths or room credentials.
@@ -212,11 +249,50 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                 .end(reason: .finished), membership: previous.membership, expected: previous.context)
         }
         if let publication, let membership { room.clearPrepared(publication.lease, membership: membership) }
-        busy = false
-        work = nil
+        guard !closing, !Task.isCancelled else { return nil }
+        if let requested = pendingSelection {
+            pendingSelection = nil
+            busy = true
+            status = "sharedWatchPreparing"
+            return NextWatch(selection: requested, forceSelection: true)
+        }
+        if follow, let membership {
+            do {
+                busy = true
+                status = "sharedWatchPreparing"
+                let deadline = ContinuousClock.now + .seconds(20)
+                while true {
+                    try Task.checkCancellation()
+                    let current = try await room.watchContext(membership)
+                    if current.bootstrap.snapshot.watchStatus == "active",
+                        let media = current.definition.selection?.media
+                    {
+                        guard let candidate = resolvePlaylist(media) else {
+                            _ = try await room.performWatch(
+                                .missing(mediaID: media.mediaID, missing: true), membership: membership,
+                                expected: current)
+                            throw SharedMediaAvailabilityFailure.unavailable
+                        }
+                        library?.select(candidate.media.id)
+                        return NextWatch(selection: candidate, forceSelection: false)
+                    }
+                    guard current.bootstrap.snapshot.watchStatus == "selected", ContinuousClock.now < deadline else {
+                        throw HelperSessionFailure.unavailable
+                    }
+                    try await Task.sleep(for: .milliseconds(100))
+                }
+            } catch is CancellationError { return nil } catch {
+                watch.end()
+                errorKey = Self.failureKey(error, identityRejected: false)
+                status = errorKey!
+            }
+        }
+        return nil
     }
     private func authorized() -> Bool {
-        guard !closing, let active, watch.player === active.player, watch.scope == active.player.scope else {
+        guard !closing, pendingSelection == nil, let active, watch.player === active.player,
+            watch.scope == active.player.scope
+        else {
             return false
         }
         // Metadata generations authorize a new load; Syncplay owns an already admitted file's timing.
@@ -259,6 +335,62 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
             throw error
         }
     }
+    private struct PlaylistKey: Hashable {
+        let title: String
+        let size: Int64
+    }
+    private func key(_ file: LocalMediaFile) -> PlaylistKey {
+        PlaylistKey(
+            title: MediaDescriptor.normalizedTitleKey(MediaDescriptor.logicalTitle(file.title)), size: file.sizeBytes)
+    }
+    func updatePlaylist(_ playlist: WatchPlaylist) {
+        guard let library, !closing else {
+            playlist.update(entries: [], selectedID: nil, enabled: false)
+            return
+        }
+        let files = Dictionary(uniqueKeysWithValues: library.roomFiles.map { ($0.id, $0) })
+        let local = room.editor.state == "disconnected"
+        let enabled =
+            watch.phase == .active && !busy
+            && (local || admitted && room.connected && active?.player.sharedState?.connection == .connected)
+        let view = room.catalogView
+        let members = view?.bootstrap.snapshot.members.map(\.memberID) ?? []
+        let keys = Dictionary(grouping: view?.items ?? [], by: \.memberID).mapValues { entries in
+            Set(entries.map { PlaylistKey(title: $0.media.titleKey, size: $0.media.fileSizeBytes) })
+        }
+        let entries = library.presentation.entries.compactMap { row -> SelectionMenuEntry? in
+            guard let file = files[row.id] else { return nil }
+            let available = local || !members.isEmpty && members.allSatisfy { keys[$0]?.contains(key(file)) == true }
+            return SelectionMenuEntry(id: row.id, label: row.title, enabled: available)
+        }
+        playlist.update(entries: entries, selectedID: watch.mediaID, enabled: enabled)
+    }
+    func selectPlaylist(_ id: String) {
+        guard !closing, !busy, let library, let selection = library.playlistMedia(id), watch.mediaID != id else {
+            return
+        }
+        let check = WatchPlaylist()
+        updatePlaylist(check)
+        check.open()
+        guard check.menu?.allows(id) == true else { return }
+        if room.editor.state == "disconnected" {
+            library.select(id)
+            watch.start(selection, restartFromBeginning: true)
+        } else if admitted, room.connected, active?.player.sharedState?.connection == .connected {
+            pendingSelection = selection
+            busy = true
+            status = "sharedWatchPreparing"
+            active?.player.requireSharedAdmission()
+        }
+    }
+    private func resolvePlaylist(_ media: MediaDescriptor) -> LibraryMediaSelection? {
+        guard let library else { return nil }
+        let candidates = library.roomFiles.filter {
+            key($0) == PlaylistKey(title: media.titleKey, size: media.fileSizeBytes)
+        }
+        guard candidates.count == 1 else { return nil }
+        return library.playlistMedia(candidates[0].id)
+    }
     func end() async {
         let previous = active
         await stop()
@@ -281,6 +413,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         seenMembership = false
     }
     private func stop() async {
+        pendingSelection = nil
         work?.cancel()
         await work?.value
     }

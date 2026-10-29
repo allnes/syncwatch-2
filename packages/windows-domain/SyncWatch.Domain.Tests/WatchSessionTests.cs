@@ -17,9 +17,30 @@ internal static class WatchSessionTests
             LifecycleCases(corpus.RootElement);
             Persistence(directory);
             ResumeHistory();
+            PlaylistSelection();
         }
         finally { Directory.Delete(directory, recursive: true); }
         Console.WriteLine("Passed 31 local-state fixtures, 54 lifecycle actions in 6 shared scenarios, persistence recovery, and bounded resume history");
+    }
+
+    private static void PlaylistSelection()
+    {
+        var session = new WatchSession();
+        foreach (var (id, position) in new[] { ("first", 12000L), ("second", 24000L) })
+        {
+            session.Select(id); session.Start(); session.Loaded(session.Scope);
+            session.RecordPlayback(session.Scope, position, 60000, true);
+        }
+        var old = session.Scope;
+        Require(session.Select("second").Count == 0, "Repeated selection retains owner");
+        var released = session.Select("second", restartFromBeginning: true);
+        Require(released.Count == 1 && released[0] == new WatchEffect.Release(old), "Playlist releases the previous owner");
+        Require(session.PositionMs == 0 && session.LocalState.ResumePositionFor("second") == 0 && session.LocalState.ResumePositionFor("first") == 12000, "Only the chosen resume resets");
+        bool rejected = false;
+        try { session.RecordPlayback(old, 50000, 60000, false); } catch (Exception) { rejected = true; }
+        Require(rejected && session.Scope != old && session.Phase == WatchPhase.Selected, "Old owner is fenced");
+        Require(session.Start().Single() is WatchEffect.Load { Request.PositionMs: 0 }, "Playlist load starts at zero");
+        session.Loaded(session.Scope); session.Select("first"); Require(session.PositionMs == 12000, "Other resume retained");
     }
 
     private static void LocalStateCases(JsonElement corpus, string directory)

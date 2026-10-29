@@ -42,15 +42,16 @@ public struct WatchSession: Sendable {
         positionMs = mediaID.map { localState.resumePosition(for: $0) } ?? 0
     }
 
-    public mutating func select(_ mediaID: String) throws -> [WatchEffect] {
+    public mutating func select(_ mediaID: String, restartFromBeginning: Bool = false) throws -> [WatchEffect] {
         try Self.validateID(mediaID)
-        guard self.mediaID != mediaID else { return [] }
+        guard restartFromBeginning || self.mediaID != mediaID else { return [] }
         let next = try scope.replacingMedia()
         let effects = releaseEffects
         scope = next
         self.mediaID = mediaID
         localState.selectedMediaID = mediaID
-        positionMs = localState.resumePosition(for: mediaID)
+        positionMs = restartFromBeginning ? 0 : localState.resumePosition(for: mediaID)
+        if restartFromBeginning { localState.resumePositions.removeAll { $0.mediaID == mediaID } }
         phase = .selected
         paused = true
         playerPresented = false

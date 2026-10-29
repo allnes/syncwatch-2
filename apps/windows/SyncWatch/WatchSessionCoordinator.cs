@@ -16,6 +16,9 @@ internal sealed class WatchSessionCoordinator
     private PlaybackScope? pendingScope, releasingScope;
     private Task? pendingLoad, releaseTask, checkpointTask, shutdown;
     private bool checkpointRequested, hasWatchActivity, closing;
+    internal Action<WatchPlaylist>? OnPlaylistUpdate { get; set; }
+    internal Action<string>? OnPlaylistSelection { get; set; }
+    internal string? MediaId => session.MediaId;
     public PlaybackWorkspace? Player { get; private set; }
     public bool RuntimeAvailable { get; private set; }
     public bool PlayerPresented => !closing && session.PlayerPresented;
@@ -55,12 +58,12 @@ internal sealed class WatchSessionCoordinator
         var result = source with { EnabledActions = enabled };
         return live ? Player!.LibraryPresentation(result) : result;
     }
-    public void Start(LibraryMediaSelection selection, bool requiresSharedAdmission = false)
+    public void Start(LibraryMediaSelection selection, bool requiresSharedAdmission = false, bool restartFromBeginning = false)
     {
         dispatcher.VerifyAccess(); if (!RuntimeAvailable || closing) return;
         try
         {
-            foreach (var effect in session.Select(selection.Media.Id))
+            foreach (var effect in session.Select(selection.Media.Id, restartFromBeginning))
                 if (effect is WatchEffect.Release old) Release(old.Scope);
             var effects = session.Start();
             hasWatchActivity = true; ErrorKey = null;
@@ -134,7 +137,7 @@ internal sealed class WatchSessionCoordinator
             Player = new PlaybackWorkspace(new(selection.Media.File, media.Package, media.Bridge, null, false),
                 preferences.State.Preferences.Language, request.Scope, request.PositionMs, selection,
                 Loaded, Observed, action => { if (action == "showLibrary") ShowLibrary(); else if (action == "endWatching") { if (OnEndWatching is { } handler) handler(); else End(); } },
-                () => Failed(request.Scope), fullscreen, requiresSharedAdmission);
+                () => Failed(request.Scope), fullscreen, requiresSharedAdmission, value => OnPlaylistUpdate?.Invoke(value), id => OnPlaylistSelection?.Invoke(id));
             Changed?.Invoke();
         }
         catch (Exception) { Failed(request.Scope); }

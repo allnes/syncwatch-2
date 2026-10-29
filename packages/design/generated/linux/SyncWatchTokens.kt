@@ -744,7 +744,7 @@ object SyncWatchRoomForm {
 
 object SyncWatchPlayer {
     val states = listOf("loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended")
-    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles")
+    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles", "openPlaylist")
     const val maximumPositionMs: Long = 604800000L
     val icons = mapOf(
         "play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
@@ -863,7 +863,7 @@ object SyncWatchSelectionMenu {
     val externalFileFilters = listOf(ExternalTrackFileFilter("audio", "openAudioTrack", listOf("aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav")), ExternalTrackFileFilter("subtitles", "openSubtitles", listOf("ass", "srt", "ssa", "sub", "vtt")))
     const val companionFileLabel = "fileName"
     const val duplicateCompanionFileLabel = "relativePath"
-    const val maximumEntries = 500
+    const val maximumEntries = 2048
     const val maximumIDBytes = 128
     const val maximumLabelBytes = 4096
     const val maximumRevision: Long = 9007199254740991L

@@ -923,7 +923,7 @@ public static class SyncWatchRoomForm
 public static class SyncWatchPlayer
 {
     public static string[] States => ["loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended"];
-    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles"];
+    public static string[] Actions => ["playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles", "openPlaylist"];
     public const long MaximumPositionMs = 604800000;
     public static System.Collections.Generic.IReadOnlyDictionary<string, double[][]> Icons => new System.Collections.Generic.Dictionary<string, double[][]>
     {
@@ -1050,7 +1050,7 @@ public static class SyncWatchSelectionMenu
     public static ExternalTrackFileFilter[] ExternalFileFilters => [new("audio", "openAudioTrack", ["aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav"]), new("subtitles", "openSubtitles", ["ass", "srt", "ssa", "sub", "vtt"])];
     public const string CompanionFileLabel = "fileName";
     public const string DuplicateCompanionFileLabel = "relativePath";
-    public const int MaximumEntries = 500;
+    public const int MaximumEntries = 2048;
     public const int MaximumIDBytes = 128;
     public const int MaximumLabelBytes = 4096;
     public const long MaximumRevision = 9007199254740991;

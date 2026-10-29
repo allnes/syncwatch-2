@@ -97,7 +97,8 @@
         "toggleFullscreen",
         "openPlayerSettings",
         "selectAudio",
-        "selectSubtitles"
+        "selectSubtitles",
+        "openPlaylist"
       ]
     },
     "SettingsDialog": {

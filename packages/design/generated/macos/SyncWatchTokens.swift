@@ -1029,6 +1029,7 @@ public enum SyncWatchPlayer {
         "openPlayerSettings",
         "selectAudio",
         "selectSubtitles",
+        "openPlaylist",
     ]
     public static let maximumPositionMs: Int64 = 604_800_000
     public static let icons: [String: [[Double]]] = [
@@ -2116,7 +2117,7 @@ public enum SyncWatchSelectionMenu {
     ]
     public static let companionFileLabel = "fileName"
     public static let duplicateCompanionFileLabel = "relativePath"
-    public static let maximumEntries = 500
+    public static let maximumEntries = 2048
     public static let maximumIDBytes = 128
     public static let maximumLabelBytes = 4096
     public static let maximumRevision = 9_007_199_254_740_991

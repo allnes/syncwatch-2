@@ -57,12 +57,15 @@ internal class PlaybackController(
     private val onObservation: ((PlaybackObservation) -> Unit)? = null,
     private val onNavigation: ((String) -> Unit)? = null,
     private val onFailure: (() -> Unit)? = null,
+    private val onPlaylistUpdate: ((WatchPlaylist) -> Unit)? = null,
+    private val onPlaylistSelection: ((String) -> Unit)? = null,
 ) {
     private val ownerJob = SupervisorJob(parentScope.coroutineContext[Job])
     private val work = CoroutineScope(parentScope.coroutineContext + ownerJob)
     internal val player = VLCPlayback()
     internal val scope = requestedScope ?: PlaybackScope.fresh().replacingMedia()
     internal val tracks by lazy { LocalPlaybackTracks(player, scope, work, ExternalTrackPicker { canvas }) }
+    val playlist = WatchPlaylist()
     var language = "en"
     internal fun libraryPresentation(source: LibraryPresentation) = tracks.libraryPresentation(source)
     internal val loaded = CompletableDeferred<Unit>()
@@ -184,12 +187,27 @@ internal class PlaybackController(
             durationMs = value.durationMs ?: 0, volume = value.volume ?: presentation.volume,
             muted = value.muted, enabledActions = enabled)
         gateSharedActions()
+        refreshPlaylist()
     }
 
+    private fun refreshPlaylist() { onPlaylistUpdate?.invoke(playlist); presentation = playlist.presentation(presentation) }
+    fun selectMenu(request: SelectionMenuRequest) {
+        refreshPlaylist()
+        if (request.kind == "playlist") playlist.selection(request)?.let { onPlaylistSelection?.invoke(it) }
+        else tracks.select(request)
+    }
+    fun dismissMenu() { playlist.dismiss(); tracks.dismissMenu() }
     fun action(action: String, value: Double?, close: () -> Unit, fullscreen: () -> Unit) {
         if (closing) return
         gateSharedActions()
+        refreshPlaylist()
         presentation.dispatch(action, value) { accepted, number ->
+            if (accepted == "openPlaylist") { tracks.dismiss(); playlist.open(); return@dispatch }
+            if (accepted in setOf("previousFile", "nextFile")) {
+                playlist.neighbor(if (accepted == "previousFile") -1 else 1)?.let { onPlaylistSelection?.invoke(it) }
+                return@dispatch
+            }
+            playlist.dismiss()
             if (accepted in setOf("selectAudio", "selectSubtitles")) {
                 tracks.open(if (accepted == "selectAudio") "audio" else "subtitles", language)
                 return@dispatch
@@ -227,6 +245,7 @@ internal class PlaybackController(
         check(EventQueue.isDispatchThread())
         shutdown?.let { return it.copy() }
         closing = true
+        playlist.close()
         loaded.completeExceptionally(CancellationException("closed"))
         presentation = presentation.copy(enabledActions = emptySet())
         val result = CompletableFuture<Void>(); shutdown = result
@@ -276,9 +295,9 @@ internal class PlaybackController(
 @Composable internal fun PlaybackPane(controller: PlaybackController, language: String, theme: SyncWatchTheme,
     onClose: () -> Unit, onFullscreen: () -> Unit, roomNotice: String = "") {
     LaunchedEffect(controller) { controller.start() }
-    PlayerChrome(controller.presentation.copy(roomNotice = roomNotice), language, theme,
+    PlayerChrome(controller.playlist.presentation(controller.presentation).copy(roomNotice = roomNotice), language, theme,
         videoSurface = { NativePlayerSurface(controller.canvas) },
-        selectionMenu = controller.tracks.menu, onSelection = controller.tracks::select,
-        onDismissSelection = controller.tracks::dismissMenu,
+        selectionMenu = controller.playlist.menu ?: controller.tracks.menu, onSelection = controller::selectMenu,
+        onDismissSelection = controller::dismissMenu,
         onAction = { action, value -> controller.language = language; controller.action(action, value, onClose, onFullscreen) })
 }

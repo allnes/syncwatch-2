@@ -127,6 +127,10 @@ private actor LibraryRecordIO {
         else { return nil }
         return LibraryMediaSelection(media: media, access: grant, tracks: tracks.preferences)
     }
+    func playlistMedia(_ id: String) -> LibraryMediaSelection? {
+        guard !closed, presentation.state != .scanning, let media = catalog[id], let grant else { return nil }
+        return LibraryMediaSelection(media: media, access: grant)
+    }
     func openTracks(_ kind: String, language: String) {
         guard !closed, presentation.allows(kind == "audio" ? "openLibraryAudio" : "openLibrarySubtitles") else {
             return

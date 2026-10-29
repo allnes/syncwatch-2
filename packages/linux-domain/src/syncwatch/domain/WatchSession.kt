@@ -24,13 +24,15 @@ class WatchSession(localState: LocalState = LocalState(), scope: PlaybackScope =
         private set
     init { localState.validate() }
 
-    fun select(mediaId: String): List<WatchEffect> {
+    fun select(mediaId: String, restartFromBeginning: Boolean = false): List<WatchEffect> {
         PlaybackScope.validateId(mediaId)
-        if (this.mediaId == mediaId) return emptyList()
+        if (!restartFromBeginning && this.mediaId == mediaId) return emptyList()
         val next = scope.replacingMedia()
         val effects = releaseEffects()
         scope = next; this.mediaId = mediaId; localState = localState.copy(selectedMediaId = mediaId)
-        positionMs = localState.resumePositionFor(mediaId); phase = WatchPhase.selected; paused = true; playerPresented = false
+        positionMs = if (restartFromBeginning) 0 else localState.resumePositionFor(mediaId)
+        if (restartFromBeginning) localState = localState.copy(resumePositions = localState.resumePositions.filterNot { it.mediaId == mediaId })
+        phase = WatchPhase.selected; paused = true; playerPresented = false
         return effects
     }
     fun start(): List<WatchEffect> {

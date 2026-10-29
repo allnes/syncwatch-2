@@ -23,7 +23,8 @@
     "toggleFullscreen",
     "openPlayerSettings",
     "selectAudio",
-    "selectSubtitles"
+    "selectSubtitles",
+    "openPlaylist"
   ],
   "maximumPositionMs": 604800000,
   "icons": {
