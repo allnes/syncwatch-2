@@ -16,7 +16,7 @@ import javax.swing.text.JTextComponent
 @Composable internal fun NativePlayerInput(presentation: PlayerPresentation, protectedFocus: Boolean, onAction: (String, Double?) -> Unit) {
     val owner = LocalAwtWindow.current ?: return
     val current by rememberUpdatedState(presentation)
-    val protected by rememberUpdatedState(protectedFocus || !LocalDesignPresented.current)
+    val inputProtected by rememberUpdatedState(protectedFocus || !LocalDesignPresented.current)
     val dispatch by rememberUpdatedState(onAction)
     DisposableEffect(owner) {
         val manager = KeyboardFocusManager.getCurrentKeyboardFocusManager()
@@ -36,7 +36,7 @@ import javax.swing.text.JTextComponent
                 val editing = focus is JTextComponent || focus is JSlider || focus is JComboBox<*>
                     || key == "Space" && focus is AbstractButton
                 val consumed = current.dispatchKey(key, repeating, (owner as? ComposeWindow)?.placement == WindowPlacement.Fullscreen,
-                    event.isAltDown || event.isControlDown || event.isShiftDown || event.isMetaDown, protected || editing, dispatch)
+                    event.isAltDown || event.isControlDown || event.isShiftDown || event.isMetaDown, inputProtected || editing, dispatch)
                 if (consumed) event.consume()
                 consumed
             }
@@ -44,7 +44,7 @@ import javax.swing.text.JTextComponent
         val wheel = AWTEventListener { event ->
             if (event is MouseWheelEvent && !event.isConsumed && owns(event.component)) {
                 if (current.dispatchWheel(-event.preciseWheelRotation,
-                    event.isAltDown || event.isControlDown || event.isShiftDown || event.isMetaDown, protected, dispatch)) event.consume()
+                    event.isAltDown || event.isControlDown || event.isShiftDown || event.isMetaDown, inputProtected, dispatch)) event.consume()
             }
         }
         val focus = object : WindowAdapter() { override fun windowLostFocus(event: WindowEvent) { held.clear() } }
