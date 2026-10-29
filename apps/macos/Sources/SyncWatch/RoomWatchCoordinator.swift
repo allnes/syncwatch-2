@@ -73,7 +73,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
     func start(_ selection: LibraryMediaSelection) {
         guard !closing, work == nil else { return }
         if room.editor.state == "disconnected" {
-            watch.start(selection)
+            watch.start(selection, autoplay: true)
             return
         }
         guard room.connected, watch.runtimeAvailable else { return }
@@ -98,6 +98,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         var owned: PlaybackController?
         var finished = false
         var follow = false
+        var startedGeneration = false
         admitted = false
         var stage = "membership"
         do {
@@ -146,6 +147,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                 stage = "start"
                 context = try await room.performWatch(
                     .start(mediaID: publication.media.mediaID), membership: intent.membership, expected: context)
+                startedGeneration = true
             }
             try await requireAvailable(local, membership: intent.membership, context: context)
             stage = "agreement"
@@ -209,7 +211,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                                 membership: intent.membership, expected: current)
                             try Self.requireSameGeneration(current, recovered)
                         }
-                        try player.admitSharedPlayback(autoplay: forceSelection)
+                        try player.admitSharedPlayback(autoplay: startedGeneration)
                         admitted = true
                         stage = "playback"
                     }
