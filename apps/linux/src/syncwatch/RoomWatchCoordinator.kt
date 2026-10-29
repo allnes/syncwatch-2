@@ -244,7 +244,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val members = view?.bootstrap?.snapshot?.members?.map { it.memberId }.orEmpty()
         val keys = view?.items?.groupBy { it.memberId }?.mapValues { (_, items) -> items.map { it.media.titleKey to it.media.fileSizeBytes }.toSet() }.orEmpty()
         val entries = library.presentation.entries.filter { it.id in files }.map { SelectionMenuEntry(it.id, it.title) }
-        val neighbors = files.values.filter { file -> local || members.isNotEmpty() && members.all { key(file) in keys[it].orEmpty() } }.map { it.id }.toSet()
+        val neighbors = files.values.filter { file -> !local && members.size > 1 && members.all { key(file) in keys[it].orEmpty() } }.map { it.id }.toSet()
         playlist.update(entries, watch.mediaId, enabled, neighbors)
     }
     fun selectPlaylist(id: String) {

@@ -277,7 +277,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             group => group.Select(item => (item.Media.TitleKey, item.Media.FileSizeBytes)).ToHashSet());
         var entries = library.Presentation.Entries.Where(row => files.ContainsKey(row.Id))
             .Select(row => new SelectionMenuEntry(row.Id, row.Title)).ToArray();
-        var neighbors = files.Values.Where(file => local || members.Length > 0 && members.All(member =>
+        var neighbors = files.Values.Where(file => !local && members.Length > 1 && members.All(member =>
             keys is not null && keys.TryGetValue(member, out var available) && available.Contains(Key(file))))
             .Select(file => file.Id).ToHashSet();
         playlist.Update(entries, watch.MediaId, enabled, neighbors);

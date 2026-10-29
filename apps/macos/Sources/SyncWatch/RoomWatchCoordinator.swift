@@ -361,7 +361,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         }
         let neighbors = Set(
             files.values.filter { file in
-                local || !members.isEmpty && members.allSatisfy { keys[$0]?.contains(key(file)) == true }
+                !local && members.count > 1 && members.allSatisfy { keys[$0]?.contains(key(file)) == true }
             }.map(\.id))
         playlist.update(entries: entries, selectedID: watch.mediaID, enabled: enabled, neighborIDs: neighbors)
     }

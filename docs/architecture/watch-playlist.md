@@ -1,6 +1,6 @@
 # Watch playlist
 
-The application catalog supplies ordered local file choices to the common Apache-2.0 Design selection menu and player controls. Each native player owns one playlist presentation with a source identity and revision. Catalog changes, recovery and closure invalidate earlier menu requests. The menu permits every local file. Previous and Next skip files absent from another room member's catalog and never wrap. A removed current entry leaves the remaining menu usable.
+The application catalog supplies ordered local file choices to the common Apache-2.0 Design selection menu and player controls. Each native player owns one playlist presentation with a source identity and revision. Catalog changes, recovery and closure invalidate earlier menu requests. The menu permits every local file. Previous and Next require a shared catalog with another member, skip files absent from a room member's catalog and never wrap. A removed current entry leaves the remaining menu usable.
 
 A choice retains the existing folder grant, restores the chosen file's saved resume position and allocates a fresh native media scope. Other files retain their history. After position and initial track acknowledgement, local playback starts. In a room, only the selecting client requests Play through Syncplay after authenticated readiness and admission; followers accept timing through Syncplay. Track choices belong to the old input and are not copied to a different movie. Old observations and menu requests cannot acknowledge a replacement input.
 
