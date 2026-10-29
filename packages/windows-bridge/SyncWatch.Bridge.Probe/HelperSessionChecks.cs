@@ -101,20 +101,20 @@ internal static class HelperSessionChecks
 
     private sealed class Player(PlaybackScope owner) : IPlaybackPort
     {
-        private ulong sequence;
+        private ulong sequence = 1;
         internal bool Paused { get; private set; }
         internal long Position { get; private set; } = 1200;
         internal int Seeks { get; private set; }
         internal int Closes { get; private set; }
         private bool ended;
-        internal void FinishMedia() { ended = true; Paused = true; Position = 60000; }
+        internal void FinishMedia() { sequence++; ended = true; Paused = true; Position = 60000; }
         public Task<PlaybackObservation> ObserveAsync(PlaybackScope scope, CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested(); owner.Check(scope.ClientRunId, scope.MediaGeneration);
             return Task.FromResult(new PlaybackObservation
             {
                 Scope = scope,
-                Sequence = ++sequence,
+                Sequence = sequence,
                 Status = PlaybackStatus.Ready,
                 PositionMs = Position,
                 DurationMs = 60000,
@@ -124,9 +124,9 @@ internal static class HelperSessionChecks
             });
         }
         public Task SetPausedAsync(bool paused, PlaybackScope scope, CancellationToken cancellation = default)
-        { cancellation.ThrowIfCancellationRequested(); Paused = paused; return Task.CompletedTask; }
+        { cancellation.ThrowIfCancellationRequested(); if (Paused != paused) sequence++; Paused = paused; return Task.CompletedTask; }
         public Task SeekAsync(long positionMs, PlaybackScope scope, CancellationToken cancellation = default)
-        { cancellation.ThrowIfCancellationRequested(); Position = positionMs; Seeks++; return Task.CompletedTask; }
+        { cancellation.ThrowIfCancellationRequested(); sequence++; Position = positionMs; Seeks++; return Task.CompletedTask; }
         public Task LoadAsync(string file, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
         public Task SetRateAsync(double rate, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
         public Task SetVolumeAsync(double volume, bool muted, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
@@ -184,7 +184,7 @@ internal static class HelperSessionChecks
             new("media-1", "Movie.mkv", 60000, 1234), Revision, requireDeclaredIdentity: true);
         session.Start(); await Eventually(() => session.State.Ready); peer.HoldReadiness();
         if (scenario is "pendingIntent" or "pendingCorrection") peer.GateUserWrite();
-        session.Pause(false);
+        session.Pause(scenario == "paused");
         if (scenario is "pendingIntent" or "pendingCorrection")
         {
             await Eventually(() => peer.UserWriteHeld);
@@ -234,7 +234,7 @@ internal static class HelperSessionChecks
         new OwnerContext().Run(async () =>
         {
             await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true);
-            foreach (string scenario in new[] { "recover", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);
+            foreach (string scenario in new[] { "recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);
         });
         Console.WriteLine("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF recovery identity readiness budget cleanup");
     }

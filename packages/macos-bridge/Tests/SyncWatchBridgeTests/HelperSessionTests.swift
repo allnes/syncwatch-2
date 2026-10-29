@@ -118,7 +118,7 @@ private actor SessionPeer: HelperTransport {
 
 private actor SessionPlayer: PlaybackPort {
     let scope: PlaybackScope
-    private var sequence: UInt64 = 0
+    private var sequence: UInt64 = 1
     private(set) var paused = false
     private(set) var position: Int64 = 1200
     private(set) var seeks = 0
@@ -127,20 +127,24 @@ private actor SessionPlayer: PlaybackPort {
     init(_ scope: PlaybackScope) { self.scope = scope }
     func observe(_ scope: PlaybackScope) throws -> PlaybackObservation {
         try self.scope.check(clientRunID: scope.clientRunID, mediaGeneration: scope.mediaGeneration)
-        sequence += 1
         return try PlaybackObservation(
             scope: scope, sequence: sequence, status: .ready, positionMs: position,
             durationMs: 60000, paused: paused, rate: 1, seekable: !ended, buffering: false, ended: ended,
             width: 0, height: 0, videoOutputs: 0, volume: nil, muted: false)
     }
     func finishMedia() {
+        sequence += 1
         ended = true
         paused = true
         position = 60000
     }
-    func setPaused(_ paused: Bool, scope: PlaybackScope) { self.paused = paused }
+    func setPaused(_ paused: Bool, scope: PlaybackScope) {
+        if self.paused != paused { sequence += 1 }
+        self.paused = paused
+    }
     func seek(to positionMs: Int64, scope: PlaybackScope) throws {
         try Task.checkCancellation()
+        sequence += 1
         position = positionMs
         seeks += 1
     }
@@ -276,7 +280,7 @@ private actor SessionPlayer: PlaybackPort {
 }
 
 @Test(arguments: [
-    "recover", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout",
+    "recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout",
 ])
 @MainActor func sessionRecovery(_ scenario: String) async throws {
     let native = try PlaybackScope.fresh().replacingMedia()
@@ -292,7 +296,7 @@ private actor SessionPlayer: PlaybackPort {
         try await eventually { session.state.ready }
         await peer.holdReadiness()
         if scenario == "pendingIntent" || scenario == "pendingCorrection" { await peer.gateUserWrite() }
-        try session.pause(false)
+        try session.pause(scenario == "paused")
         if scenario == "pendingIntent" || scenario == "pendingCorrection" {
             try await eventually { await peer.userWriteHeld }
             if scenario == "pendingIntent" {

@@ -82,6 +82,8 @@ Limit a frame to 64 KiB including LF and bound all queues. Coalesce redundant po
 
 The application owns the helper. On EOF, the helper releases its engine and exits. After a bounded graceful shutdown, the parent may terminate only its own child. Use a Windows Job Object and an owned macOS process group with a signed embedded runtime. A helper crash pauses playback without closing the UI. A replacement helper receives a new run ID and current state; obsolete pending seeks are discarded.
 
+A recovery readiness request requires a fresh native read after the authenticated identity and connection events. VLC observation sequences identify native events; they do not increase merely because a paused player is sampled again. The bridge may publish the current sequence once for this fresh read while retaining the observation watermark, user-action fence, and correction ordering. Regressing sequences remain ineligible. Test playback ports preserve event stamps across unchanged reads.
+
 ## RoomMetadata service
 
 Syncplay owns shared play/pause/seek and required protocol readiness/timing. Local rate corrections serve the engine; user speed preferences are not shared. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.

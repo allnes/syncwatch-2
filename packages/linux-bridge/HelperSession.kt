@@ -175,7 +175,9 @@ class HelperSession(
             if (first != null && fence.correction(nativeScope, first.afterUserAction) == CorrectionDisposition.apply) { correct(first); continue }
             if (heartbeat) {
                 heartbeat = false; setDeadline(2); val value = player.observe(nativeScope); deadline = null; validate(value)
-                if (value.sequence > observationHigh) {
+                // Paused VLC event stamps can remain unchanged across fresh reads.
+                // Resample after authentication without lowering the watermark.
+                if (value.sequence > observationHigh || (!observed && value.sequence == observationHigh)) {
                     send(commands.observation(nextId(), value, nativeScope)); observationHigh = value.sequence; observed = true
                 }
             }
@@ -295,7 +297,7 @@ class HelperSession(
                     }
                     "connected" -> {
                         if (state.acceptedUsername == null) bad()
-                        if (recoveryDeadline != null) { if (!recoveryIdentity) bad(); recoveryConnected = true }
+                        if (recoveryDeadline != null) { if (!recoveryIdentity) bad(); recoveryConnected = true; observed = false; heartbeat = true }
                         else state = state.copy(connection = HelperConnection.connected)
                     }
                     else -> bad()

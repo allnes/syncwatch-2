@@ -85,7 +85,7 @@ private class SessionPeer : HelperTransport {
 }
 
 private class SessionPlayer(private val scope: PlaybackScope) : PlaybackPort {
-    private var sequence = 0uL
+    private var sequence = 1uL
     @Volatile var paused = false
         private set
     var position = 1200L
@@ -93,16 +93,16 @@ private class SessionPlayer(private val scope: PlaybackScope) : PlaybackPort {
     var seeks = 0
         private set
     private var ended = false
-    fun finishMedia() { ended = true; paused = true; position = 60000 }
+    fun finishMedia() { sequence++; ended = true; paused = true; position = 60000 }
     var closes = 0
         private set
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation {
         this.scope.check(scope)
-        return PlaybackObservation(scope, ++sequence, PlaybackStatus.ready, position, 60000, paused, 1.0,
+        return PlaybackObservation(scope, sequence, PlaybackStatus.ready, position, 60000, paused, 1.0,
             !ended, false, ended, 0, 0, 0, null, false)
     }
-    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { this.paused = paused }
-    override suspend fun seek(positionMs: Long, scope: PlaybackScope) { position = positionMs; seeks++ }
+    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { if (this.paused != paused) sequence++; this.paused = paused }
+    override suspend fun seek(positionMs: Long, scope: PlaybackScope) { sequence++; position = positionMs; seeks++ }
     override suspend fun load(localFile: Path, scope: PlaybackScope): Unit = error("Unexpected load")
     override suspend fun setRate(rate: Double, scope: PlaybackScope): Unit = error("Unexpected rate")
     override suspend fun setVolume(volume: Double, muted: Boolean, scope: PlaybackScope): Unit = error("Unexpected volume")
@@ -160,7 +160,7 @@ private suspend fun recovery(owner: CoroutineScope, scenario: String) {
     try {
         session.start(); eventually { session.state.ready }; peer.holdReadiness()
         if (scenario in setOf("pendingIntent", "pendingCorrection")) peer.gateUserWrite()
-        session.pause(false)
+        session.pause(scenario == "paused")
         if (scenario in setOf("pendingIntent", "pendingCorrection")) {
             eventually { peer.userWriteHeld }
             if (scenario == "pendingIntent") session.seek(4000) else peer.correction(1, 1, 4000)
@@ -196,7 +196,7 @@ internal fun helperSessionChecks() {
     Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { dispatcher ->
         runBlocking(dispatcher) {
             scenario(this, false); scenario(this, true); scenario(this, false, strict = true); scenario(this, false, nativeEnd = true)
-            for (scenario in listOf("recover", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout")) recovery(this, scenario)
+            for (scenario in listOf("recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout")) recovery(this, scenario)
         }
     }
     println("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF recovery identity readiness budget cleanup")

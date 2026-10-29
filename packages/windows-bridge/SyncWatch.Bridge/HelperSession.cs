@@ -174,7 +174,9 @@ public sealed class HelperSession : IAsyncDisposable
             if (heartbeat)
             {
                 heartbeat = false; SetDeadline(2); var value = await player.ObserveAsync(nativeScope, workCancellation.Token); deadline = null; Validate(value);
-                if (value.Sequence > observationHigh)
+                // VLC event stamps can remain unchanged while paused; resample
+                // once after authenticated recovery without lowering the watermark.
+                if (value.Sequence > observationHigh || (!observed && value.Sequence == observationHigh))
                 { await SendAsync(commands.Observation(NextId(), value, nativeScope)); observationHigh = value.Sequence; observed = true; }
             }
             if ((State.Connection == HelperConnection.Connected || recoveryConnected) && observed && !readyRequested)
@@ -313,7 +315,7 @@ public sealed class HelperSession : IAsyncDisposable
                         break;
                     case "connected":
                         if (State.AcceptedUsername is null) throw Bad();
-                        if (recoveryDeadline is not null) { if (!recoveryIdentity) throw Bad(); recoveryConnected = true; }
+                        if (recoveryDeadline is not null) { if (!recoveryIdentity) throw Bad(); recoveryConnected = true; observed = false; heartbeat = true; }
                         else State = State with { Connection = HelperConnection.Connected };
                         break;
                     default: throw Bad();

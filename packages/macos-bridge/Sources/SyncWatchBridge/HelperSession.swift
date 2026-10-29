@@ -293,7 +293,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 let value = try await player.observe(nativeScope)
                 deadline = nil
                 try validate(value)
-                if value.sequence > observationHigh {
+                // VLC sequences identify events, not reads: a paused player can
+                // yield the same sequence in a fresh recovery sample.
+                if value.sequence > observationHigh || (!observed && value.sequence == observationHigh) {
                     try await send(commands.observation(nextID(), value: value, nativeScope: nativeScope))
                     observationHigh = value.sequence
                     observed = true
@@ -484,6 +486,8 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 if recoveryDeadline != nil {
                     guard recoveryIdentity else { throw HelperSessionFailure.malformed }
                     recoveryConnected = true
+                    observed = false
+                    heartbeat = true
                 } else {
                     state.connection = .connected
                 }
