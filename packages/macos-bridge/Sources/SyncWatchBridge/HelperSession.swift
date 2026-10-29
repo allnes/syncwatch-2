@@ -38,7 +38,7 @@ public struct SyncplayParticipant: Sendable, Equatable {
     public let ready: Bool
 }
 public struct HelperSessionState: Sendable, Equatable {
-    public enum Connection: Sendable { case starting, connecting, connected, failed, stopped }
+    public enum Connection: Sendable { case starting, connecting, reconnecting, connected, failed, stopped }
     public var connection: Connection = .starting
     public var ready = false
     public var acceptedUsername: String?
@@ -80,6 +80,10 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     private var heartbeat = true
     private var observed = false
     private var readyRequested = false
+    private var requestingReady = false
+    private var recoveryIdentity = false
+    private var recoveryConnected = false
+    private var recoveryDeadline: ContinuousClock.Instant?
     private var started = false
     private var closed = false
     private var deadline: ContinuousClock.Instant?
@@ -133,7 +137,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         }
         timer = Task { [self] in
             while !closed {
-                if let deadline, ContinuousClock.now >= deadline {
+                if deadline.map({ ContinuousClock.now >= $0 }) == true
+                    || recoveryDeadline.map({ ContinuousClock.now >= $0 }) == true
+                {
                     stop(failed: true)
                     return
                 }
@@ -287,19 +293,58 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 let value = try await player.observe(nativeScope)
                 deadline = nil
                 try validate(value)
-                if value.sequence > observationHigh {
+                // VLC sequences identify events, not reads: a paused player can
+                // yield the same sequence in a fresh recovery sample.
+                if value.sequence > observationHigh || (!observed && value.sequence == observationHigh) {
                     try await send(commands.observation(nextID(), value: value, nativeScope: nativeScope))
                     observationHigh = value.sequence
                     observed = true
                 }
             }
-            if state.connection == .connected && observed && !readyRequested {
+            if (state.connection == .connected || recoveryConnected) && observed && !readyRequested {
+                requestingReady = true
                 try await request(.applied) { try commands.ready($0, value: true) }
                 readyRequested = true
+                requestingReady = false
+                finishRecovery()
                 continue
             }
             try await wait()
         }
+    }
+    private func reconnect() async throws {
+        // An unpublished intent or an old timing correction cannot safely be
+        // replayed across transports. Keep the fence and fail closed instead.
+        guard users.isEmpty, fence.issuedSequence == fence.publishedSequence,
+            corrections.allSatisfy({ $0.operation == .pause(true) })
+        else { throw HelperSessionFailure.unavailable }
+        if recoveryDeadline == nil { recoveryDeadline = .now.advanced(by: .seconds(25)) }
+        recoveryIdentity = false
+        recoveryConnected = false
+        observed = false
+        readyRequested = false
+        requestingReady = false
+        state.connection = .reconnecting
+        state.ready = false
+        state.participants = []
+        changed(state)
+        deadline = .now.advanced(by: .seconds(2))
+        defer { deadline = nil }
+        try await player.setPaused(true, scope: nativeScope)
+        while true {
+            let value = try await player.observe(nativeScope)
+            try validate(value)
+            if value.paused { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        heartbeat = true
+    }
+    private func finishRecovery() {
+        guard recoveryDeadline != nil, recoveryConnected, observed, readyRequested, state.ready else { return }
+        recoveryDeadline = nil
+        recoveryConnected = false
+        state.connection = .connected
+        changed(state)
     }
     private func user(_ sequence: UInt64, _ intent: Intent) async throws {
         var targetPause: Bool?
@@ -417,6 +462,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 throw HelperSessionFailure.unavailable
             }
             state.acceptedUsername = username
+            if recoveryDeadline != nil { recoveryIdentity = true }
         case "sync.connection":
             try HelperJSON.keys(payload, required: ["state"], optional: ["error"])
             if let error = payload["error"] {
@@ -429,16 +475,34 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 _ = try HelperReply.decode(wrapped, wireScope: wireScope, commandID: 1, expected: .applied)
             }
             switch payload["state"] as? String {
-            case "connecting": state.connection = .connecting
+            case "connecting":
+                if state.connection == .connected || state.connection == .reconnecting {
+                    try await reconnect()
+                } else {
+                    state.connection = .connecting
+                }
             case "connected":
                 guard state.acceptedUsername != nil else { throw HelperSessionFailure.malformed }
-                state.connection = .connected
+                if recoveryDeadline != nil {
+                    guard recoveryIdentity else { throw HelperSessionFailure.malformed }
+                    recoveryConnected = true
+                    observed = false
+                    heartbeat = true
+                } else {
+                    state.connection = .connected
+                }
             case "disconnected": throw HelperSessionFailure.unavailable
             default: throw HelperSessionFailure.malformed
             }
         case "sync.readiness":
             try HelperJSON.keys(payload, required: ["ready"])
             state.ready = try boolean(payload["ready"])
+            if recoveryDeadline != nil, state.ready {
+                guard recoveryConnected, observed, requestingReady || readyRequested else {
+                    throw HelperSessionFailure.malformed
+                }
+                finishRecovery()
+            }
         case "sync.participants":
             try HelperJSON.keys(payload, required: ["participants"])
             guard let rows = payload["participants"] as? [[String: Any]], rows.count <= 64 else {

@@ -17,18 +17,25 @@ class PipePlayer(SimulatedPlayer):
         self.held = []
         self.cancelled_corrections = 0
         self.started = time.monotonic()
+        self.closing = False
         self.replies = {}
         self.frames = queue.Queue(maxsize=128)
         executable = runtime / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
         self.process = subprocess.Popen([str(executable), str(runtime)], stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         def read():
-            while True:
+            while not self.closing:
                 frame = self.process.stdout.readline(65537)
-                self.frames.put(frame)
+                while not self.closing:
+                    try:
+                        self.frames.put(frame, timeout=0.1)
+                        break
+                    except queue.Full:
+                        pass
                 if not frame:
                     return
-        threading.Thread(target=read, daemon=True).start()
+        self.reader = threading.Thread(target=read)
+        self.reader.start()
         self.send("bridge.hello", {"supportedVersions": [1]})
 
     def send(self, kind, payload, *, reply=None, user=False):
@@ -48,7 +55,9 @@ class PipePlayer(SimulatedPlayer):
             frame = self.held.pop(0) if self.held and not self.hold_corrections else self.frames.get_nowait()
             if not frame:
                 diagnostic = self.process.stderr.read(4096).decode("utf-8", errors="replace")
-                raise AssertionError("Real helper exited unexpectedly: " + diagnostic)
+                code = self.process.wait(timeout=1)
+                raise AssertionError("Real helper exited unexpectedly: " + self.name + " exit=" + str(code)
+                                     + " queued=" + str(self.frames.qsize()) + " " + diagnostic)
             value = json.loads(frame)
             kind, payload = value["type"], value["payload"]
             if "replyTo" in value:
@@ -82,14 +91,20 @@ class PipePlayer(SimulatedPlayer):
         return any(kind == "sync.connection" and p["state"] == "connected" for kind, p in self.events)
 
     def close(self):
+        self.closing = True
+        forced = False
         if self.process.poll() is None:
             self.process.stdin.close()
             try: self.process.wait(timeout=4)
             except subprocess.TimeoutExpired:
+                forced = True
                 self.process.kill()
                 self.process.wait(timeout=4)
+        self.reader.join(timeout=4)
+        assert not self.reader.is_alive(), "Owned helper reader did not join"
         self.process.stdout.close()
         self.process.stderr.close()
+        return {"exit": self.process.returncode, "forcedStop": forced, "readerJoined": True}
 
 
 def bridge_run(root):
@@ -112,6 +127,7 @@ def bridge_run(root):
     factory = ObservedFactory(port="0", salt="pipe-fixture", tlsCertPath=str(directory))
     listener = reactor.listenTCP(0, factory, interface="127.0.0.1")
     players, failures = [], []
+    scenario_worker = [None]
     report = {"realHelperProcesses": 2, "realUpstreamServer": True, "authenticatedTLS": True,
               "simulatedNativePlayers": True, "testOnlyCAAppend": True}
     loop = task.LoopingCall(lambda: [p.tick() for p in players])
@@ -168,6 +184,41 @@ def bridge_run(root):
             assert b'"Hello"' not in b"".join(factory.wire)
             assert a.cancelled_corrections > 0
             report.update(play=True, seek=True, pause=True, noPlaintextIdentity=True, staleCorrectionsCancelled=True)
+            # Interrupt the real owned server-side TLS connection. Keep the
+            # same helper process, pipes, media handle and command counters.
+            before = len(a.events)
+            process_id = a.process.pid
+            factory.reject_new_connections = True
+            reactor.callLater(3, setattr, factory, "reject_new_connections", False)
+            factory.connections[0].transport.abortConnection()
+            yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connecting"
+                                      for k, v in a.events[before:]), "pipe recovery starts")
+            yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connected"
+                                      for k, v in a.events[before:]), "pipe authenticated recovery", timeout=15)
+            recovered = a.events[before:]
+            assert factory.rejected_connections > 0
+            assert not any(k == "sync.connection" and v["state"] == "disconnected" for k, v in recovered)
+            assert ("sync.readiness", {"ready": False}) in recovered
+            identity = ("sync.identity", {"username": "pipe-a"})
+            connected = ("sync.connection", {"state": "connected"})
+            assert recovered.index(identity) < recovered.index(connected)
+            a.send("sync.setReady", {"ready": True})
+            yield wait_for(lambda: any(k == "sync.readiness" and v["ready"]
+                                      for k, v in a.events[before:]), "pipe recovery readiness")
+            a.set_position(120000)
+            a.publish(user=True)
+            yield wait_for(lambda: b.current() > 115000 and abs(a.current() - b.current()) < 1500,
+                           "pipe recovered seek")
+            b.set_paused(False)
+            b.publish(user=True)
+            yield wait_for(lambda: not a.paused, "pipe recovered reverse play")
+            b.set_paused(True)
+            b.publish(user=True)
+            yield wait_for(lambda: a.paused, "pipe recovered reverse pause")
+            assert a.process.pid == process_id and a.process.poll() is None
+            report.update(authenticatedRecovery=True, recoveryIdentityRetained=True,
+                          recoveryReadinessConfirmed=True, recoveryBidirectionalPlayback=True,
+                          helperProcessRetained=True, transientPreTlsClosesRecovered=True)
             a.send("sync.disconnect", {})
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "disconnected"
                                       for k, v in a.events), "pipe disconnect")
@@ -178,15 +229,30 @@ def bridge_run(root):
             from twisted.python.failure import Failure
             failures.append(Failure())
         finally:
-            loop.stop()
-            for p in players: p.close()
+            if loop.running:
+                loop.stop()
+            cleanup = []
+            for p in players:
+                try:
+                    cleanup.append(p.close())
+                except Exception:
+                    from twisted.python.failure import Failure
+                    failures.append(Failure())
+            print("PIPE_FIXTURE cleanup " + json.dumps(cleanup, sort_keys=True), flush=True)
             yield defer.maybeDeferred(listener.stopListening)
             reactor.stop()
     def loop_failed(failure):
         failures.append(failure)
-        reactor.stop()
+        # Cancellation enters the scenario's finally block and joins both real
+        # helpers before stopping the reactor, including an early pipe EOF.
+        if scenario_worker[0] is not None:
+            scenario_worker[0].cancel()
+        else:
+            reactor.stop()
+    def begin():
+        scenario_worker[0] = scenario()
     loop.start(0.05).addErrback(loop_failed)
-    reactor.callWhenRunning(scenario)
+    reactor.callWhenRunning(begin)
     reactor.run(installSignalHandlers=False)
     if failures: failures[0].raiseException()
     print("SYNCWATCH_PIPE_ENGINE_PROOF " + json.dumps(report, sort_keys=True))

@@ -22,6 +22,7 @@ private class SessionPeer : HelperTransport {
     private var event = 0L
     private var ended = false
     private var holdUser = false
+    private var automaticReady = true
     @Volatile var userWriteHeld = false
         private set
     private fun base(kind: String, payload: Map<String, Any?>): MutableMap<String, Any?> = mutableMapOf(
@@ -54,7 +55,7 @@ private class SessionPeer : HelperTransport {
         if (kind == "sync.connect") {
             emit("sync.identity", mapOf("username" to "Viewer_2")); emit("sync.connection", mapOf("state" to "connected"))
         }
-        if (kind == "sync.setReady") emit("sync.readiness", mapOf("ready" to true))
+        if (kind == "sync.setReady" && automaticReady) emit("sync.readiness", mapOf("ready" to true))
     }
     @Synchronized override fun read(): CompletableFuture<ByteArray> {
         if (incoming.isNotEmpty()) return CompletableFuture.completedFuture(incoming.removeFirst())
@@ -66,6 +67,10 @@ private class SessionPeer : HelperTransport {
         writing?.completeExceptionally(IllegalStateException("EOF")); writing = null
     }
     @Synchronized fun readiness(value: Boolean) { emit("sync.readiness", mapOf("ready" to value)) }
+    @Synchronized fun connection(value: String) { emit("sync.connection", mapOf("state" to value)) }
+    @Synchronized fun identity(value: String) { emit("sync.identity", mapOf("username" to value)) }
+    @Synchronized fun holdReadiness() { automaticReady = false }
+    @Synchronized fun readyCount() = sent.count { it["type"] == "sync.setReady" }
     @Synchronized fun gateUserWrite() { holdUser = true }
     @Synchronized fun releaseUserWrite() { holdUser = false; val current = writing; writing = null; current?.complete(Unit) }
     @Synchronized fun correction(id: Long, after: Long, position: Long) {
@@ -80,7 +85,7 @@ private class SessionPeer : HelperTransport {
 }
 
 private class SessionPlayer(private val scope: PlaybackScope) : PlaybackPort {
-    private var sequence = 0uL
+    private var sequence = 1uL
     @Volatile var paused = false
         private set
     var position = 1200L
@@ -88,16 +93,16 @@ private class SessionPlayer(private val scope: PlaybackScope) : PlaybackPort {
     var seeks = 0
         private set
     private var ended = false
-    fun finishMedia() { ended = true; paused = true; position = 60000 }
+    fun finishMedia() { sequence++; ended = true; paused = true; position = 60000 }
     var closes = 0
         private set
     override suspend fun observe(scope: PlaybackScope): PlaybackObservation {
         this.scope.check(scope)
-        return PlaybackObservation(scope, ++sequence, PlaybackStatus.ready, position, 60000, paused, 1.0,
+        return PlaybackObservation(scope, sequence, PlaybackStatus.ready, position, 60000, paused, 1.0,
             !ended, false, ended, 0, 0, 0, null, false)
     }
-    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { this.paused = paused }
-    override suspend fun seek(positionMs: Long, scope: PlaybackScope) { position = positionMs; seeks++ }
+    override suspend fun setPaused(paused: Boolean, scope: PlaybackScope) { if (this.paused != paused) sequence++; this.paused = paused }
+    override suspend fun seek(positionMs: Long, scope: PlaybackScope) { sequence++; position = positionMs; seeks++ }
     override suspend fun load(localFile: Path, scope: PlaybackScope): Unit = error("Unexpected load")
     override suspend fun setRate(rate: Double, scope: PlaybackScope): Unit = error("Unexpected rate")
     override suspend fun setVolume(volume: Double, muted: Boolean, scope: PlaybackScope): Unit = error("Unexpected volume")
@@ -148,9 +153,51 @@ private suspend fun scenario(owner: CoroutineScope, eof: Boolean, strict: Boolea
     check(player.paused && player.closes == 0)
 }
 
+private suspend fun recovery(owner: CoroutineScope, scenario: String) {
+    val native = PlaybackScope.fresh().replacingMedia(); val player = SessionPlayer(native); val peer = SessionPeer()
+    val session = HelperSession(peer, player, native, SyncplayEndpoint("localhost", 8999, "room", "Viewer_2"),
+        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner, requireDeclaredIdentity = true)
+    try {
+        session.start(); eventually { session.state.ready }; peer.holdReadiness()
+        if (scenario in setOf("pendingIntent", "pendingCorrection")) peer.gateUserWrite()
+        session.pause(scenario == "paused")
+        if (scenario in setOf("pendingIntent", "pendingCorrection")) {
+            eventually { peer.userWriteHeld }
+            if (scenario == "pendingIntent") session.seek(4000) else peer.correction(1, 1, 4000)
+            peer.connection("connecting"); delay(30); peer.releaseUserWrite()
+            eventually { session.state.connection == HelperConnection.failed }; check(peer.userCount() == 1)
+        } else {
+            eventually { peer.userCount() == 1 }; peer.connection("connecting")
+            eventually { session.state.connection == HelperConnection.reconnecting && !session.state.ready }
+            eventually { player.paused }; check(session.state.acceptedUsername == "Viewer_2")
+            check(runCatching { session.togglePause() }.isFailure); check(runCatching { session.seek(4000) }.isFailure)
+            when (scenario) {
+                "missingIdentity" -> { peer.connection("connected"); eventually { session.state.connection == HelperConnection.failed } }
+                "renamed" -> { peer.identity("Viewer_3"); eventually { session.state.connection == HelperConnection.failed }; check(session.state.identityRejected) }
+                "earlyReady" -> { peer.readiness(true); eventually { session.state.connection == HelperConnection.failed } }
+                "cancel" -> { session.close(); check(session.state.connection == HelperConnection.stopped) }
+                "timeout" -> { delay(20000); peer.connection("connecting"); delay(5300); eventually { session.state.connection == HelperConnection.failed } }
+                else -> {
+                    for (attempt in 2..3) {
+                        peer.identity("Viewer_2"); peer.connection("connected"); eventually { peer.readyCount() == attempt }
+                        check(session.state.connection == HelperConnection.reconnecting && !session.state.ready)
+                        peer.readiness(true); eventually { session.state.connection == HelperConnection.connected && session.state.ready }
+                        session.seek(attempt * 1000L); eventually { peer.userCount() == attempt }
+                        if (attempt == 2) { peer.connection("connecting"); eventually { session.state.connection == HelperConnection.reconnecting } }
+                    }
+                    check(player.position == 3000L)
+                }
+            }
+        }
+    } finally { session.close(); session.close(); check(player.paused && player.closes == 0) }
+}
+
 internal fun helperSessionChecks() {
     Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { dispatcher ->
-        runBlocking(dispatcher) { scenario(this, false); scenario(this, true); scenario(this, false, strict = true); scenario(this, false, nativeEnd = true) }
+        runBlocking(dispatcher) {
+            scenario(this, false); scenario(this, true); scenario(this, false, strict = true); scenario(this, false, nativeEnd = true)
+            for (scenario in listOf("recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout")) recovery(this, scenario)
+        }
     }
-    println("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup")
+    println("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF recovery identity readiness budget cleanup")
 }

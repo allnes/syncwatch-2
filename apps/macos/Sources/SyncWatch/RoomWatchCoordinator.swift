@@ -36,7 +36,11 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         if !busy, !room.mediaNotice.isEmpty { result.roomStatus = room.mediaNotice }
         return result
     }
-    var playerNotice: String { busy ? "" : room.mediaNotice }
+    var playerNotice: String {
+        if busy { return "" }
+        if !room.mediaNotice.isEmpty { return room.mediaNotice }
+        return active?.player.sharedState?.connection == .reconnecting ? "reconnecting" : ""
+    }
     func membershipChanged() {
         if !room.connected {
             seenMembership = false
@@ -177,10 +181,12 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                         admitted = true
                         stage = "playback"
                     }
-                    if busy {
+                    if busy || status == "reconnecting" {
                         busy = false
                         status = "sharedWatchConnected"
                     }
+                } else if player.sharedState?.connection == .reconnecting {
+                    status = "reconnecting"
                 } else if !admitted, ContinuousClock.now >= readyDeadline {
                     throw HelperSessionFailure.timeout
                 }

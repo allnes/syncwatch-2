@@ -82,6 +82,8 @@ Limit a frame to 64 KiB including LF and bound all queues. Coalesce redundant po
 
 The application owns the helper. On EOF, the helper releases its engine and exits. After a bounded graceful shutdown, the parent may terminate only its own child. Use a Windows Job Object and an owned macOS process group with a signed embedded runtime. A helper crash pauses playback without closing the UI. A replacement helper receives a new run ID and current state; obsolete pending seeks are discarded.
 
+A recovery readiness request requires a fresh native read after the authenticated identity and connection events. VLC observation sequences identify native events; they do not increase merely because a paused player is sampled again. The bridge may publish the current sequence once for this fresh read while retaining the observation watermark, user-action fence, and correction ordering. Regressing sequences remain ineligible. Test playback ports preserve event stamps across unchanged reads.
+
 ## RoomMetadata service
 
 Syncplay owns shared play/pause/seek and required protocol readiness/timing. Local rate corrections serve the engine; user speed preferences are not shared. A separate C# / ASP.NET Core service handles catalog exchange, media identity, watch-session selection, missing-file state, and the Meet URI over HTTPS/WSS. It does not implement a second playback controller or relay movie content.
@@ -102,6 +104,37 @@ Each event includes a protocol version, server-issued room epoch and sequence nu
 A room snapshot defines the Syncplay endpoint, room name, and agreed client identity. Bind the metadata member ID to the username actually accepted by Syncplay after its handshake and to the process run ID. An entered display name or Meet identity alone is not a reliable cross-channel key.
 
 Start flow: agree on media selection and generation, resolve authorized local handles, verify identity and duration, load paused, set Syncplay readiness, and permit upstream playback. A late participant receives the selection snapshot before applying the current playback position. The first confirmed ready state admits that playback scope. Syncplay may subsequently clear the local readiness flag when the user pauses; that flag alone must not disable the next Play intent. Retain the admission until its scope, membership or connected helper is revoked.
+
+### Established transport recovery
+
+An ordinary loss of an established authenticated Syncplay transport retains the
+owned helper, native media scope and monotonically increasing IPC counters.
+Upstream `ClientService` owns reconnection timing. The application pauses the
+borrowed player, clears readiness and participant presentation, and gates shared
+Play/Seek while displaying the common Design reconnecting notice. A separate
+25-second monotonic recovery deadline is never extended by heartbeats or repeated
+connection attempts. End, Leave and shutdown remain available.
+
+Recovery requires a new authenticated initial state, the same accepted username,
+a fresh native observation, acknowledgement of a new readiness request and the
+actual upstream ready event. TLS/protocol rejection, changed identity, premature
+readiness, helper EOF and deadline exhaustion terminate the helper and leave the
+borrowed player paused for an explicit retry. A TLS rejection followed by an
+ordinary connection-lost callback remains terminal; trust policy is unchanged.
+Typed TCP close/loss/timeout during a reconnecting TLS handshake remains a
+transport interruption. Certificate verification and unclassified TLS failures
+remain terminal, including when an earlier authenticated connection succeeded.
+
+Unpublished user intents or pending timing corrections other than Pause(true)
+at the interruption boundary also terminate safely. They are never replayed into
+the replacement transport or discarded by resetting action watermarks. Native
+media and the application window remain owned by their existing coordinators.
+Metadata-only event recovery is independent of this Syncplay lifecycle.
+
+The isolated POSIX helper ignores SIGPIPE before starting embedded CPython, so a
+write to a closed socket becomes an I/O failure for the transport to handle.
+This policy applies only to the owned helper process. Native acceptance verifies
+the signal policy after a real pipe handshake and then confirms graceful shutdown.
 
 If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 

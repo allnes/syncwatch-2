@@ -2,7 +2,10 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
+import select
+import signal
 import subprocess
 import sys
 
@@ -11,6 +14,45 @@ from build import ROOT, build, digest, inventory
 sys.path[:0] = [str(ROOT / "tools/python-runtime"), str(ROOT / "tools/python-build")]
 from native_probe import exercise_sdk
 from runtime_package import layout
+
+
+def signal_policy(binary, runtime):
+    if os.name == "nt":
+        return {"target": "windows", "posixSignalApplicable": False}
+    # Embedded CPython does not install the normal Python executable's signal
+    # handlers. A closed TLS socket must become an I/O error, not kill the helper.
+    child = subprocess.Popen([str(binary), str(runtime)], stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    hello = {"v": 1, "id": "cmd-1", "type": "bridge.hello", "clientRunId": "signal-check",
+             "mediaGeneration": 1, "payload": {"supportedVersions": [1]}}
+    try:
+        child.stdin.write((json.dumps(hello) + "\n").encode())
+        child.stdin.flush()
+        data = b""
+        import time
+        deadline = time.monotonic() + 10
+        while b"\n" not in data:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not select.select([child.stdout], [], [], remaining)[0]:
+                raise ValueError("Signal probe handshake timed out")
+            chunk = os.read(child.stdout.fileno(), 65537)
+            if not chunk or len(data) + len(chunk) > 65536:
+                raise ValueError("Signal probe handshake failed")
+            data += chunk
+        if json.loads(data)["type"] != "bridge.ready":
+            raise ValueError("Signal probe handshake was not acknowledged")
+        os.kill(child.pid, signal.SIGPIPE)
+        shutdown = hello | {"id": "cmd-2", "type": "bridge.shutdown", "payload": {}}
+        output, diagnostic = child.communicate((json.dumps(shutdown) + "\n").encode(), timeout=10)
+        if child.returncode != 0 or diagnostic or json.loads(output)["type"] != "bridge.stopped":
+            raise ValueError("Owned helper did not survive SIGPIPE: exit=" + str(child.returncode))
+        return {"posixSignalApplicable": True, "brokenPipeSignalSurvives": True, "shutdown": True}
+    finally:
+        if child.poll() is None:
+            child.kill()
+        child.wait(timeout=5)
+        for stream in (child.stdin, child.stdout, child.stderr):
+            stream.close()
 
 
 def session(binary, runtime):
@@ -32,7 +74,8 @@ def session(binary, runtime):
                               stderr=subprocess.PIPE, timeout=10)
     if rejected.stdout or rejected.stderr != b"Helper stopped: frameTooLarge\n":
         raise ValueError("Invalid pipe input was echoed")
-    return {"coalescedFrames": True, "identicalReplay": True, "shutdown": True, "oversizedInputClosed": True}
+    return {"coalescedFrames": True, "identicalReplay": True, "shutdown": True, "oversizedInputClosed": True,
+            "signalPolicy": signal_policy(binary, runtime)}
 
 
 def check(runtime, output):

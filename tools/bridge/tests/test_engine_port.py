@@ -47,6 +47,7 @@ class EnginePortTests(unittest.TestCase):
 
     def test_readiness_request_does_not_publish_optimistic_state(self):
         self.engine.port.state = dict(self.state)
+        self.engine.status = "connected"
         self.engine.ready(True)
         self.assertEqual(self.requests, [True])
         self.assertEqual(self.events, [])
@@ -55,6 +56,45 @@ class EnginePortTests(unittest.TestCase):
         self.engine.session.userlist.currentUser.isReady = lambda: True
         self.engine.tick()
         self.assertEqual(self.events[-2], ("sync.readiness", {"ready": True}))
+
+    def test_established_transport_loss_retains_owner_and_republishes_identity(self):
+        self.engine.tick()
+        owner = self.engine.session
+        self.engine.session.has_initial_state = False
+        self.engine.event("sync.disconnected", {"code": "connection_lost"})
+        self.assertEqual(self.engine.status, "connecting")
+        self.assertIn(("sync.readiness", {"ready": False}), self.events)
+        self.assertEqual(self.events[-1], ("sync.participants", {"participants": []}))
+        before = list(self.events)
+        self.engine.tick()
+        self.assertEqual(self.events, before)
+        self.engine.session.has_initial_state = True
+        self.engine.tick()
+        self.assertIs(self.engine.session, owner)
+        self.assertEqual(self.engine.status, "connected")
+        self.assertEqual(self.events.count(("sync.identity", {"username": "player-a"})), 2)
+
+    def test_tls_rejection_cannot_be_changed_to_recoverable_by_connection_lost(self):
+        self.engine.tick()
+        self.engine.event("sync.disconnected", {"code": "tls_required"})
+        self.engine.event("sync.disconnected", {"code": "connection_lost"})
+        self.engine.tick()
+        self.assertEqual(self.engine.status, "disconnected")
+        self.assertTrue(self.engine.terminal)
+
+    def test_loss_before_first_authenticated_state_is_terminal(self):
+        self.engine.event("sync.disconnected", {"code": "connection_lost"})
+        self.engine.tick()
+        self.assertEqual(self.engine.status, "disconnected")
+        self.assertTrue(self.engine.terminal)
+
+    def test_recovery_cannot_request_optimistic_readiness(self):
+        self.engine.tick()
+        self.engine.port.state = dict(self.state)
+        self.engine.event("sync.disconnected", {"code": "connection_lost"})
+        with self.assertRaisesRegex(ValueError, "invalidState"):
+            self.engine.ready(True)
+        self.assertEqual(self.requests, [])
 
     def test_pending_correction_is_ordering_state_not_an_observed_value(self):
         self.assertFalse(self.engine.port.state_pending())

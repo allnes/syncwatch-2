@@ -41,6 +41,7 @@ internal static class HelperSessionChecks
         private ulong eventSequence;
         private TaskCompletionSource? writing;
         private bool holdUser;
+        private bool automaticReady = true;
         internal bool UserWriteHeld { get; private set; }
         private Dictionary<string, object?> Frame(string kind, object payload) => new()
         {
@@ -77,11 +78,15 @@ internal static class HelperSessionChecks
             reply["replyTo"] = id.GetString(); Push(reply);
             if (kind == "sync.connect")
             { Event("sync.identity", new { username = "Viewer_2" }); Event("sync.connection", new { state = "connected" }); }
-            if (kind == "sync.setReady") Event("sync.readiness", new { ready = true });
+            if (kind == "sync.setReady" && automaticReady) Event("sync.readiness", new { ready = true });
         }
         public Task<byte[]> ReadAsync(CancellationToken cancellation = default) => incoming.Reader.ReadAsync(cancellation).AsTask();
         public ValueTask DisposeAsync() { incoming.Writer.TryComplete(); writing?.TrySetCanceled(); return ValueTask.CompletedTask; }
         internal void Readiness(bool value) => Event("sync.readiness", new { ready = value });
+        internal void Connection(string value) => Event("sync.connection", new { state = value });
+        internal void Identity(string value) => Event("sync.identity", new { username = value });
+        internal void HoldReadiness() => automaticReady = false;
+        internal int ReadyCount => sent.Count(v => v.GetProperty("type").GetString() == "sync.setReady");
         internal void GateUserWrite() => holdUser = true;
         internal void ReleaseUserWrite() { holdUser = false; writing?.TrySetResult(); writing = null; }
         internal void Correction(int id, int after, long position)
@@ -96,20 +101,20 @@ internal static class HelperSessionChecks
 
     private sealed class Player(PlaybackScope owner) : IPlaybackPort
     {
-        private ulong sequence;
+        private ulong sequence = 1;
         internal bool Paused { get; private set; }
         internal long Position { get; private set; } = 1200;
         internal int Seeks { get; private set; }
         internal int Closes { get; private set; }
         private bool ended;
-        internal void FinishMedia() { ended = true; Paused = true; Position = 60000; }
+        internal void FinishMedia() { sequence++; ended = true; Paused = true; Position = 60000; }
         public Task<PlaybackObservation> ObserveAsync(PlaybackScope scope, CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested(); owner.Check(scope.ClientRunId, scope.MediaGeneration);
             return Task.FromResult(new PlaybackObservation
             {
                 Scope = scope,
-                Sequence = ++sequence,
+                Sequence = sequence,
                 Status = PlaybackStatus.Ready,
                 PositionMs = Position,
                 DurationMs = 60000,
@@ -119,9 +124,9 @@ internal static class HelperSessionChecks
             });
         }
         public Task SetPausedAsync(bool paused, PlaybackScope scope, CancellationToken cancellation = default)
-        { cancellation.ThrowIfCancellationRequested(); Paused = paused; return Task.CompletedTask; }
+        { cancellation.ThrowIfCancellationRequested(); if (Paused != paused) sequence++; Paused = paused; return Task.CompletedTask; }
         public Task SeekAsync(long positionMs, PlaybackScope scope, CancellationToken cancellation = default)
-        { cancellation.ThrowIfCancellationRequested(); Position = positionMs; Seeks++; return Task.CompletedTask; }
+        { cancellation.ThrowIfCancellationRequested(); sequence++; Position = positionMs; Seeks++; return Task.CompletedTask; }
         public Task LoadAsync(string file, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
         public Task SetRateAsync(double rate, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
         public Task SetVolumeAsync(double volume, bool muted, PlaybackScope scope, CancellationToken cancellation = default) => throw new InvalidOperationException();
@@ -172,9 +177,65 @@ internal static class HelperSessionChecks
         }
         await session.DisposeAsync(); await session.DisposeAsync(); Require(player.Paused && player.Closes == 0);
     }
+    private static async Task Recovery(string scenario)
+    {
+        var native = PlaybackScope.Create().ReplacingMedia(); var player = new Player(native); var peer = new Peer();
+        await using var session = new HelperSession(peer, player, native, new("localhost", 8999, "room", "Viewer_2"),
+            new("media-1", "Movie.mkv", 60000, 1234), Revision, requireDeclaredIdentity: true);
+        session.Start(); await Eventually(() => session.State.Ready); peer.HoldReadiness();
+        if (scenario is "pendingIntent" or "pendingCorrection") peer.GateUserWrite();
+        session.Pause(scenario == "paused");
+        if (scenario is "pendingIntent" or "pendingCorrection")
+        {
+            await Eventually(() => peer.UserWriteHeld);
+            if (scenario == "pendingIntent") session.Seek(4000); else peer.Correction(1, 1, 4000);
+            peer.Connection("connecting"); await Task.Delay(30); peer.ReleaseUserWrite();
+            await Eventually(() => session.State.Connection == HelperConnection.Failed); Require(peer.UserCount == 1);
+        }
+        else
+        {
+            await Eventually(() => peer.UserCount == 1); peer.Connection("connecting");
+            await Eventually(() => session.State.Connection == HelperConnection.Reconnecting && !session.State.Ready);
+            await Eventually(() => player.Paused); Require(session.State.AcceptedUsername == "Viewer_2");
+            bool blocked = false; try { session.TogglePause(); } catch (IOException) { blocked = true; }
+            Require(blocked);
+            blocked = false; try { session.Seek(4000); } catch (IOException) { blocked = true; }
+            Require(blocked);
+            switch (scenario)
+            {
+                case "missingIdentity":
+                    peer.Connection("connected"); await Eventually(() => session.State.Connection == HelperConnection.Failed); break;
+                case "renamed":
+                    peer.Identity("Viewer_3"); await Eventually(() => session.State.Connection == HelperConnection.Failed);
+                    Require(session.State.IdentityRejected); break;
+                case "earlyReady":
+                    peer.Readiness(true); await Eventually(() => session.State.Connection == HelperConnection.Failed); break;
+                case "cancel":
+                    await session.DisposeAsync(); Require(session.State.Connection == HelperConnection.Stopped); break;
+                case "timeout":
+                    await Task.Delay(20000); peer.Connection("connecting"); await Task.Delay(5300);
+                    await Eventually(() => session.State.Connection == HelperConnection.Failed); break;
+                default:
+                    for (int attempt = 2; attempt <= 3; attempt++)
+                    {
+                        peer.Identity("Viewer_2"); peer.Connection("connected"); await Eventually(() => peer.ReadyCount == attempt);
+                        Require(session.State.Connection == HelperConnection.Reconnecting && !session.State.Ready);
+                        peer.Readiness(true); await Eventually(() => session.State.Connection == HelperConnection.Connected && session.State.Ready);
+                        session.Seek(attempt * 1000); await Eventually(() => peer.UserCount == attempt);
+                        if (attempt == 2) { peer.Connection("connecting"); await Eventually(() => session.State.Connection == HelperConnection.Reconnecting); }
+                    }
+                    Require(player.Position == 3000); break;
+            }
+        }
+        await session.DisposeAsync(); await session.DisposeAsync(); Require(player.Paused && player.Closes == 0);
+    }
     internal static void Run()
     {
-        new OwnerContext().Run(async () => { await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true); });
-        Console.WriteLine("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF cleanup");
+        new OwnerContext().Run(async () =>
+        {
+            await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true);
+            foreach (string scenario in new[] { "recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);
+        });
+        Console.WriteLine("SYNCWATCH_HELPER_SESSION_OK publication race replay stale correction future authority EOF recovery identity readiness budget cleanup");
     }
 }
