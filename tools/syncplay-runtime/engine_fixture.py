@@ -68,6 +68,7 @@ class SimulatedPlayer:
 
 class ObservedServerProtocol(SyncServerProtocol):
     def connectionMade(self):
+        self._factory.connections.append(self)
         receive = self.transport._dataReceived
         def record(data):
             self._factory.wire.append(data)
@@ -86,7 +87,7 @@ class ObservedServerProtocol(SyncServerProtocol):
 
 class ObservedFactory(SyncFactory):
     def __init__(self, *args, **kwargs):
-        self.hellos, self.states, self.wire = [], [], []
+        self.hellos, self.states, self.wire, self.connections = [], [], [], []
         super().__init__(*args, **kwargs)
 
     def buildProtocol(self, address):

@@ -197,8 +197,10 @@ internal static class HelperSessionChecks
             await Eventually(() => peer.UserCount == 1); peer.Connection("connecting");
             await Eventually(() => session.State.Connection == HelperConnection.Reconnecting && !session.State.Ready);
             await Eventually(() => player.Paused); Require(session.State.AcceptedUsername == "Viewer_2");
-            bool blocked = false; try { session.TogglePause(); } catch (IOException) { blocked = true; } Require(blocked);
-            blocked = false; try { session.Seek(4000); } catch (IOException) { blocked = true; } Require(blocked);
+            bool blocked = false; try { session.TogglePause(); } catch (IOException) { blocked = true; }
+            Require(blocked);
+            blocked = false; try { session.Seek(4000); } catch (IOException) { blocked = true; }
+            Require(blocked);
             switch (scenario)
             {
                 case "missingIdentity":
@@ -229,7 +231,8 @@ internal static class HelperSessionChecks
     }
     internal static void Run()
     {
-        new OwnerContext().Run(async () => {
+        new OwnerContext().Run(async () =>
+        {
             await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true);
             foreach (string scenario in new[] { "recover", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);
         });

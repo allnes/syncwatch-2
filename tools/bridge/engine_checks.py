@@ -168,6 +168,37 @@ def bridge_run(root):
             assert b'"Hello"' not in b"".join(factory.wire)
             assert a.cancelled_corrections > 0
             report.update(play=True, seek=True, pause=True, noPlaintextIdentity=True, staleCorrectionsCancelled=True)
+            # Interrupt the real owned server-side TLS connection. Keep the
+            # same helper process, pipes, media handle and command counters.
+            before = len(a.events)
+            process_id = a.process.pid
+            factory.connections[0].transport.abortConnection()
+            yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connecting"
+                                      for k, v in a.events[before:]), "pipe recovery starts")
+            yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connected"
+                                      for k, v in a.events[before:]), "pipe authenticated recovery")
+            recovered = a.events[before:]
+            assert ("sync.readiness", {"ready": False}) in recovered
+            identity = ("sync.identity", {"username": "pipe-a"})
+            connected = ("sync.connection", {"state": "connected"})
+            assert recovered.index(identity) < recovered.index(connected)
+            a.send("sync.setReady", {"ready": True})
+            yield wait_for(lambda: any(k == "sync.readiness" and v["ready"]
+                                      for k, v in a.events[before:]), "pipe recovery readiness")
+            a.set_position(120000)
+            a.publish(user=True)
+            yield wait_for(lambda: b.current() > 115000 and abs(a.current() - b.current()) < 1500,
+                           "pipe recovered seek")
+            b.set_paused(False)
+            b.publish(user=True)
+            yield wait_for(lambda: not a.paused, "pipe recovered reverse play")
+            b.set_paused(True)
+            b.publish(user=True)
+            yield wait_for(lambda: a.paused, "pipe recovered reverse pause")
+            assert a.process.pid == process_id and a.process.poll() is None
+            report.update(authenticatedRecovery=True, recoveryIdentityRetained=True,
+                          recoveryReadinessConfirmed=True, recoveryBidirectionalPlayback=True,
+                          helperProcessRetained=True)
             a.send("sync.disconnect", {})
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "disconnected"
                                       for k, v in a.events), "pipe disconnect")
