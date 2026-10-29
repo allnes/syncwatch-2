@@ -181,9 +181,9 @@ class HelperSession(
             if (first != null && fence.correction(nativeScope, first.afterUserAction) == CorrectionDisposition.apply) { correct(first); continue }
             if (heartbeat) {
                 heartbeat = false; setDeadline(2); val value = player.observe(nativeScope); deadline = null; validate(value)
-                // Paused VLC event stamps can remain unchanged across fresh reads.
-                // Resample after authentication without lowering the watermark.
-                if (value.sequence > observationHigh || (!observed && value.sequence == observationHigh)) {
+                // VLC sequences identify events, not reads. Fresh paused samples
+                // must reach Syncplay after login even with an unchanged event sequence.
+                if (value.sequence >= observationHigh) {
                     send(commands.observation(nextId(), value, nativeScope)); observationHigh = value.sequence; observed = true
                 }
             }

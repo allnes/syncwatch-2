@@ -302,9 +302,9 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 let value = try await player.observe(nativeScope)
                 deadline = nil
                 try validate(value)
-                // VLC sequences identify events, not reads: a paused player can
-                // yield the same sequence in a fresh recovery sample.
-                if value.sequence > observationHigh || (!observed && value.sequence == observationHigh) {
+                // VLC sequences identify events, not reads. A fresh paused sample
+                // must reach Syncplay after login even when its event sequence is unchanged.
+                if value.sequence >= observationHigh {
                     try await send(commands.observation(nextID(), value: value, nativeScope: nativeScope))
                     observationHigh = value.sequence
                     observed = true

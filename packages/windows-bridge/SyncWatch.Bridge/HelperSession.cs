@@ -179,9 +179,9 @@ public sealed class HelperSession : IAsyncDisposable
             if (heartbeat)
             {
                 heartbeat = false; SetDeadline(2); var value = await player.ObserveAsync(nativeScope, workCancellation.Token); deadline = null; Validate(value);
-                // VLC event stamps can remain unchanged while paused; resample
-                // once after authenticated recovery without lowering the watermark.
-                if (value.Sequence > observationHigh || (!observed && value.Sequence == observationHigh))
+                // VLC sequences identify events, not reads. Fresh paused samples
+                // must reach Syncplay after login even with an unchanged event sequence.
+                if (value.Sequence >= observationHigh)
                 { await SendAsync(commands.Observation(NextId(), value, nativeScope)); observationHigh = value.Sequence; observed = true; }
             }
             if ((State.Connection == HelperConnection.Connected || recoveryConnected) && observed && !readyRequested)

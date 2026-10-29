@@ -10,6 +10,8 @@ The room watch coordinator serializes each transition in its existing owned task
 
 Room metadata authorizes the input generation. Syncplay remains the authority for timing, Play, Pause and Seek. The VLC adapter retains native player ownership. Rendering performs no I/O and uses the common menu, labels, capabilities and layout. Swift/macOS, C#/Windows and Kotlin/Linux implement the same boundaries on their target systems.
 
+Each helper heartbeat publishes a freshly read native observation, including an unchanged paused state. Native event sequence numbers do not identify reads. Samples retain the native scope and a nondecreasing event watermark; each IPC publication has its own command identity and observation origin. A sample collected before Syncplay login cannot replace subsequent samples needed to complete initial state.
+
 Playback admission retains the completed readiness handshake for the current helper transport. A later Syncplay user-readiness flag change does not undo that handshake; reconnect and close clear it. Admission still requires matching media, declared identity, an actual native observation, and acknowledgement of the readiness request.
 
 The selecting client retains the selected file's saved position before helper corrections begin. After admission, it submits one fenced seek-and-play intent and publishes one acknowledged native user observation. Followers continue to receive all timing from Syncplay.

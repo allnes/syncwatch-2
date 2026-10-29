@@ -41,6 +41,8 @@ internal static class HelperSessionChecks
         private ulong eventSequence;
         private TaskCompletionSource? writing;
         private bool holdUser;
+        internal bool StationaryHandshake { get; set; }
+        private int samples;
         private bool automaticReady = true;
         internal bool? PulseBeforeAck { get; set; }
         internal bool UserWriteHeld { get; private set; }
@@ -72,14 +74,19 @@ internal static class HelperSessionChecks
             cancellation.ThrowIfCancellationRequested(); sent.Add(value.Clone());
             if (!value.TryGetProperty("id", out var id)) return;
             string kind = value.GetProperty("type").GetString()!;
-            if (kind == "player.state") return;
+            if (kind == "player.state")
+            {
+                if (++samples == 2 && StationaryHandshake)
+                { Event("sync.identity", new { username = "Viewer_2" }); Event("sync.connection", new { state = "connected" }); }
+                return;
+            }
             bool hello = kind == "bridge.hello";
             var reply = Frame(hello ? "bridge.ready" : "bridge.result",
                 hello ? new { syncplayRevision = Revision } : (object)new { status = "applied" });
             if (kind == "sync.setReady" && PulseBeforeAck == true)
             { Event("sync.readiness", new { ready = true }); Event("sync.readiness", new { ready = false }); }
             reply["replyTo"] = id.GetString(); Push(reply);
-            if (kind == "sync.connect")
+            if (kind == "sync.connect" && !StationaryHandshake)
             { Event("sync.identity", new { username = "Viewer_2" }); Event("sync.connection", new { state = "connected" }); }
             if (kind == "sync.setReady" && automaticReady && PulseBeforeAck != true)
             { Event("sync.readiness", new { ready = true }); if (PulseBeforeAck == false) Event("sync.readiness", new { ready = false }); }
@@ -252,10 +259,19 @@ internal static class HelperSessionChecks
         Require(peer.UserMatches(22000, false) && player.Position == 22000 && !player.Paused && peer.ReadyCount == 1);
         await session.DisposeAsync(); Require(!session.State.PlaybackReady && player.Closes == 0);
     }
+    private static async Task StationaryHandshake()
+    {
+        var native = PlaybackScope.Create().ReplacingMedia(); var player = new Player(native); var peer = new Peer { StationaryHandshake = true };
+        await using var session = new HelperSession(peer, player, native, new("localhost", 8999, "room", "Viewer"),
+            new("media-1", "Movie.mkv", 60000, 1234), Revision);
+        session.Start(); await Eventually(() => session.State.PlaybackReady);
+        Require(player.Paused && player.Position == 1200 && peer.UserCount == 0 && player.Closes == 0);
+    }
     internal static void Run()
     {
         new OwnerContext().Run(async () =>
         {
+            await StationaryHandshake();
             await ReadinessPulse(false); await ReadinessPulse(true);
             await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true);
             foreach (string scenario in new[] { "recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);

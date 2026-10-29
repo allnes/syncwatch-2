@@ -22,6 +22,8 @@ private class SessionPeer : HelperTransport {
     private var event = 0L
     private var ended = false
     private var holdUser = false
+    private var stationaryHandshake = false
+    private var samples = 0
     private var automaticReady = true
     private var pulseBeforeAck: Boolean? = null
     @Volatile var userWriteHeld = false
@@ -49,14 +51,19 @@ private class SessionPeer : HelperTransport {
         check(!ended); sent.add(value)
         val id = value["id"] ?: return
         val kind = value["type"]
-        if (kind == "player.state") return
+        if (kind == "player.state") {
+            if (++samples == 2 && stationaryHandshake) {
+                emit("sync.identity", mapOf("username" to "Viewer_2")); emit("sync.connection", mapOf("state" to "connected"))
+            }
+            return
+        }
         val hello = kind == "bridge.hello"
         if (kind == "sync.setReady" && pulseBeforeAck == true) {
             emit("sync.readiness", mapOf("ready" to true)); emit("sync.readiness", mapOf("ready" to false))
         }
         push(base(if (hello) "bridge.ready" else "bridge.result",
             if (hello) mapOf("syncplayRevision" to SESSION_REVISION) else mapOf("status" to "applied")).also { it["replyTo"] = id })
-        if (kind == "sync.connect") {
+        if (kind == "sync.connect" && !stationaryHandshake) {
             emit("sync.identity", mapOf("username" to "Viewer_2")); emit("sync.connection", mapOf("state" to "connected"))
         }
         if (kind == "sync.setReady" && automaticReady && pulseBeforeAck != true) {
@@ -76,6 +83,7 @@ private class SessionPeer : HelperTransport {
     @Synchronized fun readiness(value: Boolean) { emit("sync.readiness", mapOf("ready" to value)) }
     @Synchronized fun connection(value: String) { emit("sync.connection", mapOf("state" to value)) }
     @Synchronized fun identity(value: String) { emit("sync.identity", mapOf("username" to value)) }
+    @Synchronized fun requireStationaryHandshake() { stationaryHandshake = true }
     @Synchronized fun holdReadiness() { automaticReady = false }
     @Synchronized fun pulseReadiness(beforeAck: Boolean) { pulseBeforeAck = beforeAck }
     @Synchronized fun userMatches(position: Long, paused: Boolean): Boolean {
@@ -218,9 +226,21 @@ private suspend fun readinessPulse(owner: CoroutineScope, beforeAck: Boolean) {
     } finally { session.close(); check(!session.state.playbackReady && player.closes == 0) }
 }
 
+private suspend fun stationaryHandshake(owner: CoroutineScope) {
+    val native = PlaybackScope.fresh().replacingMedia(); val player = SessionPlayer(native); val peer = SessionPeer()
+    peer.requireStationaryHandshake()
+    val session = HelperSession(peer, player, native, SyncplayEndpoint("localhost", 8999, "room", "Viewer"),
+        SharedMedia("media-1", "Movie.mkv", 60000, 1234), SESSION_REVISION, owner)
+    try {
+        session.start(); eventually { session.state.playbackReady }
+        check(player.paused && player.position == 1200L && peer.userCount() == 0 && player.closes == 0)
+    } finally { session.close() }
+}
+
 internal fun helperSessionChecks() {
     Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { dispatcher ->
         runBlocking(dispatcher) {
+            stationaryHandshake(this)
             for (beforeAck in listOf(false, true)) readinessPulse(this, beforeAck)
             scenario(this, false); scenario(this, true); scenario(this, false, strict = true); scenario(this, false, nativeEnd = true)
             for (scenario in listOf("recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout")) recovery(this, scenario)
