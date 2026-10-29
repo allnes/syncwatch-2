@@ -27,6 +27,12 @@ internal suspend fun roomEventMonitorChecks(address: String, key: String) = coro
         val selected = owner.perform(RoomCommandAction.Select(media.mediaId), owner.watchContext())
         check(selected.definition.selection?.media == media)
         monitoring.cancelAndJoin(); monitoring = null
+        var exhaustedAttempts = 0; var exhaustedRetries = 0
+        val exhausted = runCatching {
+            RoomEventMonitor.run(RoomAddress(address), admission, owner, reconnecting = { exhaustedRetries++ },
+                accepted = { exhaustedAttempts++; throw RoomProtocolException("transport") })
+        }.exceptionOrNull()
+        check(exhausted is RoomProtocolException && exhausted.code == "transport" && exhaustedAttempts == 5 && exhaustedRetries == 4)
         var retries = 0
         val failure = runCatching {
             RoomEventMonitor.run(RoomAddress(address), admission, owner, reconnecting = { retries++ },

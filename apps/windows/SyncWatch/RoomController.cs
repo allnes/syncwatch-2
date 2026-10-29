@@ -138,6 +138,7 @@ internal sealed class RoomController
     {
         RoomProtocolException protocol => protocol.Message is "transport" or "closed",
         System.Net.Http.HttpRequestException => true,
+        System.Net.WebSockets.WebSocketException => true,
         System.IO.IOException => true,
         OperationCanceledException => true,
         _ => false

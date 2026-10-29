@@ -9,6 +9,7 @@ internal static class RoomWatchContextChecks
         if (RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), false) != "sharedWatchMediaMissing"
             || RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), true) != "sharedWatchIdentityRejected") throw new Exception("Missing media failure classification");
         if (!RoomController.IsMetadataInterruption(new System.Net.Http.HttpRequestException()) || !RoomController.IsMetadataInterruption(new RoomProtocolException("transport"))) throw new Exception("Transport interruption classification");
+        if (!RoomController.IsMetadataInterruption(new System.Net.WebSockets.WebSocketException())) throw new Exception("Event handshake interruption classification");
         foreach (string code in new[] { "malformed", "unauthorized", "forbidden", "frameTooLarge" })
             if (RoomController.IsMetadataInterruption(new RoomProtocolException(code))) throw new Exception("Invalid membership retained");
         if (RoomWatchCoordinator.FailureKey(new RoomProtocolException("staleGeneration"), false) != "sharedWatchRoomChanged"

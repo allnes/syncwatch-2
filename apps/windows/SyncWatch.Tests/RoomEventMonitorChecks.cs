@@ -31,6 +31,15 @@ internal static class RoomEventMonitorChecks
             await cancellation.CancelAsync();
             try { await monitoring; } catch (OperationCanceledException) { }
             monitoring = null;
+            int exhaustedAttempts = 0, exhaustedRetries = 0;
+            try
+            {
+                await RoomEventMonitor.RunAsync(new(address), admission, owner, () => exhaustedRetries++,
+                    _ => { exhaustedAttempts++; throw new RoomProtocolException("transport"); }, CancellationToken.None);
+                throw new Exception("Transport retries were not bounded");
+            }
+            catch (RoomProtocolException error) when (error.Message == "transport") { }
+            if (exhaustedAttempts != 5 || exhaustedRetries != 4) throw new Exception("Recovery exceeded its attempt budget");
             int retries = 0;
             try
             {

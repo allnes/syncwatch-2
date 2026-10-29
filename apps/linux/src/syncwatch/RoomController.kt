@@ -119,10 +119,18 @@ internal class RoomController(private val scope: CoroutineScope) {
     // An admitted native scope survives metadata transport loss, but not an explicit replacement.
     fun canContinuePlayback(membership: RoomWatchMembership): Boolean = !stopping && playbackSession === membership.owner && playbackEpoch == membership.epoch
     companion object {
-        fun isMetadataInterruption(error: Exception): Boolean = when (error) {
-            is RoomProtocolException -> error.code in setOf("transport", "closed")
-            is java.io.IOException, is TimeoutCancellationException -> true
-            else -> false
+        fun isMetadataInterruption(error: Exception): Boolean {
+            var reason: Throwable = error
+            repeat(4) {
+                if (reason is java.util.concurrent.CompletionException || reason is java.util.concurrent.ExecutionException) {
+                    reason = reason.cause ?: return false
+                }
+            }
+            return when (val failure = reason) {
+                is RoomProtocolException -> failure.code in setOf("transport", "closed")
+                is java.io.IOException, is TimeoutCancellationException -> true
+                else -> false
+            }
         }
     }
     suspend fun beginWatch(): Pair<RoomWatchMembership, RoomWatchContext> {
