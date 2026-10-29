@@ -141,10 +141,13 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
         let next = try await owner.perform(.select(mediaID: "movie-a"), expected: finished)
         #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, next.bootstrap.snapshot))
         let restarted = try await owner.perform(.start(mediaID: "movie-a"), expected: next)
-        #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, restarted.bootstrap.snapshot))
+        #expect(
+            !RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, restarted.bootstrap.snapshot))
         let laterEnd = try await owner.perform(.end(reason: .finished), expected: restarted)
-        #expect(!RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
-        #expect(RoomWatchCoordinator.completedPlaylistAvailable(restarted.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
+        #expect(
+            !RoomWatchCoordinator.completedPlaylistAvailable(active.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
+        #expect(
+            RoomWatchCoordinator.completedPlaylistAvailable(restarted.bootstrap.snapshot, laterEnd.bootstrap.snapshot))
         try await peer.leave(joined)
         try await client.leave(admission)
         await peer.close()
