@@ -69,6 +69,10 @@ class SimulatedPlayer:
 class ObservedServerProtocol(SyncServerProtocol):
     def connectionMade(self):
         self._factory.connections.append(self)
+        if self._factory.reject_new_connections:
+            self._factory.rejected_connections += 1
+            self.transport.abortConnection()
+            return
         receive = self.transport._dataReceived
         def record(data):
             self._factory.wire.append(data)
@@ -88,6 +92,8 @@ class ObservedServerProtocol(SyncServerProtocol):
 class ObservedFactory(SyncFactory):
     def __init__(self, *args, **kwargs):
         self.hellos, self.states, self.wire, self.connections = [], [], [], []
+        self.reject_new_connections = False
+        self.rejected_connections = 0
         super().__init__(*args, **kwargs)
 
     def buildProtocol(self, address):

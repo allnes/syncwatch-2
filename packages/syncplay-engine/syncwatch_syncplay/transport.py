@@ -1,6 +1,7 @@
 """Authenticated STARTTLS with no cleartext Hello or downgrade path."""
 
 from twisted.internet import reactor
+from twisted.internet.error import ConnectionDone, ConnectionLost, TCPTimedOutError, TimeoutError
 from twisted.internet.ssl import Certificate, TLSVersion, optionsForClientTLS, trustRootFromCertificates
 from syncplay.client import SyncClientFactory
 from syncplay.protocols import SyncClientProtocol
@@ -12,6 +13,15 @@ def tls_options(hostname, certificates):
     roots = trustRootFromCertificates([Certificate.loadPEM(value) for value in certificates])
     return optionsForClientTLS(hostname, trustRoot=roots,
         extraCertificateOptions={"raiseMinimumTo": TLSVersion.TLSv1_2})
+
+
+def loss_code(phase, reason):
+    # A socket may close before STARTTLS completes during a temporary outage.
+    # Only typed transport failures can retry; TLS verification/protocol errors
+    # and an explicit rejection stay terminal regardless of connection history.
+    if phase != "failed" and reason.check(ConnectionDone, ConnectionLost, TCPTimedOutError, TimeoutError):
+        return "connection_lost"
+    return "tls_handshake_failed"
 
 
 class StrictClientProtocol(SyncClientProtocol):
@@ -73,7 +83,7 @@ class StrictClientProtocol(SyncClientProtocol):
     def connectionLost(self, reason):
         self._cancel_deadline()
         super().connectionLost(reason)
-        self._client.transport_failed("connection_lost" if self._phase == "secured" else "tls_handshake_failed")
+        self._client.transport_failed(loss_code(self._phase, reason))
 
 
 class StrictClientFactory(SyncClientFactory):

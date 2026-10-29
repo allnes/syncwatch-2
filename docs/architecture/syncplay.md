@@ -119,6 +119,9 @@ actual upstream ready event. TLS/protocol rejection, changed identity, premature
 readiness, helper EOF and deadline exhaustion terminate the helper and leave the
 borrowed player paused for an explicit retry. A TLS rejection followed by an
 ordinary connection-lost callback remains terminal; trust policy is unchanged.
+Typed TCP close/loss/timeout during a reconnecting TLS handshake remains a
+transport interruption. Certificate verification and unclassified TLS failures
+remain terminal, including when an earlier authenticated connection succeeded.
 
 Unpublished user intents or pending timing corrections other than Pause(true)
 at the interruption boundary also terminate safely. They are never replayed into

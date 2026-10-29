@@ -28,3 +28,14 @@ from syncwatch_syncplay.reactor import install
 install()
 from syncwatch_syncplay.session import Session
 assert Session.ownsReactor is False
+
+from twisted.internet.error import ConnectionDone, ConnectionLost, TimeoutError, VerifyError
+from twisted.python.failure import Failure
+from OpenSSL.SSL import Error as TLSError
+from syncwatch_syncplay.transport import loss_code
+for phase in ("requested", "handshaking", "secured"):
+    for error in (ConnectionDone(), ConnectionLost(), TimeoutError()):
+        assert loss_code(phase, Failure(error)) == "connection_lost"
+    for error in (VerifyError(), TLSError(), ValueError("invalid TLS handshake")):
+        assert loss_code(phase, Failure(error)) == "tls_handshake_failed"
+assert loss_code("failed", Failure(ConnectionLost())) == "tls_handshake_failed"

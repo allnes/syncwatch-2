@@ -182,12 +182,16 @@ def bridge_run(root):
             # same helper process, pipes, media handle and command counters.
             before = len(a.events)
             process_id = a.process.pid
+            factory.reject_new_connections = True
+            reactor.callLater(3, setattr, factory, "reject_new_connections", False)
             factory.connections[0].transport.abortConnection()
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connecting"
                                       for k, v in a.events[before:]), "pipe recovery starts")
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "connected"
-                                      for k, v in a.events[before:]), "pipe authenticated recovery")
+                                      for k, v in a.events[before:]), "pipe authenticated recovery", timeout=15)
             recovered = a.events[before:]
+            assert factory.rejected_connections > 0
+            assert not any(k == "sync.connection" and v["state"] == "disconnected" for k, v in recovered)
             assert ("sync.readiness", {"ready": False}) in recovered
             identity = ("sync.identity", {"username": "pipe-a"})
             connected = ("sync.connection", {"state": "connected"})
@@ -208,7 +212,7 @@ def bridge_run(root):
             assert a.process.pid == process_id and a.process.poll() is None
             report.update(authenticatedRecovery=True, recoveryIdentityRetained=True,
                           recoveryReadinessConfirmed=True, recoveryBidirectionalPlayback=True,
-                          helperProcessRetained=True)
+                          helperProcessRetained=True, transientPreTlsClosesRecovered=True)
             a.send("sync.disconnect", {})
             yield wait_for(lambda: any(k == "sync.connection" and v["state"] == "disconnected"
                                       for k, v in a.events), "pipe disconnect")
