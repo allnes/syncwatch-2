@@ -55,7 +55,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     fun start(selection: LibraryMediaSelection) {
         check(java.awt.EventQueue.isDispatchThread())
         if (closing || work != null) return
-        if (room.editor.state == "disconnected") { watch.start(selection); return }
+        if (room.editor.state == "disconnected") { watch.start(selection, autoplay = true); return }
         if (!room.connected || !watch.runtimeAvailable) return
         busy = true; errorKey = null; status = "sharedWatchPreparing"
         val task = scope.launch(start = CoroutineStart.LAZY) { run(selection) }
@@ -74,7 +74,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         var publication: RoomPreparedPublication? = null
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
-        var finished = false; var follow = false; admitted = false
+        var finished = false; var follow = false; var startedGeneration = false; admitted = false
         var stage = "membership"
         try {
             val (ticket, intent) = room.beginWatch(); membership = ticket
@@ -112,6 +112,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 check(context.definition.selection?.media == published.media) { "selection-changed" }
                 stage = "start"
                 context = room.performWatch(RoomCommandAction.Start(published.media.mediaId), ticket, context)
+                startedGeneration = true
             }
             requireAvailable(local, ticket, context)
             stage = "agreement"
@@ -151,7 +152,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                             val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection.media.mediaId, false), ticket, current)
                             requireSameGeneration(current, recovered)
                         }
-                        player.admitSharedPlayback(autoplay = forceSelection); admitted = true; stage = "playback"
+                        player.admitSharedPlayback(autoplay = startedGeneration); admitted = true; stage = "playback"
                     }
                     busy = false; status = "sharedWatchConnected"
                 } else if (player.sharedState?.connection == HelperConnection.reconnecting) status = "reconnecting"

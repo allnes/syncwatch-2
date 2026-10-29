@@ -1,6 +1,7 @@
 """Probe upstream pure modules in an isolated child; never initialize the engine."""
 
 import importlib.abc
+import importlib.machinery
 import json
 from pathlib import Path
 import sys
@@ -9,14 +10,22 @@ import warnings
 
 root = Path(sys.argv[1]).resolve()
 attempts = []
-# CPython 3.12 platform.py probes its Windows-only private SDK extension even
-# on Linux; that build omits _wmi from stdlib_module_names. No external module
-# is provided here, and the isolated source inventory contains no _wmi file.
-standard_library = sys.stdlib_module_names | {"_wmi"}
+# Optional interpreter probes can be absent from stdlib_module_names: platform
+# checks _wmi and traceback checks generated metadata on newer CPython builds.
+# Resolve these only against the isolated interpreter paths, before adding the
+# source artifact. An artifact must never supply an interpreter metadata module.
+standard_library = sys.stdlib_module_names
+standard_library_paths = tuple(sys.path)
+optional_interpreter_modules = {"_wmi", "_missing_stdlib_info"}
 
 
 class RejectExternalImports(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
+        if fullname in optional_interpreter_modules and fullname not in standard_library:
+            spec = importlib.machinery.PathFinder.find_spec(fullname, standard_library_paths)
+            if spec is None:
+                raise ModuleNotFoundError("Optional interpreter module is unavailable", name=fullname)
+            return spec
         if fullname.split(".")[0] not in standard_library | {"syncplay"}:
             attempts.append("import:" + fullname)
             raise ImportError("External modules are unavailable in a source-only probe")

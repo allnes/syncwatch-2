@@ -52,7 +52,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     internal void Start(LibraryMediaSelection selection)
     {
         if (closing || work is not null) return;
-        if (room.Editor.State == "disconnected") { watch.Start(selection); return; }
+        if (room.Editor.State == "disconnected") { watch.Start(selection, autoplay: true); return; }
         if (!room.Connected || !watch.RuntimeAvailable) return;
         Busy = true; ErrorKey = null; Status = "sharedWatchPreparing";
         cancellation = new(); work = RunAsync(selection, cancellation.Token); Changed?.Invoke();
@@ -72,7 +72,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     private async Task<NextWatch?> RunOneAsync(LibraryMediaSelection selection, bool forceSelection, CancellationToken token)
     {
         await Task.Yield();
-        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false, follow = false; admitted = false;
+        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false, follow = false, startedGeneration = false; admitted = false;
         string stage = "membership";
         try
         {
@@ -112,6 +112,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 if (context.Definition.Selection?.Media != publication.Media) throw new InvalidOperationException("selection-changed");
                 stage = "start";
                 context = await room.PerformWatchAsync(new RoomCommandAction.Start(publication.Media.MediaId), intent.Membership, context, token);
+                startedGeneration = true;
             }
             await RequireAvailableAsync(local, intent.Membership, context, token);
             stage = "agreement";
@@ -154,7 +155,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                             var recovered = await room.PerformWatchAsync(new RoomCommandAction.Missing(current.Definition.Selection!.Media.MediaId, false), intent.Membership, current, token);
                             RequireSameGeneration(current, recovered);
                         }
-                        owned.AdmitSharedPlayback(autoplay: forceSelection); admitted = true; stage = "playback";
+                        owned.AdmitSharedPlayback(autoplay: startedGeneration); admitted = true; stage = "playback";
                     }
                     if (Busy || Status == "reconnecting") { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
