@@ -16,8 +16,15 @@ internal sealed class WatchPlaylist
         selectedID = entries.Any(entry => entry.Id == selectedID) ? selectedID : null;
         if (closed || (snapshot.Entries.SequenceEqual(entries) && snapshot.SelectedID == selectedID && snapshot.Enabled == enabled)) return;
         if (snapshot.Revision >= SyncWatchSelectionMenu.MaximumRevision) { Close(); return; }
-        snapshot = new() { Kind = "playlist", SourceID = sourceID, Revision = snapshot.Revision + 1,
-            Entries = entries.ToArray(), SelectedID = selectedID, Enabled = enabled };
+        snapshot = new()
+        {
+            Kind = "playlist",
+            SourceID = sourceID,
+            Revision = snapshot.Revision + 1,
+            Entries = entries.ToArray(),
+            SelectedID = selectedID,
+            Enabled = enabled
+        };
         Menu = null; Changed?.Invoke();
     }
     internal void Open() { if (closed || !snapshot.IsValid) return; Menu = snapshot; Changed?.Invoke(); }
