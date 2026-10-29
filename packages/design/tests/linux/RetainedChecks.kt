@@ -2,12 +2,16 @@
 package syncwatch.design.tests
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.use
@@ -50,6 +54,26 @@ internal fun verifyRetainedRendering() {
         }
         check(disposed == 1) { "final removal did not dispose content" }
     } finally { owner.close() }
+}
+
+/** An offscreen scene verifies focus lifetime without synthesizing desktop input. */
+private fun verifyRetainedFocus() {
+    var presented by mutableStateOf(true)
+    var focused = false
+    val requester = FocusRequester()
+    ImageComposeScene(800, 600, content = {
+        RetainedContent(presented, Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize().focusRequester(requester).onFocusChanged { focused = it.isFocused }.focusable())
+            LaunchedEffect(presented) { if (presented) requester.requestFocus() }
+        }
+    }).use { scene ->
+        for (active in listOf(true, false, true, false)) {
+            presented = active
+            Snapshot.sendApplyNotifications()
+            repeat(4) { scene.render().close() }
+            check(focused == active) { "inactive retained content kept keyboard focus: $active $focused" }
+        }
+    }
 }
 
 /** An application-owned real window checks heavyweight peer lifetime, not manual UI acceptance. */
@@ -118,6 +142,6 @@ private fun verifyRetainedNativePeer() {
 
 fun main(arguments: Array<String>) {
     if ("--native" in arguments) verifyRetainedNativePeer()
-    else SwingUtilities.invokeAndWait { verifyRetainedRendering() }
+    else SwingUtilities.invokeAndWait { verifyRetainedRendering(); verifyRetainedFocus() }
     println("SYNCWATCH_RETAINED_CONTENT_OK: presentation preserves content; final disposal releases it")
 }

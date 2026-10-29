@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -58,6 +59,13 @@ internal val LocalDesignPresented = compositionLocalOf { true }
  */
 @Composable internal fun RetainedContent(presented: Boolean, modifier: Modifier, content: @Composable () -> Unit) {
     val active = LocalDesignPresented.current && presented
+    val focus = LocalFocusManager.current
+    var wasActive by remember { mutableStateOf(active) }
+    LaunchedEffect(active) {
+        // Hidden retained children block keys; release their focus so the visible pane can receive Tab.
+        if (wasActive && !active) focus.clearFocus(force = true)
+        wasActive = active
+    }
     var frame = modifier.clipToBounds().onPreviewKeyEvent { !active }
     if (!active) frame = frame.clearAndSetSemantics { }
     Box(frame) {

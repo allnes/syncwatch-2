@@ -99,6 +99,9 @@ def build(target, dotnet=None):
                 desktop = restore("compose-ui-jvm", target, directory)
                 renderer = restore("skiko-native-objects", target, directory)
                 home = linux_inputs(directory, media, desktop)
+                run(sys.executable, "tools/application/check_linux_design.py", "--toolchain-root", ROOT,
+                    "--application", directory / "application/application.jar", "--desktop-sdk", desktop,
+                    "--renderer-package", renderer)
                 run("cc", "-std=c11", "-shared", "-fPIC", "-O2", "-g0", "-Wall", "-Wextra", "-Werror",
                     "-I" + str(home / "include"), "-I" + str(home / "include/linux"), "-I" + str(media / "include"),
                     ROOT / "packages/linux-playback/native/jni.c", ROOT / "packages/linux-playback/native/x11.c",
