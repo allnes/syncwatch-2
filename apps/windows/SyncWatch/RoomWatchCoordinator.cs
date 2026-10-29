@@ -144,7 +144,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                 var actual = await owned.Player.ObserveAsync(scope, token);
                 if (actual.Ended) { finished = true; Status = "ended"; break; }
                 if (!Authorized() || owned.SharedState is { Connection: HelperConnection.Failed or HelperConnection.Stopped }) throw new InvalidOperationException("watch-revoked");
-                if (owned.SharedState is { Connection: HelperConnection.Connected, Ready: true } state)
+                if (owned.SharedState is { Connection: HelperConnection.Connected, PlaybackReady: true } state)
                 {
                     if (state.AcceptedUsername != intent.Membership.Identity.SyncplayUsername) throw new InvalidOperationException("identity-changed");
                     if (!admitted)

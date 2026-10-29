@@ -36,6 +36,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private readonly LocalPlaybackLaunch launch;
     private string language;
     private readonly long initialPositionMs;
+    private long sharedResumePositionMs;
     private LibraryMediaSelection? selection;
     private readonly Action<PlaybackScope>? onLoaded;
     private readonly Action<PlaybackObservation>? onObservation;
@@ -89,16 +90,17 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         if (closing || selection is null) throw new InvalidOperationException("media-unavailable");
         var descriptor = await sharedMediaPreparation.PrepareAsync(selection, player, scope, token);
         if (closing) throw new OperationCanceledException();
+        sharedResumePositionMs = Math.Min(initialPositionMs, descriptor.DurationMs!.Value);
         return descriptor;
     }
     internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); RenderChrome(); }
     internal void AdmitSharedPlayback(bool autoplay = false)
     {
-        if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, Ready: true } || sharedAuthority?.Invoke() == false)
+        if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, PlaybackReady: true } || sharedAuthority?.Invoke() == false)
             throw new InvalidOperationException("Shared playback unavailable");
         // A user's Pause can clear Syncplay readiness without revoking the admitted file.
         requiresSharedAdmission = false;
-        if (autoplay) sharedSession.Pause(false);
+        if (autoplay) sharedSession.PlayFrom(sharedResumePositionMs);
     }
     internal async Task RevokeSharedAsync(bool releaseAdmission = false)
     {
@@ -130,7 +132,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private void GateSharedActions()
     {
         if ((requiresSharedAdmission || sharedSession is not null) &&
-            (sharedAuthority?.Invoke() == false || SharedState is not { Connection: HelperConnection.Connected } || (requiresSharedAdmission && SharedState is not { Ready: true })))
+            (sharedAuthority?.Invoke() == false || SharedState is not { Connection: HelperConnection.Connected } || (requiresSharedAdmission && SharedState is not { PlaybackReady: true })))
             presentation = presentation with { EnabledActions = presentation.EnabledActions.Except(["playPause", "seek", "skip"]).ToHashSet() };
     }
     internal void DetachSurface()

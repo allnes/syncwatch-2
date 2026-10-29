@@ -93,14 +93,16 @@ internal class PlaybackController(
         check(!closing)
         val descriptor = sharedMediaPreparation.prepare(checkNotNull(selection), player, scope)
         check(!closing)
+        sharedResumePositionMs = minOf(initialPositionMs, checkNotNull(descriptor.durationMs))
         return descriptor
     }
     fun requireSharedAdmission() { requiresSharedAdmission = true; gateSharedActions() }
+    private var sharedResumePositionMs = 0L
     fun admitSharedPlayback(autoplay: Boolean = false) {
-        check(sharedSession != null && sharedState?.connection == HelperConnection.connected && sharedState?.ready == true && sharedAuthority?.invoke() != false)
+        check(sharedSession != null && sharedState?.connection == HelperConnection.connected && sharedState?.playbackReady == true && sharedAuthority?.invoke() != false)
         // Syncplay may clear readiness after this user's Pause; the admitted file can resume.
         requiresSharedAdmission = false
-        if (autoplay) checkNotNull(sharedSession).pause(false)
+        if (autoplay) checkNotNull(sharedSession).playFrom(sharedResumePositionMs)
     }
     suspend fun revokeShared(releaseAdmission: Boolean = false) = withContext(NonCancellable) {
         requireSharedAdmission(); sharedAuthority = null
@@ -126,7 +128,7 @@ internal class PlaybackController(
     }
     private fun gateSharedActions() {
         if ((requiresSharedAdmission || sharedSession != null) &&
-            (sharedAuthority?.invoke() == false || sharedState?.connection != HelperConnection.connected || (requiresSharedAdmission && sharedState?.ready != true)))
+            (sharedAuthority?.invoke() == false || sharedState?.connection != HelperConnection.connected || (requiresSharedAdmission && sharedState?.playbackReady != true)))
             presentation = presentation.copy(enabledActions = presentation.enabledActions - setOf("playPause", "seek", "skip"))
     }
 

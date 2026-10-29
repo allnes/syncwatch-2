@@ -35,7 +35,7 @@ data class SyncplayEndpoint(val host: String, val port: Int, val room: String, v
 data class SyncplayParticipant(val username: String, val ready: Boolean)
 enum class HelperConnection { starting, connecting, reconnecting, connected, failed, stopped }
 data class HelperSessionState(val connection: HelperConnection = HelperConnection.starting, val ready: Boolean = false,
-    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList(), val identityRejected: Boolean = false)
+    val acceptedUsername: String? = null, val participants: List<SyncplayParticipant> = emptyList(), val identityRejected: Boolean = false, val playbackReady: Boolean = false)
 
 /** Admit matching media first. The supplied single-thread owner context serializes
  * UI intents, one writer and immutable observations; Syncplay retains timing policy.
@@ -56,6 +56,7 @@ class HelperSession(
         data class Pause(val value: Boolean) : Intent
         data object Toggle : Intent
         data class Seek(val positionMs: Long) : Intent
+        data class PlayFrom(val positionMs: Long) : Intent
     }
     private val users = ArrayDeque<Pair<Long, Intent>>()
     private val inbox = ArrayDeque<ByteArray>()
@@ -71,6 +72,7 @@ class HelperSession(
     private var observed = false
     private var readyRequested = false
     private var requestingReady = false
+    private var readinessObserved = false
     private var recoveryIdentity = false
     private var recoveryConnected = false
     private var recoveryDeadline: Long? = null
@@ -118,6 +120,10 @@ class HelperSession(
     fun seek(positionMs: Long) {
         if (positionMs !in 0..media.durationMs) bad()
         enqueue(Intent.Seek(positionMs))
+    }
+    fun playFrom(positionMs: Long) {
+        if (positionMs !in 0..media.durationMs) bad()
+        enqueue(Intent.PlayFrom(positionMs))
     }
     private fun enqueue(intent: Intent) {
         checkOwner(); if (closed || state.connection != HelperConnection.connected) bad()
@@ -184,7 +190,7 @@ class HelperSession(
             if ((state.connection == HelperConnection.connected || recoveryConnected) && observed && !readyRequested) {
                 requestingReady = true
                 request(HelperReplyKind.applied) { commands.ready(it, true) }; readyRequested = true
-                requestingReady = false; finishRecovery(); continue
+                requestingReady = false; finishReadiness(); continue
             }
             if (inbox.isEmpty() && users.isEmpty() && !heartbeat) waitSignal()
         }
@@ -195,8 +201,8 @@ class HelperSession(
             corrections.any { it.operation != PlayerCorrection.Operation.Pause(true) }) bad()
         if (recoveryDeadline == null) recoveryDeadline = System.nanoTime() + 25_000_000_000L
         recoveryIdentity = false; recoveryConnected = false; observed = false
-        readyRequested = false; requestingReady = false
-        publish(state.copy(connection = HelperConnection.reconnecting, ready = false, participants = emptyList()))
+        readyRequested = false; requestingReady = false; readinessObserved = false
+        publish(state.copy(connection = HelperConnection.reconnecting, ready = false, playbackReady = false, participants = emptyList()))
         setDeadline(2)
         try {
             player.setPaused(true, nativeScope)
@@ -208,17 +214,22 @@ class HelperSession(
         } finally { deadline = null }
         heartbeat = true
     }
-    private fun finishRecovery() {
-        if (recoveryDeadline == null || !recoveryConnected || !observed || !readyRequested || !state.ready) return
-        recoveryDeadline = null; recoveryConnected = false
-        publish(state.copy(connection = HelperConnection.connected))
+    private fun finishReadiness() {
+        if (!observed || !readyRequested || !(readinessObserved || state.ready)) return
+        if (recoveryDeadline != null) {
+            if (!recoveryConnected) return
+            recoveryDeadline = null; recoveryConnected = false
+            state = state.copy(connection = HelperConnection.connected)
+        }
+        if (state.connection != HelperConnection.connected) return
+        publish(state.copy(playbackReady = true))
     }
     private suspend fun user(sequence: Long, intent: Intent) {
         setDeadline(2)
-        val pause = when (intent) { is Intent.Pause -> intent.value; Intent.Toggle -> !player.observe(nativeScope).paused; else -> null }
-        val position = (intent as? Intent.Seek)?.positionMs
-        if (pause != null) player.setPaused(pause, nativeScope)
+        val pause = when (intent) { is Intent.Pause -> intent.value; is Intent.PlayFrom -> false; Intent.Toggle -> !player.observe(nativeScope).paused; else -> null }
+        val position = when (intent) { is Intent.Seek -> intent.positionMs; is Intent.PlayFrom -> intent.positionMs; else -> null }
         if (position != null) player.seek(position, nativeScope)
+        if (pause != null) player.setPaused(pause, nativeScope)
         setDeadline(2)
         try {
             while (true) {
@@ -305,10 +316,11 @@ class HelperSession(
             }
             "sync.readiness" -> {
                 PlayerCorrection.keys(payload, setOf("ready")); state = state.copy(ready = payload["ready"] as? Boolean ?: bad())
+                if (state.ready && observed && (requestingReady || readyRequested)) readinessObserved = true
                 if (recoveryDeadline != null && state.ready) {
                     if (!recoveryConnected || !observed || !(requestingReady || readyRequested)) bad()
-                    finishRecovery()
                 }
+                finishReadiness()
             }
             "sync.participants" -> {
                 PlayerCorrection.keys(payload, setOf("participants")); val rows = payload["participants"] as? List<*> ?: bad()
@@ -332,7 +344,7 @@ class HelperSession(
     }
     private fun stop(failed: Boolean) {
         checkOwner(); if (closed) return; closed = true; fence.invalidate(); users.clear(); inbox.clear(); corrections.clear()
-        publish(state.copy(connection = if (failed) HelperConnection.failed else HelperConnection.stopped, ready = false))
+        publish(state.copy(connection = if (failed) HelperConnection.failed else HelperConnection.stopped, ready = false, playbackReady = false))
         applying?.cancel(); scope.cancel(); signal()
         termination = CoroutineScope(SupervisorJob() + Dispatchers.IO).async {
             try { player.setPaused(true, nativeScope) } catch (_: Exception) { }

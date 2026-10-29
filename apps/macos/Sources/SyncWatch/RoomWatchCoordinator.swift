@@ -198,7 +198,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                 guard player.sharedState?.connection != .failed, player.sharedState?.connection != .stopped else {
                     throw HelperSessionFailure.unavailable
                 }
-                if player.sharedState?.connection == .connected && player.sharedState?.ready == true {
+                if player.sharedState?.connection == .connected && player.sharedState?.playbackReady == true {
                     guard player.sharedState?.acceptedUsername == intent.membership.identity.syncplayUsername else {
                         throw HelperSessionFailure.malformed
                     }

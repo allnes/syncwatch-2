@@ -49,6 +49,7 @@ struct LocalPlaybackLaunch {
     private var closed = false
     private let allocateScope: Bool
     private let initialPositionMs: Int64
+    private var sharedResumePositionMs: Int64 = 0
     private var autoplayPending: Bool
     private var selection: LibraryMediaSelection?
     private let onLoaded: @MainActor (PlaybackScope) -> Void
@@ -91,6 +92,7 @@ struct LocalPlaybackLaunch {
         guard !closing, let selection else { throw HelperSessionFailure.unavailable }
         let descriptor = try await sharedMediaPreparation.prepare(selection, player: player, scope: scope)
         guard !closing else { throw CancellationError() }
+        sharedResumePositionMs = min(initialPositionMs, descriptor.durationMs!)
         return descriptor
     }
     func requireSharedAdmission() {
@@ -98,13 +100,13 @@ struct LocalPlaybackLaunch {
         gateSharedActions()
     }
     func admitSharedPlayback(autoplay: Bool = false) throws {
-        guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.ready == true,
+        guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.playbackReady == true,
             sharedAuthority?() != false
         else { throw HelperSessionFailure.unavailable }
         // Syncplay can clear its readiness flag when this user pauses. That does
         // not revoke the initial admission or prevent the next Play intent.
         requiresSharedAdmission = false
-        if autoplay { try sharedSession?.pause(false) }
+        if autoplay { try sharedSession?.play(from: sharedResumePositionMs) }
     }
     func revokeShared(releaseAdmission: Bool = false) async {
         requireSharedAdmission()
@@ -153,7 +155,7 @@ struct LocalPlaybackLaunch {
     private func gateSharedActions() {
         if (requiresSharedAdmission || sharedSession != nil)
             && (sharedAuthority?() == false || sharedState?.connection != .connected
-                || (requiresSharedAdmission && sharedState?.ready != true))
+                || (requiresSharedAdmission && sharedState?.playbackReady != true))
         {
             presentation.enabledActions.subtract(["playPause", "seek", "skip"])
         }

@@ -41,6 +41,8 @@ public struct HelperSessionState: Sendable, Equatable {
     public enum Connection: Sendable { case starting, connecting, reconnecting, connected, failed, stopped }
     public var connection: Connection = .starting
     public var ready = false
+    /// Initial readiness is retained for this transport even if Syncplay later clears its user flag.
+    public var playbackReady = false
     public var acceptedUsername: String?
     public var identityRejected = false
     public var participants: [SyncplayParticipant] = []
@@ -67,6 +69,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         case pause(Bool)
         case toggle
         case seek(Int64)
+        case playFrom(Int64)
     }
     private var users: [(UInt64, Intent)] = []
     private var inbox: [Data] = []
@@ -81,6 +84,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
     private var observed = false
     private var readyRequested = false
     private var requestingReady = false
+    private var readinessObserved = false
     private var recoveryIdentity = false
     private var recoveryConnected = false
     private var recoveryDeadline: ContinuousClock.Instant?
@@ -158,6 +162,10 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         guard (0...media.durationMs).contains(positionMs) else { throw HelperSessionFailure.malformed }
         try enqueue(.seek(positionMs))
     }
+    public func play(from positionMs: Int64) throws {
+        guard (0...media.durationMs).contains(positionMs) else { throw HelperSessionFailure.malformed }
+        try enqueue(.playFrom(positionMs))
+    }
     private func enqueue(_ intent: Intent) throws {
         guard !closed, state.connection == .connected else { throw HelperSessionFailure.unavailable }
         guard users.count < 64 else { throw HelperSessionFailure.queueFull }
@@ -178,6 +186,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         corrections.removeAll()
         state.connection = failed ? .failed : .stopped
         state.ready = false
+        state.playbackReady = false
         changed(state)
         applying?.cancel()
         worker?.cancel()
@@ -306,7 +315,7 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
                 try await request(.applied) { try commands.ready($0, value: true) }
                 readyRequested = true
                 requestingReady = false
-                finishRecovery()
+                finishReadiness()
                 continue
             }
             try await wait()
@@ -324,8 +333,10 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         observed = false
         readyRequested = false
         requestingReady = false
+        readinessObserved = false
         state.connection = .reconnecting
         state.ready = false
+        state.playbackReady = false
         state.participants = []
         changed(state)
         deadline = .now.advanced(by: .seconds(2))
@@ -339,11 +350,16 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         }
         heartbeat = true
     }
-    private func finishRecovery() {
-        guard recoveryDeadline != nil, recoveryConnected, observed, readyRequested, state.ready else { return }
-        recoveryDeadline = nil
-        recoveryConnected = false
-        state.connection = .connected
+    private func finishReadiness() {
+        guard observed, readyRequested, readinessObserved || state.ready else { return }
+        if recoveryDeadline != nil {
+            guard recoveryConnected else { return }
+            recoveryDeadline = nil
+            recoveryConnected = false
+            state.connection = .connected
+        }
+        guard state.connection == .connected else { return }
+        state.playbackReady = true
         changed(state)
     }
     private func user(_ sequence: UInt64, _ intent: Intent) async throws {
@@ -353,10 +369,13 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         case .pause(let value): targetPause = value
         case .toggle: targetPause = !(try await player.observe(nativeScope)).paused
         case .seek(let position): targetPosition = position
+        case .playFrom(let position):
+            targetPosition = position
+            targetPause = false
         }
         deadline = .now.advanced(by: .seconds(2))
-        if let targetPause { try await player.setPaused(targetPause, scope: nativeScope) }
         if let targetPosition { try await player.seek(to: targetPosition, scope: nativeScope) }
+        if let targetPause { try await player.setPaused(targetPause, scope: nativeScope) }
         deadline = .now.advanced(by: .seconds(2))
         defer { deadline = nil }
         while true {
@@ -497,12 +516,13 @@ public enum HelperSessionFailure: String, Error { case malformed, unavailable, q
         case "sync.readiness":
             try HelperJSON.keys(payload, required: ["ready"])
             state.ready = try boolean(payload["ready"])
+            if state.ready, observed, requestingReady || readyRequested { readinessObserved = true }
             if recoveryDeadline != nil, state.ready {
                 guard recoveryConnected, observed, requestingReady || readyRequested else {
                     throw HelperSessionFailure.malformed
                 }
-                finishRecovery()
             }
+            finishReadiness()
         case "sync.participants":
             try HelperJSON.keys(payload, required: ["participants"])
             guard let rows = payload["participants"] as? [[String: Any]], rows.count <= 64 else {

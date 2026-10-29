@@ -42,6 +42,7 @@ internal static class HelperSessionChecks
         private TaskCompletionSource? writing;
         private bool holdUser;
         private bool automaticReady = true;
+        internal bool? PulseBeforeAck { get; set; }
         internal bool UserWriteHeld { get; private set; }
         private Dictionary<string, object?> Frame(string kind, object payload) => new()
         {
@@ -75,10 +76,13 @@ internal static class HelperSessionChecks
             bool hello = kind == "bridge.hello";
             var reply = Frame(hello ? "bridge.ready" : "bridge.result",
                 hello ? new { syncplayRevision = Revision } : (object)new { status = "applied" });
+            if (kind == "sync.setReady" && PulseBeforeAck == true)
+            { Event("sync.readiness", new { ready = true }); Event("sync.readiness", new { ready = false }); }
             reply["replyTo"] = id.GetString(); Push(reply);
             if (kind == "sync.connect")
             { Event("sync.identity", new { username = "Viewer_2" }); Event("sync.connection", new { state = "connected" }); }
-            if (kind == "sync.setReady" && automaticReady) Event("sync.readiness", new { ready = true });
+            if (kind == "sync.setReady" && automaticReady && PulseBeforeAck != true)
+            { Event("sync.readiness", new { ready = true }); if (PulseBeforeAck == false) Event("sync.readiness", new { ready = false }); }
         }
         public Task<byte[]> ReadAsync(CancellationToken cancellation = default) => incoming.Reader.ReadAsync(cancellation).AsTask();
         public ValueTask DisposeAsync() { incoming.Writer.TryComplete(); writing?.TrySetCanceled(); return ValueTask.CompletedTask; }
@@ -96,6 +100,12 @@ internal static class HelperSessionChecks
         }
         internal int ReplyCount(int id, string kind) => sent.Count(v => v.TryGetProperty("replyTo", out var reply) && reply.GetString() == "cmd-" + id && v.GetProperty("type").GetString() == kind);
         internal bool SawNativeEnd => sent.Any(v => v.GetProperty("type").GetString() == "player.state" && v.GetProperty("payload").GetProperty("positionMs").GetInt64() == 60000 && !v.GetProperty("payload").GetProperty("seekable").GetBoolean() && v.GetProperty("payload").GetProperty("paused").GetBoolean());
+        internal bool UserMatches(long position, bool paused)
+        {
+            var frame = sent.Last(v => v.TryGetProperty("origin", out var origin) && origin.GetString() == "user");
+            var payload = frame.GetProperty("payload");
+            return payload.GetProperty("positionMs").GetInt64() == position && payload.GetProperty("paused").GetBoolean() == paused;
+        }
         internal int UserCount => sent.Count(v => v.TryGetProperty("origin", out var origin) && origin.GetString() == "user");
     }
 
@@ -229,10 +239,24 @@ internal static class HelperSessionChecks
         }
         await session.DisposeAsync(); await session.DisposeAsync(); Require(player.Paused && player.Closes == 0);
     }
+    private static async Task ReadinessPulse(bool beforeAck)
+    {
+        var native = PlaybackScope.Create().ReplacingMedia(); var player = new Player(native); var peer = new Peer { PulseBeforeAck = beforeAck };
+        await using var session = new HelperSession(peer, player, native, new("localhost", 8999, "room", "Viewer"),
+            new("media-1", "Movie.mkv", 60000, 1234), Revision);
+        session.Start(); await Eventually(() => session.State.PlaybackReady && !session.State.Ready);
+        Require(session.State.Connection == HelperConnection.Connected);
+        foreach (long invalid in new[] { -1L, 60001L })
+        { try { session.PlayFrom(invalid); throw new InvalidDataException("Invalid resume accepted"); } catch (IOException) { } }
+        session.PlayFrom(22000); await Eventually(() => peer.UserCount == 1);
+        Require(peer.UserMatches(22000, false) && player.Position == 22000 && !player.Paused && peer.ReadyCount == 1);
+        await session.DisposeAsync(); Require(!session.State.PlaybackReady && player.Closes == 0);
+    }
     internal static void Run()
     {
         new OwnerContext().Run(async () =>
         {
+            await ReadinessPulse(false); await ReadinessPulse(true);
             await Scenario(false); await Scenario(true); await Scenario(false, strict: true); await Scenario(false, nativeEnd: true);
             foreach (string scenario in new[] { "recover", "paused", "missingIdentity", "renamed", "earlyReady", "pendingIntent", "pendingCorrection", "cancel", "timeout" }) await Recovery(scenario);
         });

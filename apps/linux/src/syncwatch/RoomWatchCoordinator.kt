@@ -144,7 +144,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 val actual = player.player.observe(nativeScope)
                 if (actual.ended) { finished = true; status = "ended"; break }
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
-                if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
+                if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.playbackReady == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
                     if (!admitted) {
                         if (ticket.memberId in current.bootstrap.missingMembers) {
