@@ -54,16 +54,16 @@ internal class WatchSessionCoordinator(
         val result = source.copy(enabledActions = enabled)
         return if (live) player!!.libraryPresentation(result) else result
     }
-    fun start(selection: LibraryMediaSelection, requiresSharedAdmission: Boolean = false, restartFromBeginning: Boolean = false) {
+    fun start(selection: LibraryMediaSelection, requiresSharedAdmission: Boolean = false, autoplay: Boolean = false) {
         check(java.awt.EventQueue.isDispatchThread())
         if (!runtimeAvailable || closing) return
         try {
-            session.select(selection.media.id, restartFromBeginning).forEach { if (it is WatchEffect.Release) release(it.scope) }
+            session.select(selection.media.id).forEach { if (it is WatchEffect.Release) release(it.scope) }
             val effects = session.start()
             hasWatchActivity = true; errorKey = null
             for (effect in effects) when (effect) {
                 is WatchEffect.Release -> release(effect.scope)
-                is WatchEffect.Load -> load(effect, selection, requiresSharedAdmission)
+                is WatchEffect.Load -> load(effect, selection, requiresSharedAdmission, autoplay)
             }
             publish(); requestCheckpoint()
         } catch (_: WatchFailure) { errorKey = "playbackFailed"; publish() }
@@ -102,7 +102,7 @@ internal class WatchSessionCoordinator(
         catch (error: Exception) { errorKey = "playbackFailed"; throw error }
     }
     private fun publish() { phase = session.phase; playerPresented = !closing && session.playerPresented }
-    private fun load(request: WatchEffect.Load, selection: LibraryMediaSelection, requiresSharedAdmission: Boolean) {
+    private fun load(request: WatchEffect.Load, selection: LibraryMediaSelection, requiresSharedAdmission: Boolean, autoplay: Boolean) {
         pendingLoad?.cancel(); pendingScope = request.scope
         val prior = releaseJob
         val loading = work.launch(start = CoroutineStart.LAZY) {
@@ -115,7 +115,7 @@ internal class WatchSessionCoordinator(
                     selection = selection, requiresSharedAdmission = requiresSharedAdmission, onLoaded = ::loaded, onObservation = ::observed,
                     onNavigation = { if (it == "showLibrary") showLibrary() else if (it == "endWatching") { onEndWatching?.invoke() ?: end() } },
                     onFailure = { failed(request.scope) }, onPlaylistUpdate = { onPlaylistUpdate?.invoke(it) },
-                    onPlaylistSelection = { onPlaylistSelection?.invoke(it) })
+                    onPlaylistSelection = { onPlaylistSelection?.invoke(it) }, autoplay = autoplay)
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { failed(request.scope) }
             finally { if (pendingScope == request.scope) { pendingScope = null; pendingLoad = null } }

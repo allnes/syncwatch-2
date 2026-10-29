@@ -82,19 +82,17 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         status = "sharedWatchPreparing"
         work = Task { [self] in await run(selection) }
     }
-    private func run(_ initial: LibraryMediaSelection, forceSelection: Bool = false, restart: Bool = false) async {
+    private func run(_ initial: LibraryMediaSelection, forceSelection: Bool = false) async {
         defer {
             busy = false
             work = nil
         }
         var next: NextWatch? = NextWatch(selection: initial, forceSelection: forceSelection)
-        var restart = restart
         while !closing, !Task.isCancelled, let current = next {
-            next = await runOne(current.selection, forceSelection: current.forceSelection, restart: restart)
-            restart = true
+            next = await runOne(current.selection, forceSelection: current.forceSelection)
         }
     }
-    private func runOne(_ selection: LibraryMediaSelection, forceSelection: Bool, restart: Bool) async -> NextWatch? {
+    private func runOne(_ selection: LibraryMediaSelection, forceSelection: Bool) async -> NextWatch? {
         var publication: RoomPreparedPublication?
         var membership: RoomWatchMembership?
         var owned: PlaybackController?
@@ -111,7 +109,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
             // A fresh scope prevents a prepared hash or helper from being reused for another load.
             stage = "input"
             watch.end()
-            watch.start(selection, requiresSharedAdmission: true, restartFromBeginning: restart)
+            watch.start(selection, requiresSharedAdmission: true)
             let scope = watch.scope
             let deadline = ContinuousClock.now + .seconds(20)
             while owned == nil {
@@ -211,7 +209,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                                 membership: intent.membership, expected: current)
                             try Self.requireSameGeneration(current, recovered)
                         }
-                        try player.admitSharedPlayback()
+                        try player.admitSharedPlayback(autoplay: forceSelection)
                         admitted = true
                         stage = "playback"
                     }
@@ -358,12 +356,14 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         let keys = Dictionary(grouping: view?.items ?? [], by: \.memberID).mapValues { entries in
             Set(entries.map { PlaylistKey(title: $0.media.titleKey, size: $0.media.fileSizeBytes) })
         }
-        let entries = library.presentation.entries.compactMap { row -> SelectionMenuEntry? in
-            guard let file = files[row.id] else { return nil }
-            let available = local || !members.isEmpty && members.allSatisfy { keys[$0]?.contains(key(file)) == true }
-            return SelectionMenuEntry(id: row.id, label: row.title, enabled: available)
+        let entries = library.presentation.entries.filter { files[$0.id] != nil }.map {
+            SelectionMenuEntry(id: $0.id, label: $0.title)
         }
-        playlist.update(entries: entries, selectedID: watch.mediaID, enabled: enabled)
+        let neighbors = Set(
+            files.values.filter { file in
+                local || !members.isEmpty && members.allSatisfy { keys[$0]?.contains(key(file)) == true }
+            }.map(\.id))
+        playlist.update(entries: entries, selectedID: watch.mediaID, enabled: enabled, neighborIDs: neighbors)
     }
     func selectPlaylist(_ id: String) {
         guard !closing, !busy, let library, let selection = library.playlistMedia(id), watch.mediaID != id else {
@@ -375,7 +375,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         guard check.menu?.allows(id) == true else { return }
         if room.editor.state == "disconnected" {
             library.select(id)
-            watch.start(selection, restartFromBeginning: true)
+            watch.start(selection, autoplay: true)
         } else if admitted, room.connected, active?.player.sharedState?.connection == .connected {
             pendingSelection = selection
             busy = true

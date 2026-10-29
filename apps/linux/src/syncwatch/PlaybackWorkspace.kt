@@ -59,6 +59,7 @@ internal class PlaybackController(
     private val onFailure: (() -> Unit)? = null,
     private val onPlaylistUpdate: ((WatchPlaylist) -> Unit)? = null,
     private val onPlaylistSelection: ((String) -> Unit)? = null,
+    autoplay: Boolean = false,
 ) {
     private val ownerJob = SupervisorJob(parentScope.coroutineContext[Job])
     private val work = CoroutineScope(parentScope.coroutineContext + ownerJob)
@@ -70,6 +71,7 @@ internal class PlaybackController(
     internal fun libraryPresentation(source: LibraryPresentation) = tracks.libraryPresentation(source)
     internal val loaded = CompletableDeferred<Unit>()
     internal val acceptanceRequested = launch.report != null
+    private var autoplayPending = autoplay && !requiresSharedAdmission
     private var started = false
     private var closing = false
     private var shutdown: CompletableFuture<Void>? = null
@@ -94,10 +96,11 @@ internal class PlaybackController(
         return descriptor
     }
     fun requireSharedAdmission() { requiresSharedAdmission = true; gateSharedActions() }
-    fun admitSharedPlayback() {
+    fun admitSharedPlayback(autoplay: Boolean = false) {
         check(sharedSession != null && sharedState?.connection == HelperConnection.connected && sharedState?.ready == true && sharedAuthority?.invoke() != false)
         // Syncplay may clear readiness after this user's Pause; the admitted file can resume.
         requiresSharedAdmission = false
+        if (autoplay) checkNotNull(sharedSession).pause(false)
     }
     suspend fun revokeShared(releaseAdmission: Boolean = false) = withContext(NonCancellable) {
         requireSharedAdmission(); sharedAuthority = null
@@ -159,6 +162,10 @@ internal class PlaybackController(
                     }
                     apply(value)
                     onObservation?.invoke(value)
+                    if (autoplayPending && value.status == PlaybackStatus.ready && !value.ended) {
+                        autoplayPending = false
+                        player.setPaused(false, scope)
+                    }
                     delay(100)
                 }
             } catch (_: CancellationException) {

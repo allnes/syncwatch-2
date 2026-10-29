@@ -57,20 +57,19 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         Busy = true; ErrorKey = null; Status = "sharedWatchPreparing";
         cancellation = new(); work = RunAsync(selection, cancellation.Token); Changed?.Invoke();
     }
-    private async Task RunAsync(LibraryMediaSelection initial, CancellationToken token, bool forceSelection = false, bool restart = false)
+    private async Task RunAsync(LibraryMediaSelection initial, CancellationToken token, bool forceSelection = false)
     {
         try
         {
             NextWatch? next = new(initial, forceSelection);
             while (!closing && !token.IsCancellationRequested && next is { } current)
             {
-                next = await RunOneAsync(current.Selection, current.ForceSelection, restart, token);
-                restart = true;
+                next = await RunOneAsync(current.Selection, current.ForceSelection, token);
             }
         }
         finally { Busy = false; work = null; Changed?.Invoke(); }
     }
-    private async Task<NextWatch?> RunOneAsync(LibraryMediaSelection selection, bool forceSelection, bool restart, CancellationToken token)
+    private async Task<NextWatch?> RunOneAsync(LibraryMediaSelection selection, bool forceSelection, CancellationToken token)
     {
         await Task.Yield();
         RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false, follow = false; admitted = false;
@@ -81,7 +80,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
             stage = "runtime";
             var runtime = await helper.VerifyAsync(token);
             stage = "input";
-            token.ThrowIfCancellationRequested(); watch.End(); watch.Start(selection, requiresSharedAdmission: true, restartFromBeginning: restart);
+            token.ThrowIfCancellationRequested(); watch.End(); watch.Start(selection, requiresSharedAdmission: true);
             var scope = watch.Scope; long deadline = Environment.TickCount64 + 20000;
             while (owned is null)
             {
@@ -155,7 +154,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                             var recovered = await room.PerformWatchAsync(new RoomCommandAction.Missing(current.Definition.Selection!.Media.MediaId, false), intent.Membership, current, token);
                             RequireSameGeneration(current, recovered);
                         }
-                        owned.AdmitSharedPlayback(); admitted = true; stage = "playback";
+                        owned.AdmitSharedPlayback(autoplay: forceSelection); admitted = true; stage = "playback";
                     }
                     if (Busy || Status == "reconnecting") { Busy = false; Status = "sharedWatchConnected"; Changed?.Invoke(); }
                 }
@@ -276,17 +275,19 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         var members = view?.Bootstrap.Snapshot.Members.Select(member => member.MemberId).ToArray() ?? [];
         var keys = view?.Items.GroupBy(item => item.MemberId).ToDictionary(group => group.Key,
             group => group.Select(item => (item.Media.TitleKey, item.Media.FileSizeBytes)).ToHashSet());
-        var entries = library.Presentation.Entries.Where(row => files.ContainsKey(row.Id)).Select(row =>
-            new SelectionMenuEntry(row.Id, row.Title, Enabled: local || members.Length > 0 && members.All(member =>
-                keys is not null && keys.TryGetValue(member, out var available) && available.Contains(Key(files[row.Id]))))).ToArray();
-        playlist.Update(entries, watch.MediaId, enabled);
+        var entries = library.Presentation.Entries.Where(row => files.ContainsKey(row.Id))
+            .Select(row => new SelectionMenuEntry(row.Id, row.Title)).ToArray();
+        var neighbors = files.Values.Where(file => local || members.Length > 0 && members.All(member =>
+            keys is not null && keys.TryGetValue(member, out var available) && available.Contains(Key(file))))
+            .Select(file => file.Id).ToHashSet();
+        playlist.Update(entries, watch.MediaId, enabled, neighbors);
     }
     internal void SelectPlaylist(string id)
     {
         if (closing || Busy || library is null || watch.MediaId == id || library.PlaylistMedia(id) is not { } selection) return;
         var check = new WatchPlaylist(); UpdatePlaylist(check); check.Open();
         if (check.Menu?.Allows(id) != true) return;
-        if (room.Editor.State == "disconnected") { library.Select(id); watch.Start(selection, restartFromBeginning: true); }
+        if (room.Editor.State == "disconnected") { library.Select(id); watch.Start(selection, autoplay: true); }
         else if (admitted && room.Connected && active?.Player.SharedState?.Connection == HelperConnection.Connected)
         {
             pendingSelection = selection; Busy = true; Status = "sharedWatchPreparing";

@@ -29,6 +29,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     private readonly PlayerChrome chrome = new();
     private readonly LocalPlaybackTracks tracks;
     private readonly WatchPlaylist playlist = new();
+    private bool autoplayPending;
     private readonly Action<WatchPlaylist>? onPlaylistUpdate;
     private readonly Action<string>? onPlaylistSelection;
     private readonly NativeVideoHost surface;
@@ -91,12 +92,13 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         return descriptor;
     }
     internal void RequireSharedAdmission() { requiresSharedAdmission = true; GateSharedActions(); RenderChrome(); }
-    internal void AdmitSharedPlayback()
+    internal void AdmitSharedPlayback(bool autoplay = false)
     {
         if (sharedSession is null || SharedState is not { Connection: HelperConnection.Connected, Ready: true } || sharedAuthority?.Invoke() == false)
             throw new InvalidOperationException("Shared playback unavailable");
         // A user's Pause can clear Syncplay readiness without revoking the admitted file.
         requiresSharedAdmission = false;
+        if (autoplay) sharedSession.Pause(false);
     }
     internal async Task RevokeSharedAsync(bool releaseAdmission = false)
     {
@@ -140,7 +142,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
     public PlaybackWorkspace(LocalPlaybackLaunch launch, string language, PlaybackScope? scope = null, long positionMs = 0,
         LibraryMediaSelection? selection = null, Action<PlaybackScope>? onLoaded = null,
         Action<PlaybackObservation>? onObservation = null, Action<string>? onNavigation = null, Action? onFailure = null,
-        Action? onFullscreen = null, bool requiresSharedAdmission = false, Action<WatchPlaylist>? onPlaylistUpdate = null, Action<string>? onPlaylistSelection = null)
+        Action? onFullscreen = null, bool requiresSharedAdmission = false, Action<WatchPlaylist>? onPlaylistUpdate = null, Action<string>? onPlaylistSelection = null, bool autoplay = false)
     {
         this.launch = launch; this.language = language;
         this.onPlaylistUpdate = onPlaylistUpdate; this.onPlaylistSelection = onPlaylistSelection;
@@ -150,6 +152,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         this.onNavigation = onNavigation; this.onFailure = onFailure;
         this.onFullscreen = onFullscreen;
         this.requiresSharedAdmission = requiresSharedAdmission;
+        autoplayPending = autoplay && !requiresSharedAdmission;
         surface = new NativeVideoHost(CloseAsync);
         surface.SurfaceCreated += handle => { if (!attached && !cancellation.IsCancellationRequested) { attached = true; polling = PollAsync(handle); } };
         chrome.VideoSurface = surface;
@@ -211,6 +214,11 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
                 };
                 GateSharedActions(); RefreshPlaylist(); RenderChrome();
                 onObservation?.Invoke(value);
+                if (autoplayPending && value.Status == PlaybackStatus.Ready && !value.Ended)
+                {
+                    autoplayPending = false;
+                    await player.SetPausedAsync(false, scope, cancellation.Token);
+                }
                 await Task.Delay(100, cancellation.Token);
             }
         }

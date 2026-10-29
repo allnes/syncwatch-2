@@ -9,15 +9,18 @@ internal class WatchPlaylist {
     private val sourceID = "playlist-" + UUID.randomUUID()
     private var snapshot = SelectionMenuPresentation()
     private var closed = false
+    private var neighborIDs: Set<String> = emptySet()
     var menu by mutableStateOf<SelectionMenuPresentation?>(null)
         private set
 
-    fun update(entries: List<SelectionMenuEntry>, selectedID: String?, enabled: Boolean) {
+    fun update(entries: List<SelectionMenuEntry>, selectedID: String?, enabled: Boolean, neighborIDs: Set<String>? = null) {
+        val neighbors = neighborIDs?.toSet() ?: entries.map { it.id }.toSet()
         val selected = selectedID?.takeIf { id -> entries.any { it.id == id } }
-        if (closed || (snapshot.entries == entries && snapshot.selectedID == selected && snapshot.enabled == enabled)) return
+        if (closed || (snapshot.entries == entries && snapshot.selectedID == selected && snapshot.enabled == enabled && this.neighborIDs == neighbors)) return
         if (snapshot.revision >= SyncWatchSelectionMenu.maximumRevision) { close(); return }
         snapshot = SelectionMenuPresentation(kind = "playlist", sourceID = sourceID, revision = snapshot.revision + 1,
             entries = entries.toList(), selectedID = selected, enabled = enabled)
+        this.neighborIDs = neighbors
         menu = null
     }
     fun open() { if (!closed && snapshot.isValid) menu = snapshot }
@@ -30,7 +33,7 @@ internal class WatchPlaylist {
         var next = index + direction
         while (next in snapshot.entries.indices) {
             val entry = snapshot.entries[next]
-            if (entry.enabled) return entry.id
+            if (entry.enabled && entry.id in neighborIDs) return entry.id
             next += direction
         }
         return null

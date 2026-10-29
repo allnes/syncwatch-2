@@ -7,11 +7,16 @@ import SyncWatchDesign
     private var snapshot = SelectionMenuPresentation()
     private let sourceID = "playlist-" + UUID().uuidString
     private var closed = false
+    private var neighborIDs: Set<String> = []
 
-    func update(entries: [SelectionMenuEntry], selectedID: String?, enabled: Bool) {
+    func update(entries: [SelectionMenuEntry], selectedID: String?, enabled: Bool, neighborIDs: Set<String>? = nil) {
         guard !closed else { return }
+        let neighborIDs = neighborIDs ?? Set(entries.map(\.id))
         let selectedID = entries.contains { $0.id == selectedID } ? selectedID : nil
-        guard snapshot.entries != entries || snapshot.selectedID != selectedID || snapshot.enabled != enabled else {
+        guard
+            snapshot.entries != entries || snapshot.selectedID != selectedID || snapshot.enabled != enabled
+                || self.neighborIDs != neighborIDs
+        else {
             return
         }
         guard snapshot.revision < SyncWatchSelectionMenu.maximumRevision else {
@@ -24,6 +29,7 @@ import SyncWatchDesign
         snapshot.entries = entries
         snapshot.selectedID = selectedID
         snapshot.enabled = enabled
+        self.neighborIDs = neighborIDs
         // A catalog/recovery transition invalidates every previously rendered request.
         menu = nil
     }
@@ -44,7 +50,7 @@ import SyncWatchDesign
         var next = index + direction
         while snapshot.entries.indices.contains(next) {
             let entry = snapshot.entries[next]
-            if entry.enabled { return entry.id }
+            if entry.enabled, neighborIDs.contains(entry.id) { return entry.id }
             next += direction
         }
         return nil

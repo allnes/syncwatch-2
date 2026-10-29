@@ -69,11 +69,11 @@ import SyncWatchPlayback
         return liveSelection ? player!.libraryPresentation(result) : result
     }
     func start(
-        _ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false, restartFromBeginning: Bool = false
+        _ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false, autoplay: Bool = false
     ) {
         guard runtimeAvailable, !closing else { return }
         do {
-            for effect in try session.select(selection.media.id, restartFromBeginning: restartFromBeginning) {
+            for effect in try session.select(selection.media.id) {
                 if case .release(let owner) = effect { release(owner) }
             }
             let effects = try session.start()
@@ -83,7 +83,9 @@ import SyncWatchPlayback
                 switch effect {
                 case .release(let owner): release(owner)
                 case .load(let request):
-                    load(request, selection: selection, requiresSharedAdmission: requiresSharedAdmission)
+                    load(
+                        request, selection: selection, requiresSharedAdmission: requiresSharedAdmission,
+                        autoplay: autoplay)
                 }
             }
             publish()
@@ -147,7 +149,9 @@ import SyncWatchPlayback
         phase = session.phase
         playerPresented = !closing && session.playerPresented
     }
-    private func load(_ request: WatchLoad, selection: LibraryMediaSelection, requiresSharedAdmission: Bool) {
+    private func load(
+        _ request: WatchLoad, selection: LibraryMediaSelection, requiresSharedAdmission: Bool, autoplay: Bool
+    ) {
         pendingLoad?.cancel()
         pendingScope = request.scope
         let prior = releaseTask
@@ -166,7 +170,7 @@ import SyncWatchPlayback
                 launch: LocalPlaybackLaunch(file: selection.media.file, package: media.package, report: nil),
                 runtime: runtime,
                 scope: request.scope, positionMs: request.positionMs, selection: selection,
-                requiresSharedAdmission: requiresSharedAdmission,
+                requiresSharedAdmission: requiresSharedAdmission, autoplay: autoplay,
                 onLoaded: { [weak self] in self?.loaded($0) },
                 onObservation: { [weak self] in self?.observed($0) },
                 onNavigation: { [weak self] action in

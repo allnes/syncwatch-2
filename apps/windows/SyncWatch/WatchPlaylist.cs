@@ -8,13 +8,15 @@ internal sealed class WatchPlaylist
     private readonly string sourceID = "playlist-" + Guid.NewGuid();
     private SelectionMenuPresentation snapshot = new();
     private bool closed;
+    private HashSet<string> neighborIDs = [];
     internal SelectionMenuPresentation? Menu { get; private set; }
     internal event Action? Changed;
 
-    internal void Update(IReadOnlyList<SelectionMenuEntry> entries, string? selectedID, bool enabled)
+    internal void Update(IReadOnlyList<SelectionMenuEntry> entries, string? selectedID, bool enabled, IReadOnlySet<string>? neighborIDs = null)
     {
+        HashSet<string> neighbors = neighborIDs is null ? entries.Select(entry => entry.Id).ToHashSet() : new(neighborIDs);
         selectedID = entries.Any(entry => entry.Id == selectedID) ? selectedID : null;
-        if (closed || (snapshot.Entries.SequenceEqual(entries) && snapshot.SelectedID == selectedID && snapshot.Enabled == enabled)) return;
+        if (closed || (snapshot.Entries.SequenceEqual(entries) && snapshot.SelectedID == selectedID && snapshot.Enabled == enabled && this.neighborIDs.SetEquals(neighbors))) return;
         if (snapshot.Revision >= SyncWatchSelectionMenu.MaximumRevision) { Close(); return; }
         snapshot = new()
         {
@@ -25,6 +27,7 @@ internal sealed class WatchPlaylist
             SelectedID = selectedID,
             Enabled = enabled
         };
+        this.neighborIDs = neighbors;
         Menu = null; Changed?.Invoke();
     }
     internal void Open() { if (closed || !snapshot.IsValid) return; Menu = snapshot; Changed?.Invoke(); }
@@ -36,7 +39,7 @@ internal sealed class WatchPlaylist
         int index = Array.FindIndex(snapshot.Entries.ToArray(), entry => entry.Id == snapshot.SelectedID);
         if (index < 0) return null;
         for (int next = index + direction; next >= 0 && next < snapshot.Entries.Count; next += direction)
-            if (snapshot.Entries[next].Enabled) return snapshot.Entries[next].Id;
+            if (snapshot.Entries[next].Enabled && neighborIDs.Contains(snapshot.Entries[next].Id)) return snapshot.Entries[next].Id;
         return null;
     }
     internal string? Selection(SelectionMenuRequest request)

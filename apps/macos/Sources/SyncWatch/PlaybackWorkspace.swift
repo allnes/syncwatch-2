@@ -49,6 +49,7 @@ struct LocalPlaybackLaunch {
     private var closed = false
     private let allocateScope: Bool
     private let initialPositionMs: Int64
+    private var autoplayPending: Bool
     private var selection: LibraryMediaSelection?
     private let onLoaded: @MainActor (PlaybackScope) -> Void
     private let onObservation: @MainActor (PlaybackObservation) -> Void
@@ -59,7 +60,7 @@ struct LocalPlaybackLaunch {
         launch: LocalPlaybackLaunch, runtime: VLCPlaybackRuntime? = nil, scope: PlaybackScope? = nil,
         positionMs: Int64 = 0,
         selection: LibraryMediaSelection? = nil,
-        requiresSharedAdmission: Bool = false,
+        requiresSharedAdmission: Bool = false, autoplay: Bool = false,
         onLoaded: @escaping @MainActor (PlaybackScope) -> Void = { _ in },
         onObservation: @escaping @MainActor (PlaybackObservation) -> Void = { _ in },
         onNavigation: (@MainActor (String) -> Void)? = nil, onFailure: (@MainActor () -> Void)? = nil,
@@ -73,6 +74,7 @@ struct LocalPlaybackLaunch {
         initialPositionMs = positionMs
         self.selection = selection
         self.requiresSharedAdmission = requiresSharedAdmission
+        autoplayPending = autoplay && !requiresSharedAdmission
         self.onLoaded = onLoaded
         self.onObservation = onObservation
         self.onNavigation = onNavigation
@@ -95,13 +97,14 @@ struct LocalPlaybackLaunch {
         requiresSharedAdmission = true
         gateSharedActions()
     }
-    func admitSharedPlayback() throws {
+    func admitSharedPlayback(autoplay: Bool = false) throws {
         guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.ready == true,
             sharedAuthority?() != false
         else { throw HelperSessionFailure.unavailable }
         // Syncplay can clear its readiness flag when this user pauses. That does
         // not revoke the initial admission or prevent the next Play intent.
         requiresSharedAdmission = false
+        if autoplay { try sharedSession?.pause(false) }
     }
     func revokeShared(releaseAdmission: Bool = false) async {
         requireSharedAdmission()
@@ -199,6 +202,10 @@ struct LocalPlaybackLaunch {
                     }
                     apply(observation)
                     onObservation(observation)
+                    if autoplayPending, observation.status == .ready, !observation.ended {
+                        autoplayPending = false
+                        try await player.setPaused(false, scope: scope)
+                    }
                     try await Task.sleep(for: .milliseconds(100))
                 }
             } catch is CancellationError {

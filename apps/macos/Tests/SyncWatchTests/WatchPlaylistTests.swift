@@ -40,3 +40,22 @@ import Testing
     playlist.open()
     #expect(playlist.menu == nil && playlist.neighbor(1) == nil)
 }
+
+@Test @MainActor func playlistMenuPermitsLocalFilesWhileNeighborsRequireRoomAvailability() throws {
+    let playlist = WatchPlaylist()
+    let entries = ["first", "local", "last"].map { SelectionMenuEntry(id: $0, label: $0) }
+    playlist.update(entries: entries, selectedID: "first", enabled: true, neighborIDs: ["first", "last"])
+    #expect(playlist.neighbor(1) == "last")
+    playlist.open()
+    let menu = try #require(playlist.menu)
+    var request: SelectionMenuRequest?
+    menu.dispatch("local", contextToken: menu.contextToken) { request = $0 }
+    let local = try #require(request)
+    #expect(playlist.selection(local) == "local")
+    playlist.open()
+    // Availability changes must invalidate a menu even when its labels are unchanged.
+    playlist.update(entries: entries, selectedID: "first", enabled: true, neighborIDs: ["first", "local", "last"])
+    #expect(playlist.menu == nil && playlist.neighbor(1) == "local")
+    playlist.open()
+    #expect(playlist.selection(local) == nil)
+}

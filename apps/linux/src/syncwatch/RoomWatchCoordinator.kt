@@ -61,18 +61,16 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val task = scope.launch(start = CoroutineStart.LAZY) { run(selection) }
         work = task; task.start()
     }
-    private suspend fun run(initial: LibraryMediaSelection, forceSelection: Boolean = false, restartFromBeginning: Boolean = false) {
+    private suspend fun run(initial: LibraryMediaSelection, forceSelection: Boolean = false) {
         try {
             var next: NextWatch? = NextWatch(initial, forceSelection)
-            var restart = restartFromBeginning
             while (!closing && currentCoroutineContext().isActive) {
                 val current = next ?: break
-                next = runOne(current.selection, current.forceSelection, restart)
-                restart = true
+                next = runOne(current.selection, current.forceSelection)
             }
         } finally { busy = false; work = null }
     }
-    private suspend fun runOne(selection: LibraryMediaSelection, forceSelection: Boolean, restart: Boolean): NextWatch? {
+    private suspend fun runOne(selection: LibraryMediaSelection, forceSelection: Boolean): NextWatch? {
         var publication: RoomPreparedPublication? = null
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
@@ -84,7 +82,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             val runtime = helper.verify()
             currentCoroutineContext().ensureActive()
             stage = "input"
-            watch.end(); watch.start(selection, requiresSharedAdmission = true, restartFromBeginning = restart)
+            watch.end(); watch.start(selection, requiresSharedAdmission = true)
             val nativeScope = watch.scope
             val deadline = System.nanoTime() + 20_000_000_000L
             while (owned == null) {
@@ -153,7 +151,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                             val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection.media.mediaId, false), ticket, current)
                             requireSameGeneration(current, recovered)
                         }
-                        player.admitSharedPlayback(); admitted = true; stage = "playback"
+                        player.admitSharedPlayback(autoplay = forceSelection); admitted = true; stage = "playback"
                     }
                     busy = false; status = "sharedWatchConnected"
                 } else if (player.sharedState?.connection == HelperConnection.reconnecting) status = "reconnecting"
@@ -245,10 +243,9 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val view = room.catalogView
         val members = view?.bootstrap?.snapshot?.members?.map { it.memberId }.orEmpty()
         val keys = view?.items?.groupBy { it.memberId }?.mapValues { (_, items) -> items.map { it.media.titleKey to it.media.fileSizeBytes }.toSet() }.orEmpty()
-        val entries = library.presentation.entries.mapNotNull { row -> files[row.id]?.let { file ->
-            SelectionMenuEntry(row.id, row.title, enabled = local || members.isNotEmpty() && members.all { key(file) in keys[it].orEmpty() })
-        } }
-        playlist.update(entries, watch.mediaId, enabled)
+        val entries = library.presentation.entries.filter { it.id in files }.map { SelectionMenuEntry(it.id, it.title) }
+        val neighbors = files.values.filter { file -> local || members.isNotEmpty() && members.all { key(file) in keys[it].orEmpty() } }.map { it.id }.toSet()
+        playlist.update(entries, watch.mediaId, enabled, neighbors)
     }
     fun selectPlaylist(id: String) {
         if (closing || busy || watch.mediaId == id) return
@@ -256,7 +253,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val selection = library.playlistMedia(id) ?: return
         val check = WatchPlaylist(); updatePlaylist(check); check.open()
         if (check.menu?.allows(id) != true) return
-        if (room.editor.state == "disconnected") { library.select(id); watch.start(selection, restartFromBeginning = true) }
+        if (room.editor.state == "disconnected") { library.select(id); watch.start(selection, autoplay = true) }
         else if (admitted && room.connected && active?.player?.sharedState?.connection == HelperConnection.connected) {
             pendingSelection = selection; busy = true; status = "sharedWatchPreparing"; active?.player?.requireSharedAdmission()
         }
