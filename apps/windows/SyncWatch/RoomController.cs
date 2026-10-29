@@ -48,12 +48,13 @@ internal sealed class RoomController
         var enabled = new HashSet<string>(source.EnabledActions); if (!stopping) enabled.Add("openRoom");
         // Membership alone cannot authorize an unsynchronized local Start in a room.
         if (Editor.State != "disconnected" && !(Connected && sharedStartAvailable)) enabled.Remove("startWatching");
-        return source with { EnabledActions = enabled, RoomStatus = Connected ? (Editor.Status is "roomCatalogPublishing" or "roomCatalogPublishFailed" ? Editor.Status : "roomMetadataConnected") : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
+        return source with { EnabledActions = enabled, RoomStatus = Connected ? (Editor.Status is "roomCatalogPublishing" or "roomCatalogPublishFailed" ? Editor.Status : "roomMetadataConnected") : Editor.State == "reconnecting" ? "reconnecting" : Editor.Busy ? "roomConnecting" : Editor.State == "failed" ? "roomConnectionFailed" : "disconnected" };
     }
     internal string MediaNotice
     {
         get
         {
+            if (Editor.State == "reconnecting") return "reconnecting";
             if (!Connected || Bootstrap is not { } value || value.Snapshot.WatchStatus != "active" || admission is null) return "";
             if (value.MissingMembers.Contains(admission.MemberId) || localFiles.Count == 0 && prepared is null) return "sharedWatchMediaMissing";
             return value.MissingMembers.Count == 0 ? "" : "roomPeersMissingMedia";
@@ -242,22 +243,16 @@ internal sealed class RoomController
             admitted = owner ? await current.CreateAsync(identity, new(values["syncplayHost"], int.Parse(values["syncplayPort"], System.Globalization.CultureInfo.InvariantCulture), values["roomName"]), new(values["creationKey"]), cancellation)
                 : await current.JoinAsync(values["roomID"], new(values["invitation"]), identity, cancellation);
             admission = admitted; Editor.ClearSecrets();
-            var stream = await current.OpenEventsAsync(admitted, cancellation);
-            using var initialTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation); initialTimeout.CancelAfter(TimeSpan.FromSeconds(20));
-            var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(initialTimeout.Token), admitted);
             var ownerSession = new RoomMembershipSession(current, admitted, identity);
-            var firstView = await ownerSession.RefreshAsync(initial, cancellation: cancellation);
-            cancellation.ThrowIfCancellationRequested(); session = ownerSession; playbackSession = ownerSession; playbackEpoch = admitted.Bootstrap.Snapshot.Epoch; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; CatalogView = firstView;
-            WatchBootstrap = firstView.Bootstrap;
-            Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.MemberCount = initial.Snapshot.Members.Count; Editor.Owner = owner; Changed?.Invoke(); StartPublisher(); StartMissingReport();
-            while (!cancellation.IsCancellationRequested)
-            {
-                var update = RoomInvalidation.Decode(await stream.ReceiveAsync(cancellation)); var previous = Bootstrap;
-                if (previous is null || update.Epoch != previous.Snapshot.Epoch) throw new RoomProtocolException("malformed");
-                if (update.Sequence <= previous.Snapshot.Sequence) continue;
-                var complete = await ownerSession.RefreshAsync(sequence: update.Sequence, cancellation: cancellation);
-                cancellation.ThrowIfCancellationRequested(); Accept(complete); Changed?.Invoke();
-            }
+            session = ownerSession; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null;
+            await RoomEventMonitor.RunAsync(current.Address, admitted, ownerSession,
+                () => { Editor.State = "reconnecting"; Changed?.Invoke(); },
+                view =>
+                {
+                    playbackSession = ownerSession; playbackEpoch = admitted.Bootstrap.Snapshot.Epoch;
+                    Editor.State = "connected"; Editor.RoomId = admitted.RoomId; Editor.Owner = owner;
+                    Accept(view); StartPublisher(); Changed?.Invoke();
+                }, cancellation);
         }
         catch (Exception error)
         {

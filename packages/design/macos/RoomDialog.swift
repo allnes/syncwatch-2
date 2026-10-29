@@ -14,7 +14,7 @@ public struct RoomEditor: Sendable {
             if let value = values[field.id] { self.values[field.id] = value }
         }
     }
-    public var busy: Bool { state == "connecting" }
+    public var busy: Bool { state == "connecting" || state == "reconnecting" }
     public var connected: Bool { state == "connected" }
     public var fields: [SyncWatchRoomFormField] {
         SyncWatchRoomForm.fields.filter { $0.section == "connection" || $0.section == mode }
@@ -51,13 +51,15 @@ public struct RoomEditor: Sendable {
         }
         return DesignContext(
             [
-                "namespace": "room", "showForm": String(!connected), "connected": String(connected),
+                "namespace": "room", "showForm": String(!connected && state != "reconnecting"),
+                "connected": String(connected || state == "reconnecting"),
                 "createMode": String(mode == "createRoom"), "joinMode": String(mode == "joinRoom"),
                 "connectLabel": mode,
-                "status": busy ? "roomConnecting" : status, "roomID": roomID, "memberCount": String(memberCount),
+                "status": state == "reconnecting" ? "reconnecting" : busy ? "roomConnecting" : status, "roomID": roomID,
+                "memberCount": String(memberCount),
                 "can.close": "true", "can.chooseRoomMode": String(!busy && !connected),
                 "can.connectRoom": String(!busy && !connected && isValid),
-                "can.leaveRoom": String(connected || state == "failed"),
+                "can.leaveRoom": String(connected || state == "failed" || state == "reconnecting"),
                 "can.copyInvitation": String(connected && owner),
                 "can.pasteInvitation": String(!busy && !connected && mode == "joinRoom"),
             ], collections: ["fields": rows])

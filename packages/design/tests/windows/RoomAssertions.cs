@@ -16,5 +16,10 @@ internal static class RoomAssertions
         editor.ClearSecrets(); Check(editor.Values["invitation"] == "");
         editor.State = "connected"; editor.Owner = false; Check(editor.Context.Values["can.copyInvitation"] == "false");
         editor.Owner = true; Check(editor.Context.Values["can.copyInvitation"] == "true");
+        editor.State = "reconnecting";
+        Check(editor.Busy && !editor.Connected && editor.Context.Values["status"] == "reconnecting");
+        Check(editor.Context.Values["showForm"] == "false" && editor.Context.Values["can.leaveRoom"] == "true");
+        Check(editor.Context.Values["can.copyInvitation"] == "false" && editor.Context.Values["can.connectRoom"] == "false");
+        editor.Edit("username", "Changed"); Check(editor.Values["username"] == "Alice");
     }
 }

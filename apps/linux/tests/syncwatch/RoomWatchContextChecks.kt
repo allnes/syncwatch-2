@@ -17,6 +17,7 @@ internal suspend fun roomWatchContextChecks() {
         check(RoomWatchCoordinator.failureKey(error, false) == "sharedWatchFailed")
     val address = System.getenv("SYNCWATCH_ROOM_SERVICE") ?: return
     val key = System.getenv("SYNCWATCH_ROOM_CREATION_KEY") ?: return
+    roomEventMonitorChecks(address, key)
     preparedPublication(address, key)
     val client = RoomClient(RoomAddress(address)); val peer = RoomClient(RoomAddress(address))
     try {

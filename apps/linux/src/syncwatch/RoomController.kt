@@ -46,8 +46,9 @@ internal class RoomController(private val scope: CoroutineScope) {
     fun libraryPresentation(source: syncwatch.design.LibraryPresentation, sharedStartAvailable: Boolean = false) = source.copy(
         enabledActions = (source.enabledActions + if (stopping) emptySet() else setOf("openRoom")) -
             if (editor.state != "disconnected" && !(connected && sharedStartAvailable)) setOf("startWatching") else emptySet(),
-        roomStatus = if (connected) (editor.status.takeIf { it in setOf("roomCatalogPublishing", "roomCatalogPublishFailed") } ?: "roomMetadataConnected") else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
+        roomStatus = if (connected) (editor.status.takeIf { it in setOf("roomCatalogPublishing", "roomCatalogPublishFailed") } ?: "roomMetadataConnected") else if (editor.state == "reconnecting") "reconnecting" else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
     val mediaNotice: String get() {
+        if (editor.state == "reconnecting") return "reconnecting"
         val value = bootstrap ?: return ""
         val member = admission?.memberId ?: return ""
         if (!connected || value.snapshot.watchStatus != "active") return ""
@@ -208,21 +209,15 @@ internal class RoomController(private val scope: CoroutineScope) {
             val value = if (owner) next.create(identity, RoomConnection(values.getValue("syncplayHost"), values.getValue("syncplayPort").toInt(), values.getValue("roomName")), RoomSecret.fromInput(values.getValue("creationKey")))
                 else next.join(values.getValue("roomID"), RoomSecret.fromInput(values.getValue("invitation")), identity)
             admitted = value; admission = value; editor = editor.clearSecrets()
-            val stream = next.openEvents(value)
-            val initial = withTimeout(20000) { RoomBootstrap.initialEvent(stream.receive(), value) }
             val ownerSession = RoomMembershipSession(next, value, identity)
-            val firstView = ownerSession.refresh(initial)
-            currentCoroutineContext().ensureActive(); session = ownerSession; playbackSession = ownerSession; playbackEpoch = value.bootstrap.snapshot.epoch; catalogMap = RoomLocalCatalog(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; catalogView = firstView
-            watchBootstrap = firstView.bootstrap
-            editor = editor.copy(state = "connected", roomId = value.roomId, memberCount = initial.snapshot.members.size, owner = owner)
-            startPublisher(); startMissingReport()
-            while (currentCoroutineContext().isActive) {
-                val update = RoomInvalidation.decode(stream.receive()); val previous = bootstrap ?: throw RoomProtocolException("malformed")
-                if (update.epoch != previous.snapshot.epoch) throw RoomProtocolException("malformed")
-                if (update.sequence <= previous.snapshot.sequence) continue
-                val complete = ownerSession.refresh(sequence = update.sequence)
-                currentCoroutineContext().ensureActive(); accept(complete)
-            }
+            session = ownerSession; catalogMap = RoomLocalCatalog(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null
+            RoomEventMonitor.run(next.address, value, ownerSession,
+                reconnecting = { editor = editor.copy(state = "reconnecting") },
+                accepted = { view ->
+                    playbackSession = ownerSession; playbackEpoch = value.bootstrap.snapshot.epoch
+                    editor = editor.copy(state = "connected", roomId = value.roomId, owner = owner)
+                    accept(view); startPublisher()
+                })
         } catch (error: CancellationException) {
             // A bounded receive/page timeout is an attempt failure; owner cancellation still propagates.
             currentCoroutineContext().ensureActive()

@@ -14,4 +14,10 @@ fun roomChecks() {
     editor = editor.clearSecrets(); check(editor.values["invitation"] == "")
     editor = editor.copy(state = "connected", owner = false); check(editor.context.values["can.copyInvitation"] == "false")
     editor = editor.copy(owner = true); check(editor.context.values["can.copyInvitation"] == "true")
+    editor = editor.copy(state = "reconnecting")
+    check(editor.busy && !editor.connected && editor.context.values["status"] == "reconnecting")
+    check(editor.context.values["showForm"] == "false" && editor.context.values["can.leaveRoom"] == "true")
+    check(editor.context.values["can.copyInvitation"] == "false" && editor.context.values["can.connectRoom"] == "false")
+    check(editor.edit("username", "Changed").values["username"] == "Alice")
+
 }

@@ -73,6 +73,30 @@ The native SDKs construct typed metadata commands from the admitted room, member
 
 The application owns the command counter for the membership, including across snapshots and event-stream reconnects. Retain an unresolved command until its outcome is known; a transport failure does not authorize reusing its ID for new content. An acknowledged rejection consumes the ID. Resolve stale generations from authoritative state before constructing a new command and publishing an application transition. Complete application command ownership and media admission remain integration gates on all three desktops.
 
+### Event transport recovery
+
+Each application membership keeps one HTTP client, catalog owner and command
+counter for its lifetime. `RoomEventMonitor` owns a separate, replaceable event
+client. It closes and joins the previous client before rebinding the same admitted
+member and credential; it never creates a new room, identity or invitation.
+
+Only transport interruption permits automatic rebinding. Recovery has at most
+four retries, with 250, 500, 1000 and 2000 millisecond delays, and a 25 second
+budget after the first failure. Each connection bootstrap is additionally bounded
+to 20 seconds. An accepted connection resets the budget. Invalid metadata,
+identity/epoch/connection changes, authorization rejection and expired membership
+remain terminal. A failed recovery requires an explicit new connection decision.
+
+Before publishing a connected state, the retained membership validates the new
+bootstrap and complete catalog against its identity and monotonic sequence floor.
+Unresolved command bytes, command numbering, prepared media leases and acknowledged
+catalog state survive an event reconnect. New shared admission is disabled while
+reconnecting. Already admitted native playback retains its existing Syncplay
+owner; metadata transport recovery does not issue playback commands or reload a
+movie. The common Design presents reconnecting state and keeps Leave available.
+Leaving or closing cancels the monitor, its backoff and all owned network work
+before releasing credentials.
+
 This API rejects play, pause, seek, speed, volume, camera, and arbitrary settings commands. Watch lifecycle events are bookkeeping and do not authorize remote player start, stop, or close. A Meet URL does not join a call or open audio.
 
 ## Resource bounds and storage

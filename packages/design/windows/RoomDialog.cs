@@ -14,7 +14,7 @@ public sealed class RoomEditor
     public string RoomId { get; set; } = "";
     public int MemberCount { get; set; }
     public bool Owner { get; set; }
-    public bool Busy => State == "connecting";
+    public bool Busy => State is "connecting" or "reconnecting";
     public bool Connected => State == "connected";
     public SyncWatchRoomFormField[] Fields => SyncWatchRoomForm.Fields.Where(p => p.Section == "connection" || p.Section == Mode).ToArray();
     public RoomEditor(IReadOnlyDictionary<string, string>? initial = null)
@@ -40,18 +40,18 @@ public sealed class RoomEditor
         Values = new()
         {
             ["namespace"] = "room",
-            ["showForm"] = (!Connected).ToString().ToLowerInvariant(),
-            ["connected"] = Connected.ToString().ToLowerInvariant(),
+            ["showForm"] = (!Connected && State != "reconnecting").ToString().ToLowerInvariant(),
+            ["connected"] = (Connected || State == "reconnecting").ToString().ToLowerInvariant(),
             ["createMode"] = (Mode == "createRoom").ToString().ToLowerInvariant(),
             ["joinMode"] = (Mode == "joinRoom").ToString().ToLowerInvariant(),
             ["connectLabel"] = Mode,
-            ["status"] = Busy ? "roomConnecting" : Status,
+            ["status"] = State == "reconnecting" ? "reconnecting" : Busy ? "roomConnecting" : Status,
             ["roomID"] = RoomId,
             ["memberCount"] = MemberCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["can.close"] = "true",
             ["can.chooseRoomMode"] = (!Busy && !Connected).ToString().ToLowerInvariant(),
             ["can.connectRoom"] = (!Busy && !Connected && IsValid).ToString().ToLowerInvariant(),
-            ["can.leaveRoom"] = (Connected || State == "failed").ToString().ToLowerInvariant(),
+            ["can.leaveRoom"] = (Connected || State is "failed" or "reconnecting").ToString().ToLowerInvariant(),
             ["can.copyInvitation"] = (Connected && Owner).ToString().ToLowerInvariant(),
             ["can.pasteInvitation"] = (!Busy && !Connected && Mode == "joinRoom").ToString().ToLowerInvariant()
         },

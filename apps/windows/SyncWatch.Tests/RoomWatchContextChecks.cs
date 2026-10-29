@@ -17,6 +17,7 @@ internal static class RoomWatchContextChecks
             if (RoomWatchCoordinator.FailureKey(error, false) != "sharedWatchFailed") throw new Exception("Shared failure exposed unclassified details");
         string? address = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_SERVICE"), key = Environment.GetEnvironmentVariable("SYNCWATCH_ROOM_CREATION_KEY");
         if (address is null || key is null) return;
+        await RoomEventMonitorChecks.RunAsync(address, key);
         await PreparedPublicationAsync(address, key);
         await using var client = new RoomClient(new(address)); await using var peer = new RoomClient(new(address));
         var identity = new RoomIdentity("run-" + Guid.NewGuid().ToString("N"), "Windows watch");

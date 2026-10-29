@@ -59,10 +59,13 @@ struct RoomPreparedPublication {
             connected
             ? (["roomCatalogPublishing", "roomCatalogPublishFailed"].contains(editor.status)
                 ? editor.status : "roomMetadataConnected")
-            : editor.busy ? "roomConnecting" : editor.state == "failed" ? "roomConnectionFailed" : "disconnected"
+            : editor.state == "reconnecting"
+                ? "reconnecting"
+                : editor.busy ? "roomConnecting" : editor.state == "failed" ? "roomConnectionFailed" : "disconnected"
         return result
     }
     var mediaNotice: String {
+        if editor.state == "reconnecting" { return "reconnecting" }
         guard connected, let bootstrap, bootstrap.snapshot.watchStatus == "active", let admission else { return "" }
         if bootstrap.missingMembers.contains(admission.memberID) || (localFiles.isEmpty && prepared == nil) {
             return "sharedWatchMediaMissing"
@@ -306,45 +309,24 @@ struct RoomPreparedPublication {
             admitted = value
             admission = value
             editor.clearSecrets()
-            let stream = try await next.openEvents(value)
-            let initial = try await withThrowingTaskGroup(of: RoomBootstrap.self) { group in
-                group.addTask { try RoomBootstrap.initialEvent(await stream.receive(), admission: value) }
-                group.addTask {
-                    try await Task.sleep(for: .seconds(20))
-                    throw RoomProtocolFailure.transport
-                }
-                defer { group.cancelAll() }
-                return try await group.next()!
-            }
-            try Task.checkCancellation()
             let ownerSession = RoomMembershipSession(client: next, admission: value, identity: identity)
-            let firstView = try await ownerSession.refresh(initial: initial)
-            try Task.checkCancellation()
+            session = ownerSession
             catalogMap = RoomLocalCatalog()
             prepared = nil
             acknowledgedPrepared = nil
             acknowledgedRevision = nil
-            session = ownerSession
-            playbackSession = ownerSession
-            playbackEpoch = value.bootstrap.snapshot.epoch
-            catalogView = firstView
-            watchBootstrap = firstView.bootstrap
-            editor.state = "connected"
-            editor.roomID = value.roomID
-            editor.memberCount = initial.snapshot.members.count
-            editor.owner = owner
-            startPublisher()
-            startMissingReport()
-            while !Task.isCancelled {
-                let event = try RoomInvalidation.decode(await stream.receive())
-                guard let previous = bootstrap, event.epoch == previous.snapshot.epoch else {
-                    throw RoomProtocolFailure.malformed
-                }
-                if event.sequence <= previous.snapshot.sequence { continue }
-                let complete = try await ownerSession.refresh(sequence: event.sequence)
-                try Task.checkCancellation()
-                accept(complete)
-            }
+            try await RoomEventMonitor.run(
+                address: next.address, admission: value, membership: ownerSession,
+                reconnecting: { self.editor.state = "reconnecting" },
+                accepted: { view in
+                    self.playbackSession = ownerSession
+                    self.playbackEpoch = value.bootstrap.snapshot.epoch
+                    self.editor.state = "connected"
+                    self.editor.roomID = value.roomID
+                    self.editor.owner = owner
+                    self.accept(view)
+                    self.startPublisher()
+                })
         } catch {
             failed = !Task.isCancelled
             interrupted = failed && Self.isMetadataInterruption(error) && playbackSession != nil
