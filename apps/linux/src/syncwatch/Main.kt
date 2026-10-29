@@ -44,6 +44,14 @@ fun main(arguments: Array<String>) {
             } else null
         }
         val state = rememberWindowState(width = SyncWatchTokens.layoutGalleryWidth.dp, height = SyncWatchTokens.layoutGalleryHeight.dp)
+        var placementBeforeFullscreen by remember { mutableStateOf(WindowPlacement.Floating) }
+        val toggleFullscreen = {
+            if (state.placement == WindowPlacement.Fullscreen) state.placement = placementBeforeFullscreen
+            else {
+                placementBeforeFullscreen = state.placement
+                state.placement = WindowPlacement.Fullscreen
+            }
+        }
         val close = { exitApplication() }
         Window(onCloseRequest = {
             if (playback != null) playback.requestClose(close)
@@ -51,18 +59,14 @@ fun main(arguments: Array<String>) {
         }, title = "SyncWatch", state = state) {
             if (playback != null || workspace != null) NativePlayerWindowBounds(window)
             when {
-                playback != null -> PlaybackWorkspace(playback, close) {
-                    state.placement = if (state.placement == WindowPlacement.Fullscreen) WindowPlacement.Floating else WindowPlacement.Fullscreen
-                }
+                playback != null -> PlaybackWorkspace(playback, close, toggleFullscreen)
                 "--selection-menu-gallery" in arguments -> SelectionMenuGallery()
                 "--call-gallery" in arguments -> CallGallery()
                 "--player-settings-gallery" in arguments -> PlayerSettingsGallery()
                 "--player-gallery" in arguments -> PlayerGallery()
                 "--settings-gallery" in arguments -> SettingsGallery()
                 "--design-gallery" in arguments -> DesignGallery()
-                workspace != null -> ApplicationWorkspace(workspace, arguments, { workspace.requestClose(close) }) {
-                    state.placement = if (state.placement == WindowPlacement.Fullscreen) WindowPlacement.Floating else WindowPlacement.Fullscreen
-                }
+                workspace != null -> ApplicationWorkspace(workspace, arguments, { workspace.requestClose(close) }, toggleFullscreen)
             }
             if (playback != null && launch?.report != null) {
                 LaunchedEffect(playback) {
