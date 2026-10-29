@@ -19,6 +19,13 @@ internal class RoomMembershipSession(private val client: RoomClient, private val
         minimumSequence = maxOf(minimumSequence, sequence)
         read(initial)
     }
+    // A socket bootstrap replaces the server cursor, so it shares the command/catalog lock.
+    suspend fun connectEvents(events: RoomClient, recovering: Boolean): Pair<RoomEventStream, RoomCatalogView> = gate.withLock {
+        if (recovering) validatedSnapshot()
+        val stream = events.openEvents(admission)
+        RoomBootstrap.initialEvent(stream.receive(), admission)
+        stream to read(null)
+    }
     suspend fun publish(items: List<MediaDescriptor>): RoomCatalogView = gate.withLock {
         if (items.size > 2048 || items.map { it.mediaId }.toSet().size != items.size) throw RoomProtocolException("malformed")
         if (unresolved != null) acknowledge()

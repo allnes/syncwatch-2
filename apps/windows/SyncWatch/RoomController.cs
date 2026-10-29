@@ -246,7 +246,7 @@ internal sealed class RoomController
             admission = admitted; Editor.ClearSecrets();
             var ownerSession = new RoomMembershipSession(current, admitted, identity);
             session = ownerSession; catalogMap = new(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null;
-            await RoomEventMonitor.RunAsync(current.Address, admitted, ownerSession,
+            await RoomEventMonitor.RunAsync(current.Address, ownerSession,
                 () => { Editor.State = "reconnecting"; Changed?.Invoke(); },
                 view =>
                 {

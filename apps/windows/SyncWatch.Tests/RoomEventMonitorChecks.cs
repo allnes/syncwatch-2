@@ -8,7 +8,7 @@ internal static class RoomEventMonitorChecks
     {
         await using var client = new RoomClient(new(address));
         using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        Task? monitoring = null;
+        Task? monitoring = null, publishing = null;
         try
         {
             var identity = new RoomIdentity("run-" + Guid.NewGuid().ToString("N"), "Windows recovery");
@@ -16,12 +16,15 @@ internal static class RoomEventMonitorChecks
             var owner = new RoomMembershipSession(client, admission, identity);
             var media = new MediaDescriptor("movie", "Movie", "movie", 10, 60000, null);
             _ = await owner.PublishAsync([media], cancellation.Token);
+            var corpus = Enumerable.Range(0, 120).Select(index => new MediaDescriptor("extra-" + index, "Extra", "extra", 10, 60000, null));
+            publishing = owner.PublishAsync(new[] { media }.Concat(corpus).ToArray(), cancellation.Token);
             int deliveries = 0, recoveries = 0;
-            monitoring = RoomEventMonitor.RunAsync(new(address), admission, owner, () => recoveries++, view =>
+            monitoring = RoomEventMonitor.RunAsync(new(address), owner, () => recoveries++, view =>
             {
                 if (!view.Bootstrap.Snapshot.Members.Any(p => p.MemberId == admission.MemberId && p.Identity == identity)) throw new Exception("Recovery replaced identity");
                 if (++deliveries == 1) throw new RoomProtocolException("transport");
             }, cancellation.Token);
+            await publishing; publishing = null;
             while (deliveries < 2) await Task.Delay(10, cancellation.Token);
             if (recoveries != 1) throw new Exception("Event transport was not rebound once");
             _ = await owner.PublishAsync([media], cancellation.Token);
@@ -34,7 +37,7 @@ internal static class RoomEventMonitorChecks
             int exhaustedAttempts = 0, exhaustedRetries = 0;
             try
             {
-                await RoomEventMonitor.RunAsync(new(address), admission, owner, () => exhaustedRetries++,
+                await RoomEventMonitor.RunAsync(new(address), owner, () => exhaustedRetries++,
                     _ => { exhaustedAttempts++; throw new RoomProtocolException("transport"); }, CancellationToken.None);
                 throw new Exception("Transport retries were not bounded");
             }
@@ -43,7 +46,7 @@ internal static class RoomEventMonitorChecks
             int retries = 0;
             try
             {
-                await RoomEventMonitor.RunAsync(new(address), admission, owner, () => retries++,
+                await RoomEventMonitor.RunAsync(new(address), owner, () => retries++,
                     _ => throw new RoomProtocolException("malformed"), CancellationToken.None);
                 throw new Exception("Malformed metadata was retried");
             }
@@ -55,6 +58,7 @@ internal static class RoomEventMonitorChecks
         finally
         {
             await cancellation.CancelAsync();
+            if (publishing is not null) { try { await publishing; } catch (OperationCanceledException) { } }
             if (monitoring is not null) { try { await monitoring; } catch (OperationCanceledException) { } }
         }
     }

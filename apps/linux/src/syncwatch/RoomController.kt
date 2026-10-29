@@ -219,7 +219,7 @@ internal class RoomController(private val scope: CoroutineScope) {
             admitted = value; admission = value; editor = editor.clearSecrets()
             val ownerSession = RoomMembershipSession(next, value, identity)
             session = ownerSession; catalogMap = RoomLocalCatalog(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null
-            RoomEventMonitor.run(next.address, value, ownerSession,
+            RoomEventMonitor.run(next.address, ownerSession,
                 reconnecting = { editor = editor.copy(state = "reconnecting") },
                 accepted = { view ->
                     playbackSession = ownerSession; playbackEpoch = value.bootstrap.snapshot.epoch

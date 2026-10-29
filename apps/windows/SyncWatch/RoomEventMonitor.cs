@@ -5,7 +5,7 @@ namespace SyncWatch;
 // Replaces only the event transport; membership retains HTTP ownership and command numbering.
 internal static class RoomEventMonitor
 {
-    internal static async Task RunAsync(RoomAddress address, RoomAdmission admission, RoomMembershipSession membership,
+    internal static async Task RunAsync(RoomAddress address, RoomMembershipSession membership,
         Action reconnecting, Action<RoomCatalogView> accepted, CancellationToken cancellation)
     {
         int[] delays = [500, 1000, 2000, 4000, 8000];
@@ -26,10 +26,7 @@ internal static class RoomEventMonitor
                     using (var bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellation))
                     {
                         bootstrap.CancelAfter(TimeSpan.FromMilliseconds(allowance));
-                        if (failures > 0) _ = await membership.RefreshAsync(cancellation: bootstrap.Token);
-                        stream = await client.OpenEventsAsync(admission, bootstrap.Token);
-                        var initial = RoomBootstrap.InitialEvent(await stream.ReceiveAsync(bootstrap.Token), admission);
-                        first = await membership.RefreshAsync(initial, cancellation: bootstrap.Token);
+                        (stream, first) = await membership.ConnectEventsAsync(client, failures > 0, bootstrap.Token);
                     }
                     cancellation.ThrowIfCancellationRequested();
                     accepted(first); failures = 0; deadline = null;

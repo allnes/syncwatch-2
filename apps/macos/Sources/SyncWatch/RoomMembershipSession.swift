@@ -32,6 +32,17 @@ struct RoomWatchContext: Sendable {
         return try await read(initial)
     }
 
+    /// Creating a socket bootstrap also replaces the server's catalog cursor.
+    func connectEvents(_ events: RoomClient, recovering: Bool) async throws -> (RoomEventStream, RoomCatalogView) {
+        try await enter()
+        defer { leave() }
+        if recovering { _ = try await validatedSnapshot() }
+        let stream = try await events.openEvents(admission)
+        _ = try RoomBootstrap.initialEvent(await stream.receive(), admission: admission)
+        // Commands may have advanced the sequence floor before this lock was acquired.
+        return (stream, try await read(nil))
+    }
+
     func publish(_ items: [MediaDescriptor]) async throws -> RoomCatalogView {
         try await enter()
         defer { leave() }

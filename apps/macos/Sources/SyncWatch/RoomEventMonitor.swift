@@ -8,7 +8,7 @@ import SyncWatchRoom
         let view: RoomCatalogView
     }
     static func run(
-        address: RoomAddress, admission: RoomAdmission, membership: RoomMembershipSession,
+        address: RoomAddress, membership: RoomMembershipSession,
         reconnecting: () -> Void, accepted: (RoomCatalogView) throws -> Void
     ) async throws {
         var failures = 0
@@ -23,10 +23,8 @@ import SyncWatchRoom
                 let recovering = failures > 0
                 let connection = try await withThrowingTaskGroup(of: Connection.self) { group in
                     group.addTask {
-                        if recovering { _ = try await membership.refresh() }
-                        let stream = try await client.openEvents(admission)
-                        let initial = try RoomBootstrap.initialEvent(await stream.receive(), admission: admission)
-                        return Connection(stream: stream, view: try await membership.refresh(initial: initial))
+                        let (stream, view) = try await membership.connectEvents(client, recovering: recovering)
+                        return Connection(stream: stream, view: view)
                     }
                     group.addTask {
                         try await Task.sleep(for: allowance)

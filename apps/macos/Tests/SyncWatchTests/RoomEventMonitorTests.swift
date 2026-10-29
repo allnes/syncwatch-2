@@ -11,6 +11,7 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
     let address = try RoomAddress(#require(environment["SYNCWATCH_ROOM_SERVICE"]))
     let client = RoomClient(address: address)
     var monitoring: Task<Void, Error>?
+    var publishing: Task<RoomCatalogView, Error>?
     do {
         let identity = try RoomIdentity(clientRunID: "run-" + UUID().uuidString, syncplayUsername: "macOS recovery")
         let admission = try await client.create(
@@ -21,11 +22,17 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
             mediaID: "movie", title: "Movie", titleKey: "movie", fileSizeBytes: 10, durationMs: 60000,
             fullHashSha256: nil)
         _ = try await owner.publish([media])
+        let corpus = try (0..<120).map { index in
+            try MediaDescriptor(
+                mediaID: "extra-\(index)", title: "Extra", titleKey: "extra", fileSizeBytes: 10,
+                durationMs: 60000, fullHashSha256: nil)
+        }
+        publishing = Task { try await owner.publish([media] + corpus) }
         var deliveries = 0
         var recoveries = 0
         monitoring = Task {
             try await RoomEventMonitor.run(
-                address: address, admission: admission, membership: owner, reconnecting: { recoveries += 1 },
+                address: address, membership: owner, reconnecting: { recoveries += 1 },
                 accepted: { view in
                     #expect(
                         view.bootstrap.snapshot.members.contains {
@@ -35,6 +42,8 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
                     if deliveries == 1 { throw RoomProtocolFailure.transport }
                 })
         }
+        _ = try await publishing?.value
+        publishing = nil
         let until = ContinuousClock.now + .seconds(10)
         while deliveries < 2 {
             guard ContinuousClock.now < until else { throw RoomProtocolFailure.transport }
@@ -52,7 +61,7 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
         var exhaustedRetries = 0
         do {
             try await RoomEventMonitor.run(
-                address: address, admission: admission, membership: owner,
+                address: address, membership: owner,
                 reconnecting: { exhaustedRetries += 1 },
                 accepted: { _ in
                     exhaustedAttempts += 1
@@ -64,7 +73,7 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
         var retries = 0
         do {
             try await RoomEventMonitor.run(
-                address: address, admission: admission, membership: owner, reconnecting: { retries += 1 },
+                address: address, membership: owner, reconnecting: { retries += 1 },
                 accepted: { _ in throw RoomProtocolFailure.malformed })
             Issue.record("Malformed metadata was retried")
         } catch RoomProtocolFailure.malformed {}
@@ -72,6 +81,8 @@ func eventRecoveryRetainsMembershipAndCommandNumbering() async throws {
         try await client.leave(admission)
         await client.close()
     } catch {
+        publishing?.cancel()
+        _ = await publishing?.result
         monitoring?.cancel()
         _ = await monitoring?.result
         await client.close()

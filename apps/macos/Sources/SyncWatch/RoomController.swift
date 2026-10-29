@@ -316,7 +316,7 @@ struct RoomPreparedPublication {
             acknowledgedPrepared = nil
             acknowledgedRevision = nil
             try await RoomEventMonitor.run(
-                address: next.address, admission: value, membership: ownerSession,
+                address: next.address, membership: ownerSession,
                 reconnecting: { self.editor.state = "reconnecting" },
                 accepted: { view in
                     self.playbackSession = ownerSession
