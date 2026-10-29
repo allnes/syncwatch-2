@@ -17,18 +17,25 @@ class PipePlayer(SimulatedPlayer):
         self.held = []
         self.cancelled_corrections = 0
         self.started = time.monotonic()
+        self.closing = False
         self.replies = {}
         self.frames = queue.Queue(maxsize=128)
         executable = runtime / "bin" / ("syncwatch-helper.exe" if os.name == "nt" else "syncwatch-helper")
         self.process = subprocess.Popen([str(executable), str(runtime)], stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         def read():
-            while True:
+            while not self.closing:
                 frame = self.process.stdout.readline(65537)
-                self.frames.put(frame)
+                while not self.closing:
+                    try:
+                        self.frames.put(frame, timeout=0.1)
+                        break
+                    except queue.Full:
+                        pass
                 if not frame:
                     return
-        threading.Thread(target=read, daemon=True).start()
+        self.reader = threading.Thread(target=read)
+        self.reader.start()
         self.send("bridge.hello", {"supportedVersions": [1]})
 
     def send(self, kind, payload, *, reply=None, user=False):
@@ -82,12 +89,15 @@ class PipePlayer(SimulatedPlayer):
         return any(kind == "sync.connection" and p["state"] == "connected" for kind, p in self.events)
 
     def close(self):
+        self.closing = True
         if self.process.poll() is None:
             self.process.stdin.close()
             try: self.process.wait(timeout=4)
             except subprocess.TimeoutExpired:
                 self.process.kill()
                 self.process.wait(timeout=4)
+        self.reader.join(timeout=4)
+        assert not self.reader.is_alive(), "Owned helper reader did not join"
         self.process.stdout.close()
         self.process.stderr.close()
 
