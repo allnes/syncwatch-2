@@ -42,8 +42,28 @@ internal sealed class NativePlayerInput : IDisposable
         if (handled || handle == 0 || !Ready
             || message.hwnd != handle && GetAncestor(message.hwnd, 2) != handle) return;
         bool modified = (Keyboard.Modifiers & (ModifierKeys.Alt | ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Windows)) != 0;
-        if (message.message != 0x0100) return;
-        string? key = message.wParam.ToInt64() switch
+        string? key = InputKey(message.message, message.wParam.ToInt64());
+        if (key is null) return;
+        bool editing = Keyboard.FocusedElement is TextBoxBase or PasswordBox or Slider or ComboBox
+            || key == "Space" && Keyboard.FocusedElement is ButtonBase;
+        handled = chrome.Presentation.DispatchKey(key, chrome.RequestInput,
+            repeating: (message.lParam.ToInt64() & (1L << 30)) != 0,
+            fullscreen: window is { WindowStyle: WindowStyle.None, WindowState: WindowState.Maximized },
+            modified: modified, protectedFocus: editing);
+    }
+    internal static string? InputKey(int message, long value)
+    {
+        // Unicode keyboard transports deliver WM_CHAR through VK_PACKET. A consumed
+        // WM_KEYDOWN is never translated, so physical keys cannot dispatch twice.
+        if (message == 0x0102) return value switch
+        {
+            ' ' => "Space",
+            'm' or 'M' => "KeyM",
+            'f' or 'F' => "KeyF",
+            _ => null,
+        };
+        if (message != 0x0100) return null;
+        return value switch
         {
             0x20 => "Space",
             0x25 => "ArrowLeft",
@@ -55,13 +75,6 @@ internal sealed class NativePlayerInput : IDisposable
             0x1B => "Escape",
             _ => null,
         };
-        if (key is null) return;
-        bool editing = Keyboard.FocusedElement is TextBoxBase or PasswordBox or Slider or ComboBox
-            || key == "Space" && Keyboard.FocusedElement is ButtonBase;
-        handled = chrome.Presentation.DispatchKey(key, chrome.RequestInput,
-            repeating: (message.lParam.ToInt64() & (1L << 30)) != 0,
-            fullscreen: window is { WindowStyle: WindowStyle.None, WindowState: WindowState.Maximized },
-            modified: modified, protectedFocus: editing);
     }
     public void Dispose()
     {
