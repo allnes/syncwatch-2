@@ -131,6 +131,11 @@ the replacement transport or discarded by resetting action watermarks. Native
 media and the application window remain owned by their existing coordinators.
 Metadata-only event recovery is independent of this Syncplay lifecycle.
 
+The isolated POSIX helper ignores SIGPIPE before starting embedded CPython, so a
+write to a closed socket becomes an I/O failure for the transport to handle.
+This policy applies only to the owned helper process. Native acceptance verifies
+the signal policy after a real pipe handshake and then confirms graceful shutdown.
+
 If metadata connectivity fails during playback, retain the agreed file and continue Syncplay. Operations requiring a new shared selection wait for recovery. Local End releases local resources and readiness without a fifth playback action. Watch-end metadata describes server bookkeeping and must not independently stop or close a peer player. If Syncplay fails, pause and become not-ready regardless of the other connections.
 
 ## Media identity

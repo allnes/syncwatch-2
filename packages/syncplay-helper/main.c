@@ -7,6 +7,8 @@
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
+#else
+#include <signal.h>
 #endif
 
 static wchar_t paths[4][SW_PYTHON_MAX_PATH_CHARS];
@@ -86,6 +88,9 @@ int main(int argc, char **argv)
     wchar_t *arguments[2];
     int result;
     if (argc != 2) { fputs("Helper argument count invalid\n", stderr); return 64; }
+    /* Isolated helper policy: a closed socket/pipe reports an I/O error to
+       CPython/Twisted instead of terminating the process during recovery. */
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) return 70;
     arguments[0] = utf8(argv[0]); arguments[1] = utf8(argv[1]);
     if (arguments[0] == NULL || arguments[1] == NULL) { fputs("Helper path encoding invalid\n", stderr); result = 64; }
     else result = run(argc, arguments);

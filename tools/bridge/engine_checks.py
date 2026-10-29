@@ -55,7 +55,9 @@ class PipePlayer(SimulatedPlayer):
             frame = self.held.pop(0) if self.held and not self.hold_corrections else self.frames.get_nowait()
             if not frame:
                 diagnostic = self.process.stderr.read(4096).decode("utf-8", errors="replace")
-                raise AssertionError("Real helper exited unexpectedly: " + diagnostic)
+                code = self.process.wait(timeout=1)
+                raise AssertionError("Real helper exited unexpectedly: " + self.name + " exit=" + str(code)
+                                     + " queued=" + str(self.frames.qsize()) + " " + diagnostic)
             value = json.loads(frame)
             kind, payload = value["type"], value["payload"]
             if "replyTo" in value:
@@ -90,16 +92,19 @@ class PipePlayer(SimulatedPlayer):
 
     def close(self):
         self.closing = True
+        forced = False
         if self.process.poll() is None:
             self.process.stdin.close()
             try: self.process.wait(timeout=4)
             except subprocess.TimeoutExpired:
+                forced = True
                 self.process.kill()
                 self.process.wait(timeout=4)
         self.reader.join(timeout=4)
         assert not self.reader.is_alive(), "Owned helper reader did not join"
         self.process.stdout.close()
         self.process.stderr.close()
+        return {"exit": self.process.returncode, "forcedStop": forced, "readerJoined": True}
 
 
 def bridge_run(root):
@@ -122,6 +127,7 @@ def bridge_run(root):
     factory = ObservedFactory(port="0", salt="pipe-fixture", tlsCertPath=str(directory))
     listener = reactor.listenTCP(0, factory, interface="127.0.0.1")
     players, failures = [], []
+    scenario_worker = [None]
     report = {"realHelperProcesses": 2, "realUpstreamServer": True, "authenticatedTLS": True,
               "simulatedNativePlayers": True, "testOnlyCAAppend": True}
     loop = task.LoopingCall(lambda: [p.tick() for p in players])
@@ -223,15 +229,30 @@ def bridge_run(root):
             from twisted.python.failure import Failure
             failures.append(Failure())
         finally:
-            loop.stop()
-            for p in players: p.close()
+            if loop.running:
+                loop.stop()
+            cleanup = []
+            for p in players:
+                try:
+                    cleanup.append(p.close())
+                except Exception:
+                    from twisted.python.failure import Failure
+                    failures.append(Failure())
+            print("PIPE_FIXTURE cleanup " + json.dumps(cleanup, sort_keys=True), flush=True)
             yield defer.maybeDeferred(listener.stopListening)
             reactor.stop()
     def loop_failed(failure):
         failures.append(failure)
-        reactor.stop()
+        # Cancellation enters the scenario's finally block and joins both real
+        # helpers before stopping the reactor, including an early pipe EOF.
+        if scenario_worker[0] is not None:
+            scenario_worker[0].cancel()
+        else:
+            reactor.stop()
+    def begin():
+        scenario_worker[0] = scenario()
     loop.start(0.05).addErrback(loop_failed)
-    reactor.callWhenRunning(scenario)
+    reactor.callWhenRunning(begin)
     reactor.run(installSignalHandlers=False)
     if failures: failures[0].raiseException()
     print("SYNCWATCH_PIPE_ENGINE_PROOF " + json.dumps(report, sort_keys=True))
