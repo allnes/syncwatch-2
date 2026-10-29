@@ -171,6 +171,21 @@ class EngineSourcesTests(unittest.TestCase):
                 else:
                     self.assertIn("Source-only", result.stderr)
 
+    def test_optional_interpreter_metadata_does_not_load_from_the_source_artifact(self):
+        # CPython traceback may probe generated metadata absent from stdlib_module_names.
+        files = {
+            "syncplay/__init__.py": b"version = 'fixture'\ntry:\n import _missing_stdlib_info\nexcept ImportError:\n pass\n",
+            "syncplay/constants.py": b"",
+            "syncplay/messages.py": b"def getLanguages(): return ['en', 'ru']\ndef setLanguage(value): pass\ndef getMessage(key): return key\n",
+            "syncplay/utils.py": b"def meetsMinVersion(value, minimum): return tuple(map(int, value.split('.'))) >= tuple(map(int, minimum.split('.')))\n",
+        }
+        for metadata in ({}, {"_missing_stdlib_info.py": b"raise RuntimeError('untrusted metadata executed')\n"}):
+            with self.subTest(sourceMetadata=bool(metadata)):
+                result = engine.smoke(engine.archive_bytes(files | metadata), "fixture")
+                self.assertEqual(result["attempts"], [])
+                self.assertIs(result["engineInitialized"], False)
+                self.assertIs(result["runtimeReady"], False)
+
     def test_failed_child_probe_preserves_its_diagnostic(self):
         files = {"syncplay/__init__.py": b"raise RuntimeError('fixture diagnostic')\n"}
         with self.assertRaisesRegex(ValueError, "fixture diagnostic"):
