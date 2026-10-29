@@ -15,7 +15,10 @@ internal class ApplicationSession(media: MediaConfiguration, display: X11Display
     val room = RoomController(work)
     val watch = WatchSessionCoordinator(preferences, media, display, work)
     val shared = RoomWatchCoordinator(room, watch, helper, work)
-    init { watch.onEndWatching = { work.launch { shared.end() }; Unit } }
+    init {
+        library.configureOptions(preferences.state.preferences.scanSubfolders, preferences.state.preferences.automaticRefresh)
+        watch.onEndWatching = { work.launch { shared.end() }; Unit }
+    }
     private var closing: Job? = null
     fun requestClose(onClosed: () -> Unit) {
         if (closing?.isActive == true) return

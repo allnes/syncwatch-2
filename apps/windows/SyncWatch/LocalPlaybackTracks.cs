@@ -17,7 +17,14 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
     private string language = "en";
     private readonly List<LocalFileAccess> externalFiles = [];
     private readonly Dictionary<(string Kind, int Id), string> aliases = [];
+    private readonly Dictionary<string, PlaybackTrack> observations = [];
     public SelectionMenuPresentation? Menu { get; private set; }
+    public LibraryPresentation LibraryPresentation(LibraryPresentation source) => closed ? source : source with
+    {
+        MetadataAudioName = observations.GetValueOrDefault("audio") is { Id: >= 0 } audio ? audio.Name : null,
+        MetadataSubtitleName = observations.GetValueOrDefault("subtitles") is { Id: >= 0 } subtitles ? subtitles.Name : null,
+        MetadataSubtitlesDisabled = observations.GetValueOrDefault("subtitles") is { Id: < 0 }
+    };
     // Validate fresh input lists before either command; admission and controls follow acknowledgement.
     public async Task ApplyInitialAsync(LocalTrackPreferences preferences, CancellationToken token)
     {
@@ -50,6 +57,8 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
             int id = await AttachmentAsync(isSubtitle, previous, token);
             aliases[(isSubtitle ? "subtitles" : "audio", id)] = System.IO.Path.GetFileName(file.File);
         }
+        _ = await SnapshotAsync("audio", revision, token);
+        _ = await SnapshotAsync("subtitles", revision, token);
     }
     private async Task AcknowledgeAsync(int id, bool subtitles, CancellationToken token)
     {
@@ -137,6 +146,12 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
         bool subtitles = kind == "subtitles";
         var tracks = await player.TracksAsync(subtitles, scope, token);
         int selected = await player.SelectedTrackAsync(subtitles, scope, token);
+        if (!closed && current == revision && !token.IsCancellationRequested)
+        {
+            var observed = selected < 0 ? new PlaybackTrack(selected, "") : tracks.FirstOrDefault(track => track.Id == selected);
+            if (observed is null) observations.Remove(kind);
+            else observations[kind] = observed with { Name = aliases.GetValueOrDefault((kind, selected), observed.Name) };
+        }
         string Id(int value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         var entries = tracks.Select(t => new SelectionMenuEntry(Id(t.Id), SelectionMenuEntry.ObservedLabel(aliases.GetValueOrDefault((kind, t.Id), t.Name), language), DisabledTrack: t.Id < 0)).ToList();
         if (subtitles && !tracks.Any(t => t.Id < 0)) entries.Insert(0, SelectionMenuEntry.OffTrack);
@@ -189,5 +204,5 @@ internal sealed class LocalPlaybackTracks(IPlaybackTrackControlPort player, Play
     }
     internal Task SettledAsync() => work ?? Task.CompletedTask;
     // The owning workspace calls this after native DisposeAsync has joined all borrowers.
-    internal void ReleaseExternalAccess() { externalFiles.Clear(); aliases.Clear(); }
+    internal void ReleaseExternalAccess() { externalFiles.Clear(); aliases.Clear(); observations.Clear(); }
 }

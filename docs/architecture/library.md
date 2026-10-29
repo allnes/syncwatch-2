@@ -91,7 +91,58 @@ Both lists are validated before either local command is submitted. Actual VLC
 selected-ID acknowledgement precedes the loaded callback, watch controls and
 shared admission. Cancellation/close interrupts this preparation. Home/Continue
 retains the live input; its Library presentation disables draft selectors for
-that same movie. External subtitle association remains separate integration work.
+that same movie.
+
+## Directory change invalidation
+
+Native monitoring produces a bounded invalidation stream, never catalog entries.
+macOS uses FSEvents with physical path identities, Windows uses FileSystemWatcher,
+and Linux registers actual directories with WatchService without following child
+symlinks. New Linux directories are registered before reconciliation; lost event
+buffers invalidate the whole snapshot. These facilities are platform APIs and
+introduce no additional third-party library.
+
+Removal or renaming of the selected root ends its monitor with an unavailable
+invalidation. Windows and Linux additionally watch that name in its parent;
+an open directory handle alone can keep following a moved directory. A manual
+Refresh after the folder returns creates a new monitor and reconciles its contents.
+
+The application starts a candidate monitor before listing a new folder and adopts
+it only with the completed snapshot. It coalesces events, waits for an ongoing
+operation, and rescans under the current folder owner. An unchanged snapshot does
+not reset track drafts or restart metadata inspection. A changed snapshot keeps
+the latest valid selection and updates the Library presentation. Automatic and
+manual rescans do not rewrite the access record, preventing notification loops
+when application state is stored inside the selected folder.
+
+Automatic changes limited to companions or folder presentation update the local
+Library without publishing a room revision. Only movie-version changes affect
+automatic room publication; paths and local track choices stay private.
+
+Each monitor retains its folder owner through shutdown. Choosing another folder
+invalidates the previous consumer; close cancels consumers, stops native sources
+and awaits their completion. Monitoring failures leave manual Refresh available
+with an explicit localized warning. The effective refresh option controls whether
+a monitor is created. Common Settings exposes subfolder scanning and automatic
+refresh through the existing declarative fields. Their values persist atomically
+with appearance in local preferences and survive watch checkpoints. Missing
+values in older state files inherit the saved folder options until Settings saves
+explicit global values; bookmarks and paths remain in the access store. Fresh
+folders default to automatic refresh off through common Design policy. Applying
+options rebuilds the monitor and reconciles the catalog while retaining the folder
+identity. Library option editing is unavailable during a manual folder operation.
+
+Reconciliation owns failure reporting. When a source stops, its consumer ends
+after that reconciliation even if a content invalidation preceded the terminal
+event. Dismissing the resulting error cannot publish another warning for the same
+failure.
+
+The active watch's read-only track labels come from its playback track owner,
+using acknowledged native selections and local attachment aliases. Catalog rescans
+can reset an editable Library draft without changing these observations. The
+watch coordinator applies them only to its matching live movie and scope; other
+Library selections continue to use their own drafts. Common Design still owns
+label formatting and presentation.
 
 ## Whole-library duration observations
 
@@ -146,9 +197,8 @@ without starting another metadata generation. Only exact accepted Syncplay
 identity and readiness release the shared playback controls. End, Leave and
 application close release their own helper before the native playback owner.
 
-This workflow is under qualification. Native controller/transport checks run
-on all three target operating systems. Metadata interruption, end bookkeeping,
-file completion and the complete directed playback matrix must pass actual
-application checks before the feature is qualified. Explicit edition
-confirmation, file watching and persistent digest-cache invalidation remain
-integration work.
+Metadata interruption leaves End and offline Leave available. Leaving releases
+shared resources and restores local playback admission. Folder monitoring and
+catalog reconciliation continue independently of the room connection. Explicit
+edition confirmation and persistent digest-cache invalidation remain integration
+work.

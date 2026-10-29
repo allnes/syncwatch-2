@@ -7,6 +7,7 @@ HelperRuntimeChecks.Run();
 await RoomDispatcherChecks.RunAsync(async () =>
 {
     LibraryTrackSelectionChecks.Run();
+    await LibraryRefreshChecks.RunAsync();
     await LibraryMetadataChecks.RunAsync();
     await LocalPlaybackTracksChecks.RunAsync();
     await RoomPlaybackGateChecks.RunAsync();

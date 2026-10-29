@@ -52,7 +52,8 @@ internal sealed class WatchSessionCoordinator
         if (RuntimeAvailable && !preferences.SavingWatchState && !live) enabled.Add("startWatching");
         if (live) { enabled.UnionWith(["continueWatching", "endWatching"]); enabled.ExceptWith(["openLibraryAudio", "openLibrarySubtitles"]); }
         if (preferences.SavingWatchState) enabled.Remove("openSettings");
-        return source with { EnabledActions = enabled };
+        var result = source with { EnabledActions = enabled };
+        return live ? Player!.LibraryPresentation(result) : result;
     }
     public void Start(LibraryMediaSelection selection, bool requiresSharedAdmission = false)
     {

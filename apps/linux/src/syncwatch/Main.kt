@@ -120,7 +120,7 @@ fun main(arguments: Array<String>) {
         else if (action == "continueWatching") watch.continueWatching()
         else if (action == "endWatching") roomWork.launch { shared.end() }
         else if (action == "openRoom") roomOpen = true
-        else if (action == "openSettings") { editor = preferences.editor(); settingsOpen = true }
+        else if (action == "openSettings") { editor = library.settingsEditor(preferences.editor()); settingsOpen = true }
     }
     }, player = {
         watch.player?.let { controller -> key(controller.scope.clientRunId, controller.scope.mediaGeneration) {
@@ -158,7 +158,15 @@ fun main(arguments: Array<String>) {
         DialogWindow(onCloseRequest = { settingsOpen = false }, title = SyncWatchCopy.text("openSettings", language),
             state = rememberDialogState(width = SyncWatchTokens.layoutSettingsWidth.dp, height = SyncWatchTokens.layoutSettingsHeight.dp)) {
             SettingsDialog(editor, { editor = it }, language = language, theme = theme,
-                onSave = { values -> preferences.save(values).also { if (it) watch.preferencesChanged() } },
+                onSave = { values ->
+                    val options = "scanSubfolders" in editor.editableFields
+                    if (options && !library.canConfigure) false else preferences.save(values, options).also { saved ->
+                        if (saved) {
+                            library.configureOptions(preferences.state.preferences.scanSubfolders, preferences.state.preferences.automaticRefresh)
+                            watch.preferencesChanged()
+                        }
+                    }
+                },
                 onClose = { settingsOpen = false })
         }
     }
@@ -184,10 +192,16 @@ internal class AppearancePreferences(store: LocalStateStore) {
     }
     fun editor() = SettingsEditor(values = mapOf("theme" to state.preferences.theme, "language" to state.preferences.language),
         editableFields = if (canWrite && !savingWatchState) setOf("theme", "language") else emptySet(), canSave = canWrite && !savingWatchState)
-    fun save(values: Map<String, String>): Boolean {
+    fun save(values: Map<String, String>, libraryOptions: Boolean = false): Boolean {
         if (!canWrite || savingWatchState) return false
         val theme = values["theme"] ?: return false; val language = values["language"] ?: return false
-        val next = state.copy(preferences = state.preferences.copy(theme = theme, language = language))
+        var updated = state.preferences.copy(theme = theme, language = language)
+        if (libraryOptions) {
+            val scan = values["scanSubfolders"]?.toBooleanStrictOrNull() ?: return false
+            val refresh = values["automaticRefresh"]?.toBooleanStrictOrNull() ?: return false
+            updated = updated.copy(scanSubfolders = scan, automaticRefresh = refresh)
+        }
+        val next = state.copy(preferences = updated)
         return try { next.validate(); store.write(next); state = next; true }
         catch (_: java.io.IOException) { false }
         catch (_: WatchFailure) { false }

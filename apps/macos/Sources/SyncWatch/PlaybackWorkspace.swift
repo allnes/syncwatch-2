@@ -34,6 +34,9 @@ struct LocalPlaybackLaunch {
         player: player, scope: { [weak self] in self?.scope },
         picker: ExternalTrackPicker(window: { [weak self] in self?.window }))
     var language = "en"
+    func libraryPresentation(_ source: LibraryPresentation) -> LibraryPresentation {
+        tracks.libraryPresentation(source)
+    }
     private let launch: LocalPlaybackLaunch
     private let runtime: VLCPlaybackRuntime?
     private var polling: Task<Void, Never>?

@@ -43,6 +43,11 @@ import Testing
         try await playback.applyInitial(preferences)
         #expect(await player.attachments == 1)
         #expect(await player.selected == 3)
+        var resetDraft = LibraryPresentation()
+        resetDraft.metadataSubtitlesDisabled = true
+        resetDraft.metadataSubtitleName = "obsolete draft"
+        let live = playback.libraryPresentation(resetDraft)
+        #expect(live.metadataSubtitleName == "Movie.en.srt" && !live.metadataSubtitlesDisabled)
         playback.open("subtitles")
         await playback.settled()
         #expect(playback.menu?.selectedID == "3" && playback.menu?.entries.last?.label == "Movie.en.srt")
@@ -255,6 +260,9 @@ private actor TrackPlayer: PlaybackExternalTrackPort {
         model.open("audio")
         await model.settled()
         #expect(model.menu?.selectedID == "2" && model.menu?.enabled == true)
+        var resetDraft = LibraryPresentation()
+        resetDraft.metadataAudioName = "obsolete draft"
+        #expect(model.libraryPresentation(resetDraft).metadataAudioName == "Second")
         model.select(selection)
         #expect(await player.selections == 1)
         await player.configure(reject: true)

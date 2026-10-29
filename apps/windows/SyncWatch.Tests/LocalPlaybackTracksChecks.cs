@@ -35,6 +35,9 @@ internal static class LocalPlaybackTracksChecks
             {
                 await playback.ApplyInitialAsync(preferences, default);
                 Require(player.Attachments == 1 && player.Selected == 3);
+                var resetDraft = new LibraryPresentation { MetadataSubtitlesDisabled = true, MetadataSubtitleName = "obsolete draft" };
+                var live = playback.LibraryPresentation(resetDraft);
+                Require(live.MetadataSubtitleName == "Movie.en.srt" && !live.MetadataSubtitlesDisabled);
                 playback.Open("subtitles"); await playback.SettledAsync();
                 Require(playback.Menu is { SelectedID: "3" } observed && observed.Entries.Last().Label == "Movie.en.srt");
             }
@@ -73,6 +76,7 @@ internal static class LocalPlaybackTracksChecks
             await Until(() => player.Selections == 1); Require(model.Menu is null && !applying.IsCompleted);
             player.AutoAcknowledge = true; player.Selected = 2; await applying;
             Require(player.Selections == 2 && player.Selected == -1);
+            Require(model.LibraryPresentation(new()).MetadataSubtitlesDisabled);
             player.AutoAcknowledge = false; player.Selected = 1; player.Selections = 0;
             model.Open("audio"); await model.SettledAsync(); Require(player.LastScope == scope);
             var initial = model.Menu!; SelectionMenuRequest? request = null;
@@ -81,6 +85,7 @@ internal static class LocalPlaybackTracksChecks
             Require(model.Menu is { Enabled: false, SelectedID: "1" });
             player.Selected = 2; await model.SettledAsync(); Require(model.Menu is null);
             model.Open("audio"); await model.SettledAsync(); Require(model.Menu is { Enabled: true, SelectedID: "2" });
+            Require(model.LibraryPresentation(new() { MetadataAudioName = "obsolete draft" }).MetadataAudioName == "Second");
             model.Select(request!); Require(player.Selections == 1);
             player.Reject = true;
             var current = model.Menu!; current.Dispatch("1", current.ContextToken, model.Select);

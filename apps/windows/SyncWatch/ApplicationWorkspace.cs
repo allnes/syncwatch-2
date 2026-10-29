@@ -24,6 +24,7 @@ internal sealed class ApplicationWorkspace : UserControl
         preferences = application.Preferences!;
         catalog = new LibraryController(new Library.FileLibraryAccessStore(
             Path.Combine(Path.GetDirectoryName(application.StatePath)!, "library-access.json")), Dispatcher, preferences.State.SelectedMediaId, new LibraryMetadataReader(application.Media!));
+        catalog.ConfigureOptions(preferences.State.Preferences.ScanSubfolders, preferences.State.Preferences.AutomaticRefresh);
         var fullscreen = new WindowFullscreen(owner);
         watch = new WatchSessionCoordinator(preferences, application.Media!, fullscreen.Toggle);
         shared = new(room, watch, HelperConfiguration.Read(Environment.GetCommandLineArgs()));
@@ -121,12 +122,15 @@ internal sealed class ApplicationWorkspace : UserControl
     };
     private void OpenSettings()
     {
-        var view = new Design.SettingsDialog(preferences.CreateEditor(), preferences.State.Preferences.Language);
+        var view = new Design.SettingsDialog(catalog.SettingsEditor(preferences.CreateEditor()), preferences.State.Preferences.Language);
         var window = CreateDialog(view);
         view.CloseRequested += window.Close; view.MoveRequested += window.DragMove;
         view.Persist = values =>
         {
-            if (!preferences.Save(values)) return false;
+            bool options = view.Editor.EditableFields.Contains("scanSubfolders");
+            if (options && !catalog.CanConfigure) return false;
+            if (!preferences.Save(values, options)) return false;
+            catalog.ConfigureOptions(preferences.State.Preferences.ScanSubfolders, preferences.State.Preferences.AutomaticRefresh);
             application.ApplySystemTheme(); watch.PreferencesChanged(); Refresh();
             view.SetLanguage(preferences.State.Preferences.Language); return true;
         };

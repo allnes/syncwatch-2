@@ -132,6 +132,7 @@ internal sealed class PlaybackWorkspace : UserControl, IAsyncDisposable
         chrome.Render(presentation, language); Content = chrome;
     }
     public void SetLanguage(string value) { language = value; chrome.Render(presentation, language); }
+    internal LibraryPresentation LibraryPresentation(LibraryPresentation source) => tracks.LibraryPresentation(source);
     private void RenderTracks() { chrome.SelectionPresentation = tracks.Menu; chrome.Render(presentation, language); }
     private async Task PollAsync(nint handle)
     {

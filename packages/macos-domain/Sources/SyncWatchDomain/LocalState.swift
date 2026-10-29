@@ -15,6 +15,9 @@ public struct LocalPreferences: Codable, Equatable, Sendable {
     public var duckMovieDuringSpeech = false
     public var cameraEnabled = true
     public var microphoneEnabled = true
+    // Absent in older state files: retain the selected folder's legacy options until Settings saves them.
+    public var scanSubfolders: Bool?
+    public var automaticRefresh: Bool?
 
     public init() {}
 

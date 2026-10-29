@@ -16,10 +16,10 @@ import stdlib
 from build_support import digest
 
 
-def check(payload, output):
+def check(payload, output, *, toolchain_root=ROOT):
     if sys.platform != "linux":
         raise SystemExit("Linux Kotlin client checks require Linux")
-    home, compiler = jdk.home(), kotlin.home()
+    home, compiler = jdk.home(toolchain_root), kotlin.home(toolchain_root)
     if output.exists():
         shutil.rmtree(output)
     classes = output / "classes"

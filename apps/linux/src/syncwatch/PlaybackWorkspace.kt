@@ -64,6 +64,7 @@ internal class PlaybackController(
     internal val scope = requestedScope ?: PlaybackScope.fresh().replacingMedia()
     internal val tracks by lazy { LocalPlaybackTracks(player, scope, work, ExternalTrackPicker { canvas }) }
     var language = "en"
+    internal fun libraryPresentation(source: LibraryPresentation) = tracks.libraryPresentation(source)
     internal val loaded = CompletableDeferred<Unit>()
     internal val acceptanceRequested = launch.report != null
     private var started = false

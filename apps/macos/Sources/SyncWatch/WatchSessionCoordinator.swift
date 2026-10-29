@@ -63,7 +63,7 @@ import SyncWatchPlayback
             result.enabledActions.subtract(["openLibraryAudio", "openLibrarySubtitles"])
         }
         if preferences.savingWatchState { result.enabledActions.remove("openSettings") }
-        return result
+        return liveSelection ? player!.libraryPresentation(result) : result
     }
     func start(_ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false) {
         guard runtimeAvailable, !closing else { return }
