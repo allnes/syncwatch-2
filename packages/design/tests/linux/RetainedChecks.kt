@@ -6,6 +6,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ImageComposeScene
@@ -15,10 +16,13 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.awt.ComposePanel
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.use
 import java.awt.Canvas
 import java.awt.Dimension
+import java.awt.KeyboardFocusManager
 import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
@@ -156,8 +160,54 @@ private fun verifyRetainedNativePeer() {
     onEvent { check(added == 1 && removed == 1) { "native peer did not release once on final close" } }
 }
 
+/** Component lifecycle only: no synthesized keys, mouse events or control invocation. */
+private fun verifyNativePopoverFocusReturn() {
+    var open by mutableStateOf(false)
+    lateinit var window: JFrame
+    val manager = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+    var original: java.awt.Component? = null
+    fun onEvent(action: () -> Unit) = SwingUtilities.invokeAndWait(action)
+    fun waitFor(message: String, predicate: () -> Boolean) {
+        val end = System.nanoTime() + 10_000_000_000L
+        while (true) {
+            var ready = false
+            onEvent { ready = predicate() }
+            if (ready) return
+            check(System.nanoTime() < end) { message }
+            Thread.sleep(20)
+        }
+    }
+    onEvent {
+        val panel = ComposePanel()
+        panel.setContent {
+            Box(Modifier.fillMaxSize().focusable()) {
+                if (open) NativeDesignPopover(IntRect(20, 100, 80, 140), "top", onDismiss = { open = false }) {
+                    // No return callback: a replaced media scope no longer owns its old anchor.
+                    Box(Modifier.size(120.dp, 60.dp).focusable())
+                }
+            }
+        }
+        window = JFrame("SyncWatch popup focus lifecycle check").apply {
+            defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+            contentPane.add(panel); setSize(800, 600); isVisible = true
+        }
+    }
+    try {
+        waitFor("initial canvas did not receive native focus") {
+            val component = manager.focusOwner
+            if (component != null && component !== window && SwingUtilities.isDescendingFrom(component, window)) {
+                original = component; true
+            } else false
+        }
+        onEvent { open = true; Snapshot.sendApplyNotifications() }
+        waitFor("popup did not acquire native focus") { window.ownedWindows.any { it.isFocused } }
+        onEvent { open = false; Snapshot.sendApplyNotifications() }
+        waitFor("popup close stranded keyboard focus on the owner Window") { manager.focusOwner === original }
+    } finally { onEvent { window.dispose() } }
+}
+
 fun main(arguments: Array<String>) {
-    if ("--native" in arguments) verifyRetainedNativePeer()
+    if ("--native" in arguments) { verifyRetainedNativePeer(); verifyNativePopoverFocusReturn() }
     else SwingUtilities.invokeAndWait { verifyRetainedRendering(); verifyRetainedFocus() }
     println("SYNCWATCH_RETAINED_CONTENT_OK: presentation preserves content; final disposal releases it")
 }

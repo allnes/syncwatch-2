@@ -61,6 +61,7 @@ private class NativePopoverWindow(
     private val owner: Window, private val onDismiss: () -> Unit, private val onReturnFocus: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    private val returnFocus = owner.focusOwner
     private val window = JWindow(owner)
     // Swing graphics paints alpha through the native compositor. A second Skia
     // surface inside a transparent Linux toolkit layer can instead remain black.
@@ -175,7 +176,11 @@ private class NativePopoverWindow(
             window.dispose()
             // A newly opened dialog/popup owns input; never take focus away from it.
             if (restoreFocus && owner.isShowing && owner.ownedWindows.none { it.isShowing && it.isFocusableWindow }) {
-                owner.requestFocus()
+                // Requesting the Window itself strands keys on ComposeWindow
+                // when selection has already disposed the former anchor.
+                // Its original canvas survives a content/media replacement.
+                returnFocus?.takeIf { it.isShowing && SwingUtilities.isDescendingFrom(it, owner) }
+                    ?.requestFocusInWindow()
                 onReturnFocus()
             }
         }

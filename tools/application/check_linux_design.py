@@ -38,10 +38,10 @@ def check(arguments):
                         str(ROOT / "packages/design/tests/linux/RetainedChecks.kt"),
                         str(ROOT / "packages/design/tests/linux/RenderChecks.kt")],
                        work, home, compiler, plugins=("compose",))
-        output = kotlin.java(["-Djava.awt.headless=true",
+        output = kotlin.java(["-Djava.awt.headless=" + ("false" if arguments.native else "true"),
                               "-Dskiko.library.path=" + str(arguments.renderer_package.resolve() / "runtime"),
                               "-cp", os.pathsep.join(map(str, [classes, *classpath])),
-                              "syncwatch.design.tests.RetainedChecksKt"], work, home)
+                              "syncwatch.design.tests.RetainedChecksKt", *(["--native"] if arguments.native else [])], work, home)
         if "SYNCWATCH_RETAINED_CONTENT_OK" not in output:
             raise ValueError("Retained Design content/focus verification failed")
         print(output.strip())
@@ -51,4 +51,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("application", "desktop-sdk", "renderer-package", "toolchain-root"):
         parser.add_argument("--" + name, required=True, type=Path)
+    parser.add_argument("--native", action="store_true", help="Check owned native peers and popup focus on an active Linux desktop")
     check(parser.parse_args())
