@@ -91,6 +91,12 @@ internal sealed class LibraryController(ILibraryAccessStore store, Dispatcher di
         return !closed && Presentation.State == LibraryVisualState.Selected && grant is not null &&
             Presentation.SelectedId is string id && catalog.TryGetValue(id, out var media) ? new(media, grant, Tracks.Preferences) : null;
     }
+    internal LibraryMediaSelection? PlaylistMedia(string id)
+    {
+        dispatcher.VerifyAccess();
+        return !closed && Presentation.State != LibraryVisualState.Scanning && grant is not null && catalog.TryGetValue(id, out var media)
+            ? new(media, grant, new()) : null;
+    }
     public void OpenTracks(string kind, string language)
     {
         dispatcher.VerifyAccess();

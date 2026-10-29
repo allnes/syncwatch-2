@@ -33,6 +33,9 @@ struct LocalPlaybackLaunch {
     private(set) lazy var tracks = LocalPlaybackTracks(
         player: player, scope: { [weak self] in self?.scope },
         picker: ExternalTrackPicker(window: { [weak self] in self?.window }))
+    let playlist = WatchPlaylist()
+    private let onPlaylistUpdate: (@MainActor (WatchPlaylist) -> Void)?
+    private let onPlaylistSelection: (@MainActor (String) -> Void)?
     var language = "en"
     func libraryPresentation(_ source: LibraryPresentation) -> LibraryPresentation {
         tracks.libraryPresentation(source)
@@ -46,6 +49,8 @@ struct LocalPlaybackLaunch {
     private var closed = false
     private let allocateScope: Bool
     private let initialPositionMs: Int64
+    private var sharedResumePositionMs: Int64 = 0
+    private var autoplayPending: Bool
     private var selection: LibraryMediaSelection?
     private let onLoaded: @MainActor (PlaybackScope) -> Void
     private let onObservation: @MainActor (PlaybackObservation) -> Void
@@ -56,10 +61,12 @@ struct LocalPlaybackLaunch {
         launch: LocalPlaybackLaunch, runtime: VLCPlaybackRuntime? = nil, scope: PlaybackScope? = nil,
         positionMs: Int64 = 0,
         selection: LibraryMediaSelection? = nil,
-        requiresSharedAdmission: Bool = false,
+        requiresSharedAdmission: Bool = false, autoplay: Bool = false,
         onLoaded: @escaping @MainActor (PlaybackScope) -> Void = { _ in },
         onObservation: @escaping @MainActor (PlaybackObservation) -> Void = { _ in },
-        onNavigation: (@MainActor (String) -> Void)? = nil, onFailure: (@MainActor () -> Void)? = nil
+        onNavigation: (@MainActor (String) -> Void)? = nil, onFailure: (@MainActor () -> Void)? = nil,
+        onPlaylistUpdate: (@MainActor (WatchPlaylist) -> Void)? = nil,
+        onPlaylistSelection: (@MainActor (String) -> Void)? = nil
     ) {
         self.launch = launch
         self.runtime = runtime
@@ -68,10 +75,13 @@ struct LocalPlaybackLaunch {
         initialPositionMs = positionMs
         self.selection = selection
         self.requiresSharedAdmission = requiresSharedAdmission
+        autoplayPending = autoplay && !requiresSharedAdmission
         self.onLoaded = onLoaded
         self.onObservation = onObservation
         self.onNavigation = onNavigation
         self.onFailure = onFailure
+        self.onPlaylistUpdate = onPlaylistUpdate
+        self.onPlaylistSelection = onPlaylistSelection
         presentation.title = launch.file.lastPathComponent
         presentation.enabledActions = navigationActions
     }
@@ -82,19 +92,21 @@ struct LocalPlaybackLaunch {
         guard !closing, let selection else { throw HelperSessionFailure.unavailable }
         let descriptor = try await sharedMediaPreparation.prepare(selection, player: player, scope: scope)
         guard !closing else { throw CancellationError() }
+        sharedResumePositionMs = min(initialPositionMs, descriptor.durationMs!)
         return descriptor
     }
     func requireSharedAdmission() {
         requiresSharedAdmission = true
         gateSharedActions()
     }
-    func admitSharedPlayback() throws {
-        guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.ready == true,
+    func admitSharedPlayback(autoplay: Bool = false) throws {
+        guard sharedSession != nil, sharedState?.connection == .connected, sharedState?.playbackReady == true,
             sharedAuthority?() != false
         else { throw HelperSessionFailure.unavailable }
         // Syncplay can clear its readiness flag when this user pauses. That does
         // not revoke the initial admission or prevent the next Play intent.
         requiresSharedAdmission = false
+        if autoplay { try sharedSession?.play(from: sharedResumePositionMs) }
     }
     func revokeShared(releaseAdmission: Bool = false) async {
         requireSharedAdmission()
@@ -143,7 +155,7 @@ struct LocalPlaybackLaunch {
     private func gateSharedActions() {
         if (requiresSharedAdmission || sharedSession != nil)
             && (sharedAuthority?() == false || sharedState?.connection != .connected
-                || (requiresSharedAdmission && sharedState?.ready != true))
+                || (requiresSharedAdmission && sharedState?.playbackReady != true))
         {
             presentation.enabledActions.subtract(["playPause", "seek", "skip"])
         }
@@ -192,6 +204,10 @@ struct LocalPlaybackLaunch {
                     }
                     apply(observation)
                     onObservation(observation)
+                    if autoplayPending, observation.status == .ready, !observation.ended {
+                        autoplayPending = false
+                        try await player.setPaused(false, scope: scope)
+                    }
                     try await Task.sleep(for: .milliseconds(100))
                 }
             } catch is CancellationError {
@@ -208,6 +224,22 @@ struct LocalPlaybackLaunch {
                 }
             }
         }
+    }
+    private func refreshPlaylist() {
+        onPlaylistUpdate?(playlist)
+        presentation = playlist.presentation(presentation)
+    }
+    func selectMenu(_ request: SelectionMenuRequest) {
+        refreshPlaylist()
+        if request.kind == "playlist" {
+            if let id = playlist.selection(request) { onPlaylistSelection?(id) }
+        } else {
+            tracks.select(request)
+        }
+    }
+    func dismissMenu() {
+        playlist.dismiss()
+        tracks.dismissMenu()
     }
     private func apply(_ value: PlaybackObservation) {
         presentation.state =
@@ -227,11 +259,23 @@ struct LocalPlaybackLaunch {
             tracks.dismiss()
         }
         gateSharedActions()
+        refreshPlaylist()
     }
     func action(_ action: String, value: Double?) {
         guard !closing else { return }
         gateSharedActions()
+        refreshPlaylist()
         guard presentation.enabledActions.contains(action) else { return }
+        if action == "openPlaylist" {
+            tracks.dismiss()
+            playlist.open()
+            return
+        }
+        if action == "previousFile" || action == "nextFile" {
+            if let id = playlist.neighbor(action == "previousFile" ? -1 : 1) { onPlaylistSelection?(id) }
+            return
+        }
+        playlist.dismiss()
         if action == "selectAudio" || action == "selectSubtitles" {
             tracks.open(action == "selectAudio" ? "audio" : "subtitles", language: language)
             return
@@ -299,6 +343,7 @@ struct LocalPlaybackLaunch {
     func close() async {
         guard !closed else { return }
         closing = true
+        playlist.close()
         presentation.enabledActions = []
         polling?.cancel()
         await tracks.close()
@@ -322,17 +367,20 @@ struct PlaybackPane: View {
     var language: String
     var roomNotice = ""
     var body: some View {
-        PlaybackTrackPane(controller: controller, tracks: controller.tracks, language: language, roomNotice: roomNotice)
+        PlaybackTrackPane(
+            controller: controller, tracks: controller.tracks, playlist: controller.playlist, language: language,
+            roomNotice: roomNotice)
     }
 }
 
 private struct PlaybackTrackPane: View {
     @ObservedObject var controller: PlaybackController
     @ObservedObject var tracks: LocalPlaybackTracks
+    @ObservedObject var playlist: WatchPlaylist
     var language: String
     var roomNotice: String
     private var presentation: PlayerPresentation {
-        var result = controller.presentation
+        var result = playlist.presentation(controller.presentation)
         result.roomNotice = roomNotice
         return result
     }
@@ -340,12 +388,12 @@ private struct PlaybackTrackPane: View {
         PlayerChrome(
             presentation: presentation, language: language,
             videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
-            selectionMenu: tracks.menu,
+            selectionMenu: playlist.menu ?? tracks.menu,
             onAction: { action, value in
                 controller.language = language
                 controller.action(action, value: value)
             }
-        ).selectionHandlers(onSelection: tracks.select, onDismiss: tracks.dismissMenu)
+        ).selectionHandlers(onSelection: controller.selectMenu, onDismiss: controller.dismissMenu)
     }
 }
 

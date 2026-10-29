@@ -1,0 +1,17 @@
+# Watch playlist
+
+The application catalog supplies ordered local file choices to the common Apache-2.0 Design selection menu and player controls. Each native player owns one playlist presentation with a source identity and revision. Catalog changes, recovery and closure invalidate earlier menu requests. The menu permits every local file. Previous and Next require a shared catalog with another member, skip files absent from a room member's catalog and never wrap. A removed current entry leaves the remaining menu usable.
+
+A choice retains the existing folder grant, restores the chosen file's saved resume position and allocates a fresh native media scope. Other files retain their history. After position and initial track acknowledgement, local playback starts. In a room, only the selecting client requests Play through Syncplay after authenticated readiness and admission; followers accept timing through Syncplay. Track choices belong to the old input and are not copied to a different movie. Old observations and menu requests cannot acknowledge a replacement input.
+
+In a room, catalog title and size facts are availability hints and candidate indexes only. They never authorize playback. The selected native input must complete the existing full-hash media agreement and authenticated Syncplay readiness gates. Missing or ambiguous local candidates stop safely and report missing media under the current room generation.
+
+The room watch coordinator serializes each transition in its existing owned task: gate actions, revoke and join the old helper, clear its prepared publication, load and hash the replacement, publish it, compare-and-swap selection/start, then admit the new helper. Peers follow a newer selected/active generation through a fresh authoritative watch context. A simultaneous selection loser follows the winning generation. Waiting for activation is bounded. End, Leave and Close clear pending selection and cancel/join the same task, including an in-progress follow operation.
+
+Room metadata authorizes the input generation. Syncplay remains the authority for timing, Play, Pause and Seek. The VLC adapter retains native player ownership. Rendering performs no I/O and uses the common menu, labels, capabilities and layout. Swift/macOS, C#/Windows and Kotlin/Linux implement the same boundaries on their target systems.
+
+Each helper heartbeat publishes a freshly read native observation, including an unchanged paused state. Native event sequence numbers do not identify reads. Samples retain the native scope and a nondecreasing event watermark; each IPC publication has its own command identity and observation origin. A sample collected before Syncplay login cannot replace subsequent samples needed to complete initial state.
+
+Playback admission retains the completed readiness handshake for the current helper transport. A later Syncplay user-readiness flag change does not undo that handshake; reconnect and close clear it. Admission still requires matching media, declared identity, an actual native observation, and acknowledgement of the readiness request.
+
+The selecting client retains the selected file's saved position before helper corrections begin. After admission, it submits one fenced seek-and-play intent and publishes one acknowledged native user observation. Followers continue to receive all timing from Syncplay.

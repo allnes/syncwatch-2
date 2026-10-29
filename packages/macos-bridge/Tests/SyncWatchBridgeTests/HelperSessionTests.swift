@@ -17,7 +17,10 @@ private actor SessionPeer: HelperTransport {
     private var event = 0
     private var ended = false
     private var holdUser = false
+    private var stationaryHandshake = false
+    private var samples = 0
     private var automaticReady = true
+    private var pulseBeforeAck: Bool?
     private(set) var userWriteHeld = false
 
     private func encode(_ value: [String: Any]) throws -> Data {
@@ -54,17 +57,31 @@ private actor SessionPeer: HelperTransport {
         if ended { throw HelperSessionFailure.unavailable }
         sent.append(frame)
         guard let id = value["id"] as? String, let kind = value["type"] as? String else { return }
-        if kind == "player.state" { return }
+        if kind == "player.state" {
+            samples += 1
+            if stationaryHandshake, samples == 2 {
+                try emit("sync.identity", ["username": "Viewer_2"])
+                try emit("sync.connection", ["state": "connected"])
+            }
+            return
+        }
         var reply = base(
             kind == "bridge.hello" ? "bridge.ready" : "bridge.result",
             kind == "bridge.hello" ? ["syncplayRevision": sessionRevision] : ["status": "applied"])
+        if kind == "sync.setReady", pulseBeforeAck == true {
+            try emit("sync.readiness", ["ready": true])
+            try emit("sync.readiness", ["ready": false])
+        }
         reply["replyTo"] = id
         try push(reply)
-        if kind == "sync.connect" {
+        if kind == "sync.connect", !stationaryHandshake {
             try emit("sync.identity", ["username": "Viewer_2"])
             try emit("sync.connection", ["state": "connected"])
         }
-        if kind == "sync.setReady", automaticReady { try emit("sync.readiness", ["ready": true]) }
+        if kind == "sync.setReady", automaticReady, pulseBeforeAck != true {
+            try emit("sync.readiness", ["ready": true])
+            if pulseBeforeAck == false { try emit("sync.readiness", ["ready": false]) }
+        }
     }
     func read() async throws -> Data {
         if !incoming.isEmpty { return incoming.removeFirst() }
@@ -81,7 +98,15 @@ private actor SessionPeer: HelperTransport {
     func readiness(_ value: Bool) throws { try emit("sync.readiness", ["ready": value]) }
     func connection(_ value: String) throws { try emit("sync.connection", ["state": value]) }
     func identity(_ value: String) throws { try emit("sync.identity", ["username": value]) }
+    func requireStationaryHandshake() { stationaryHandshake = true }
     func holdReadiness() { automaticReady = false }
+    func pulseReadiness(beforeAck: Bool) { pulseBeforeAck = beforeAck }
+    func userMatches(position: Int64, paused: Bool) throws -> Bool {
+        guard let frame = try sent.last(where: { try HelperJSON.object($0)["origin"] as? String == "user" }),
+            let payload = try HelperJSON.object(frame)["payload"] as? [String: Any]
+        else { return false }
+        return payload["positionMs"] as? Int64 == position && payload["paused"] as? Bool == paused
+    }
     func readyCount() throws -> Int {
         try sent.filter { try HelperJSON.object($0)["type"] as? String == "sync.setReady" }.count
     }
@@ -362,5 +387,62 @@ private actor SessionPlayer: PlaybackPort {
     }
     await session.close()
     #expect(await player.paused)
+    #expect(await player.closes == 0)
+}
+
+@Test(arguments: [false, true]) @MainActor func readinessPulseRetainsAdmissionAndResumeIsOneIntent(_ beforeAck: Bool)
+    async throws
+{
+    let native = try PlaybackScope.fresh().replacingMedia()
+    let player = SessionPlayer(native)
+    let peer = SessionPeer()
+    await peer.pulseReadiness(beforeAck: beforeAck)
+    let session = try HelperSession(
+        transport: peer, player: player, nativeScope: native,
+        endpoint: SyncplayEndpoint(host: "localhost", port: 8999, room: "room", username: "Viewer"),
+        media: SharedMedia(handle: "media-1", name: "Movie.mkv", durationMs: 60000, fileSizeBytes: 1234),
+        revision: sessionRevision)
+    do {
+        try session.start()
+        try await eventually { session.state.playbackReady && !session.state.ready }
+        #expect(session.state.connection == .connected)
+        #expect(throws: HelperSessionFailure.self) { try session.play(from: -1) }
+        #expect(throws: HelperSessionFailure.self) { try session.play(from: 60001) }
+        try session.play(from: 22000)
+        try await eventually { try await peer.userCount() == 1 }
+        #expect(try await peer.userMatches(position: 22000, paused: false))
+        #expect(await player.position == 22000)
+        #expect(await !player.paused)
+        #expect(try await peer.readyCount() == 1)
+        await session.close()
+        #expect(!session.state.playbackReady)
+        #expect(await player.closes == 0)
+    } catch {
+        await session.close()
+        throw error
+    }
+}
+
+@Test @MainActor func stationaryPlayerFinishesInitialHandshake() async throws {
+    let native = try PlaybackScope.fresh().replacingMedia()
+    let player = SessionPlayer(native)
+    let peer = SessionPeer()
+    await peer.requireStationaryHandshake()
+    let session = try HelperSession(
+        transport: peer, player: player, nativeScope: native,
+        endpoint: SyncplayEndpoint(host: "localhost", port: 8999, room: "room", username: "Viewer"),
+        media: SharedMedia(handle: "media-1", name: "Movie.mkv", durationMs: 60000, fileSizeBytes: 1234),
+        revision: sessionRevision)
+    do {
+        try session.start()
+        try await eventually { session.state.playbackReady }
+        #expect(await player.paused)
+        #expect(await player.position == 1200)
+        #expect(try await peer.userCount() == 0)
+    } catch {
+        await session.close()
+        throw error
+    }
+    await session.close()
     #expect(await player.closes == 0)
 }

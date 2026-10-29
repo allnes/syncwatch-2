@@ -53,6 +53,27 @@ function fixture(change = () => {}) {
 }
 const name = id => id.split('.').map(part => part[0].toUpperCase() + part.slice(1)).join('');
 
+test('every player selection kind has a reachable common popover anchor', () => {
+    const layout = JSON.parse(readFileSync(join(root, 'packages/design/layouts.json')));
+    const policy = JSON.parse(readFileSync(join(root, 'packages/design/selection-menu.json')));
+    const player = JSON.parse(readFileSync(join(root, 'packages/design/player.json')));
+    const component = JSON.parse(readFileSync(join(root, 'packages/design/components.json'))).components.PlayerChrome;
+    const anchors = [];
+    function visit(node) {
+        if (node.props?.popoverSlot) anchors.push(node.props);
+        for (const child of node.children ?? []) visit(child);
+    }
+    visit(layout.components.Player);
+    for (const kind of policy.kinds) {
+        const anchor = anchors.find(props => props.popoverSlot === kind.id + 'Selection');
+        assert.ok(anchor, kind.id + ' menu has no player anchor');
+        assert.ok(player.actions.includes(anchor.action), kind.id + ' open action cannot be dispatched');
+        assert.ok(component.renderedActions.includes(anchor.action), kind.id + ' action is not integrated');
+        assert.equal(anchor.popoverEdge, 'top');
+        assert.equal(anchor.popoverDismiss, 'dismissSelection');
+    }
+});
+
 test('player settings numeric validation agrees with the cross-client input corpus', () => {
     const spec = JSON.parse(readFileSync(join(root, 'packages/design/player-settings.json')));
     const corpus = JSON.parse(readFileSync(join(root, 'packages/design/tests/fixtures/player-settings.json')));

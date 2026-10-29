@@ -15,7 +15,7 @@ public sealed record SyncplayEndpoint(string Host, int Port, string Room, string
 public sealed record SyncplayParticipant(string Username, bool Ready);
 public enum HelperConnection { Starting, Connecting, Reconnecting, Connected, Failed, Stopped }
 public sealed record HelperSessionState(HelperConnection Connection = HelperConnection.Starting, bool Ready = false,
-    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null, bool IdentityRejected = false);
+    string? AcceptedUsername = null, IReadOnlyList<SyncplayParticipant>? Participants = null, bool IdentityRejected = false, bool PlaybackReady = false);
 
 /// <summary>One context owns native intents and one writer. Admit matching media before construction.</summary>
 public sealed class HelperSession : IAsyncDisposable
@@ -34,7 +34,7 @@ public sealed class HelperSession : IAsyncDisposable
     private readonly int ownerThread = Environment.CurrentManagedThreadId;
     private readonly PlaybackActionFence fence;
     private readonly HelperCommands commands;
-    private enum IntentKind { Pause, Toggle, Seek }
+    private enum IntentKind { Pause, Toggle, Seek, PlayFrom }
     private sealed record Intent(ulong Sequence, IntentKind Kind, bool Paused = true, long PositionMs = 0);
     private readonly Queue<Intent> users = new();
     private readonly Queue<byte[]> inbox = new();
@@ -47,7 +47,7 @@ public sealed class HelperSession : IAsyncDisposable
     private CancellationTokenSource? applying;
     private ulong commandSequence, correctionHigh, eventSequence, observationHigh;
     private bool heartbeat = true, observed, readyRequested, started, closed;
-    private bool requestingReady, recoveryIdentity, recoveryConnected;
+    private bool requestingReady, readinessObserved, recoveryIdentity, recoveryConnected;
     private long? deadline;
     private long? recoveryDeadline;
 
@@ -74,6 +74,11 @@ public sealed class HelperSession : IAsyncDisposable
     {
         if (positionMs < 0 || positionMs > media.DurationMs) throw Bad();
         Enqueue(IntentKind.Seek, position: positionMs);
+    }
+    public void PlayFrom(long positionMs)
+    {
+        if (positionMs < 0 || positionMs > media.DurationMs) throw Bad();
+        Enqueue(IntentKind.PlayFrom, paused: false, position: positionMs);
     }
     private void Enqueue(IntentKind kind, bool paused = true, long position = 0)
     {
@@ -174,16 +179,16 @@ public sealed class HelperSession : IAsyncDisposable
             if (heartbeat)
             {
                 heartbeat = false; SetDeadline(2); var value = await player.ObserveAsync(nativeScope, workCancellation.Token); deadline = null; Validate(value);
-                // VLC event stamps can remain unchanged while paused; resample
-                // once after authenticated recovery without lowering the watermark.
-                if (value.Sequence > observationHigh || (!observed && value.Sequence == observationHigh))
+                // VLC sequences identify events, not reads. Fresh paused samples
+                // must reach Syncplay after login even with an unchanged event sequence.
+                if (value.Sequence >= observationHigh)
                 { await SendAsync(commands.Observation(NextId(), value, nativeScope)); observationHigh = value.Sequence; observed = true; }
             }
             if ((State.Connection == HelperConnection.Connected || recoveryConnected) && observed && !readyRequested)
             {
                 requestingReady = true;
                 await RequestAsync(HelperReplyKind.Applied, id => commands.Ready(id, true)); readyRequested = true;
-                requestingReady = false; FinishRecovery(); continue;
+                requestingReady = false; FinishReadiness(); continue;
             }
             if (inbox.Count == 0 && users.Count == 0 && !heartbeat) await WaitSignalAsync();
         }
@@ -195,8 +200,8 @@ public sealed class HelperSession : IAsyncDisposable
             corrections.Any(c => c.Kind != CorrectionKind.Pause || !c.Paused)) throw Bad();
         recoveryDeadline ??= Stopwatch.GetTimestamp() + Stopwatch.Frequency * 25;
         recoveryIdentity = false; recoveryConnected = false; observed = false;
-        readyRequested = false; requestingReady = false;
-        Publish(State with { Connection = HelperConnection.Reconnecting, Ready = false, Participants = Array.Empty<SyncplayParticipant>() });
+        readyRequested = false; requestingReady = false; readinessObserved = false;
+        Publish(State with { Connection = HelperConnection.Reconnecting, Ready = false, PlaybackReady = false, Participants = Array.Empty<SyncplayParticipant>() });
         SetDeadline(2);
         try
         {
@@ -211,19 +216,25 @@ public sealed class HelperSession : IAsyncDisposable
         finally { deadline = null; }
         heartbeat = true;
     }
-    private void FinishRecovery()
+    private void FinishReadiness()
     {
-        if (recoveryDeadline is null || !recoveryConnected || !observed || !readyRequested || !State.Ready) return;
-        recoveryDeadline = null; recoveryConnected = false;
-        Publish(State with { Connection = HelperConnection.Connected });
+        if (!observed || !readyRequested || !(readinessObserved || State.Ready)) return;
+        if (recoveryDeadline is not null)
+        {
+            if (!recoveryConnected) return;
+            recoveryDeadline = null; recoveryConnected = false;
+            State = State with { Connection = HelperConnection.Connected };
+        }
+        if (State.Connection != HelperConnection.Connected) return;
+        Publish(State with { PlaybackReady = true });
     }
     private async Task UserAsync(Intent intent)
     {
         SetDeadline(2);
-        bool? pause = intent.Kind == IntentKind.Pause ? intent.Paused : intent.Kind == IntentKind.Toggle ? !(await player.ObserveAsync(nativeScope, workCancellation.Token)).Paused : null;
-        long? position = intent.Kind == IntentKind.Seek ? intent.PositionMs : null;
-        if (pause is bool value) await player.SetPausedAsync(value, nativeScope, workCancellation.Token);
+        bool? pause = intent.Kind is IntentKind.Pause or IntentKind.PlayFrom ? intent.Paused : intent.Kind == IntentKind.Toggle ? !(await player.ObserveAsync(nativeScope, workCancellation.Token)).Paused : null;
+        long? position = intent.Kind is IntentKind.Seek or IntentKind.PlayFrom ? intent.PositionMs : null;
         if (position is long target) await player.SeekAsync(target, nativeScope, workCancellation.Token);
+        if (pause is bool value) await player.SetPausedAsync(value, nativeScope, workCancellation.Token);
         SetDeadline(2);
         try
         {
@@ -323,11 +334,12 @@ public sealed class HelperSession : IAsyncDisposable
                 break;
             case "sync.readiness":
                 PlayerCorrection.Keys(payload, ["ready"]); State = State with { Ready = Boolean(payload.GetProperty("ready")) };
+                if (State.Ready && observed && (requestingReady || readyRequested)) readinessObserved = true;
                 if (recoveryDeadline is not null && State.Ready)
                 {
                     if (!recoveryConnected || !observed || !(requestingReady || readyRequested)) throw Bad();
-                    FinishRecovery();
                 }
+                FinishReadiness();
                 break;
             case "sync.participants":
                 PlayerCorrection.Keys(payload, ["participants"]); var rows = payload.GetProperty("participants");
@@ -353,7 +365,7 @@ public sealed class HelperSession : IAsyncDisposable
     private void Stop(bool failed)
     {
         CheckOwner(); if (closed) return; closed = true; fence.Invalidate(); users.Clear(); inbox.Clear(); corrections.Clear();
-        Publish(State with { Connection = failed ? HelperConnection.Failed : HelperConnection.Stopped, Ready = false });
+        Publish(State with { Connection = failed ? HelperConnection.Failed : HelperConnection.Stopped, Ready = false, PlaybackReady = false });
         applying?.Cancel(); workCancellation.Cancel(); timerCancellation.Cancel(); Signal();
         termination = Task.Run(async () =>
         {

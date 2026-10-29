@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "units": "logical",
-  "sourceDigest": "aefd05b5759d577257f700d2ca4fd554bdc9f8d1a13fb52553ffd0061c86770e",
+  "sourceDigest": "1ac55834a9d9b87187c9ad7a613b6353da2e389e887c3777ee75ea787dc253ca",
   "sources": {
     "tokens/geometry.json": "83534a4d3b484f7a810a4c67f1f8ee58b2f2f4a14db4e4df404381e936a78a4b",
     "tokens/palette.json": "bb4dabce249ffe75a20192d8ccf523630432a3d1f3ca8dcba45fa787a7028a2c",
     "themes.json": "1a0a77546aeb1c96aaad53408a0a2e14e4be38298b50cfeb2700fd9a18b42b50",
-    "components.json": "2e6617cefb74e533337c8da575521bba65675b7ba71ae697593bb3adf43d8c19",
+    "components.json": "d60d49a5c818be6959d1a90c0be4356a64d2e0d0249400a18b867b43971831c2",
     "copy.json": "8e1b1fa6581c17a5146879c61540d11634f2532ea7519a742e3a5316b2aefde4",
     "settings.json": "5871fefd13955a2ed51fb989cc35177c2940aca4c3905ec117ad894a81c041f2",
     "room.json": "84189acaeef566dfcdb6282eec0080e10afe045fb9a220d98ecc86ea5d33d96b",
-    "player.json": "a9b59d7eeee2dafb534266ad8d4cf6f0a2a89811fe574c23bf17ef716b237ffc",
+    "player.json": "1667aa49808147043df0b2f6bad8039a77e96455c0bf721c6280969adb90b44e",
     "call.json": "a26821925540d925182355af12c02a40780c84c051e53610b300934536186a01",
     "player-settings.json": "ce2d79c36e1557ddee4cedd4db931042fdd7aa0f96969580e0a815c89a95c38a",
-    "selection-menu.json": "0b6851adeac9fc0d0598f73a0f7543cac09061f9399d24f50d004d96ea83729f",
-    "layouts.json": "23f664060590a30191ccea67c7e1da65241edbe98bed012795c8780b13a71b45",
+    "selection-menu.json": "86ff7683d675213327acd83ebc38174dbcfea37235b454e0afe37671c59d1502",
+    "layouts.json": "ac4f55de7bcfd25bde0e66cad0a368e8a03b572a557fc52079be2e42dfb33ea8",
     "package.json": "49e278398b736b490a57f3ec73bfdcdcc863d63be73788115f41b6db6bee5165"
   },
   "generatorRevision": "080b61beaab764af86e33df0fce56c3cc9ec021dd9be390a046e7ec85bc6572f",
@@ -856,7 +856,8 @@
       "toggleFullscreen",
       "openPlayerSettings",
       "selectAudio",
-      "selectSubtitles"
+      "selectSubtitles",
+      "openPlaylist"
     ],
     "maximumPositionMs": 604800000,
     "icons": {
@@ -2170,7 +2171,7 @@
       "readOnly",
       "longList"
     ],
-    "maximumEntries": 500,
+    "maximumEntries": 2048,
     "maximumIDBytes": 128,
     "maximumLabelBytes": 4096,
     "maximumRevision": 9007199254740991,
@@ -5030,7 +5031,10 @@
                           "action": "openPlaylist",
                           "enabled": "$can.openPlaylist",
                           "automation": "player.playlist",
-                          "label": "~playlist"
+                          "label": "~playlist",
+                          "popoverSlot": "playlistSelection",
+                          "popoverEdge": "top",
+                          "popoverDismiss": "dismissSelection"
                         },
                         "children": [
                           {

@@ -744,7 +744,7 @@ object SyncWatchRoomForm {
 
 object SyncWatchPlayer {
     val states = listOf("loading", "paused", "playing", "buffering", "fullscreen", "connectionInterrupted", "ended")
-    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles")
+    val actions = setOf("playPause", "seek", "skip", "previousFile", "nextFile", "setMovieVolume", "muteMovie", "showLibrary", "endWatching", "openCall", "toggleFullscreen", "openPlayerSettings", "selectAudio", "selectSubtitles", "openPlaylist")
     const val maximumPositionMs: Long = 604800000L
     val icons = mapOf(
         "play" to listOf(listOf(6.0f, 3.0f, 17.0f, 10.0f, 6.0f, 17.0f)),
@@ -863,7 +863,7 @@ object SyncWatchSelectionMenu {
     val externalFileFilters = listOf(ExternalTrackFileFilter("audio", "openAudioTrack", listOf("aac", "ac3", "dts", "eac3", "flac", "m4a", "mka", "mp3", "ogg", "opus", "wav")), ExternalTrackFileFilter("subtitles", "openSubtitles", listOf("ass", "srt", "ssa", "sub", "vtt")))
     const val companionFileLabel = "fileName"
     const val duplicateCompanionFileLabel = "relativePath"
-    const val maximumEntries = 500
+    const val maximumEntries = 2048
     const val maximumIDBytes = 128
     const val maximumLabelBytes = 4096
     const val maximumRevision: Long = 9007199254740991L
@@ -873,7 +873,7 @@ object SyncWatchSelectionMenu {
 }
 
 object SyncWatchLayouts {
-    const val sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
+    const val sourceDigest = "6290c6f16c4fcde482b14b4d805ddbdfb4e80f6ed8a1d307990ea8f60551fc22"
     const val coordinateSize = 20.0f
     fun themeColor(role: String, theme: SyncWatchTheme): Long? = when (role) {
         "background" -> theme.background
@@ -3532,6 +3532,9 @@ object SyncWatchLayouts {
             "enabled" to "\$can.openPlaylist",
             "automation" to "player.playlist",
             "label" to "~playlist",
+            "popoverSlot" to "playlistSelection",
+            "popoverEdge" to "top",
+            "popoverDismiss" to "dismissSelection",
         ), listOf(node121))
         val node123 = DesignNode("node123", "row", mapOf(
             "disabledOpacity" to "0.4",

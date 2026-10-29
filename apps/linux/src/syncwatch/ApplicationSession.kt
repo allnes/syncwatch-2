@@ -14,9 +14,11 @@ internal class ApplicationSession(media: MediaConfiguration, display: X11Display
         preferences.state.selectedMediaId, LibraryMetadataReader(media))
     val room = RoomController(work)
     val watch = WatchSessionCoordinator(preferences, media, display, work)
-    val shared = RoomWatchCoordinator(room, watch, helper, work)
+    val shared = RoomWatchCoordinator(room, watch, helper, work, library)
     init {
         library.configureOptions(preferences.state.preferences.scanSubfolders, preferences.state.preferences.automaticRefresh)
+        watch.onPlaylistUpdate = shared::updatePlaylist
+        watch.onPlaylistSelection = shared::selectPlaylist
         watch.onEndWatching = { work.launch { shared.end() }; Unit }
     }
     private var closing: Job? = null

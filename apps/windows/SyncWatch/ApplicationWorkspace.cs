@@ -27,7 +27,9 @@ internal sealed class ApplicationWorkspace : UserControl
         catalog.ConfigureOptions(preferences.State.Preferences.ScanSubfolders, preferences.State.Preferences.AutomaticRefresh);
         var fullscreen = new WindowFullscreen(owner);
         watch = new WatchSessionCoordinator(preferences, application.Media!, fullscreen.Toggle);
-        shared = new(room, watch, HelperConfiguration.Read(Environment.GetCommandLineArgs()));
+        shared = new(room, watch, HelperConfiguration.Read(Environment.GetCommandLineArgs()), catalog);
+        watch.OnPlaylistUpdate = shared.UpdatePlaylist;
+        watch.OnPlaylistSelection = shared.SelectPlaylist;
         watch.OnEndWatching = async () => await shared.EndAsync();
         chrome = new Design.ApplicationChrome(library); Content = chrome;
         catalog.Changed += Refresh; watch.Changed += Refresh; room.Changed += Refresh;

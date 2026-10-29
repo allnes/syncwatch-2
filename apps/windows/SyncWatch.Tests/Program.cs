@@ -6,6 +6,7 @@ using SyncWatch.Library;
 HelperRuntimeChecks.Run();
 await RoomDispatcherChecks.RunAsync(async () =>
 {
+    WatchPlaylistChecks.Run();
     LibraryTrackSelectionChecks.Run();
     await LibraryRefreshChecks.RunAsync();
     await LibraryMetadataChecks.RunAsync();

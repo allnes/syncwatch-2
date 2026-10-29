@@ -4,7 +4,8 @@ import androidx.compose.runtime.*
 import java.util.UUID
 import kotlinx.coroutines.*
 import syncwatch.bridge.*
-import syncwatch.design.LibraryPresentation
+import syncwatch.design.*
+import syncwatch.library.LocalMediaFile
 import syncwatch.domain.*
 import syncwatch.room.*
 
@@ -12,8 +13,10 @@ internal class SharedMediaUnavailable : Exception()
 
 /** Metadata admission and helper lifetime; native playback remains owned by the watch coordinator. */
 internal class RoomWatchCoordinator(private val room: RoomController, private val watch: WatchSessionCoordinator,
-    private val helper: HelperConfiguration, private val scope: CoroutineScope) {
+    private val helper: HelperConfiguration, private val scope: CoroutineScope, private val library: LibraryController? = null) {
     private data class ActiveWatch(val membership: RoomWatchMembership, val context: RoomWatchContext, val player: PlaybackController)
+    private data class NextWatch(val selection: LibraryMediaSelection, val forceSelection: Boolean)
+    private var pendingSelection: LibraryMediaSelection? = null
     private var active: ActiveWatch? = null
     private var work: Job? = null
     private var seenMembership = false
@@ -58,11 +61,20 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val task = scope.launch(start = CoroutineStart.LAZY) { run(selection) }
         work = task; task.start()
     }
-    private suspend fun run(selection: LibraryMediaSelection) {
+    private suspend fun run(initial: LibraryMediaSelection, forceSelection: Boolean = false) {
+        try {
+            var next: NextWatch? = NextWatch(initial, forceSelection)
+            while (!closing && currentCoroutineContext().isActive) {
+                val current = next ?: break
+                next = runOne(current.selection, current.forceSelection)
+            }
+        } finally { busy = false; work = null }
+    }
+    private suspend fun runOne(selection: LibraryMediaSelection, forceSelection: Boolean): NextWatch? {
         var publication: RoomPreparedPublication? = null
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
-        var finished = false; admitted = false
+        var finished = false; var follow = false; admitted = false
         var stage = "membership"
         try {
             val (ticket, intent) = room.beginWatch(); membership = ticket
@@ -94,7 +106,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             stage = "generation"
             var context = room.watchContext(ticket)
             requireSameGeneration(intent, context)
-            if (context.bootstrap.snapshot.watchStatus != "active") {
+            if (forceSelection || context.bootstrap.snapshot.watchStatus != "active") {
                 stage = "selection"
                 context = room.performWatch(RoomCommandAction.Select(published.media.mediaId), ticket, context)
                 check(context.definition.selection?.media == published.media) { "selection-changed" }
@@ -123,17 +135,23 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             val readyDeadline = System.nanoTime() + 20_000_000_000L
             while (true) {
                 currentCoroutineContext().ensureActive()
+                if (pendingSelection != null) break
+                val latest = room.watchBootstrap
+                if (admitted && room.connected && latest != null && latest.snapshot.epoch == current.bootstrap.snapshot.epoch &&
+                    latest.snapshot.watchGeneration > current.bootstrap.snapshot.watchGeneration && latest.snapshot.watchStatus in setOf("selected", "active")) {
+                    player.requireSharedAdmission(); follow = true; break
+                }
                 val actual = player.player.observe(nativeScope)
                 if (actual.ended) { finished = true; status = "ended"; break }
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
-                if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.ready == true) {
+                if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.playbackReady == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
                     if (!admitted) {
                         if (ticket.memberId in current.bootstrap.missingMembers) {
                             val recovered = room.performWatch(RoomCommandAction.Missing(current.definition.selection.media.mediaId, false), ticket, current)
                             requireSameGeneration(current, recovered)
                         }
-                        player.admitSharedPlayback(); admitted = true; stage = "playback"
+                        player.admitSharedPlayback(autoplay = forceSelection); admitted = true; stage = "playback"
                     }
                     busy = false; status = "sharedWatchConnected"
                 } else if (player.sharedState?.connection == HelperConnection.reconnecting) status = "reconnecting"
@@ -141,6 +159,9 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 delay(100)
             }
         } catch (_: CancellationException) {
+        } catch (error: RoomProtocolException) {
+            if (error.code == "staleGeneration") follow = true
+            else { errorKey = failureKey(error, owned?.sharedState?.identityRejected == true); status = checkNotNull(errorKey) }
         } catch (error: Exception) {
             val key = failureKey(error, owned?.sharedState?.identityRejected == true)
             // Fixed vocabulary only; exception text can contain private local or room data.
@@ -160,14 +181,42 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                 }
                 finally {
                     publication?.let { value -> membership?.let { room.clearPrepared(value.lease, it) } }
-                    busy = false; work = null
                 }
             }
         }
+        if (closing || !currentCoroutineContext().isActive) return null
+        pendingSelection?.let { requested ->
+            pendingSelection = null; busy = true; status = "sharedWatchPreparing"
+            return NextWatch(requested, true)
+        }
+        if (follow && membership != null) {
+            try {
+                busy = true; status = "sharedWatchPreparing"
+                val deadline = System.nanoTime() + 20_000_000_000L
+                while (true) {
+                    currentCoroutineContext().ensureActive()
+                    val current = room.watchContext(membership)
+                    val selected = current.definition.selection
+                    if (current.bootstrap.snapshot.watchStatus == "active" && selected != null) {
+                        val candidate = resolvePlaylist(selected.media)
+                        if (candidate == null) {
+                            room.performWatch(RoomCommandAction.Missing(selected.media.mediaId, true), membership, current)
+                            throw SharedMediaUnavailable()
+                        }
+                        library?.select(candidate.media.id)
+                        return NextWatch(candidate, false)
+                    }
+                    check(current.bootstrap.snapshot.watchStatus == "selected" && System.nanoTime() < deadline) { "playlist-transition-timeout" }
+                    delay(100)
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (error: Exception) { watch.end(); errorKey = failureKey(error, false); status = checkNotNull(errorKey) }
+        }
+        return null
     }
     private fun authorized(): Boolean {
         val value = active ?: return false
-        if (closing || watch.player !== value.player || watch.scope != value.player.scope) return false
+        if (closing || pendingSelection != null || watch.player !== value.player || watch.scope != value.player.scope) return false
         // Metadata generations govern future admission; Syncplay owns the admitted native scope.
         if (admitted) return room.canContinuePlayback(value.membership)
         val current = room.watchBootstrap ?: return false
@@ -183,7 +232,37 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
             throw error
         }
     }
-    private suspend fun stop() { work?.cancelAndJoin() }
+    private suspend fun stop() { pendingSelection = null; work?.cancelAndJoin() }
+    private fun key(file: LocalMediaFile) = MediaDescriptor.normalizedTitleKey(MediaDescriptor.logicalTitle(file.title)) to file.sizeBytes
+    fun updatePlaylist(playlist: WatchPlaylist) {
+        val library = library
+        if (library == null || closing) { playlist.update(emptyList(), null, false); return }
+        val files = library.roomFiles.associateBy { it.id }
+        val local = room.editor.state == "disconnected"
+        val enabled = watch.phase == WatchPhase.active && !busy && (local || admitted && room.connected && active?.player?.sharedState?.connection == HelperConnection.connected)
+        val view = room.catalogView
+        val members = view?.bootstrap?.snapshot?.members?.map { it.memberId }.orEmpty()
+        val keys = view?.items?.groupBy { it.memberId }?.mapValues { (_, items) -> items.map { it.media.titleKey to it.media.fileSizeBytes }.toSet() }.orEmpty()
+        val entries = library.presentation.entries.filter { it.id in files }.map { SelectionMenuEntry(it.id, it.title) }
+        val neighbors = files.values.filter { file -> !local && members.size > 1 && members.all { key(file) in keys[it].orEmpty() } }.map { it.id }.toSet()
+        playlist.update(entries, watch.mediaId, enabled, neighbors)
+    }
+    fun selectPlaylist(id: String) {
+        if (closing || busy || watch.mediaId == id) return
+        val library = library ?: return
+        val selection = library.playlistMedia(id) ?: return
+        val check = WatchPlaylist(); updatePlaylist(check); check.open()
+        if (check.menu?.allows(id) != true) return
+        if (room.editor.state == "disconnected") { library.select(id); watch.start(selection, autoplay = true) }
+        else if (admitted && room.connected && active?.player?.sharedState?.connection == HelperConnection.connected) {
+            pendingSelection = selection; busy = true; status = "sharedWatchPreparing"; active?.player?.requireSharedAdmission()
+        }
+    }
+    private fun resolvePlaylist(media: MediaDescriptor): LibraryMediaSelection? {
+        val library = library ?: return null
+        val candidates = library.roomFiles.filter { key(it) == (media.titleKey to media.fileSizeBytes) }.take(2)
+        return candidates.singleOrNull()?.let { library.playlistMedia(it.id) }
+    }
     suspend fun end() {
         val previous = active; stop()
         if (previous != null && room.editor.owner && room.isCurrent(previous.membership)) {

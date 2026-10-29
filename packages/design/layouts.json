@@ -2813,7 +2813,10 @@
                         "action": "openPlaylist",
                         "enabled": "$can.openPlaylist",
                         "automation": "player.playlist",
-                        "label": "~playlist"
+                        "label": "~playlist",
+                        "popoverSlot": "playlistSelection",
+                        "popoverEdge": "top",
+                        "popoverDismiss": "dismissSelection"
                       },
                       "children": [
                         {

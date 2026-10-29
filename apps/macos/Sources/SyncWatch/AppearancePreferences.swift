@@ -110,12 +110,6 @@ import SyncWatchLibrary
         let room = RoomController()
         let watch = WatchSessionCoordinator(
             preferences: preferences, media: MediaConfiguration.read(CommandLine.arguments))
-        let shared = RoomWatchCoordinator(
-            room: room, watch: watch, helper: HelperConfiguration.read(CommandLine.arguments))
-        _room = StateObject(wrappedValue: room)
-        _watch = StateObject(wrappedValue: watch)
-        _shared = StateObject(wrappedValue: shared)
-        watch.onEndWatching = { [weak shared] in Task { await shared?.end() } }
         let library = LibraryController(
             store: FileLibraryAccessStore(
                 url: stateURL.deletingLastPathComponent().appendingPathComponent(
@@ -125,6 +119,14 @@ import SyncWatchLibrary
         library.configureOptions(
             scanSubfolders: preferences.state.preferences.scanSubfolders,
             automaticRefresh: preferences.state.preferences.automaticRefresh)
+        let shared = RoomWatchCoordinator(
+            room: room, watch: watch, helper: HelperConfiguration.read(CommandLine.arguments), library: library)
+        _room = StateObject(wrappedValue: room)
+        _watch = StateObject(wrappedValue: watch)
+        _shared = StateObject(wrappedValue: shared)
+        watch.onEndWatching = { [weak shared] in Task { await shared?.end() } }
+        watch.onPlaylistUpdate = { [weak shared] in shared?.updatePlaylist($0) }
+        watch.onPlaylistSelection = { [weak shared] in shared?.selectPlaylist($0) }
         _library = StateObject(wrappedValue: library)
     }
     @State private var showRoom = false

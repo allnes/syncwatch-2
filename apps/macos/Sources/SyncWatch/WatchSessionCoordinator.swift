@@ -12,6 +12,9 @@ import SyncWatchPlayback
     @Published private(set) var phase: WatchPhase
     @Published var errorKey: String?
     var onEndWatching: (@MainActor () -> Void)?
+    var onPlaylistUpdate: (@MainActor (WatchPlaylist) -> Void)?
+    var onPlaylistSelection: (@MainActor (String) -> Void)?
+    var mediaID: String? { session.mediaID }
     private var session: WatchSession
     private let preferences: AppearancePreferences
     private let media: MediaConfiguration
@@ -65,7 +68,9 @@ import SyncWatchPlayback
         if preferences.savingWatchState { result.enabledActions.remove("openSettings") }
         return liveSelection ? player!.libraryPresentation(result) : result
     }
-    func start(_ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false) {
+    func start(
+        _ selection: LibraryMediaSelection, requiresSharedAdmission: Bool = false, autoplay: Bool = false
+    ) {
         guard runtimeAvailable, !closing else { return }
         do {
             for effect in try session.select(selection.media.id) {
@@ -78,7 +83,9 @@ import SyncWatchPlayback
                 switch effect {
                 case .release(let owner): release(owner)
                 case .load(let request):
-                    load(request, selection: selection, requiresSharedAdmission: requiresSharedAdmission)
+                    load(
+                        request, selection: selection, requiresSharedAdmission: requiresSharedAdmission,
+                        autoplay: autoplay)
                 }
             }
             publish()
@@ -142,7 +149,9 @@ import SyncWatchPlayback
         phase = session.phase
         playerPresented = !closing && session.playerPresented
     }
-    private func load(_ request: WatchLoad, selection: LibraryMediaSelection, requiresSharedAdmission: Bool) {
+    private func load(
+        _ request: WatchLoad, selection: LibraryMediaSelection, requiresSharedAdmission: Bool, autoplay: Bool
+    ) {
         pendingLoad?.cancel()
         pendingScope = request.scope
         let prior = releaseTask
@@ -161,7 +170,7 @@ import SyncWatchPlayback
                 launch: LocalPlaybackLaunch(file: selection.media.file, package: media.package, report: nil),
                 runtime: runtime,
                 scope: request.scope, positionMs: request.positionMs, selection: selection,
-                requiresSharedAdmission: requiresSharedAdmission,
+                requiresSharedAdmission: requiresSharedAdmission, autoplay: autoplay,
                 onLoaded: { [weak self] in self?.loaded($0) },
                 onObservation: { [weak self] in self?.observed($0) },
                 onNavigation: { [weak self] action in
@@ -171,7 +180,9 @@ import SyncWatchPlayback
                         if let handler = self?.onEndWatching { handler() } else { self?.end() }
                     }
                 },
-                onFailure: { [weak self] in self?.failed(request.scope) })
+                onFailure: { [weak self] in self?.failed(request.scope) },
+                onPlaylistUpdate: { [weak self] in self?.onPlaylistUpdate?($0) },
+                onPlaylistSelection: { [weak self] in self?.onPlaylistSelection?($0) })
         }
     }
     private func release(_ owner: PlaybackScope) {

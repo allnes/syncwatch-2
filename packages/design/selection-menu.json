@@ -26,7 +26,7 @@
     "readOnly",
     "longList"
   ],
-  "maximumEntries": 500,
+  "maximumEntries": 2048,
   "maximumIDBytes": 128,
   "maximumLabelBytes": 4096,
   "maximumRevision": 9007199254740991,

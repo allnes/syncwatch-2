@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
@@ -36,6 +37,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -58,8 +60,19 @@ internal val LocalDesignPresented = compositionLocalOf { true }
  */
 @Composable internal fun RetainedContent(presented: Boolean, modifier: Modifier, content: @Composable () -> Unit) {
     val active = LocalDesignPresented.current && presented
+    val focus = LocalFocusManager.current
+    var wasActive by remember { mutableStateOf(active) }
+    LaunchedEffect(active) {
+        // Hidden retained children block keys; release their focus so the visible pane can receive Tab.
+        if (wasActive && !active) focus.clearFocus(force = true)
+        wasActive = active
+    }
+    // Retained children remain composed. Exclude every child focus target while
+    // hidden, including requests made after its former sibling is replaced.
     var frame = modifier.clipToBounds().onPreviewKeyEvent { !active }
-    if (!active) frame = frame.clearAndSetSemantics { }
+    // Active content keeps each child's capability restrictions; an ancestor
+    // canFocus=true would otherwise override disabled child controls.
+    if (!active) frame = frame.focusProperties { canFocus = false }.clearAndSetSemantics { }
     Box(frame) {
         CompositionLocalProvider(LocalDesignPresented provides active) {
             Box(Modifier.layout { measurable, constraints ->

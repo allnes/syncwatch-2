@@ -99,6 +99,11 @@ internal class LibraryController(private val store: LibraryAccessStore, parent: 
         val media = catalog[presentation.selectedID] ?: return null
         return LibraryMediaSelection(media, grant ?: return null, tracks.preferences)
     }
+    fun playlistMedia(id: String): LibraryMediaSelection? {
+        check(java.awt.EventQueue.isDispatchThread())
+        if (closed || presentation.state == LibraryVisualState.scanning) return null
+        return LibraryMediaSelection(catalog[id] ?: return null, grant ?: return null, LocalTrackPreferences())
+    }
     fun openTracks(kind: String, language: String) {
         if (!closed && presentation.allows(if (kind == "audio") "openLibraryAudio" else "openLibrarySubtitles"))
             tracks = tracks.open(kind, language)

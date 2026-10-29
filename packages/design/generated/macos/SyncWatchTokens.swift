@@ -1029,6 +1029,7 @@ public enum SyncWatchPlayer {
         "openPlayerSettings",
         "selectAudio",
         "selectSubtitles",
+        "openPlaylist",
     ]
     public static let maximumPositionMs: Int64 = 604_800_000
     public static let icons: [String: [[Double]]] = [
@@ -2116,7 +2117,7 @@ public enum SyncWatchSelectionMenu {
     ]
     public static let companionFileLabel = "fileName"
     public static let duplicateCompanionFileLabel = "relativePath"
-    public static let maximumEntries = 500
+    public static let maximumEntries = 2048
     public static let maximumIDBytes = 128
     public static let maximumLabelBytes = 4096
     public static let maximumRevision = 9_007_199_254_740_991
@@ -2133,7 +2134,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
+    public static let sourceDigest = "6290c6f16c4fcde482b14b4d805ddbdfb4e80f6ed8a1d307990ea8f60551fc22"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -6264,6 +6265,9 @@ public enum SyncWatchLayouts {
                 "enabled": "$can.openPlaylist",
                 "automation": "player.playlist",
                 "label": "~playlist",
+                "popoverSlot": "playlistSelection",
+                "popoverEdge": "top",
+                "popoverDismiss": "dismissSelection",
             ],
             children: [node121])
         let node123 = DesignNode(
