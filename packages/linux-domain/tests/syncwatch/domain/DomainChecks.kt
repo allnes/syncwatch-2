@@ -87,7 +87,7 @@ fun main(arguments: Array<String>) {
         }
         requireCase(session.localState.resumePositions.size == 256 && session.localState.resumePositionFor("movie-0") == 0L, "bounded history")
         requireCase(stateCases.size == 31 && lifecycleCases.size == 7, "complete corpus")
-        println("SYNCWATCH_LINUX_DOMAIN_OK 31 state cases; 6 lifecycle scenarios; atomic persistence, ownership and bounded history")
+        println("SYNCWATCH_LINUX_DOMAIN_OK ${stateCases.size} state cases; ${lifecycleCases.size} lifecycle scenarios; atomic persistence, ownership and bounded history")
     } finally {
         Files.walk(directory).use { paths -> paths.sorted(Comparator.reverseOrder()).forEach(Files::delete) }
     }
