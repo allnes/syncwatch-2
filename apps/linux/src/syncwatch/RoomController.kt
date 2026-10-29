@@ -29,6 +29,7 @@ internal class RoomController(private val scope: CoroutineScope) {
     private var acknowledgedRevision: java.util.UUID? = null
     private var localFiles: List<LocalMediaFile> = emptyList()
     private var publisher: Job? = null
+    private var missingReport: Job? = null
     private var prepared: Pair<java.util.UUID, MediaDescriptor>? = null
     private var acknowledgedPrepared: RoomPreparedPublication? = null
     private var stopping = false
@@ -46,6 +47,39 @@ internal class RoomController(private val scope: CoroutineScope) {
         enabledActions = (source.enabledActions + if (stopping) emptySet() else setOf("openRoom")) -
             if (editor.state != "disconnected" && !(connected && sharedStartAvailable)) setOf("startWatching") else emptySet(),
         roomStatus = if (connected) (editor.status.takeIf { it in setOf("roomCatalogPublishing", "roomCatalogPublishFailed") } ?: "roomMetadataConnected") else if (editor.busy) "roomConnecting" else if (editor.state == "failed") "roomConnectionFailed" else "disconnected")
+    val mediaNotice: String get() {
+        val value = bootstrap ?: return ""
+        val member = admission?.memberId ?: return ""
+        if (!connected || value.snapshot.watchStatus != "active") return ""
+        if (member in value.missingMembers || localFiles.isEmpty() && prepared == null) return "sharedWatchMediaMissing"
+        return if (value.missingMembers.isEmpty()) "" else "roomPeersMissingMedia"
+    }
+    private fun startMissingReport() {
+        val value = bootstrap ?: return
+        val mediaId = value.snapshot.mediaId ?: return
+        val member = admission?.memberId ?: return
+        if (stopping || !connected || missingReport != null || localFiles.isNotEmpty() || prepared != null ||
+            value.snapshot.watchStatus != "active" || member in value.missingMembers) return
+        val revision = localRevision
+        val task = scope.launch(start = CoroutineStart.LAZY) {
+            try {
+                val (ticket, context) = beginWatch()
+                currentCoroutineContext().ensureActive()
+                if (stopping || localFiles.isNotEmpty() || prepared != null || localRevision != revision ||
+                    context.bootstrap.snapshot.epoch != value.snapshot.epoch ||
+                    context.bootstrap.snapshot.watchGeneration != value.snapshot.watchGeneration ||
+                    context.bootstrap.snapshot.watchStatus != "active" || context.bootstrap.snapshot.mediaId != mediaId) return@launch
+                performWatch(RoomCommandAction.Missing(mediaId, true), ticket, context)
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { /* A later membership/catalog update retries under its current generation. */ }
+            finally {
+                missingReport = null
+                if (localRevision != revision || bootstrap?.snapshot?.epoch != value.snapshot.epoch ||
+                    bootstrap?.snapshot?.watchGeneration != value.snapshot.watchGeneration) startMissingReport()
+            }
+        }
+        missingReport = task; task.start()
+    }
     fun pasteInvitation(text: String) {
         verifyOwner()
         if (stopping || editor.busy || editor.connected || editor.mode != "joinRoom") return
@@ -74,7 +108,7 @@ internal class RoomController(private val scope: CoroutineScope) {
     fun updateLibrary(revision: java.util.UUID, files: List<LocalMediaFile>) {
         verifyOwner()
         if (localRevision == revision) return
-        localRevision = revision; localFiles = files.toList(); startPublisher()
+        localRevision = revision; localFiles = files.toList(); startPublisher(); startMissingReport()
     }
     fun isCurrent(membership: RoomWatchMembership): Boolean {
         verifyOwner()
@@ -160,7 +194,7 @@ internal class RoomController(private val scope: CoroutineScope) {
     private fun accept(view: RoomCatalogView) {
         recordWatch(view.bootstrap)
         if (view.bootstrap.snapshot.sequence < (bootstrap?.snapshot?.sequence ?: 0)) return
-        catalogView = view; editor = editor.copy(memberCount = view.bootstrap.snapshot.members.size)
+        catalogView = view; editor = editor.copy(memberCount = view.bootstrap.snapshot.members.size); startMissingReport()
     }
     private fun recordWatch(bootstrap: RoomBootstrap) {
         if (bootstrap.snapshot.sequence >= (watchBootstrap?.snapshot?.sequence ?: 0)) watchBootstrap = bootstrap
@@ -181,7 +215,7 @@ internal class RoomController(private val scope: CoroutineScope) {
             currentCoroutineContext().ensureActive(); session = ownerSession; playbackSession = ownerSession; playbackEpoch = value.bootstrap.snapshot.epoch; catalogMap = RoomLocalCatalog(); acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; catalogView = firstView
             watchBootstrap = firstView.bootstrap
             editor = editor.copy(state = "connected", roomId = value.roomId, memberCount = initial.snapshot.members.size, owner = owner)
-            startPublisher()
+            startPublisher(); startMissingReport()
             while (currentCoroutineContext().isActive) {
                 val update = RoomInvalidation.decode(stream.receive()); val previous = bootstrap ?: throw RoomProtocolException("malformed")
                 if (update.epoch != previous.snapshot.epoch) throw RoomProtocolException("malformed")
@@ -203,6 +237,7 @@ internal class RoomController(private val scope: CoroutineScope) {
         }
         finally {
             withContext(NonCancellable) {
+                missingReport?.cancelAndJoin(); missingReport = null
                 publisher?.cancelAndJoin(); publisher = null; session = null; acknowledgedRevision = null; prepared = null; acknowledgedPrepared = null; catalogMap = RoomLocalCatalog()
                 watchBootstrap = null
                 current?.let { target -> admitted?.takeIf { !interrupted }?.let { value -> withTimeoutOrNull(3000) { runCatching { target.leave(value) } } }; target.close() }

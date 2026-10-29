@@ -5,6 +5,8 @@ import SyncWatchDesign
 import SyncWatchDomain
 import SyncWatchRoom
 
+enum SharedMediaAvailabilityFailure: Error { case unavailable }
+
 /// Joins metadata admission, the loaded native input and the helper without transferring native ownership.
 @MainActor final class RoomWatchCoordinator: ObservableObject {
     @Published private(set) var busy = false
@@ -31,8 +33,10 @@ import SyncWatchRoom
         }
         if busy || closing { result.enabledActions.remove("startWatching") }
         if !status.isEmpty { result.roomStatus = status }
+        if !busy, !room.mediaNotice.isEmpty { result.roomStatus = room.mediaNotice }
         return result
     }
+    var playerNotice: String { busy ? "" : room.mediaNotice }
     func membershipChanged() {
         if !room.connected {
             seenMembership = false
@@ -117,11 +121,11 @@ import SyncWatchRoom
                 context = try await room.performWatch(
                     .start(mediaID: publication.media.mediaID), membership: intent.membership, expected: context)
             }
-            try Self.requireMatch(local, context)
+            try await requireAvailable(local, membership: intent.membership, context: context)
             stage = "agreement"
             let current = try await room.watchContext(intent.membership)
             try Self.requireSameGeneration(context, current)
-            try Self.requireMatch(local, current)
+            try await requireAvailable(local, membership: intent.membership, context: current)
             guard watch.player === player, watch.scope == scope else { throw HelperSessionFailure.unavailable }
             active = (intent.membership, current, player)
             stage = "helper"
@@ -163,6 +167,12 @@ import SyncWatchRoom
                         throw HelperSessionFailure.malformed
                     }
                     if !admitted {
+                        if current.bootstrap.missingMembers.contains(intent.membership.memberID) {
+                            let recovered = try await room.performWatch(
+                                .missing(mediaID: current.definition.selection!.media.mediaID, missing: false),
+                                membership: intent.membership, expected: current)
+                            try Self.requireSameGeneration(current, recovered)
+                        }
                         try player.admitSharedPlayback()
                         admitted = true
                         stage = "playback"
@@ -185,9 +195,11 @@ import SyncWatchRoom
             status = key
         }
         let previous = active
+        let completedAdmission = admitted
         active = nil
         admitted = false
         await owned?.revokeShared()
+        if !completedAdmission, let owned, watch.player === owned { watch.end() }
         if finished, let previous, room.editor.owner, room.isCurrent(previous.membership) {
             // Completion releases only this helper; bookkeeping cannot control a peer's movie.
             _ = try? await room.performWatch(
@@ -211,6 +223,7 @@ import SyncWatchRoom
     static func failureKey(_ error: Error, identityRejected: Bool) -> String {
         if identityRejected { return "sharedWatchIdentityRejected" }
         if case RoomProtocolFailure.rejected("staleGeneration") = error { return "sharedWatchRoomChanged" }
+        if error is SharedMediaAvailabilityFailure { return "sharedWatchMediaMissing" }
         return "sharedWatchFailed"
     }
     static func requireSameGeneration(_ expected: RoomWatchContext, _ current: RoomWatchContext) throws {
@@ -219,10 +232,25 @@ import SyncWatchRoom
         else { throw RoomProtocolFailure.rejected("staleGeneration") }
     }
     static func requireMatch(_ local: MediaDescriptor, _ context: RoomWatchContext) throws {
-        guard context.bootstrap.snapshot.watchStatus == "active", let selected = context.definition.selection,
-            try MediaAgreement.resolve(selected.media, local: [local]).status == .matched
-        else {
+        guard context.bootstrap.snapshot.watchStatus == "active", let selected = context.definition.selection else {
             throw HelperSessionFailure.unavailable
+        }
+        guard try MediaAgreement.resolve(selected.media, local: [local]).status == .matched else {
+            throw SharedMediaAvailabilityFailure.unavailable
+        }
+    }
+    private func requireAvailable(_ local: MediaDescriptor, membership: RoomWatchMembership, context: RoomWatchContext)
+        async throws
+    {
+        do { try Self.requireMatch(local, context) } catch let error as SharedMediaAvailabilityFailure {
+            if !context.bootstrap.missingMembers.contains(membership.memberID),
+                let selected = context.definition.selection
+            {
+                _ = try await room.performWatch(
+                    .missing(mediaID: selected.media.mediaID, missing: true),
+                    membership: membership, expected: context)
+            }
+            throw error
         }
     }
     func end() async {

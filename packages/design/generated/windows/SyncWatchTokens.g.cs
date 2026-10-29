@@ -601,6 +601,8 @@ public static class SyncWatchCopy
         ("en", "openAudioTrack") => "Audio track…",
         ("en", "openSubtitles") => "Subtitles…",
         ("en", "externalTrackUnavailable") => "Could not open that track",
+        ("en", "sharedWatchMediaMissing") => "Add the room movie to your library or choose its folder, select the matching file and try Start again.",
+        ("en", "roomPeersMissingMedia") => "A participant does not have the selected movie yet.",
         ("ru", "brand") => "SyncWatch",
         ("ru", "room") => "Смотрим вместе",
         ("ru", "library") => "Библиотека фильмов",
@@ -838,6 +840,8 @@ public static class SyncWatchCopy
         ("ru", "openAudioTrack") => "Аудиодорожку…",
         ("ru", "openSubtitles") => "Субтитры…",
         ("ru", "externalTrackUnavailable") => "Не удалось открыть дорожку",
+        ("ru", "sharedWatchMediaMissing") => "Добавьте фильм из комнаты в библиотеку или выберите его папку, выберите подходящий файл и снова нажмите «Начать просмотр».",
+        ("ru", "roomPeersMissingMedia") => "У одного из участников пока нет выбранного фильма.",
         _ when language != "en" => Text(key, "en"),
         _ => key,
     };
@@ -1055,7 +1059,7 @@ public static class SyncWatchSelectionMenu
 
 public static class SyncWatchLayouts
 {
-    public const string SourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6";
+    public const string SourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e";
     public const double CoordinateSize = 20;
     public static System.Collections.Generic.IReadOnlyDictionary<string, string> Defaults { get; } = new System.Collections.Generic.Dictionary<string, string>
     {
@@ -3750,6 +3754,31 @@ public static class SyncWatchLayouts
             ["paddingX"] = "@layout.panelPadding",
             ["background"] = "theme.backgroundDeep",
         }, [node104, node105, node106, node108, node110, node112]);
+        var playerRoomNoticeText = new DesignNode("playerRoomNoticeText", "text", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["align"] = "leading",
+            ["text"] = "~{roomNotice}",
+            ["width"] = "fill",
+            ["foreground"] = "theme.text",
+            ["automation"] = "player.roomNotice",
+        }, []);
+        var playerRoomNotice = new DesignNode("playerRoomNotice", "row", new()
+        {
+            ["disabledOpacity"] = "0.4",
+            ["pressedOpacity"] = "0.75",
+            ["focusBorder"] = "theme.accentSoft",
+            ["hoverBorder"] = "theme.accent",
+            ["focusWidth"] = "@control.borderWidth",
+            ["when"] = "$hasRoomNotice",
+            ["paddingX"] = "@layout.panelPadding",
+            ["paddingY"] = "@control.compactGap",
+            ["background"] = "theme.surfaceRaised",
+        }, [playerRoomNoticeText]);
         var node114 = new DesignNode("node114", "slot", new()
         {
             ["disabledOpacity"] = "0.4",
@@ -4222,7 +4251,7 @@ public static class SyncWatchLayouts
             ["fontSize"] = "@type.playerLabelSize",
             ["foreground"] = "theme.text",
             ["gap"] = "0",
-        }, [node113, node114, node144]);
+        }, [node113, playerRoomNotice, node114, node144]);
         return node145;
     }
     private static DesignNode Makefield()

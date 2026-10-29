@@ -50,6 +50,7 @@ internal sealed class ApplicationWorkspace : UserControl
         if (watch.PlayerPresented) catalog.DismissTracks();
         library.SelectionPresentation = watch.PlayerPresented ? null : catalog.Tracks.Menu;
         library.Render(shared.LibraryPresentation(watch.LibraryPresentation(catalog.Presentation)), preferences.State.Preferences.Language);
+        watch.Player?.SetRoomNotice(shared.PlayerNotice);
         chrome.SetPlayer(watch.Player); chrome.PresentPlayer(watch.PlayerPresented);
         if (WatchAcceptance.Requested) return;
         if ((catalog.ErrorKey ?? watch.ErrorKey ?? shared.ErrorKey) is not string key) return;

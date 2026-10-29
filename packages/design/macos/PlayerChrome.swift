@@ -8,6 +8,7 @@ public enum PlayerVisualState: String, CaseIterable, Sendable {
 public struct PlayerPresentation: Sendable {
     public var state: PlayerVisualState = .loading
     public var title = ""
+    public var roomNotice = ""
     public var positionMs: Int64 = 0
     public var durationMs: Int64 = 0
     public var volume = 1.0

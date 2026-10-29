@@ -2658,6 +2658,31 @@
           ]
         },
         {
+          "id": "playerRoomNotice",
+          "kind": "row",
+          "styles": [],
+          "props": {
+            "when": "$hasRoomNotice",
+            "paddingX": "@layout.panelPadding",
+            "paddingY": "@control.compactGap",
+            "background": "theme.surfaceRaised"
+          },
+          "children": [
+            {
+              "id": "playerRoomNoticeText",
+              "kind": "text",
+              "styles": [],
+              "props": {
+                "text": "~{roomNotice}",
+                "width": "fill",
+                "foreground": "theme.text",
+                "automation": "player.roomNotice"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
           "id": "node114",
           "kind": "slot",
           "styles": [],

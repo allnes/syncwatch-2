@@ -202,3 +202,26 @@ shared resources and restores local playback admission. Folder monitoring and
 catalog reconciliation continue independently of the room connection. Explicit
 edition confirmation and persistent digest-cache invalidation remain integration
 work.
+
+## Missing media and admission recovery
+
+A completed empty local catalog reports the current room movie as missing through
+the existing generation-fenced membership command. A prepared edition that cannot
+strongly match the frozen room selection reports the same condition. Weak or
+ambiguous agreement never admits playback. Commands carry only the accepted
+public media ID and missing flag; local paths and track choices remain private.
+
+The room owner serializes an empty-catalog reporter with its existing membership
+operations, retains at most one reporter, discards obsolete catalog/generation
+results and cancels and awaits it before closing the client. Catalog changes and
+new room generations can reconcile the report. Finding a filename alone cannot
+clear a missing report: a retry must pass strong edition matching, acknowledged
+native preparation and helper identity/readiness first.
+
+Unadmitted failed loads release their own helper and native watch and return to
+Library, leaving folder selection, Refresh and Start available for recovery.
+The guard checks the same native player owner, so cleanup cannot end a replacement
+watch. Common Design owns actionable local recovery text and peer-unavailable
+notices in Library and a Player row outside the native video surface. Missing
+media changes presence information, never issues peer playback commands or
+changes local audio/subtitle preferences.

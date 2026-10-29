@@ -608,6 +608,9 @@ public enum SyncWatchCopy {
             "openAudioTrack": "Audio track…",
             "openSubtitles": "Subtitles…",
             "externalTrackUnavailable": "Could not open that track",
+            "sharedWatchMediaMissing":
+                "Add the room movie to your library or choose its folder, select the matching file and try Start again.",
+            "roomPeersMissingMedia": "A participant does not have the selected movie yet.",
         ],
         "ru": [
             "brand": "SyncWatch",
@@ -851,6 +854,9 @@ public enum SyncWatchCopy {
             "openAudioTrack": "Аудиодорожку…",
             "openSubtitles": "Субтитры…",
             "externalTrackUnavailable": "Не удалось открыть дорожку",
+            "sharedWatchMediaMissing":
+                "Добавьте фильм из комнаты в библиотеку или выберите его папку, выберите подходящий файл и снова нажмите «Начать просмотр».",
+            "roomPeersMissingMedia": "У одного из участников пока нет выбранного фильма.",
         ],
     ]
     public static func text(_ key: String, language: String = "en") -> String {
@@ -2123,7 +2129,7 @@ public enum SyncWatchSelectionMenu {
 }
 
 public enum SyncWatchLayouts {
-    public static let sourceDigest = "a163d8aa636eeeac023d922822a30943fb358c7b5ded6547705df0cc5134eff6"
+    public static let sourceDigest = "d659d6c4f23cd09fd487f7844b7e0e8bae171aa65efdd65fa92e3eee18e3810e"
     public static let coordinateSize = 20.0
     public static func themeColor(_ role: String, theme: SyncWatchTheme) -> Color? {
         switch role {
@@ -6077,6 +6083,35 @@ public enum SyncWatchLayouts {
                 "background": "theme.backgroundDeep",
             ],
             children: [node104, node105, node106, node108, node110, node112])
+        let playerRoomNoticeText = DesignNode(
+            id: "playerRoomNoticeText", kind: "text",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "align": "leading",
+                "text": "~{roomNotice}",
+                "width": "fill",
+                "foreground": "theme.text",
+                "automation": "player.roomNotice",
+            ],
+            children: [])
+        let playerRoomNotice = DesignNode(
+            id: "playerRoomNotice", kind: "row",
+            props: [
+                "disabledOpacity": "0.4",
+                "pressedOpacity": "0.75",
+                "focusBorder": "theme.accentSoft",
+                "hoverBorder": "theme.accent",
+                "focusWidth": "@control.borderWidth",
+                "when": "$hasRoomNotice",
+                "paddingX": "@layout.panelPadding",
+                "paddingY": "@control.compactGap",
+                "background": "theme.surfaceRaised",
+            ],
+            children: [playerRoomNoticeText])
         let node114 = DesignNode(
             id: "node114", kind: "slot",
             props: [
@@ -6613,7 +6648,7 @@ public enum SyncWatchLayouts {
                 "foreground": "theme.text",
                 "gap": "0",
             ],
-            children: [node113, node114, node144])
+            children: [node113, playerRoomNotice, node114, node144])
         return node145
     }
     private static func makefield() -> DesignNode {

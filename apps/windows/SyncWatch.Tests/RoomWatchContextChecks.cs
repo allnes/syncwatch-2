@@ -6,6 +6,8 @@ internal static class RoomWatchContextChecks
 {
     internal static async Task RunAsync()
     {
+        if (RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), false) != "sharedWatchMediaMissing"
+            || RoomWatchCoordinator.FailureKey(new SharedMediaUnavailableException(), true) != "sharedWatchIdentityRejected") throw new Exception("Missing media failure classification");
         if (!RoomController.IsMetadataInterruption(new System.Net.Http.HttpRequestException()) || !RoomController.IsMetadataInterruption(new RoomProtocolException("transport"))) throw new Exception("Transport interruption classification");
         foreach (string code in new[] { "malformed", "unauthorized", "forbidden", "frameTooLarge" })
             if (RoomController.IsMetadataInterruption(new RoomProtocolException(code))) throw new Exception("Invalid membership retained");
@@ -76,6 +78,16 @@ internal static class RoomWatchContextChecks
             if (!controller.CanContinuePlayback(intent.Membership)) throw new Exception("Current playback membership unavailable");
             var context = await controller.PerformWatchAsync(new RoomCommandAction.Select(first.Media.MediaId), intent.Membership, intent.Context, deadline.Token);
             context = await controller.PerformWatchAsync(new RoomCommandAction.Start(first.Media.MediaId), intent.Membership, context, deadline.Token);
+            var empty = new RoomController();
+            try
+            {
+                empty.Editor.SelectMode("joinRoom"); empty.Editor.Edit("serviceAddress", address); empty.Editor.Edit("username", "Windows empty library");
+                empty.PasteInvitation(controller.InvitationToCopy() ?? throw new Exception("Invitation missing")); empty.Connect();
+                while (empty.MediaNotice != "sharedWatchMediaMissing" || controller.MediaNotice != "roomPeersMissingMedia") await Task.Delay(20, deadline.Token);
+                await empty.CloseAsync();
+                while (controller.MediaNotice.Length != 0) await Task.Delay(20, deadline.Token);
+            }
+            finally { await empty.CloseAsync(); }
             _ = await controller.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.User), intent.Membership, context, deadline.Token);
             if (!controller.CanContinuePlayback(intent.Membership)) throw new Exception("Bookkeeping revoked peer playback");
             var second = await controller.PublishPreparedAsync(media, intent.Membership, deadline.Token);

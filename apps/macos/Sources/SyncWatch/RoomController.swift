@@ -32,6 +32,7 @@ struct RoomPreparedPublication {
     private var acknowledgedRevision: UUID?
     private var localFiles: [LocalMediaFile] = []
     private var publisher: Task<Void, Never>?
+    private var missingReport: Task<Void, Never>?
     private var prepared: (lease: UUID, media: MediaDescriptor)?
     private var acknowledgedPrepared: RoomPreparedPublication?
     private var stopping = false
@@ -60,6 +61,45 @@ struct RoomPreparedPublication {
                 ? editor.status : "roomMetadataConnected")
             : editor.busy ? "roomConnecting" : editor.state == "failed" ? "roomConnectionFailed" : "disconnected"
         return result
+    }
+    var mediaNotice: String {
+        guard connected, let bootstrap, bootstrap.snapshot.watchStatus == "active", let admission else { return "" }
+        if bootstrap.missingMembers.contains(admission.memberID) || (localFiles.isEmpty && prepared == nil) {
+            return "sharedWatchMediaMissing"
+        }
+        return bootstrap.missingMembers.isEmpty ? "" : "roomPeersMissingMedia"
+    }
+    private func startMissingReport() {
+        guard !stopping, connected, missingReport == nil, localFiles.isEmpty, prepared == nil,
+            let bootstrap, bootstrap.snapshot.watchStatus == "active", let mediaID = bootstrap.snapshot.mediaID,
+            let admission, !bootstrap.missingMembers.contains(admission.memberID)
+        else { return }
+        let revision = localRevision
+        missingReport = Task { [self] in
+            defer {
+                missingReport = nil
+                if localRevision != revision || self.bootstrap?.snapshot.epoch != bootstrap.snapshot.epoch
+                    || self.bootstrap?.snapshot.watchGeneration != bootstrap.snapshot.watchGeneration
+                {
+                    startMissingReport()
+                }
+            }
+            do {
+                let intent = try await beginWatch()
+                try Task.checkCancellation()
+                guard !stopping, localFiles.isEmpty, prepared == nil, localRevision == revision,
+                    intent.context.bootstrap.snapshot.epoch == bootstrap.snapshot.epoch,
+                    intent.context.bootstrap.snapshot.watchGeneration == bootstrap.snapshot.watchGeneration,
+                    intent.context.bootstrap.snapshot.watchStatus == "active",
+                    intent.context.bootstrap.snapshot.mediaID == mediaID
+                else { return }
+                _ = try await performWatch(
+                    .missing(mediaID: mediaID, missing: true),
+                    membership: intent.membership, expected: intent.context)
+            } catch {
+                // A later membership/catalog update retries under its current generation.
+            }
+        }
     }
     func clearSecrets() { editor.clearSecrets() }
     func pasteInvitation(_ text: String) {
@@ -121,6 +161,7 @@ struct RoomPreparedPublication {
         localRevision = revision
         localFiles = files
         startPublisher()
+        startMissingReport()
     }
     func isCurrent(_ membership: RoomWatchMembership) -> Bool {
         !stopping && connected && session === membership.owner && admission?.memberID == membership.memberID
@@ -234,6 +275,7 @@ struct RoomPreparedPublication {
         guard view.bootstrap.snapshot.sequence >= (bootstrap?.snapshot.sequence ?? 0) else { return }
         catalogView = view
         editor.memberCount = view.bootstrap.snapshot.members.count
+        startMissingReport()
     }
     private func recordWatch(_ bootstrap: RoomBootstrap) {
         if bootstrap.snapshot.sequence >= (watchBootstrap?.snapshot.sequence ?? 0) { watchBootstrap = bootstrap }
@@ -292,6 +334,7 @@ struct RoomPreparedPublication {
             editor.memberCount = initial.snapshot.members.count
             editor.owner = owner
             startPublisher()
+            startMissingReport()
             while !Task.isCancelled {
                 let event = try RoomInvalidation.decode(await stream.receive())
                 guard let previous = bootstrap, event.epoch == previous.snapshot.epoch else {
@@ -311,6 +354,9 @@ struct RoomPreparedPublication {
             }
             editor.state = "connecting"
         }
+        missingReport?.cancel()
+        await missingReport?.value
+        missingReport = nil
         publisher?.cancel()
         await publisher?.value
         publisher = nil

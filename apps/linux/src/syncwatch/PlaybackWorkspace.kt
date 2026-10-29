@@ -274,9 +274,9 @@ internal class PlaybackController(
 }
 
 @Composable internal fun PlaybackPane(controller: PlaybackController, language: String, theme: SyncWatchTheme,
-    onClose: () -> Unit, onFullscreen: () -> Unit) {
+    onClose: () -> Unit, onFullscreen: () -> Unit, roomNotice: String = "") {
     LaunchedEffect(controller) { controller.start() }
-    PlayerChrome(controller.presentation, language, theme,
+    PlayerChrome(controller.presentation.copy(roomNotice = roomNotice), language, theme,
         videoSurface = { NativePlayerSurface(controller.canvas) },
         selectionMenu = controller.tracks.menu, onSelection = controller.tracks::select,
         onDismissSelection = controller.tracks::dismissMenu,

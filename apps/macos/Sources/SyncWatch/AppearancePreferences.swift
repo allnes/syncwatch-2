@@ -252,8 +252,11 @@ import SyncWatchLibrary
     private var playerContent: AnyView {
         if let controller = watch.player {
             return AnyView(
-                PlaybackPane(controller: controller, language: preferences.state.preferences.language)
-                    .id(controller.scope.mediaGeneration))
+                PlaybackPane(
+                    controller: controller, language: preferences.state.preferences.language,
+                    roomNotice: shared.playerNotice
+                )
+                .id(controller.scope.mediaGeneration))
         }
         return AnyView(EmptyView())
     }

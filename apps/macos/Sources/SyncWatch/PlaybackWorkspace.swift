@@ -320,8 +320,9 @@ struct LocalPlaybackLaunch {
 struct PlaybackPane: View {
     @ObservedObject var controller: PlaybackController
     var language: String
+    var roomNotice = ""
     var body: some View {
-        PlaybackTrackPane(controller: controller, tracks: controller.tracks, language: language)
+        PlaybackTrackPane(controller: controller, tracks: controller.tracks, language: language, roomNotice: roomNotice)
     }
 }
 
@@ -329,9 +330,15 @@ private struct PlaybackTrackPane: View {
     @ObservedObject var controller: PlaybackController
     @ObservedObject var tracks: LocalPlaybackTracks
     var language: String
+    var roomNotice: String
+    private var presentation: PlayerPresentation {
+        var result = controller.presentation
+        result.roomNotice = roomNotice
+        return result
+    }
     var body: some View {
         PlayerChrome(
-            presentation: controller.presentation, language: language,
+            presentation: presentation, language: language,
             videoSurface: AnyView(VideoSurface(onAttach: controller.attach, onDetach: controller.detach)),
             selectionMenu: tracks.menu,
             onAction: { action, value in

@@ -6,6 +6,8 @@ import syncwatch.domain.MediaDescriptor
 import syncwatch.room.*
 
 internal suspend fun roomWatchContextChecks() {
+    check(RoomWatchCoordinator.failureKey(SharedMediaUnavailable(), false) == "sharedWatchMediaMissing")
+    check(RoomWatchCoordinator.failureKey(SharedMediaUnavailable(), true) == "sharedWatchIdentityRejected")
     check(RoomController.isMetadataInterruption(java.io.IOException()))
     check(RoomController.isMetadataInterruption(RoomProtocolException("transport")))
     for (code in listOf("malformed", "unauthorized", "forbidden", "frameTooLarge")) check(!RoomController.isMetadataInterruption(RoomProtocolException(code)))
@@ -68,6 +70,14 @@ private suspend fun preparedPublication(address: String, key: String) = coroutin
         check(controller.canContinuePlayback(ticket))
         var context = controller.performWatch(RoomCommandAction.Select(first.media.mediaId), ticket, intent)
         context = controller.performWatch(RoomCommandAction.Start(first.media.mediaId), ticket, context)
+        val empty = RoomController(this)
+        try {
+            empty.editor = empty.editor.selectMode("joinRoom").edit("serviceAddress", address).edit("username", "Linux empty library")
+            empty.pasteInvitation(checkNotNull(controller.invitationToCopy())); empty.connect()
+            withTimeout(10000) { while (empty.mediaNotice != "sharedWatchMediaMissing" || controller.mediaNotice != "roomPeersMissingMedia") delay(20) }
+            empty.close()
+            withTimeout(10000) { while (controller.mediaNotice.isNotEmpty()) delay(20) }
+        } finally { empty.close() }
         controller.performWatch(RoomCommandAction.End(RoomWatchEndReason.user), ticket, context)
         check(controller.canContinuePlayback(ticket))
         val second = controller.publishPrepared(media, ticket)

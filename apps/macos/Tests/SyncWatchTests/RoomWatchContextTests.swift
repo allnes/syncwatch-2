@@ -37,6 +37,22 @@ func preparedPublicationCannotEscapeItsMembership() async throws {
             .select(mediaID: first.media.mediaID), membership: intent.membership, expected: intent.context)
         context = try await controller.performWatch(
             .start(mediaID: first.media.mediaID), membership: intent.membership, expected: context)
+        let empty = RoomController()
+        do {
+            empty.editor.selectMode("joinRoom")
+            empty.editor.edit("serviceAddress", value: try #require(environment["SYNCWATCH_ROOM_SERVICE"]))
+            empty.editor.edit("username", value: "macOS empty library")
+            empty.pasteInvitation(try #require(controller.invitationToCopy()))
+            empty.connect()
+            try await wait {
+                empty.mediaNotice == "sharedWatchMediaMissing" && controller.mediaNotice == "roomPeersMissingMedia"
+            }
+            await empty.close()
+            try await wait { controller.mediaNotice.isEmpty }
+        } catch {
+            await empty.close()
+            throw error
+        }
         _ = try await controller.performWatch(.end(reason: .user), membership: intent.membership, expected: context)
         #expect(controller.canContinuePlayback(intent.membership))
         let second = try await controller.publishPrepared(media, membership: intent.membership)
@@ -140,6 +156,12 @@ func watchIntentUsesTheMembershipCounterAndFrozenEdition() async throws {
 }
 
 @Test @MainActor func sharedWatchFailurePreservesExplicitIntentAndPrivateDetails() {
+    #expect(
+        RoomWatchCoordinator.failureKey(SharedMediaAvailabilityFailure.unavailable, identityRejected: false)
+            == "sharedWatchMediaMissing")
+    #expect(
+        RoomWatchCoordinator.failureKey(SharedMediaAvailabilityFailure.unavailable, identityRejected: true)
+            == "sharedWatchIdentityRejected")
     #expect(
         RoomWatchCoordinator.failureKey(RoomProtocolFailure.rejected("staleGeneration"), identityRejected: false)
             == "sharedWatchRoomChanged")
