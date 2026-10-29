@@ -11,7 +11,7 @@ import java.awt.event.*
 import javax.swing.*
 import javax.swing.text.JTextComponent
 
-/** Post-processing preserves native control input; only the mounted, focused player can issue requests. */
+/** Native controls retain input; fullscreen Escape precedes Compose's focus-cancellation handler. */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable internal fun NativePlayerInput(presentation: PlayerPresentation, protectedFocus: Boolean, onAction: (String, Double?) -> Unit) {
     val owner = LocalAwtWindow.current ?: return
@@ -22,7 +22,7 @@ import javax.swing.text.JTextComponent
         val manager = KeyboardFocusManager.getCurrentKeyboardFocusManager()
         val held = mutableSetOf<Int>()
         fun owns(component: Component?) = component != null && SwingUtilities.getWindowAncestor(component) === owner && owner.isFocused
-        val keys = KeyEventPostProcessor { event ->
+        fun processKey(event: KeyEvent): Boolean =
             if (event.id == KeyEvent.KEY_RELEASED) { held.remove(event.keyCode); false }
             else if (event.id != KeyEvent.KEY_PRESSED || event.isConsumed || !owns(event.component)) false
             else {
@@ -40,6 +40,14 @@ import javax.swing.text.JTextComponent
                 if (consumed) event.consume()
                 consumed
             }
+        // Compose consumes Escape while cancelling a control's focus. Route only
+        // that owned-window command before Compose; arrows/Space still yield to
+        // native sliders, buttons and editing controls in post-processing.
+        val escape = KeyEventDispatcher { event ->
+            event.keyCode == KeyEvent.VK_ESCAPE && processKey(event)
+        }
+        val keys = KeyEventPostProcessor { event ->
+            event.keyCode != KeyEvent.VK_ESCAPE && processKey(event)
         }
         val wheel = AWTEventListener { event ->
             if (event is MouseWheelEvent && !event.isConsumed && owns(event.component)) {
@@ -48,10 +56,10 @@ import javax.swing.text.JTextComponent
             }
         }
         val focus = object : WindowAdapter() { override fun windowLostFocus(event: WindowEvent) { held.clear() } }
-        manager.addKeyEventPostProcessor(keys); owner.addWindowFocusListener(focus)
+        manager.addKeyEventDispatcher(escape); manager.addKeyEventPostProcessor(keys); owner.addWindowFocusListener(focus)
         Toolkit.getDefaultToolkit().addAWTEventListener(wheel, AWTEvent.MOUSE_WHEEL_EVENT_MASK)
         onDispose {
-            manager.removeKeyEventPostProcessor(keys); owner.removeWindowFocusListener(focus)
+            manager.removeKeyEventDispatcher(escape); manager.removeKeyEventPostProcessor(keys); owner.removeWindowFocusListener(focus)
             Toolkit.getDefaultToolkit().removeAWTEventListener(wheel); held.clear()
         }
     }
