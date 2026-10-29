@@ -69,8 +69,10 @@ internal val LocalDesignPresented = compositionLocalOf { true }
     }
     // Retained children remain composed. Exclude every child focus target while
     // hidden, including requests made after its former sibling is replaced.
-    var frame = modifier.clipToBounds().focusProperties { canFocus = active }.onPreviewKeyEvent { !active }
-    if (!active) frame = frame.clearAndSetSemantics { }
+    var frame = modifier.clipToBounds().onPreviewKeyEvent { !active }
+    // Active content keeps each child's capability restrictions; an ancestor
+    // canFocus=true would otherwise override disabled child controls.
+    if (!active) frame = frame.focusProperties { canFocus = false }.clearAndSetSemantics { }
     Box(frame) {
         CompositionLocalProvider(LocalDesignPresented provides active) {
             Box(Modifier.layout { measurable, constraints ->

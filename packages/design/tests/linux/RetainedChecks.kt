@@ -4,12 +4,14 @@ package syncwatch.design.tests
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.awt.ComposePanel
@@ -60,10 +62,16 @@ internal fun verifyRetainedRendering() {
 private fun verifyRetainedFocus() {
     var presented by mutableStateOf(true)
     var focused = false
+    var disabledFocused = false
     val requester = FocusRequester()
+    val disabledRequester = FocusRequester()
     ImageComposeScene(800, 600, content = {
         RetainedContent(presented, Modifier.fillMaxSize()) {
-            Box(Modifier.fillMaxSize().focusRequester(requester).onFocusChanged { focused = it.isFocused }.focusable())
+            Column {
+                Box(Modifier.focusRequester(requester).onFocusChanged { focused = it.isFocused }.focusable())
+                Box(Modifier.focusRequester(disabledRequester).onFocusChanged { disabledFocused = it.isFocused }
+                    .focusProperties { canFocus = false }.focusable())
+            }
             LaunchedEffect(presented) { if (presented) requester.requestFocus() }
         }
     }).use { scene ->
@@ -72,6 +80,9 @@ private fun verifyRetainedFocus() {
             Snapshot.sendApplyNotifications()
             repeat(4) { scene.render().close() }
             check(focused == active) { "inactive retained content kept keyboard focus: $active $focused" }
+            disabledRequester.requestFocus()
+            repeat(2) { scene.render().close() }
+            check(!disabledFocused) { "retained content overrode a child's focus restriction" }
             if (!active) {
                 requester.requestFocus()
                 repeat(2) { scene.render().close() }
