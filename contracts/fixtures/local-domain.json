@@ -1269,6 +1269,290 @@
           "error": "malformed"
         }
       ]
+    },
+    {
+      "name": "completed-input-reopens-from-zero-with-unfinished-history-preserved",
+      "steps": [
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 1,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:2:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 58000,
+          "durationMs": 60000,
+          "paused": true,
+          "ended": true,
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "home",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "continue",
+          "expected": {
+            "phase": "active",
+            "generation": 2,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "end",
+          "expected": {
+            "phase": "ended",
+            "generation": 3,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:2"
+            ]
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:4:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 58000,
+          "durationMs": 60000,
+          "paused": true,
+          "expected": {
+            "phase": "active",
+            "generation": 4,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-b",
+          "expected": {
+            "phase": "selected",
+            "generation": 5,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:4"
+            ]
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 6,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:6:movie-b:0"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 6,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 5000,
+          "durationMs": 60000,
+          "paused": true,
+          "expected": {
+            "phase": "active",
+            "generation": 6,
+            "positionMs": 5000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 7,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:6"
+            ]
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 8,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:8:movie-a:58000"
+            ]
+          }
+        },
+        {
+          "op": "loaded",
+          "expected": {
+            "phase": "active",
+            "generation": 8,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "observe",
+          "positionMs": 58000,
+          "durationMs": 60000,
+          "paused": true,
+          "ended": true,
+          "expected": {
+            "phase": "active",
+            "generation": 8,
+            "positionMs": 58000,
+            "paused": true,
+            "playerPresented": true,
+            "effects": []
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-b",
+          "expected": {
+            "phase": "selected",
+            "generation": 9,
+            "positionMs": 5000,
+            "paused": true,
+            "playerPresented": false,
+            "effects": [
+              "release:run-1:8"
+            ]
+          }
+        },
+        {
+          "op": "select",
+          "mediaId": "movie-a",
+          "expected": {
+            "phase": "selected",
+            "generation": 10,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        },
+        {
+          "op": "start",
+          "expected": {
+            "phase": "preparing",
+            "generation": 11,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": true,
+            "effects": [
+              "load:run-1:11:movie-a:0"
+            ]
+          }
+        },
+        {
+          "op": "restart",
+          "expected": {
+            "phase": "selected",
+            "generation": 0,
+            "positionMs": 0,
+            "paused": true,
+            "playerPresented": false,
+            "effects": []
+          }
+        }
+      ]
     }
   ]
 }

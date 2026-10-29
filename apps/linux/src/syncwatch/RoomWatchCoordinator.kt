@@ -22,6 +22,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     private var seenMembership = false
     private var closing = false
     private var admitted = false
+    private var completed by mutableStateOf(false)
     var busy by mutableStateOf(false)
         private set
     var status by mutableStateOf("")
@@ -74,7 +75,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         var publication: RoomPreparedPublication? = null
         var membership: RoomWatchMembership? = null
         var owned: PlaybackController? = null
-        var finished = false; var follow = false; var startedGeneration = false; admitted = false
+        var finished = false; var follow = false; var startedGeneration = false; admitted = false; completed = false
         var stage = "membership"
         try {
             val (ticket, intent) = room.beginWatch(); membership = ticket
@@ -143,7 +144,25 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
                     player.requireSharedAdmission(); follow = true; break
                 }
                 val actual = player.player.observe(nativeScope)
-                if (actual.ended) { finished = true; status = "ended"; break }
+                if (completed || actual.ended) {
+                    if (!admitted) { finished = true; status = "ended"; break }
+                    check(authorized()) { "watch-revoked" }
+                    if (!completed) {
+                        busy = true
+                        player.revokeShared()
+                        publication?.let { room.clearPrepared(it.lease, ticket) }; publication = null
+                        if (room.editor.owner && room.isCurrent(ticket)) {
+                            try { room.performWatch(RoomCommandAction.End(RoomWatchEndReason.finished), ticket, current) }
+                            catch (cancelled: CancellationException) { throw cancelled }
+                            catch (_: Exception) { /* Completion metadata cannot control a peer's movie. */ }
+                        }
+                        currentCoroutineContext().ensureActive()
+                        completed = true; busy = false; status = "ended"
+                    }
+                    // Keep only generation observation; the completed helper is already joined.
+                    delay(100)
+                    continue
+                }
                 check(authorized() && !player.failed && player.sharedState?.connection !in setOf(HelperConnection.failed, HelperConnection.stopped)) { "watch-revoked" }
                 if (player.sharedState?.connection == HelperConnection.connected && player.sharedState?.playbackReady == true) {
                     check(player.sharedState?.acceptedUsername == ticket.identity.syncplayUsername) { "identity-changed" }
@@ -171,7 +190,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         }
         finally {
             withContext(NonCancellable) {
-                val previous = active; val completedAdmission = admitted; active = null; admitted = false
+                val previous = active; val completedAdmission = admitted; active = null; admitted = false; completed = false
                 try {
                     owned?.revokeShared()
                     if (!completedAdmission && owned != null && watch.player === owned) watch.end()
@@ -235,12 +254,19 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     }
     private suspend fun stop() { pendingSelection = null; work?.cancelAndJoin() }
     private fun key(file: LocalMediaFile) = MediaDescriptor.normalizedTitleKey(MediaDescriptor.logicalTitle(file.title)) to file.sizeBytes
+    private val sharedPlaylistAvailable: Boolean get() {
+        val value = active ?: return false
+        if (!admitted || !room.connected || watch.player !== value.player || watch.scope != value.player.scope) return false
+        if (!completed) return value.player.sharedState?.connection == HelperConnection.connected
+        val latest = room.watchBootstrap ?: return false
+        return room.isCurrent(value.membership) && completedPlaylistAvailable(value.context.bootstrap.snapshot, latest.snapshot)
+    }
     fun updatePlaylist(playlist: WatchPlaylist) {
         val library = library
         if (library == null || closing) { playlist.update(emptyList(), null, false); return }
         val files = library.roomFiles.associateBy { it.id }
         val local = room.editor.state == "disconnected"
-        val enabled = watch.phase == WatchPhase.active && !busy && (local || admitted && room.connected && active?.player?.sharedState?.connection == HelperConnection.connected)
+        val enabled = watch.phase == WatchPhase.active && !busy && (local || sharedPlaylistAvailable)
         val view = room.catalogView
         val members = view?.bootstrap?.snapshot?.members?.map { it.memberId }.orEmpty()
         val keys = view?.items?.groupBy { it.memberId }?.mapValues { (_, items) -> items.map { it.media.titleKey to it.media.fileSizeBytes }.toSet() }.orEmpty()
@@ -255,7 +281,7 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
         val check = WatchPlaylist(); updatePlaylist(check); check.open()
         if (check.menu?.allows(id) != true) return
         if (room.editor.state == "disconnected") { library.select(id); watch.start(selection, autoplay = true) }
-        else if (admitted && room.connected && active?.player?.sharedState?.connection == HelperConnection.connected) {
+        else if (sharedPlaylistAvailable) {
             pendingSelection = selection; busy = true; status = "sharedWatchPreparing"; active?.player?.requireSharedAdmission()
         }
     }
@@ -279,6 +305,12 @@ internal class RoomWatchCoordinator(private val room: RoomController, private va
     }
     suspend fun close() = withContext(NonCancellable) { closing = true; stop() }
     companion object {
+        fun completedPlaylistAvailable(expected: RoomSnapshot, latest: RoomSnapshot): Boolean {
+            if (expected.epoch != latest.epoch || expected.watchStatus != "active" || expected.mediaId == null || expected.mediaId != latest.mediaId) return false
+            if (latest.watchGeneration == expected.watchGeneration) return latest.watchStatus == "active"
+            // watch.ended advances the same movie exactly once; later loads are separate authority.
+            return latest.watchStatus == "ended" && latest.watchGeneration > expected.watchGeneration && latest.watchGeneration - expected.watchGeneration == 1L
+        }
         fun failureKey(error: Exception, identityRejected: Boolean): String = when {
             identityRejected -> "sharedWatchIdentityRejected"
             error is RoomProtocolException && error.code == "staleGeneration" -> "sharedWatchRoomChanged"

@@ -206,7 +206,8 @@ import SyncWatchPlayback
         guard !closing, value.scope == session.scope, phase == .active, value.status == .ready else { return }
         do {
             try session.recordPlayback(
-                value.scope, positionMs: value.positionMs, durationMs: value.durationMs, paused: value.paused)
+                value.scope, positionMs: value.positionMs, durationMs: value.durationMs, paused: value.paused,
+                ended: value.ended)
         } catch { failed(value.scope) }
     }
     private func failed(_ owner: PlaybackScope) {

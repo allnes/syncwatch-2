@@ -29,7 +29,7 @@ public sealed record PlayerPresentation
         if (!EnabledActions.Contains(action) || !SyncWatchPlayer.Actions.Contains(action)) return false;
         return action switch
         {
-            "playPause" or "seek" or "skip" or "previousFile" or "nextFile" or "selectAudio" or "selectSubtitles" => IsValid && (State is PlayerVisualState.Paused or PlayerVisualState.Playing or PlayerVisualState.Fullscreen) && (action switch
+            "playPause" or "seek" or "skip" or "previousFile" or "nextFile" or "selectAudio" or "selectSubtitles" => IsValid && (State is PlayerVisualState.Paused or PlayerVisualState.Playing or PlayerVisualState.Fullscreen || State == PlayerVisualState.Ended && SyncWatchPlayer.CompletedNavigationActions.Contains(action)) && (action switch
             {
                 "seek" or "skip" => DurationMs > 0,
                 "previousFile" => HasPrevious,

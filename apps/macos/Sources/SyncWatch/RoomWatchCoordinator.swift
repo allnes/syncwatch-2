@@ -27,6 +27,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
     private var seenMembership = false
     private var closing = false
     private var admitted = false
+    @Published private var completed = false
 
     init(
         room: RoomController, watch: WatchSessionCoordinator, helper: HelperConfiguration,
@@ -100,6 +101,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         var follow = false
         var startedGeneration = false
         admitted = false
+        completed = false
         var stage = "membership"
         do {
             let intent = try await room.beginWatch()
@@ -191,10 +193,32 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
                     break
                 }
                 let actual = try await player.player.observe(scope)
-                if actual.ended {
-                    finished = true
-                    status = "ended"
-                    break
+                if completed || actual.ended {
+                    guard admitted else {
+                        finished = true
+                        status = "ended"
+                        break
+                    }
+                    guard authorized() else { throw HelperSessionFailure.unavailable }
+                    if !completed {
+                        busy = true
+                        await player.revokeShared()
+                        if let prepared = publication {
+                            room.clearPrepared(prepared.lease, membership: intent.membership)
+                            publication = nil
+                        }
+                        if room.editor.owner, room.isCurrent(intent.membership) {
+                            _ = try? await room.performWatch(
+                                .end(reason: .finished), membership: intent.membership, expected: current)
+                        }
+                        try Task.checkCancellation()
+                        completed = true
+                        busy = false
+                        status = "ended"
+                    }
+                    // Keep only generation observation; the completed helper is already joined.
+                    try await Task.sleep(for: .milliseconds(100))
+                    continue
                 }
                 guard authorized(), !player.failed else { throw HelperSessionFailure.unavailable }
                 guard player.sharedState?.connection != .failed, player.sharedState?.connection != .stopped else {
@@ -241,6 +265,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         let completedAdmission = admitted
         active = nil
         admitted = false
+        completed = false
         await owned?.revokeShared()
         if !completedAdmission, let owned, watch.player === owned { watch.end() }
         if finished, let previous, room.editor.owner, room.isCurrent(previous.membership) {
@@ -343,6 +368,23 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         PlaylistKey(
             title: MediaDescriptor.normalizedTitleKey(MediaDescriptor.logicalTitle(file.title)), size: file.sizeBytes)
     }
+    private var sharedPlaylistAvailable: Bool {
+        guard admitted, room.connected, let active, watch.player === active.player,
+            watch.scope == active.player.scope
+        else { return false }
+        if !completed { return active.player.sharedState?.connection == .connected }
+        guard room.isCurrent(active.membership), let latest = room.watchBootstrap else { return false }
+        return Self.completedPlaylistAvailable(active.context.bootstrap.snapshot, latest.snapshot)
+    }
+    static func completedPlaylistAvailable(_ expected: RoomSnapshot, _ latest: RoomSnapshot) -> Bool {
+        guard expected.epoch == latest.epoch, expected.watchStatus == "active", let media = expected.mediaID,
+            media == latest.mediaID
+        else { return false }
+        if latest.watchGeneration == expected.watchGeneration { return latest.watchStatus == "active" }
+        // watch.ended advances the same movie exactly once; later loads are separate authority.
+        return latest.watchStatus == "ended" && latest.watchGeneration > expected.watchGeneration
+            && latest.watchGeneration - expected.watchGeneration == 1
+    }
     func updatePlaylist(_ playlist: WatchPlaylist) {
         guard let library, !closing else {
             playlist.update(entries: [], selectedID: nil, enabled: false)
@@ -352,7 +394,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         let local = room.editor.state == "disconnected"
         let enabled =
             watch.phase == .active && !busy
-            && (local || admitted && room.connected && active?.player.sharedState?.connection == .connected)
+            && (local || sharedPlaylistAvailable)
         let view = room.catalogView
         let members = view?.bootstrap.snapshot.members.map(\.memberID) ?? []
         let keys = Dictionary(grouping: view?.items ?? [], by: \.memberID).mapValues { entries in
@@ -378,7 +420,7 @@ enum SharedMediaAvailabilityFailure: Error { case unavailable }
         if room.editor.state == "disconnected" {
             library.select(id)
             watch.start(selection, autoplay: true)
-        } else if admitted, room.connected, active?.player.sharedState?.connection == .connected {
+        } else if sharedPlaylistAvailable {
             pendingSelection = selection
             busy = true
             status = "sharedWatchPreparing"

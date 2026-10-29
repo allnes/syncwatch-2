@@ -16,7 +16,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     private ActiveWatch? active;
     private CancellationTokenSource? cancellation;
     private Task? work;
-    private bool seenMembership, closing, admitted;
+    private bool seenMembership, closing, admitted, completed;
     internal bool Busy { get; private set; }
     internal string Status { get; private set; } = "";
     internal string? ErrorKey { get; private set; }
@@ -72,7 +72,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     private async Task<NextWatch?> RunOneAsync(LibraryMediaSelection selection, bool forceSelection, CancellationToken token)
     {
         await Task.Yield();
-        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false, follow = false, startedGeneration = false; admitted = false;
+        RoomPreparedPublication? publication = null; RoomWatchMembership? membership = null; PlaybackWorkspace? owned = null; bool finished = false, follow = false, startedGeneration = false; admitted = false; completed = false;
         string stage = "membership";
         try
         {
@@ -143,7 +143,29 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
                     latest.Snapshot.WatchGeneration > current.Bootstrap.Snapshot.WatchGeneration && latest.Snapshot.WatchStatus is "selected" or "active")
                 { owned.RequireSharedAdmission(); follow = true; break; }
                 var actual = await owned.Player.ObserveAsync(scope, token);
-                if (actual.Ended) { finished = true; Status = "ended"; break; }
+                if (completed || actual.Ended)
+                {
+                    if (!admitted) { finished = true; Status = "ended"; break; }
+                    if (!Authorized()) throw new InvalidOperationException("watch-revoked");
+                    if (!completed)
+                    {
+                        Busy = true; Changed?.Invoke();
+                        await owned.RevokeSharedAsync();
+                        if (publication is { } prepared)
+                        { room.ClearPrepared(prepared.Lease, intent.Membership); publication = null; }
+                        if (room.Editor.Owner && room.IsCurrent(intent.Membership))
+                        {
+                            try { await room.PerformWatchAsync(new RoomCommandAction.End(RoomWatchEndReason.Finished), intent.Membership, current, token); }
+                            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+                            catch (Exception) { /* Completion metadata cannot control a peer's movie. */ }
+                        }
+                        token.ThrowIfCancellationRequested();
+                        completed = true; Busy = false; Status = "ended"; Changed?.Invoke();
+                    }
+                    // Keep only generation observation; the completed helper is already joined.
+                    await Task.Delay(100, token);
+                    continue;
+                }
                 if (!Authorized() || owned.SharedState is { Connection: HelperConnection.Failed or HelperConnection.Stopped }) throw new InvalidOperationException("watch-revoked");
                 if (owned.SharedState is { Connection: HelperConnection.Connected, PlaybackReady: true } state)
                 {
@@ -176,7 +198,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         }
         finally
         {
-            var previous = active; bool completedAdmission = admitted; active = null; admitted = false;
+            var previous = active; bool completedAdmission = admitted; active = null; admitted = false; completed = false;
             try
             {
                 if (owned is not null) await owned.RevokeSharedAsync();
@@ -266,12 +288,30 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
     }
     private static (string Title, long Size) Key(Library.LocalMediaFile file) =>
         (MediaDescriptor.NormalizedTitleKey(MediaDescriptor.LogicalTitle(file.Title)), file.SizeBytes);
+    private bool SharedPlaylistAvailable
+    {
+        get
+        {
+            if (!admitted || !room.Connected || active is not { } value || !ReferenceEquals(watch.Player, value.Player) || watch.Scope != value.Player.Scope) return false;
+            if (!completed) return value.Player.SharedState?.Connection == HelperConnection.Connected;
+            return room.IsCurrent(value.Membership) && room.WatchBootstrap is { } latest &&
+                CompletedPlaylistAvailable(value.Context.Bootstrap.Snapshot, latest.Snapshot);
+        }
+    }
+    internal static bool CompletedPlaylistAvailable(RoomSnapshot expected, RoomSnapshot latest)
+    {
+        if (expected.Epoch != latest.Epoch || expected.WatchStatus != "active" || expected.MediaId is null || expected.MediaId != latest.MediaId) return false;
+        if (latest.WatchGeneration == expected.WatchGeneration) return latest.WatchStatus == "active";
+        // watch.ended advances the same movie exactly once; later loads are separate authority.
+        return latest.WatchStatus == "ended" && latest.WatchGeneration > expected.WatchGeneration &&
+            latest.WatchGeneration - expected.WatchGeneration == 1;
+    }
     internal void UpdatePlaylist(WatchPlaylist playlist)
     {
         if (library is null || closing) { playlist.Update([], null, false); return; }
         var files = library.RoomFiles.ToDictionary(file => file.Id);
         bool local = room.Editor.State == "disconnected";
-        bool enabled = watch.Phase == WatchPhase.Active && !Busy && (local || admitted && room.Connected && active?.Player.SharedState?.Connection == HelperConnection.Connected);
+        bool enabled = watch.Phase == WatchPhase.Active && !Busy && (local || SharedPlaylistAvailable);
         var view = room.CatalogView;
         var members = view?.Bootstrap.Snapshot.Members.Select(member => member.MemberId).ToArray() ?? [];
         var keys = view?.Items.GroupBy(item => item.MemberId).ToDictionary(group => group.Key,
@@ -289,7 +329,7 @@ internal sealed class RoomWatchCoordinator(RoomController room, WatchSessionCoor
         var check = new WatchPlaylist(); UpdatePlaylist(check); check.Open();
         if (check.Menu?.Allows(id) != true) return;
         if (room.Editor.State == "disconnected") { library.Select(id); watch.Start(selection, autoplay: true); }
-        else if (admitted && room.Connected && active?.Player.SharedState?.Connection == HelperConnection.Connected)
+        else if (SharedPlaylistAvailable)
         {
             pendingSelection = selection; Busy = true; Status = "sharedWatchPreparing";
             active?.Player.RequireSharedAdmission(); Changed?.Invoke();

@@ -61,7 +61,16 @@ internal static class RoomWatchContextChecks
             new MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60001, new string('a', 64)),
             new MediaDescriptor("private-local-id", "Movie", "movie", 1000, 60000, null) })
             Reject(() => RoomWatchCoordinator.RequireMatch(changed, active));
-        _ = await owner.PerformAsync(new RoomCommandAction.End(RoomWatchEndReason.User), active);
+        var finished = await owner.PerformAsync(new RoomCommandAction.End(RoomWatchEndReason.Finished), active);
+        if (!RoomWatchCoordinator.CompletedPlaylistAvailable(active.Bootstrap.Snapshot, active.Bootstrap.Snapshot) ||
+            !RoomWatchCoordinator.CompletedPlaylistAvailable(active.Bootstrap.Snapshot, finished.Bootstrap.Snapshot)) throw new Exception("Matching native completion lost playlist authority");
+        var next = await owner.PerformAsync(new RoomCommandAction.Select("movie-a"), finished);
+        if (RoomWatchCoordinator.CompletedPlaylistAvailable(active.Bootstrap.Snapshot, next.Bootstrap.Snapshot)) throw new Exception("Stale completion authorized a selection");
+        var restarted = await owner.PerformAsync(new RoomCommandAction.Start("movie-a"), next);
+        if (RoomWatchCoordinator.CompletedPlaylistAvailable(active.Bootstrap.Snapshot, restarted.Bootstrap.Snapshot)) throw new Exception("Stale completion authorized a later load");
+        var laterEnd = await owner.PerformAsync(new RoomCommandAction.End(RoomWatchEndReason.Finished), restarted);
+        if (RoomWatchCoordinator.CompletedPlaylistAvailable(active.Bootstrap.Snapshot, laterEnd.Bootstrap.Snapshot) ||
+            !RoomWatchCoordinator.CompletedPlaylistAvailable(restarted.Bootstrap.Snapshot, laterEnd.Bootstrap.Snapshot)) throw new Exception("Completion escaped its original generation");
         await peer.LeaveAsync(joined); await client.LeaveAsync(admission);
         Console.WriteLine("SYNCWATCH_ROOM_WATCH_CONTEXT_OK");
     }

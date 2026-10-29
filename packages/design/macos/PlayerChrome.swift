@@ -31,7 +31,10 @@ public struct PlayerPresentation: Sendable {
         guard enabledActions.contains(action), SyncWatchPlayer.actions.contains(action) else { return false }
         switch action {
         case "playPause", "seek", "skip", "previousFile", "nextFile", "selectAudio", "selectSubtitles":
-            guard isValid, [.paused, .playing, .fullscreen].contains(state) else { return false }
+            guard isValid,
+                [.paused, .playing, .fullscreen].contains(state)
+                    || (state == .ended && SyncWatchPlayer.completedNavigationActions.contains(action))
+            else { return false }
             if action == "seek" || action == "skip" { return durationMs > 0 }
             if action == "previousFile" { return hasPrevious }
             if action == "nextFile" { return hasNext }

@@ -27,7 +27,7 @@ private struct PlayerCases: Decodable { let cases: [PlayerCase] }
     let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("fixtures/player-actions.json")
     let cases = try JSONDecoder().decode(PlayerCases.self, from: Data(contentsOf: source))
-    #expect(cases.cases.count == 16)
+    #expect(cases.cases.count == 19)
     for fixture in cases.cases {
         var model = PlayerPresentation()
         model.state = try #require(PlayerVisualState(rawValue: fixture.state))

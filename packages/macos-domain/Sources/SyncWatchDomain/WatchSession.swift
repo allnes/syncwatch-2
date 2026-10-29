@@ -66,6 +66,7 @@ public struct WatchSession: Sendable {
         }
         let next = try scope.replacingMedia()
         scope = next
+        positionMs = localState.resumePosition(for: mediaID)
         phase = .preparing
         playerPresented = true
         paused = true
@@ -79,7 +80,7 @@ public struct WatchSession: Sendable {
     }
 
     public mutating func recordPlayback(
-        _ owner: PlaybackScope, positionMs: Int64, durationMs: Int64?, paused: Bool
+        _ owner: PlaybackScope, positionMs: Int64, durationMs: Int64?, paused: Bool, ended: Bool = false
     ) throws {
         try check(owner, phase: .active)
         guard (0...Self.maximumPositionMs).contains(positionMs),
@@ -89,7 +90,8 @@ public struct WatchSession: Sendable {
         self.positionMs = positionMs
         self.paused = paused
         localState.resumePositions.removeAll { $0.mediaID == mediaID }
-        localState.resumePositions.append(ResumePosition(mediaID: mediaID, positionMs: positionMs))
+        // Completion resets the next load, while the current observation stays at its actual position.
+        localState.resumePositions.append(ResumePosition(mediaID: mediaID, positionMs: ended ? 0 : positionMs))
         if localState.resumePositions.count > 256 { localState.resumePositions.removeFirst() }
     }
 

@@ -19,7 +19,7 @@ internal static class WatchSessionTests
             ResumeHistory();
         }
         finally { Directory.Delete(directory, recursive: true); }
-        Console.WriteLine("Passed 31 local-state fixtures, 54 lifecycle actions in 6 shared scenarios, persistence recovery, and bounded resume history");
+        Console.WriteLine("Passed 31 local-state fixtures, 76 lifecycle actions in 7 shared scenarios, persistence recovery, and bounded resume history");
     }
 
     private static void LocalStateCases(JsonElement corpus, string directory)
@@ -47,7 +47,7 @@ internal static class WatchSessionTests
     private static void LifecycleCases(JsonElement corpus)
     {
         JsonElement fixtures = corpus.GetProperty("lifecycleCases");
-        Require(fixtures.GetArrayLength() == 6, "All lifecycle scenarios must execute");
+        Require(fixtures.GetArrayLength() == 7, "All lifecycle scenarios must execute");
         int actions = 0;
         foreach (JsonElement fixture in fixtures.EnumerateArray())
         {
@@ -75,7 +75,8 @@ internal static class WatchSessionTests
                             JsonElement duration = step.GetProperty("durationMs");
                             session.RecordPlayback(owner, step.GetProperty("positionMs").GetInt64(),
                                 duration.ValueKind == JsonValueKind.Null ? null : duration.GetInt64(),
-                                !step.TryGetProperty("paused", out JsonElement paused) || paused.GetBoolean());
+                                !step.TryGetProperty("paused", out JsonElement paused) || paused.GetBoolean(),
+                                step.TryGetProperty("ended", out JsonElement ended) && ended.GetBoolean());
                             break;
                         case "home": session.ReturnToLibrary(); break;
                         case "continue": session.ContinueWatching(); break;
@@ -111,7 +112,7 @@ internal static class WatchSessionTests
                     "Unexpected local resource effects");
             }
         }
-        Require(actions == 54, "Every lifecycle action must execute");
+        Require(actions == 76, "Every lifecycle action must execute");
     }
 
     private static void Persistence(string directory)

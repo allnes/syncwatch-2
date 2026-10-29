@@ -1031,6 +1031,7 @@ public enum SyncWatchPlayer {
         "selectSubtitles",
         "openPlaylist",
     ]
+    public static let completedNavigationActions: Set<String> = ["previousFile", "nextFile"]
     public static let maximumPositionMs: Int64 = 604_800_000
     public static let icons: [String: [[Double]]] = [
         "play": [

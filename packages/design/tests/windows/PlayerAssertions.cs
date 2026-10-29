@@ -52,7 +52,7 @@ internal static class PlayerAssertions
             Check(p.PositionMs == fixture.GetProperty("positionMs").GetInt64() && p.State == Enum.Parse<PlayerVisualState>(fixture.GetProperty("state").GetString()!, true), "requests cannot acknowledge themselves");
             Check(p.DisplayedPosition >= 0 && p.DisplayedPosition <= p.DisplayedDuration, "invalid observations have safe display bounds"); scenarios++;
         }
-        Check(scenarios == 16, "shared corpus coverage");
+        Check(scenarios == 19, "shared corpus coverage");
         var ready = PlayerPresentation.Gallery(PlayerVisualState.Paused);
         int invalidEvents = 0;
         foreach (double value in new[] { double.NaN, double.PositiveInfinity, double.NegativeInfinity })

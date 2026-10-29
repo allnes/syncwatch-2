@@ -26,6 +26,7 @@
     "selectSubtitles",
     "openPlaylist"
   ],
+  "completedNavigationActions": ["previousFile", "nextFile"],
   "maximumPositionMs": 604800000,
   "icons": {
     "play": [

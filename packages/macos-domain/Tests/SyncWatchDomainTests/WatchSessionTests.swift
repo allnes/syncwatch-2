@@ -57,7 +57,7 @@ private func describe(_ effect: WatchEffect) -> String {
 
 @Test func sharedWatchLifecycle() throws {
     let fixtures = try #require(corpus()["lifecycleCases"] as? [[String: Any]])
-    #expect(fixtures.count == 6)
+    #expect(fixtures.count == 7)
     for fixture in fixtures {
         var session = try WatchSession(
             scope: PlaybackScope(clientRunID: "run-1", mediaGeneration: fixture["initialGeneration"] as? UInt64 ?? 0)
@@ -79,7 +79,8 @@ private func describe(_ effect: WatchEffect) -> String {
                 case "observe":
                     try session.recordPlayback(
                         owner, positionMs: #require(step["positionMs"] as? Int64),
-                        durationMs: step["durationMs"] as? Int64, paused: step["paused"] as? Bool ?? true
+                        durationMs: step["durationMs"] as? Int64, paused: step["paused"] as? Bool ?? true,
+                        ended: step["ended"] as? Bool ?? false
                     )
                 case "home": session.returnToLibrary()
                 case "continue": try session.continueWatching()

@@ -65,6 +65,7 @@ public sealed class WatchSession
             return [];
         }
         Scope = Scope.ReplacingMedia();
+        PositionMs = LocalState.ResumePositionFor(MediaId);
         Phase = WatchPhase.Preparing;
         PlayerPresented = true;
         Paused = true;
@@ -78,7 +79,7 @@ public sealed class WatchSession
         Phase = WatchPhase.Active;
     }
 
-    public void RecordPlayback(PlaybackScope owner, long positionMs, long? durationMs, bool paused)
+    public void RecordPlayback(PlaybackScope owner, long positionMs, long? durationMs, bool paused, bool ended = false)
     {
         Check(owner, WatchPhase.Active);
         if (positionMs is < 0 or > MaximumPositionMs || durationMs is < 0 or > MaximumPositionMs
@@ -89,8 +90,9 @@ public sealed class WatchSession
         string mediaId = MediaId!;
         PositionMs = positionMs;
         Paused = paused;
+        // Completion resets the next load, while the current observation keeps its actual position.
         ImmutableArray<ResumePosition> resumes = LocalState.ResumePositions.RemoveAll(resume => resume.MediaId == mediaId)
-            .Add(new ResumePosition { MediaId = mediaId, PositionMs = positionMs });
+            .Add(new ResumePosition { MediaId = mediaId, PositionMs = ended ? 0 : positionMs });
         if (resumes.Length > 256) { resumes = resumes.RemoveAt(0); }
         LocalState = LocalState with { ResumePositions = resumes };
     }
