@@ -16,8 +16,10 @@ internal static class PlayerInputAssertions
             var model = new PlayerPresentation
             {
                 State = Enum.Parse<PlayerVisualState>(Value("state").GetString()!, true),
-                PositionMs = Value("positionMs").GetInt64(), DurationMs = Value("durationMs").GetInt64(),
-                Volume = Value("volume").GetDouble(), SkipSeconds = Value("skipSeconds").GetInt32(),
+                PositionMs = Value("positionMs").GetInt64(),
+                DurationMs = Value("durationMs").GetInt64(),
+                Volume = Value("volume").GetDouble(),
+                SkipSeconds = Value("skipSeconds").GetInt32(),
                 EnabledActions = Value("enabledActions").EnumerateArray().Select(a => a.GetString()!).ToHashSet(),
             };
             var received = new List<(string Action, double? Value)>();

@@ -44,8 +44,15 @@ internal sealed class NativePlayerInput : IDisposable
         if (message.message != 0x0100) return;
         string? key = message.wParam.ToInt64() switch
         {
-            0x20 => "Space", 0x25 => "ArrowLeft", 0x27 => "ArrowRight", 0x26 => "ArrowUp", 0x28 => "ArrowDown",
-            0x4D => "KeyM", 0x46 => "KeyF", 0x1B => "Escape", _ => null,
+            0x20 => "Space",
+            0x25 => "ArrowLeft",
+            0x27 => "ArrowRight",
+            0x26 => "ArrowUp",
+            0x28 => "ArrowDown",
+            0x4D => "KeyM",
+            0x46 => "KeyF",
+            0x1B => "Escape",
+            _ => null,
         };
         if (key is null) return;
         bool editing = Keyboard.FocusedElement is TextBoxBase or PasswordBox or Slider or ComboBox

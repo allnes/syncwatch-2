@@ -121,7 +121,7 @@ public struct PlayerChrome: View {
                 presentation.dispatch(event.action, value: event.value.flatMap(Double.init), to: onAction)
             }
         }
-        .background(
+        .nativeInputHost(
             NativePlayerInput(
                 presentation: presentation, protectedFocus: !presented || selectionMenu != nil, onAction: onAction))
     }
