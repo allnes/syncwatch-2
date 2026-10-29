@@ -7,7 +7,8 @@ using System.Windows.Interop;
 
 namespace SyncWatch.Design;
 
-// The thread hook includes native child HWND input and is owned by the mounted PlayerChrome.
+// The filter runs before WPF keyboard sinks and includes native child HWND input.
+// Its lifetime belongs to the mounted PlayerChrome; protected controls keep native input.
 internal sealed class NativePlayerInput : IDisposable
 {
     private readonly PlayerChrome chrome;
@@ -20,7 +21,7 @@ internal sealed class NativePlayerInput : IDisposable
         handle = window is null ? 0 : new WindowInteropHelper(window).Handle;
         source = handle == 0 ? null : HwndSource.FromHwnd(handle);
         source?.AddHook(WindowMessage);
-        ComponentDispatcher.ThreadPreprocessMessage += Process;
+        ComponentDispatcher.ThreadFilterMessage += Process;
     }
     private bool Ready => window?.IsActive == true && chrome.IsVisible && chrome.SelectionPresentation is null;
     private nint WindowMessage(nint hwnd, int message, nint wParam, nint lParam, ref bool handled)
@@ -64,7 +65,7 @@ internal sealed class NativePlayerInput : IDisposable
     }
     public void Dispose()
     {
-        ComponentDispatcher.ThreadPreprocessMessage -= Process;
+        ComponentDispatcher.ThreadFilterMessage -= Process;
         source?.RemoveHook(WindowMessage);
     }
     [DllImport("user32.dll")]
